@@ -1,0 +1,69 @@
+package solutions.sulfura.gend.dto;
+
+import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.DtoProperty;
+
+/**This class is used as input for the DTO generator test */
+@Dto
+public class ExampleDtoSourceClass {
+
+    public String ignoredStringProperty;
+    public String ignoredStringPropertyWithoutGetter;
+    @DtoProperty public String stringPropertyWithGetter;
+    @DtoProperty public String stringPropertyWithoutGetter;
+    public String stringPropertyWithAnnotationOnGetter;
+    @DtoProperty public String stringPropertyWithAnnotationOverlappedWithGetter;
+    @DtoProperty public long longProperty;
+    @DtoProperty public boolean booleanProperty;
+    @DtoProperty public double doubleProperty;
+    @DtoProperty public String[] stringArrayProperty;
+    @DtoProperty public boolean[] booleanArrayProperty;
+
+    public ExampleDtoSourceClass(String bullshit){}
+    
+    public String getIgnoredStringProperty() {
+        return ignoredStringProperty;
+    }
+
+    public String getStringPropertyWithGetter() {
+        return stringPropertyWithGetter;
+    }
+
+    public String getStringPropertyWithoutGetter() {
+        return stringPropertyWithoutGetter;
+    }
+
+    @DtoProperty 
+    public String getStringPropertyWithAnnotationOnGetter() {
+        return stringPropertyWithAnnotationOnGetter;
+    }
+
+    @DtoProperty 
+    public String getStringPropertyWithAnnotationOverlappedWithGetter() {
+        return stringPropertyWithAnnotationOverlappedWithGetter;
+    }
+
+    public long getLongProperty() {
+        return longProperty;
+    }
+
+    public boolean isBooleanProperty() {
+        return booleanProperty;
+    }
+
+    public double getDoubleProperty() {
+        return doubleProperty;
+    }
+
+    public String[] getStringArrayProperty() {
+        return stringArrayProperty;
+    }
+
+    public boolean[] getBooleanArrayProperty() {
+        return booleanArrayProperty;
+    }
+
+
+    
+    
+}
