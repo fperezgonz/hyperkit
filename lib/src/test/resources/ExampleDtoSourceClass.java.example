@@ -47,6 +47,10 @@ public class ExampleDtoSourceClass {
         return longProperty;
     }
 
+    public void setLongProperty(long longVal) {
+        this.longProperty = longVal;
+    }
+
     public boolean isBooleanProperty() {
         return booleanProperty;
     }
