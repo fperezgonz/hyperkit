@@ -18,7 +18,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +36,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
+        @SuppressWarnings("unchecked")
         Set<TypeElement> elements = (Set<TypeElement>) roundEnv.getElementsAnnotatedWith(Dto.class);
 
         for (TypeElement element : elements) {
@@ -176,8 +176,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 stringBuilder.append("\n");
                 //TODO Generate properties, getters, setters and builder
                 stringBuilder.append(" }");
-                System.out.println(stringBuilder.toString());
-                out.print(stringBuilder.toString());
+                System.out.println(stringBuilder);
+                out.print(stringBuilder);
             }
         } catch (IOException e) {
             //TODO Create error message
