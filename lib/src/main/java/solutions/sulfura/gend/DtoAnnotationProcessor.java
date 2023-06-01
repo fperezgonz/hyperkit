@@ -44,9 +44,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Set<TypeElement> elements = (Set<TypeElement>) roundEnv.getElementsAnnotatedWith(Dto.class);
 
         for (TypeElement element : elements) {
-            collectProperties(element);
+            Map<String, DtoPropertyData> dtoProperties = collectProperties(element);
             Dto dtoAnnotation = element.getAnnotation(Dto.class);
-            String dtoSourceCode = generateDtoClass(dtoAnnotation, element);
+            String dtoSourceCode = generateDtoClass(dtoAnnotation, element, dtoProperties);
+            System.out.println(dtoSourceCode);
 
             try {
                 String packageName = getDestPackageName(dtoAnnotation, element);
@@ -90,8 +91,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .collect(Collectors.toList());
 
         for (Element field : publicFields) {
+            String typeQualifiedName = field.asType().toString();
             String fieldName = field.getSimpleName().toString();
-            dtoProperties.put(fieldName, new DtoPropertyData(fieldName, true, true));
+            dtoProperties.put(fieldName, new DtoPropertyData(fieldName, true, true, typeQualifiedName));
         }
 
         //Collect getter and setter data
@@ -119,26 +121,35 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         for (Element getterSetter : gettersAndSetters) {
 
             String getterSetterName = getterSetter.getSimpleName().toString();
-
+            String propertyName = "";
+            String typeQualifiedName;
             boolean canRead = false;
             boolean canWrite = false;
 
             if (getterSetterName.startsWith("get")) {
                 canRead = true;
-                getterSetterName = getterSetterName.substring(0, 3);
+                propertyName = getterSetterName.substring(3);
+                propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                typeQualifiedName = ((ExecutableType) getterSetter.asType()).getReturnType().toString();
             } else if (getterSetterName.startsWith("is")) {
                 canRead = true;
-                getterSetterName = getterSetterName.substring(0, 2);
+                propertyName = getterSetterName.substring(02);
+                propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                typeQualifiedName = ((ExecutableType) getterSetter.asType()).getReturnType().toString();
             } else if (getterSetterName.startsWith("set")) {
                 canWrite = true;
-                getterSetterName = getterSetterName.substring(0, 3);
+                propertyName = getterSetterName.substring(3);
+                propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                typeQualifiedName = ((ExecutableType) getterSetter.asType()).getParameterTypes().get(0).toString();
+            } else {
+                throw new RuntimeException("Error processing method " + getterSetterName + " of class " + element.getSimpleName() + ". It is neither a getter nor setter");
             }
 
-            DtoPropertyData propertyData = dtoProperties.get(getterSetterName);
+            DtoPropertyData propertyData = dtoProperties.get(propertyName);
 
             if (propertyData == null) {
-                propertyData = new DtoPropertyData(getterSetter.getSimpleName().toString(), false, false);
-                dtoProperties.put(getterSetterName, propertyData);
+                propertyData = new DtoPropertyData(propertyName, false, false, typeQualifiedName);
+                dtoProperties.put(propertyName, propertyData);
             }
 
             if (canRead) {
@@ -172,7 +183,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         return packageName;
     }
 
-    public String generateDtoClass(Dto dtoAnnotation, TypeElement element) {
+    public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, DtoPropertyData> dtoProperties) {
 
         String packageName = getDestPackageName(dtoAnnotation, element);
 
@@ -186,33 +197,51 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             stringBuilder.append("package ");
             stringBuilder.append(packageName);
             stringBuilder.append(";");
-            stringBuilder.append("\n");
+            stringBuilder.append("\n\n");
         }
 
         stringBuilder.append("public class ");
         stringBuilder.append(dtoClassName);
-        stringBuilder.append(" {");
-        stringBuilder.append("\n");
+        stringBuilder.append(" {\n\n");
 
         stringBuilder.append("    public ");
         stringBuilder.append(dtoClassName);
-        stringBuilder.append("(){}");
-        stringBuilder.append("\n");
+        stringBuilder.append("(){}\n\n");
         //TODO Generate properties, getters, setters and builder
+        for (DtoPropertyData dtoPropertyData : dtoProperties.values()) {
+            if (dtoPropertyData.canRead && dtoPropertyData.canWrite) {
+                stringBuilder.append("    public " + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + ";\n\n");
+            } else {
+                stringBuilder.append("    " + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + ";\n\n");
+                if (dtoPropertyData.canRead) {
+                    stringBuilder.append("    public " + dtoPropertyData.typeSimpleName + " get" + dtoPropertyData.name.substring(0, 1).toUpperCase()
+                            + dtoPropertyData.name.substring(1) + "(){ " +
+                            "return this." + dtoPropertyData.name + "; }\n\n");
+                }
+                if (dtoPropertyData.canWrite) {
+                    stringBuilder.append("    public void set" + dtoPropertyData.name.substring(0, 1).toUpperCase()
+                            + dtoPropertyData.name.substring(1) + "(" + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + "){ " +
+                            "this." + dtoPropertyData.name + " = " + dtoPropertyData.name + "; }\n\n");
+                }
+            }
+        }
         stringBuilder.append(" }");
-        System.out.println(stringBuilder);
         return stringBuilder.toString();
 
     }
 
     public static class DtoPropertyData {
 
-        public DtoPropertyData(String name, boolean canRead, boolean canWrite) {
+        public DtoPropertyData(String name, boolean canRead, boolean canWrite, String typeQualifiedName) {
             this.name = name;
             this.canRead = canRead;
             this.canWrite = canWrite;
+            this.typeQualifiedName = typeQualifiedName;
+            this.typeSimpleName = typeQualifiedName.substring(typeQualifiedName.lastIndexOf('.') + 1);
         }
 
+        String typeQualifiedName;
+        String typeSimpleName;
         String name;
         boolean canRead;
         boolean canWrite;

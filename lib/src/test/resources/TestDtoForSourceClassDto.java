@@ -3,12 +3,10 @@ package solutions.sulfura.gend.dtos;
 import java.util.List;
 
 import io.vavr.control.Option;
-import solutions.sulfura.gend.dtos.DtoFor;
-import solutions.sulfura.gend.dtos.ListOperation;
 
 /** This class is used as input for the DTO generator test */
-@DtoFor(ExampleDtoSourceClass.class)
-public class ExampleDtoSourceClassDto {
+@DtoFor(TestDtoSourceClass.class)
+public class TestDtoForSourceClassDto {
 
     public Option<String> stringPropertyWithGetter;
     public Option<String> stringPropertyWithoutGetter;

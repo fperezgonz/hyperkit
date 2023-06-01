@@ -7,7 +7,6 @@ public class ListOperation<T>{
     }
 
     ListOperationType operationType;
-
     T value;
 
     public ListOperationType getOperationType() {
