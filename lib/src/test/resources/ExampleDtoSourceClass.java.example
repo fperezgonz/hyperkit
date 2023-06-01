@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dto;
+package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.DtoProperty;

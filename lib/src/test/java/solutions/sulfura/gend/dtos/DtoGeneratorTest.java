@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dto;
+package solutions.sulfura.gend.dtos;
 
 
 import com.google.auto.service.AutoService;
@@ -25,6 +25,7 @@ public class DtoGeneratorTest {
                     exampleDtoClassSource,
                     new CompileOptions().processors(annotationProcessor)
             );
+
         } catch (ReflectException rethrow) {
             throw new RuntimeException(rethrow);
         }

@@ -33,6 +33,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         return result;
     }
 
+    public String getDtoClassName(Dto dtoAnnotation, TypeElement element) {
+        return element.getSimpleName() + dtoAnnotation.suffix();
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
@@ -40,14 +44,27 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Set<TypeElement> elements = (Set<TypeElement>) roundEnv.getElementsAnnotatedWith(Dto.class);
 
         for (TypeElement element : elements) {
-            createDtoFromClassElement(element, roundEnv);
+            collectProperties(element);
+            Dto dtoAnnotation = element.getAnnotation(Dto.class);
+            String dtoSourceCode = generateDtoClass(dtoAnnotation, element);
+
+            try {
+                String packageName = getDestPackageName(dtoAnnotation, element);
+                JavaFileObject builderFile = processingEnv.getFiler()
+                        .createSourceFile(packageName + "." + dtoAnnotation.prefix() + getDtoClassName(dtoAnnotation, element));
+                try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
+                    out.print(dtoSourceCode);
+                }
+            } catch (IOException e) {
+                //TODO Create error message
+            }
         }
 
         return true;
 
     }
 
-    public void createDtoFromClassElement(TypeElement element, RoundEnvironment roundEnv) {
+    public Map<String, DtoPropertyData> collectProperties(TypeElement element) {
 
         Dto dtoAnnotation = element.getAnnotation(Dto.class);
         List<? extends TypeMirror> types = null;
@@ -134,6 +151,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         }
 
+        return dtoProperties;
+    }
+
+    public String getDestPackageName(Dto dtoAnnotation, TypeElement element) {
         String packageName = null;
 
         if (dtoAnnotation.destPackageName() != null) {
@@ -148,40 +169,40 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             packageName = parentElement.toString();
         }
 
-        String dtoClassName = dtoAnnotation.prefix() + element.getSimpleName() + dtoAnnotation.suffix();
+        return packageName;
+    }
+
+    public String generateDtoClass(Dto dtoAnnotation, TypeElement element) {
+
+        String packageName = getDestPackageName(dtoAnnotation, element);
+
+        String dtoClassName = getDtoClassName(dtoAnnotation, element);
 
         //Generate code
-        try {
-            JavaFileObject builderFile = processingEnv.getFiler()
-                    .createSourceFile(packageName + "." + dtoClassName);
-            StringBuilder stringBuilder = new StringBuilder();
-            try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
-                // writing generated file to out …
+        StringBuilder stringBuilder = new StringBuilder();
+        // writing generated file to out …
 
-                if (packageName != null) {
-                    stringBuilder.append("package ");
-                    stringBuilder.append(packageName);
-                    stringBuilder.append(";");
-                    stringBuilder.append("\n");
-                }
-
-                stringBuilder.append("public class ");
-                stringBuilder.append(dtoClassName);
-                stringBuilder.append(" {");
-                stringBuilder.append("\n");
-
-                stringBuilder.append("    public ");
-                stringBuilder.append(dtoClassName);
-                stringBuilder.append("(){}");
-                stringBuilder.append("\n");
-                //TODO Generate properties, getters, setters and builder
-                stringBuilder.append(" }");
-                System.out.println(stringBuilder);
-                out.print(stringBuilder);
-            }
-        } catch (IOException e) {
-            //TODO Create error message
+        if (packageName != null) {
+            stringBuilder.append("package ");
+            stringBuilder.append(packageName);
+            stringBuilder.append(";");
+            stringBuilder.append("\n");
         }
+
+        stringBuilder.append("public class ");
+        stringBuilder.append(dtoClassName);
+        stringBuilder.append(" {");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("    public ");
+        stringBuilder.append(dtoClassName);
+        stringBuilder.append("(){}");
+        stringBuilder.append("\n");
+        //TODO Generate properties, getters, setters and builder
+        stringBuilder.append(" }");
+        System.out.println(stringBuilder);
+        return stringBuilder.toString();
+
     }
 
     public static class DtoPropertyData {
