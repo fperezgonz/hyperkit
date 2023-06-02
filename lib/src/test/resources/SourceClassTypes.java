@@ -4,7 +4,7 @@ import solutions.sulfura.gend.dtos.annotations.Dto;
 
 /**This class is used as input for the DTO generator test */
 @Dto
-public class TestDtoSourceClassTypes {
+public class SourceClassTypes {
 
     public String stringProperty;
     public long longProperty;

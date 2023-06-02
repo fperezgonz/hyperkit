@@ -7,7 +7,7 @@ import solutions.sulfura.gend.dtos.annotations.DtoProperty;
  * This class is used as input for the DTO generator test
  */
 @Dto(include = DtoProperty.class)
-public class TestDtoSourceClassWithIncluded {
+public class SourceClassWithIncluded {
 
     public String ignoredStringProperty;
     @DtoProperty public String stringProperty;
@@ -15,7 +15,7 @@ public class TestDtoSourceClassWithIncluded {
     public String ignoredStringPropertyWithGetterAndSetter;
     public String ignoredStringPropertyWithSetter;
 
-    public TestDtoSourceClassWithIncluded(String data) {
+    public SourceClassWithIncluded(String data) {
     }
 
     public String getIgnoredStringProperty() {

@@ -10,18 +10,16 @@ import solutions.sulfura.gend.DtoAnnotationProcessor;
 
 import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @AutoService(DtoAnnotationProcessor.class)
 public class DtoGeneratorTest {
 
     @Test
     public void generateDtoTest() {
-        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/TestDtoSourceClassTypes.java"), "UTF-8")
+        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/SourceClassTypes.java"), "UTF-8")
                 .useDelimiter("\\A").next();
         DtoAnnotationProcessor annotationProcessor = new DtoAnnotationProcessor();
         try {
-            Reflect.compile("solutions.sulfura.gend.dto.TestDtoSourceClassTypes",
+            Reflect.compile("solutions.sulfura.gend.dto.SourceClassTypes",
                     exampleDtoClassSource,
                     new CompileOptions().processors(annotationProcessor)
             );
@@ -33,11 +31,11 @@ public class DtoGeneratorTest {
 
     @Test
     public void generateDtoWithIncludedTest() {
-        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/TestDtoSourceClassWithIncluded.java"), "UTF-8")
+        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/SourceClassWithIncluded.java"), "UTF-8")
                 .useDelimiter("\\A").next();
         DtoAnnotationProcessor annotationProcessor = new DtoAnnotationProcessor();
         try {
-            Reflect.compile("solutions.sulfura.gend.dto.TestDtoSourceClassWithIncluded",
+            Reflect.compile("solutions.sulfura.gend.dto.SourceClassWithIncluded",
                     exampleDtoClassSource,
                     new CompileOptions().processors(annotationProcessor)
             );
@@ -49,11 +47,11 @@ public class DtoGeneratorTest {
 
     @Test
     public void generateDtoWithGetterSetter() {
-        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/TestDtoSourceClassGetterSetter.java"), "UTF-8")
+        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/SourceClassGetterSetter.java"), "UTF-8")
                 .useDelimiter("\\A").next();
         DtoAnnotationProcessor annotationProcessor = new DtoAnnotationProcessor();
         try {
-            Reflect.compile("solutions.sulfura.gend.dto.TestDtoSourceClassGetterSetter",
+            Reflect.compile("solutions.sulfura.gend.dto.SourceClassGetterSetter",
                     exampleDtoClassSource,
                     new CompileOptions().processors(annotationProcessor)
             );
