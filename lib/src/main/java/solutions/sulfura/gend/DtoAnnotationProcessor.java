@@ -1,7 +1,7 @@
 package solutions.sulfura.gend;
 
-import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.DtoProperty;
+import solutions.sulfura.gend.dtos.annotations.Dto;
+import solutions.sulfura.gend.dtos.annotations.DtoProperty;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -162,10 +162,14 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         }
 
+        //TODO collect from class hierarchy
+        //TODO deal with generic types
+
         return dtoProperties;
     }
 
     public String getDestPackageName(Dto dtoAnnotation, TypeElement element) {
+
         String packageName = null;
 
         if (dtoAnnotation.destPackageName() != null) {
@@ -173,12 +177,21 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         }
 
         if (packageName == null || packageName.isEmpty()) {
-            Element parentElement = element.getEnclosingElement();
-            while (parentElement.getKind() != ElementKind.PACKAGE) {
-                parentElement = parentElement.getEnclosingElement();
-            }
-            packageName = parentElement.toString();
+            packageName = getElementPackageName(element);
         }
+
+        return packageName;
+    }
+
+    public String getElementPackageName(TypeElement element) {
+
+        String packageName = null;
+        Element parentElement = element.getEnclosingElement();
+
+        while (parentElement.getKind() != ElementKind.PACKAGE) {
+            parentElement = parentElement.getEnclosingElement();
+        }
+        packageName = parentElement.toString();
 
         return packageName;
     }
@@ -186,33 +199,44 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, DtoPropertyData> dtoProperties) {
 
         String packageName = getDestPackageName(dtoAnnotation, element);
-
         String dtoClassName = getDtoClassName(dtoAnnotation, element);
 
         //Generate code
         StringBuilder stringBuilder = new StringBuilder();
         // writing generated file to out …
 
-        if (packageName != null) {
-            stringBuilder.append("package ");
-            stringBuilder.append(packageName);
-            stringBuilder.append(";");
-            stringBuilder.append("\n\n");
-        }
+        stringBuilder.append("package ")
+                .append(packageName)
+                .append(";")
+                .append("\n\n")
+                .append("import solutions.sulfura.gend.dtos.annotations.DtoFor;\n")
+                .append("import solutions.sulfura.gend.dtos.Dto;\n\n")
+                .append("@DtoFor(")
+                .append(element.getQualifiedName())
+                .append(".class)\n")
+                .append("public class ")
+                .append(dtoClassName)
+                .append(" implements Dto{\n\n");
 
-        stringBuilder.append("public class ");
-        stringBuilder.append(dtoClassName);
-        stringBuilder.append(" {\n\n");
-
-        stringBuilder.append("    public ");
-        stringBuilder.append(dtoClassName);
-        stringBuilder.append("(){}\n\n");
-        //TODO Generate properties, getters, setters and builder
+        //Generate properties
         for (DtoPropertyData dtoPropertyData : dtoProperties.values()) {
             if (dtoPropertyData.canRead && dtoPropertyData.canWrite) {
-                stringBuilder.append("    public " + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + ";\n\n");
-            } else {
-                stringBuilder.append("    " + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + ";\n\n");
+                stringBuilder.append("    public " + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + ";\n");
+            } else if (dtoPropertyData.canRead || dtoPropertyData.canWrite) {
+                stringBuilder.append("    " + dtoPropertyData.typeSimpleName + " " + dtoPropertyData.name + ";\n");
+            }
+        }
+
+        //Generate constructor
+        stringBuilder.append("\n")
+                .append("    public ")
+                .append(dtoClassName)
+                .append("(){}\n\n");
+
+
+        //Generate getters and setters
+        for (DtoPropertyData dtoPropertyData : dtoProperties.values()) {
+            if (!dtoPropertyData.canRead || !dtoPropertyData.canWrite) {
                 if (dtoPropertyData.canRead) {
                     stringBuilder.append("    public " + dtoPropertyData.typeSimpleName + " get" + dtoPropertyData.name.substring(0, 1).toUpperCase()
                             + dtoPropertyData.name.substring(1) + "(){ " +
@@ -225,6 +249,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 }
             }
         }
+
+        //TODO generate builder
+
         stringBuilder.append(" }");
         return stringBuilder.toString();
 

@@ -1,5 +1,8 @@
 package solutions.sulfura.gend.dtos;
 
+import solutions.sulfura.gend.dtos.annotations.Dto;
+import solutions.sulfura.gend.dtos.annotations.DtoProperty;
+
 /**
  * This class is used as input for the DTO generator test
  */

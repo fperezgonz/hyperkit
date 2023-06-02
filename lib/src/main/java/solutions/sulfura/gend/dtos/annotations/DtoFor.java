@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos;
+package solutions.sulfura.gend.dtos.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

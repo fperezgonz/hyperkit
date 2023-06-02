@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos;
 import java.util.List;
 
 import io.vavr.control.Option;
+import solutions.sulfura.gend.dtos.annotations.DtoFor;
 
 /** This class is used as input for the DTO generator test */
 @DtoFor(TestDtoSourceClass.class)
