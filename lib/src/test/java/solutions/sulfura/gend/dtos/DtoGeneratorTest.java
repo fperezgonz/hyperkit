@@ -2,6 +2,7 @@ package solutions.sulfura.gend.dtos;
 
 
 import com.google.auto.service.AutoService;
+import io.vavr.control.Option;
 import org.joor.CompileOptions;
 import org.joor.Reflect;
 import org.joor.ReflectException;
