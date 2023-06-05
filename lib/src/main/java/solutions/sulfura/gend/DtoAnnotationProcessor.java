@@ -40,7 +40,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Set<TypeElement> elements = (Set<TypeElement>) roundEnv.getElementsAnnotatedWith(Dto.class);
 
         for (TypeElement element : elements) {
-            Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = collectClassData(element);
+            Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = collectTypeData((DeclaredType) element.asType(), element);
             Dto dtoAnnotation = element.getAnnotation(Dto.class);
             String dtoSourceCode = generateDtoClass(dtoAnnotation, element, dtoProperties);
             System.out.println(dtoSourceCode);
@@ -61,20 +61,46 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
     }
 
-    public Map<String, AnnotationProcessorUtils.DtoPropertyData> collectClassData(TypeElement element) {
+    /**
+     * @param sourceType The class referenced by the Dto
+     * @param element    The class referenced by the Dto, or another class or interface in the Type hierarchy
+     */
+    public Map<String, AnnotationProcessorUtils.DtoPropertyData> collectTypeData(DeclaredType sourceType, TypeElement element) {
+
+        Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = null;
+        List<? extends TypeMirror> superTypes = processingEnv.getTypeUtils().directSupertypes(element.asType());
+        for (DeclaredType type : (List<DeclaredType>) superTypes) {
+            if (!Objects.equals(type.toString(), "java.lang.Object")) {
+                Map<String, AnnotationProcessorUtils.DtoPropertyData> superClassProperties = collectTypeData(sourceType, (TypeElement) type.asElement());
+                if (superClassProperties != null) {
+                    if (dtoProperties == null) {
+                        dtoProperties = superClassProperties;
+                    } else {
+                        dtoProperties.putAll(superClassProperties);
+                    }
+                }
+            }
+        }
+
+        if (dtoProperties == null) {
+            dtoProperties = new HashMap<>();
+        }
+
 
         Dto dtoAnnotation = element.getAnnotation(Dto.class);
         List<? extends TypeMirror> types = null;
 
-        try {
-            dtoAnnotation.include();
-        } catch (MirroredTypesException mte) {
-            types = mte.getTypeMirrors();
+        if (dtoAnnotation == null) {
+            types = Collections.EMPTY_LIST;
+        } else {
+            try {
+                dtoAnnotation.include();
+            } catch (MirroredTypesException mte) {
+                types = mte.getTypeMirrors();
+            }
         }
 
         final List<? extends TypeMirror> finalIncludedTypes = types;
-
-        Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = new HashMap<>();
 
         //Collect public field data
         List<? extends Element> publicFields = element.getEnclosedElements().stream()
@@ -90,7 +116,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         for (Element field : publicFields) {
             AnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = AnnotationProcessorUtils.DtoPropertyData.builder();
-            propertyDataBuilder.typeMirror = field.asType();
+            propertyDataBuilder.typeMirror = processingEnv.getTypeUtils().asMemberOf(sourceType, field);
             propertyDataBuilder.name(field.getSimpleName().toString())
                     .canRead(true)
                     .canWrite(true);
@@ -133,19 +159,19 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 String propertyName = getterSetterName.substring(3);
                 propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
                 propertyDataBuilder.name(propertyName);
-                propertyType = ((ExecutableType) getterSetter.asType()).getReturnType();
+                propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
             } else if (getterSetterName.startsWith("is")) {
                 propertyDataBuilder.canRead(true);
                 String propertyName = getterSetterName.substring(2);
                 propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
                 propertyDataBuilder.name(propertyName);
-                propertyType = ((ExecutableType) getterSetter.asType()).getReturnType();
+                propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
             } else if (getterSetterName.startsWith("set")) {
                 propertyDataBuilder.canWrite(true);
                 String propertyName = getterSetterName.substring(3);
                 propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
                 propertyDataBuilder.name(propertyName);
-                propertyType = ((ExecutableType) getterSetter.asType()).getParameterTypes().get(0);
+                propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getParameterTypes().get(0);
             } else {
                 throw new RuntimeException("Error processing method " + getterSetterName + " of class " + element.getSimpleName() + ". It is neither a getter nor setter");
             }
@@ -169,9 +195,6 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             }
 
         }
-
-        //TODO collect from class hierarchy
-        //TODO deal with generic types
 
         return dtoProperties;
     }

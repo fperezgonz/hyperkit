@@ -5,6 +5,7 @@ import com.google.auto.service.AutoService;
 import org.joor.CompileOptions;
 import org.joor.Reflect;
 import org.joor.ReflectException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.gend.DtoAnnotationProcessor;
 
@@ -63,11 +64,27 @@ public class DtoGeneratorTest {
 
     @Test
     public void generateDtoWithGenericTypes() {
-        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/generics/SingleGenericParamSourceBaseClass.java"), "UTF-8")
+        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/generics/SingleGenericParamSourceClass.java"), "UTF-8")
                 .useDelimiter("\\A").next();
         DtoAnnotationProcessor annotationProcessor = new DtoAnnotationProcessor();
         try {
-            Reflect.compile("solutions.sulfura.gend.dto.SingleGenericParamSourceBaseClass",
+            Reflect.compile("solutions.sulfura.gend.dtos.SingleGenericParamSourceClass",
+                    exampleDtoClassSource,
+                    new CompileOptions().processors(annotationProcessor)
+            );
+
+        } catch (ReflectException rethrow) {
+            throw new RuntimeException(rethrow);
+        }
+    }
+
+    @Test
+    public void generateChildDtoWithParameterizedType() {
+        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/generics/inheritance/GenericChildClassWithParameterizedType.java"), "UTF-8")
+                .useDelimiter("\\A").next();
+        DtoAnnotationProcessor annotationProcessor = new DtoAnnotationProcessor();
+        try {
+            Reflect.compile("solutions.sulfura.gend.dto.GenericChildClassWithParameterizedType",
                     exampleDtoClassSource,
                     new CompileOptions().processors(annotationProcessor)
             );
