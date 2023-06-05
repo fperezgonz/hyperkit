@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class DtoAnnotationProcessor extends AbstractProcessor {
 
-    String prop;
-
     @Override
     public Set<String> getSupportedAnnotationTypes() {
 
@@ -106,7 +104,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                         enclosedElement.getKind() == ElementKind.METHOD
                                 && enclosedElement.getModifiers().contains(Modifier.PUBLIC)
                                 && (enclosedElement.getAnnotation(DtoProperty.class) != null || finalIncludedTypes.isEmpty() || finalIncludedTypes.stream()
-                                .anyMatch(annotationType -> enclosedElement.getAnnotationMirrors().contains(annotationType)))
+                                .anyMatch(annotationType -> enclosedElement.getAnnotationMirrors().stream()
+                                        .anyMatch(annotationMirror -> Objects.equals(annotationMirror.getAnnotationType(), annotationType))))
                                 &&
                                 (
                                         ((enclosedElement.getSimpleName().toString().startsWith("get")

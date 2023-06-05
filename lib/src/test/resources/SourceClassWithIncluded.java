@@ -49,7 +49,7 @@ public class SourceClassWithIncluded {
         this.stringPropertyWithSetter = stringPropertyWithSetter;
     }
 
-    @DtoProperty
+    @Deprecated
     public void setStringPropertyWithSetterAndCustomAnnotation(String stringPropertyWithSetterAndCustomAnnotation) {
         this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation;
     }
