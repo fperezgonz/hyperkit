@@ -223,12 +223,26 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         DtoCodeGenUtils stringBuilder = new DtoCodeGenUtils();
 
         stringBuilder.addPackageDeclaration(packageName)
-                .append("import java.util.List;\n")
-                .append("import solutions.sulfura.gend.dtos.annotations.DtoFor;\n")
-                .append("import solutions.sulfura.gend.dtos.Dto;\n\n")
-                .append("import io.vavr.control.Option;\n")
+                .addImport("io.vavr.control.Option")
+                .addImport("solutions.sulfura.gend.dtos.annotations.DtoFor")
+                .addImport("solutions.sulfura.gend.dtos.Dto")
+                .addImport(element.getQualifiedName().toString());
+
+        for (AnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {
+            for (String propertyQualifiedName :
+                    AnnotationProcessorUtils.typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror).declaredTypesQualifiedNames) {
+
+                String qualifiedNameForAlias = stringBuilder.importsSimpleTypes_qualifiedTypes.get(propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
+                if (qualifiedNameForAlias == null) {
+                    stringBuilder.addImport(propertyQualifiedName);
+                }
+
+            }
+        }
+
+        stringBuilder.append('\n')
                 .append("@DtoFor(")
-                .append(element.getQualifiedName())
+                .append(element.getSimpleName())
                 .append(".class)\n")
                 .append("public class ")
                 .append(dtoClassName);
@@ -253,7 +267,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
 
         stringBuilder.append(" implements Dto<")
-                .append(element.getQualifiedName())
+                .append(element.getSimpleName())
                 .append(">{\n\n");
 
         //Generate properties
@@ -263,7 +277,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             //TODO add qualified names to imports if there are no clashes with other types
             //TODO replace qualified names with simple names in the case of imported types
             stringBuilder.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()
-                    .typeDeclaration(fieldTypeDeclaration.fieldDeclarationLiteral.toString())
+                    .typeDeclaration(fieldTypeDeclaration)
                     .propertyName(dtoPropertyData.name)
                     .build());
 

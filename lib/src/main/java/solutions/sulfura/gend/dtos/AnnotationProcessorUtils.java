@@ -3,9 +3,7 @@ package solutions.sulfura.gend.dtos;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.*;
 import java.util.*;
 
 public class AnnotationProcessorUtils {
@@ -20,27 +18,44 @@ public class AnnotationProcessorUtils {
 
     public static PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
-        String qualifiedName;
-        List<? extends TypeMirror> genericArgs = null;
+        String declaredTypeString;
         boolean isPrimitive = false;
+
+        List<String> declaredTypesQualifiedNames = new ArrayList<>();
 
         //Use lists instead of arrays
         if (typeMirror.getKind() == TypeKind.ARRAY) {
-            qualifiedName = "java.util.List<" + primitiveTypeToClassType(((ArrayType) typeMirror).getComponentType()) + ">";
+            declaredTypeString = "java.util.List<" + primitiveTypeToClassType(((ArrayType) typeMirror).getComponentType()) + ">";
+            declaredTypesQualifiedNames.add("java.util.List");
         } else {
             isPrimitive = typeMirror.getKind().isPrimitive();
-            qualifiedName = typeMirror.toString();
+            declaredTypeString = typeMirror.toString();
+            if (typeMirror.getKind() == TypeKind.DECLARED) {
+                declaredTypesQualifiedNames.add(((DeclaredType)typeMirror).asElement().toString());
+            }
         }
 
 
         StringBuilder stringBuilder = new StringBuilder();
+
         if (isPrimitive) {
             stringBuilder.append(primitiveTypeToClassType(typeMirror));
         } else {
-            stringBuilder.append(qualifiedName);
+            stringBuilder.append(declaredTypeString);
         }
 
-        return fieldTypeDeclarationBuilder.fieldDeclarationLiteral(stringBuilder).build();
+        if (typeMirror instanceof DeclaredType) {
+            for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {
+                if (typeArg.getKind() == TypeKind.DECLARED) {
+                    declaredTypesQualifiedNames.add(((DeclaredType)typeMirror).asElement().toString());
+                }
+            }
+        }
+
+        return fieldTypeDeclarationBuilder
+                .fieldDeclarationLiteral(stringBuilder)
+                .declaredTypesQualifiedNames(declaredTypesQualifiedNames)
+                .build();
     }
 
     public static class DtoPropertyData {
@@ -155,9 +170,9 @@ public class AnnotationProcessorUtils {
          */
         public StringBuilder fieldDeclarationLiteral;
         /**
-         * Map of qualified names of the types used in this declaration. Key: type qualified name, Value: type simple name
+         * List of qualified names of the types used in this declaration
          */
-        Map<String, String> declaredTypesQualifiedNames_simpleName;
+        public List<String> declaredTypesQualifiedNames;
 
         public static Builder builder() {
             return new Builder();
@@ -165,22 +180,22 @@ public class AnnotationProcessorUtils {
 
         public static class Builder {
             StringBuilder fieldDeclarationLiteral;
-            Map<String, String> declaredTypesQualifiedNames_simpleName;
+            List<String> declaredTypesQualifiedNames;
 
             public Builder fieldDeclarationLiteral(StringBuilder fieldDeclarationLiteral) {
                 this.fieldDeclarationLiteral = fieldDeclarationLiteral;
                 return this;
             }
 
-            public Builder declaredTypesQualifiedNames_simpleName(Map<String, String> declaredTypesQualifiedNames_simpleName) {
-                this.declaredTypesQualifiedNames_simpleName = declaredTypesQualifiedNames_simpleName;
+            public Builder declaredTypesQualifiedNames(List<String> declaredTypesQualifiedNames) {
+                this.declaredTypesQualifiedNames = declaredTypesQualifiedNames;
                 return this;
             }
 
             public PropertyTypeDeclaration build() {
                 PropertyTypeDeclaration result = new PropertyTypeDeclaration();
                 result.fieldDeclarationLiteral = this.fieldDeclarationLiteral;
-                result.declaredTypesQualifiedNames_simpleName = this.declaredTypesQualifiedNames_simpleName;
+                result.declaredTypesQualifiedNames = this.declaredTypesQualifiedNames;
                 return result;
             }
 

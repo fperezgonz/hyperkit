@@ -1,11 +1,14 @@
 package solutions.sulfura.gend.dtos;
 
 import javax.lang.model.element.Name;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class DtoCodeGenUtils {
 
     StringBuilder stringBuilder = new StringBuilder();
+    public Map<String, String> importsSimpleTypes_qualifiedTypes = new HashMap<>();
 
     public DtoCodeGenUtils() {
     }
@@ -32,10 +35,27 @@ public class DtoCodeGenUtils {
         return this;
     }
 
+    public DtoCodeGenUtils addImport(String importQualifiedType) {
+        importsSimpleTypes_qualifiedTypes.put(importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1), importQualifiedType);
+        stringBuilder.append("import ")
+                .append(importQualifiedType)
+                .append(";\n");
+        return this;
+    }
+
     public DtoCodeGenUtils addFieldDeclaration(DtoPropertyData fieldData) {
+        String typeDeclarationString = fieldData.typeDeclaration.fieldDeclarationLiteral.toString();
+        for (String propertyQualifiedName : fieldData.typeDeclaration.declaredTypesQualifiedNames) {
+
+            String qualifiedNameForAlias = importsSimpleTypes_qualifiedTypes.get(propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
+            if (Objects.equals(qualifiedNameForAlias, propertyQualifiedName)) {
+                typeDeclarationString = typeDeclarationString.replace(propertyQualifiedName, propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
+            }
+
+        }
 
         stringBuilder.append("    public Option<")
-                .append(fieldData.typeDeclaration).append("> ")
+                .append(typeDeclarationString).append("> ")
                 .append(fieldData.propertyName)
                 .append(";\n");
 
@@ -53,7 +73,7 @@ public class DtoCodeGenUtils {
         public DtoPropertyData() {
         }
 
-        String typeDeclaration;
+        AnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
         String propertyName;
 
         public static DtoCodeGenUtils.DtoPropertyData.Builder builder() {
@@ -61,13 +81,13 @@ public class DtoCodeGenUtils {
         }
 
         public static class Builder {
-            String typeDeclaration;
+            AnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
             String propertyName;
 
             public Builder() {
             }
 
-            public Builder typeDeclaration(String typeDeclaration) {
+            public Builder typeDeclaration(AnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration) {
                 this.typeDeclaration = typeDeclaration;
                 return this;
             }
