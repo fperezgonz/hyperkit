@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class DtoAnnotationProcessor extends AbstractProcessor {
 
+    String prop;
+
     @Override
     public Set<String> getSupportedAnnotationTypes() {
 
@@ -64,15 +66,15 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     public Map<String, AnnotationProcessorUtils.DtoPropertyData> collectClassData(TypeElement element) {
 
         Dto dtoAnnotation = element.getAnnotation(Dto.class);
-        List<? extends AnnotationMirror> types = null;
+        List<? extends TypeMirror> types = null;
 
         try {
             dtoAnnotation.include();
         } catch (MirroredTypesException mte) {
-            types = (List<AnnotationMirror>) mte.getTypeMirrors();
+            types = mte.getTypeMirrors();
         }
 
-        final List<? extends AnnotationMirror> finalIncludedTypes = types;
+        final List<? extends TypeMirror> finalIncludedTypes = types;
 
         Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = new HashMap<>();
 
@@ -82,7 +84,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                         enclosedElement.getKind() == ElementKind.FIELD
                                 && enclosedElement.getModifiers().contains(Modifier.PUBLIC)
                                 && (enclosedElement.getAnnotation(DtoProperty.class) != null || finalIncludedTypes.isEmpty() || finalIncludedTypes.stream()
-                                .anyMatch(annotationType -> enclosedElement.getAnnotationMirrors().contains(annotationType)))
+                                .anyMatch(annotationType -> enclosedElement.getAnnotationMirrors().stream()
+                                        .anyMatch(annotationMirror -> Objects.equals(annotationMirror.getAnnotationType(), annotationType))
+                                ))
                 )
                 .collect(Collectors.toList());
 
@@ -107,13 +111,14 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                                 (
                                         ((enclosedElement.getSimpleName().toString().startsWith("get")
                                                 || enclosedElement.getSimpleName().toString().startsWith("is"))
-                                                && ((ExecutableType) enclosedElement.asType()).getReturnType().getKind() != TypeKind.VOID
-                                                && ((ExecutableType) enclosedElement.asType()).getParameterTypes().isEmpty()
+                                                &&
+                                                (((ExecutableType) enclosedElement.asType()).getReturnType().getKind() != TypeKind.VOID
+                                                        && ((ExecutableType) enclosedElement.asType()).getParameterTypes().isEmpty())
                                         )
-                                                || (enclosedElement.getSimpleName().toString().startsWith("set")
-                                                && ((ExecutableType) enclosedElement.asType()).getReturnType().getKind() == TypeKind.VOID
-                                                && ((ExecutableType) enclosedElement.asType()).getParameterTypes().size() == 1
-                                        )
+                                                ||
+                                                (enclosedElement.getSimpleName().toString().startsWith("set")
+                                                        && ((ExecutableType) enclosedElement.asType()).getReturnType().getKind() == TypeKind.VOID
+                                                        && ((ExecutableType) enclosedElement.asType()).getParameterTypes().size() == 1)
                                 )
                 )
                 .collect(Collectors.toList());
@@ -218,7 +223,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .append(".class)\n")
                 .append("public class ")
                 .append(dtoClassName)
-                .append(" implements Dto{\n\n");
+                .append(" implements Dto<")
+                .append(element.getQualifiedName())
+                .append(">{\n\n");
 
         //Generate properties
         for (AnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {

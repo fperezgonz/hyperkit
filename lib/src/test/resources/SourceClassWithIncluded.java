@@ -2,18 +2,24 @@ package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.annotations.Dto;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
+import java.lang.Deprecated;
 
 /**
  * This class is used as input for the DTO generator test
  */
-@Dto(include = DtoProperty.class)
+@Dto(include = {DtoProperty.class, Deprecated.class})
 public class SourceClassWithIncluded {
 
+    /**This one should not be included in the generated Dto*/
+    public String ignoredStringPropertyCustomAnnotation;
+    /**This one should not be included in the generated Dto*/
     public String ignoredStringProperty;
     @DtoProperty public String stringProperty;
-    public String ignoredStringPropertyWithGetter;
+    @Deprecated public String stringPropertyWithCustomAnnotation;
+    String stringPropertyWithGetter;
     public String ignoredStringPropertyWithGetterAndSetter;
-    public String ignoredStringPropertyWithSetter;
+    String stringPropertyWithSetter;
+    String stringPropertyWithSetterAndCustomAnnotation;
 
     public SourceClassWithIncluded(String data) {
     }
@@ -23,29 +29,29 @@ public class SourceClassWithIncluded {
     }
 
     @DtoProperty
-    public String getIgnoredStringPropertyWithGetter() {
-        return ignoredStringPropertyWithGetter;
+    public String getStringPropertyWithGetter() {
+        return stringPropertyWithGetter;
     }
 
-    public void setIgnoredStringPropertyWithGetter(String ignoredStringPropertyWithGetter) {
-        this.ignoredStringPropertyWithGetter = ignoredStringPropertyWithGetter;
+    public void setStringPropertyWithGetter(String stringPropertyWithGetter) {
+        this.stringPropertyWithGetter = stringPropertyWithGetter;
     }
 
-    @DtoProperty
     public String getIgnoredStringPropertyWithGetterAndSetter() {
         return ignoredStringPropertyWithGetterAndSetter;
     }
-    @DtoProperty
     public void setIgnoredStringPropertyWithGetterAndSetter(String ignoredStringPropertyWithGetterAndSetter) {
         this.ignoredStringPropertyWithGetterAndSetter = ignoredStringPropertyWithGetterAndSetter;
     }
 
-    public String getIgnoredStringPropertyWithSetter() {
-        return ignoredStringPropertyWithSetter;
-    }
     @DtoProperty
-    public void setIgnoredStringPropertyWithSetter(String ignoredStringPropertyWithSetter) {
-        this.ignoredStringPropertyWithSetter = ignoredStringPropertyWithSetter;
+    public void setStringPropertyWithSetter(String stringPropertyWithSetter) {
+        this.stringPropertyWithSetter = stringPropertyWithSetter;
+    }
+
+    @DtoProperty
+    public void setStringPropertyWithSetterAndCustomAnnotation(String stringPropertyWithSetterAndCustomAnnotation) {
+        this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation;
     }
 
 }
