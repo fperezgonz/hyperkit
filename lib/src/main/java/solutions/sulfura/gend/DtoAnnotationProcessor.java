@@ -199,8 +199,6 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         //Generate code
         DtoCodeGenUtils stringBuilder = new DtoCodeGenUtils();
-        // writing generated file to out …
-
 
         stringBuilder.addPackageDeclaration(packageName)
                 .append("import java.util.List;\n")
@@ -211,8 +209,28 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .append(element.getQualifiedName())
                 .append(".class)\n")
                 .append("public class ")
-                .append(dtoClassName)
-                .append(" implements Dto<")
+                .append(dtoClassName);
+
+        //Add parameterized types
+        if (((DeclaredType) element.asType()).getTypeArguments().size() > 0) {
+
+            stringBuilder.append('<');
+            boolean first = true;
+            for (TypeMirror typeArgument : ((DeclaredType) element.asType()).getTypeArguments()) {
+                if (first) {
+                    first = false;
+                } else {
+                    stringBuilder.append(',')
+                            .append(' ');
+                }
+                stringBuilder.append(typeArgument.toString());
+            }
+
+            stringBuilder.append('>');
+        }
+
+
+        stringBuilder.append(" implements Dto<")
                 .append(element.getQualifiedName())
                 .append(">{\n\n");
 
@@ -228,6 +246,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                     .build());
 
         }
+
 
         //Generate constructor
         stringBuilder.append('\n')

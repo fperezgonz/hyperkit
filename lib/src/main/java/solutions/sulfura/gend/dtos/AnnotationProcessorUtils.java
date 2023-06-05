@@ -10,24 +10,23 @@ import java.util.*;
 
 public class AnnotationProcessorUtils {
 
-    static String primitiveTypeToClassType(String primitiveTypeName) {
-        if (Objects.equals(primitiveTypeName, "int")) {
-            return "Integer";
-        } else {
-            return primitiveTypeName.substring(0, 1).toUpperCase() + primitiveTypeName.substring(1);
-        }
+    static String primitiveTypeToClassType(TypeMirror primitiveType) {
+        String result = primitiveType.toString();
+
+        return !primitiveType.getKind().isPrimitive() ? result
+                : Objects.equals(result, "int") ? "Integer"
+                : result.substring(0, 1).toUpperCase() + result.substring(1);
     }
 
     public static PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String qualifiedName;
-        List<TypeMirror> genericArgs = null;
+        List<? extends TypeMirror> genericArgs = null;
         boolean isPrimitive = false;
 
         //Use lists instead of arrays
         if (typeMirror.getKind() == TypeKind.ARRAY) {
-            qualifiedName = "java.util.List";
-            genericArgs = Collections.singletonList(((ArrayType) typeMirror).getComponentType());
+            qualifiedName = "java.util.List<" + primitiveTypeToClassType(((ArrayType) typeMirror).getComponentType()) + ">";
         } else {
             isPrimitive = typeMirror.getKind().isPrimitive();
             qualifiedName = typeMirror.toString();
@@ -36,30 +35,9 @@ public class AnnotationProcessorUtils {
 
         StringBuilder stringBuilder = new StringBuilder();
         if (isPrimitive) {
-            stringBuilder.append(primitiveTypeToClassType(qualifiedName));
+            stringBuilder.append(primitiveTypeToClassType(typeMirror));
         } else {
             stringBuilder.append(qualifiedName);
-        }
-
-        //Basic generics
-        if (genericArgs != null) {
-            stringBuilder.append('<');
-            boolean isFirst = true;
-            for (TypeMirror genericArg : genericArgs) {
-                if (isFirst) {
-                    isFirst = false;
-                } else {
-                    stringBuilder.append(',');
-                }
-                PropertyTypeDeclaration genericPropertyTypeDeclaration = typeToPropertyTypeDeclaration(genericArg);
-                if (fieldTypeDeclarationBuilder.declaredTypesQualifiedNames_simpleName == null) {
-                    fieldTypeDeclarationBuilder.declaredTypesQualifiedNames_simpleName(genericPropertyTypeDeclaration.declaredTypesQualifiedNames_simpleName);
-                } else {
-                    fieldTypeDeclarationBuilder.declaredTypesQualifiedNames_simpleName.putAll(genericPropertyTypeDeclaration.declaredTypesQualifiedNames_simpleName);
-                }
-                stringBuilder.append(genericPropertyTypeDeclaration.fieldDeclarationLiteral);
-            }
-            stringBuilder.append('>');
         }
 
         return fieldTypeDeclarationBuilder.fieldDeclarationLiteral(stringBuilder).build();

@@ -1,5 +1,6 @@
 package solutions.sulfura.gend.dtos;
 
+import java.util.Set;
 import solutions.sulfura.gend.dtos.annotations.Dto;
 
 /**This class is used as input for the DTO generator test */

@@ -62,4 +62,20 @@ public class DtoGeneratorTest {
         }
     }
 
+    @Test
+    public void generateDtoWithGenericTypes() {
+        String exampleDtoClassSource = new Scanner(this.getClass().getResourceAsStream("/generics/SingleGenericParamSourceBaseClass.java"), "UTF-8")
+                .useDelimiter("\\A").next();
+        DtoAnnotationProcessor annotationProcessor = new DtoAnnotationProcessor();
+        try {
+            Reflect.compile("solutions.sulfura.gend.dto.SingleGenericParamSourceBaseClass",
+                    exampleDtoClassSource,
+                    new CompileOptions().processors(annotationProcessor)
+            );
+
+        } catch (ReflectException rethrow) {
+            throw new RuntimeException(rethrow);
+        }
+    }
+
 }
