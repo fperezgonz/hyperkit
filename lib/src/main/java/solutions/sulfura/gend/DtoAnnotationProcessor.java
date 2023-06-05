@@ -1,5 +1,6 @@
 package solutions.sulfura.gend;
 
+import solutions.sulfura.gend.dtos.AnnotationProcessorUtils;
 import solutions.sulfura.gend.dtos.DtoCodeGenUtils;
 import solutions.sulfura.gend.dtos.annotations.Dto;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
@@ -39,7 +40,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Set<TypeElement> elements = (Set<TypeElement>) roundEnv.getElementsAnnotatedWith(Dto.class);
 
         for (TypeElement element : elements) {
-            Map<String, DtoPropertyData> dtoProperties = collectClassData(element);
+            Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = collectClassData(element);
             Dto dtoAnnotation = element.getAnnotation(Dto.class);
             String dtoSourceCode = generateDtoClass(dtoAnnotation, element, dtoProperties);
             System.out.println(dtoSourceCode);
@@ -60,7 +61,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
     }
 
-    public Map<String, DtoPropertyData> collectClassData(TypeElement element) {
+    public Map<String, AnnotationProcessorUtils.DtoPropertyData> collectClassData(TypeElement element) {
 
         Dto dtoAnnotation = element.getAnnotation(Dto.class);
         List<? extends AnnotationMirror> types = null;
@@ -73,7 +74,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         final List<? extends AnnotationMirror> finalIncludedTypes = types;
 
-        Map<String, DtoPropertyData> dtoProperties = new HashMap<>();
+        Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = new HashMap<>();
 
         //Collect public field data
         List<? extends Element> publicFields = element.getEnclosedElements().stream()
@@ -86,12 +87,12 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .collect(Collectors.toList());
 
         for (Element field : publicFields) {
-            DtoPropertyData.Builder propertyDataBuilder = DtoPropertyData.builder();
+            AnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = AnnotationProcessorUtils.DtoPropertyData.builder();
             propertyDataBuilder.typeMirror = field.asType();
             propertyDataBuilder.name(field.getSimpleName().toString())
                     .canRead(true)
                     .canWrite(true);
-            DtoPropertyData propertyData = propertyDataBuilder.build();
+            AnnotationProcessorUtils.DtoPropertyData propertyData = propertyDataBuilder.build();
             dtoProperties.put(propertyData.name, propertyData);
         }
 
@@ -120,7 +121,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         for (Element getterSetter : gettersAndSetters) {
 
             String getterSetterName = getterSetter.getSimpleName().toString();
-            DtoPropertyData.Builder propertyDataBuilder = DtoPropertyData.builder();
+            AnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = AnnotationProcessorUtils.DtoPropertyData.builder();
             TypeMirror propertyType;
 
             if (getterSetterName.startsWith("get")) {
@@ -148,7 +149,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             propertyDataBuilder.typeMirror = propertyType;
 
 
-            DtoPropertyData propertyData = dtoProperties.get(propertyDataBuilder.name);
+            AnnotationProcessorUtils.DtoPropertyData propertyData = dtoProperties.get(propertyDataBuilder.name);
 
             if (propertyData == null) {
                 propertyData = propertyDataBuilder.build();
@@ -197,7 +198,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         return parentElement.toString();
     }
 
-    public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, DtoPropertyData> dtoProperties) {
+    public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties) {
 
         String packageName = getDestPackageName(dtoAnnotation, element);
         String dtoClassName = getDtoClassName(dtoAnnotation, element);
@@ -220,9 +221,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .append(" implements Dto{\n\n");
 
         //Generate properties
-        for (DtoPropertyData dtoPropertyData : dtoProperties.values()) {
+        for (AnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {
 
-            PropertyTypeDeclaration fieldTypeDeclaration = typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror);
+            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = AnnotationProcessorUtils.typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror);
             //TODO add qualified names to imports if there are no clashes with other types
             //TODO replace qualified names with simple names in the case of imported types
             stringBuilder.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()
@@ -243,199 +244,6 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         stringBuilder.append(" }");
         return stringBuilder.toString();
 
-    }
-
-    static String primitiveTypeToClassType(String primitiveTypeName) {
-        if (Objects.equals(primitiveTypeName, "int")) {
-            return "Integer";
-        } else {
-            return primitiveTypeName.substring(0, 1).toUpperCase() + primitiveTypeName.substring(1);
-        }
-    }
-
-    public static PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
-        PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
-        String qualifiedName;
-        List<TypeMirror> genericArgs = null;
-        boolean isPrimitive = false;
-
-        //Use lists instead of arrays
-        if (typeMirror.getKind() == TypeKind.ARRAY) {
-            qualifiedName = "java.util.List";
-            genericArgs = Collections.singletonList(((ArrayType) typeMirror).getComponentType());
-        } else {
-            isPrimitive = typeMirror.getKind().isPrimitive();
-            qualifiedName = typeMirror.toString();
-        }
-
-
-        StringBuilder stringBuilder = new StringBuilder();
-        if (isPrimitive) {
-            stringBuilder.append(primitiveTypeToClassType(qualifiedName));
-        } else {
-            stringBuilder.append(qualifiedName);
-        }
-
-        //Basic generics
-        if (genericArgs != null) {
-            stringBuilder.append('<');
-            boolean isFirst = true;
-            for (TypeMirror genericArg : genericArgs) {
-                if (isFirst) {
-                    isFirst = false;
-                } else {
-                    stringBuilder.append(',');
-                }
-                PropertyTypeDeclaration genericPropertyTypeDeclaration = typeToPropertyTypeDeclaration(genericArg);
-                if (fieldTypeDeclarationBuilder.declaredTypesQualifiedNames_simpleName == null) {
-                    fieldTypeDeclarationBuilder.declaredTypesQualifiedNames_simpleName = genericPropertyTypeDeclaration.declaredTypesQualifiedNames_simpleName;
-                } else {
-                    fieldTypeDeclarationBuilder.declaredTypesQualifiedNames_simpleName.putAll(genericPropertyTypeDeclaration.declaredTypesQualifiedNames_simpleName);
-                }
-                stringBuilder.append(genericPropertyTypeDeclaration.fieldDeclarationLiteral);
-            }
-            stringBuilder.append('>');
-        }
-
-        return fieldTypeDeclarationBuilder.fieldDeclarationLiteral(stringBuilder).build();
-    }
-
-    public static class DtoPropertyData {
-
-        public DtoPropertyData() {
-        }
-
-        TypeMirror typeMirror;
-        public String name;
-        public boolean canRead;
-        public boolean canWrite;
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        static class Builder {
-
-            TypeMirror typeMirror;
-            String name;
-            boolean canRead;
-            boolean canWrite;
-
-            public Builder() {
-            }
-
-            public Builder name(String name) {
-                this.name = name;
-                return this;
-            }
-
-            public Builder canRead(boolean canRead) {
-                this.canRead = canRead;
-                return this;
-            }
-
-            public Builder canWrite(boolean canWrite) {
-                this.canWrite = canWrite;
-                return this;
-            }
-
-            public DtoPropertyData build() {
-
-                DtoPropertyData result = new DtoPropertyData();
-                result.typeMirror = this.typeMirror;
-                result.name = this.name;
-                result.canRead = this.canRead;
-                result.canWrite = this.canWrite;
-
-                return result;
-
-            }
-
-        }
-
-    }
-
-    public static class ClassData {
-        String packageName;
-        List<String> imports;
-        String className;
-        Collection<DtoPropertyData> properties;
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        public static class Builder {
-            String packageName;
-            List<String> imports;
-            String className;
-            Collection<DtoPropertyData> properties;
-
-            ClassData build() {
-
-                ClassData result = new ClassData();
-                result.packageName = this.packageName;
-                result.className = this.className;
-                result.imports = this.imports;
-                result.properties = this.properties;
-
-                return result;
-            }
-
-            Builder packageName(String packageName) {
-                this.packageName = packageName;
-                return this;
-            }
-
-            Builder className(String className) {
-                this.className = className;
-                return this;
-            }
-
-            Builder imports(List<String> imports) {
-                this.imports = imports;
-                return this;
-            }
-
-            Builder properties(Collection<DtoPropertyData> properties) {
-                this.properties = properties;
-                return this;
-            }
-
-        }
-
-    }
-
-    public static class PropertyTypeDeclaration {
-        StringBuilder fieldDeclarationLiteral;
-        Map<String, String> declaredTypesQualifiedNames_simpleName;
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        public static class Builder {
-            StringBuilder fieldDeclarationLiteral;
-            Map<String, String> declaredTypesQualifiedNames_simpleName;
-
-            public Builder fieldDeclarationLiteral(StringBuilder fieldDeclarationLiteral) {
-                this.fieldDeclarationLiteral = fieldDeclarationLiteral;
-                return this;
-            }
-
-            public Builder declaredTypesQualifiedNames_simpleName(Map<String, String> declaredTypesQualifiedNames_simpleName) {
-                this.declaredTypesQualifiedNames_simpleName = declaredTypesQualifiedNames_simpleName;
-                return this;
-            }
-
-            public PropertyTypeDeclaration build() {
-                PropertyTypeDeclaration result = new PropertyTypeDeclaration();
-                result.fieldDeclarationLiteral = this.fieldDeclarationLiteral;
-                result.declaredTypesQualifiedNames_simpleName = this.declaredTypesQualifiedNames_simpleName;
-                return result;
-            }
-
-        }
     }
 
 }
