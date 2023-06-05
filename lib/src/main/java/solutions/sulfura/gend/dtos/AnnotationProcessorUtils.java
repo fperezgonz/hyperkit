@@ -1,5 +1,8 @@
 package solutions.sulfura.gend.dtos;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -204,5 +207,16 @@ public class AnnotationProcessorUtils {
             }
 
         }
+    }
+
+    public static String getElementPackageName(TypeElement element) {
+
+        Element parentElement = element.getEnclosingElement();
+
+        while (parentElement.getKind() != ElementKind.PACKAGE) {
+            parentElement = parentElement.getEnclosingElement();
+        }
+
+        return parentElement.toString();
     }
 }

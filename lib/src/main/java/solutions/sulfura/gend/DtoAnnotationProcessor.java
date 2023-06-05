@@ -186,21 +186,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         }
 
         if (packageName == null || packageName.isEmpty()) {
-            packageName = getElementPackageName(element);
+            packageName = AnnotationProcessorUtils.getElementPackageName(element);
         }
 
         return packageName;
-    }
-
-    public String getElementPackageName(TypeElement element) {
-
-        Element parentElement = element.getEnclosingElement();
-
-        while (parentElement.getKind() != ElementKind.PACKAGE) {
-            parentElement = parentElement.getEnclosingElement();
-        }
-
-        return parentElement.toString();
     }
 
     public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties) {
