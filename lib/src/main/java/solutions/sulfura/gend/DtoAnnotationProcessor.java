@@ -1,6 +1,6 @@
 package solutions.sulfura.gend;
 
-import solutions.sulfura.gend.dtos.AnnotationProcessorUtils;
+import solutions.sulfura.gend.dtos.DtoAnnotationProcessorUtils;
 import solutions.sulfura.gend.dtos.DtoCodeGenUtils;
 import solutions.sulfura.gend.dtos.annotations.Dto;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
@@ -39,10 +39,17 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         @SuppressWarnings("unchecked")
         Set<TypeElement> elements = (Set<TypeElement>) roundEnv.getElementsAnnotatedWith(Dto.class);
 
+        //Collect a map of the names of classes that will be processed and the name of the Dto class that will be generated
+        Map<String, String> sourceClassName_dtoClassName = elements.stream()
+                .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
+                        elem -> getDtoQualifiedName(elem.getAnnotation(Dto.class), elem)));
+        //TODO Add mappings for existing Dtos
+
         for (TypeElement element : elements) {
-            Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = collectTypeData((DeclaredType) element.asType(), element);
+            Map<String, DtoAnnotationProcessorUtils.DtoPropertyData> dtoProperties = collectTypeData((DeclaredType) element.asType(), element);
+
             Dto dtoAnnotation = element.getAnnotation(Dto.class);
-            String dtoSourceCode = generateDtoClass(dtoAnnotation, element, dtoProperties);
+            String dtoSourceCode = generateDtoClass(dtoAnnotation, element, dtoProperties, sourceClassName_dtoClassName);
             System.out.println(dtoSourceCode);
 
             try {
@@ -65,13 +72,13 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
      * @param sourceType The class referenced by the Dto
      * @param element    The class referenced by the Dto, or another class or interface in the Type hierarchy
      */
-    public Map<String, AnnotationProcessorUtils.DtoPropertyData> collectTypeData(DeclaredType sourceType, TypeElement element) {
+    public Map<String, DtoAnnotationProcessorUtils.DtoPropertyData> collectTypeData(DeclaredType sourceType, TypeElement element) {
 
-        Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties = null;
+        Map<String, DtoAnnotationProcessorUtils.DtoPropertyData> dtoProperties = null;
         List<? extends TypeMirror> superTypes = processingEnv.getTypeUtils().directSupertypes(element.asType());
         for (DeclaredType type : (List<DeclaredType>) superTypes) {
             if (!Objects.equals(type.toString(), "java.lang.Object")) {
-                Map<String, AnnotationProcessorUtils.DtoPropertyData> superClassProperties = collectTypeData(sourceType, (TypeElement) type.asElement());
+                Map<String, DtoAnnotationProcessorUtils.DtoPropertyData> superClassProperties = collectTypeData(sourceType, (TypeElement) type.asElement());
                 if (superClassProperties != null) {
                     if (dtoProperties == null) {
                         dtoProperties = superClassProperties;
@@ -115,12 +122,12 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .collect(Collectors.toList());
 
         for (Element field : publicFields) {
-            AnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = AnnotationProcessorUtils.DtoPropertyData.builder();
+            DtoAnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = DtoAnnotationProcessorUtils.DtoPropertyData.builder();
             propertyDataBuilder.typeMirror = processingEnv.getTypeUtils().asMemberOf(sourceType, field);
             propertyDataBuilder.name(field.getSimpleName().toString())
                     .canRead(true)
                     .canWrite(true);
-            AnnotationProcessorUtils.DtoPropertyData propertyData = propertyDataBuilder.build();
+            DtoAnnotationProcessorUtils.DtoPropertyData propertyData = propertyDataBuilder.build();
             dtoProperties.put(propertyData.name, propertyData);
         }
 
@@ -151,7 +158,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         for (Element getterSetter : gettersAndSetters) {
 
             String getterSetterName = getterSetter.getSimpleName().toString();
-            AnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = AnnotationProcessorUtils.DtoPropertyData.builder();
+            DtoAnnotationProcessorUtils.DtoPropertyData.Builder propertyDataBuilder = DtoAnnotationProcessorUtils.DtoPropertyData.builder();
             TypeMirror propertyType;
 
             if (getterSetterName.startsWith("get")) {
@@ -179,7 +186,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             propertyDataBuilder.typeMirror = propertyType;
 
 
-            AnnotationProcessorUtils.DtoPropertyData propertyData = dtoProperties.get(propertyDataBuilder.name);
+            DtoAnnotationProcessorUtils.DtoPropertyData propertyData = dtoProperties.get(propertyDataBuilder.name);
 
             if (propertyData == null) {
                 propertyData = propertyDataBuilder.build();
@@ -208,13 +215,17 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         }
 
         if (packageName == null || packageName.isEmpty()) {
-            packageName = AnnotationProcessorUtils.getElementPackageName(element);
+            packageName = DtoAnnotationProcessorUtils.getElementPackageName(element);
         }
 
         return packageName;
     }
 
-    public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, AnnotationProcessorUtils.DtoPropertyData> dtoProperties) {
+    public String getDtoQualifiedName(Dto dtoAnnotation, TypeElement element) {
+        return getDestPackageName(dtoAnnotation, element) + "." + getDtoClassName(dtoAnnotation, element);
+    }
+
+    public String generateDtoClass(Dto dtoAnnotation, TypeElement element, Map<String, DtoAnnotationProcessorUtils.DtoPropertyData> dtoProperties, Map<String, String> sourceClassName_dtoClassName) {
 
         String packageName = getDestPackageName(dtoAnnotation, element);
         String dtoClassName = getDtoClassName(dtoAnnotation, element);
@@ -228,13 +239,20 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .addImport("solutions.sulfura.gend.dtos.Dto")
                 .addImport(element.getQualifiedName().toString());
 
-        for (AnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {
-            for (String propertyQualifiedName :
-                    AnnotationProcessorUtils.typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror).declaredTypesQualifiedNames) {
+        DtoAnnotationProcessorUtils dtoAnnotationProcessorUtils = new DtoAnnotationProcessorUtils();
+        dtoAnnotationProcessorUtils.setReplacements(sourceClassName_dtoClassName);
 
-                String qualifiedNameForAlias = stringBuilder.importsSimpleTypes_qualifiedTypes.get(propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
+        //Add imports for types used in properties
+        for (DtoAnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {
+            for (String propertyTypeQualifiedName :
+                    dtoAnnotationProcessorUtils.typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror).declaredTypesQualifiedNames) {
+                //Replace with DTO
+                if (sourceClassName_dtoClassName.containsKey(propertyTypeQualifiedName)) {
+                    propertyTypeQualifiedName = sourceClassName_dtoClassName.get(propertyTypeQualifiedName);
+                }
+                String qualifiedNameForAlias = stringBuilder.importsSimpleTypes_qualifiedTypes.get(propertyTypeQualifiedName.substring(propertyTypeQualifiedName.lastIndexOf('.') + 1));
                 if (qualifiedNameForAlias == null) {
-                    stringBuilder.addImport(propertyQualifiedName);
+                    stringBuilder.addImport(propertyTypeQualifiedName);
                 }
 
             }
@@ -271,9 +289,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .append(">{\n\n");
 
         //Generate properties
-        for (AnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {
+        for (DtoAnnotationProcessorUtils.DtoPropertyData dtoPropertyData : dtoProperties.values()) {
 
-            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = AnnotationProcessorUtils.typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror);
+            DtoAnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = dtoAnnotationProcessorUtils.typeToPropertyTypeDeclaration(dtoPropertyData.typeMirror);
             //TODO add qualified names to imports if there are no clashes with other types
             //TODO replace qualified names with simple names in the case of imported types
             stringBuilder.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()

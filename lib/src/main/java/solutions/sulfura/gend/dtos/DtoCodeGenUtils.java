@@ -73,7 +73,7 @@ public class DtoCodeGenUtils {
         public DtoPropertyData() {
         }
 
-        AnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
+        DtoAnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
         String propertyName;
 
         public static DtoCodeGenUtils.DtoPropertyData.Builder builder() {
@@ -81,13 +81,13 @@ public class DtoCodeGenUtils {
         }
 
         public static class Builder {
-            AnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
+            DtoAnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
             String propertyName;
 
             public Builder() {
             }
 
-            public Builder typeDeclaration(AnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration) {
+            public Builder typeDeclaration(DtoAnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration) {
                 this.typeDeclaration = typeDeclaration;
                 return this;
             }

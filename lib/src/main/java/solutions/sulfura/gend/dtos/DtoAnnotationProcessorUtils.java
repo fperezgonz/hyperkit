@@ -6,32 +6,57 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.*;
 import java.util.*;
 
-public class AnnotationProcessorUtils {
+public class DtoAnnotationProcessorUtils {
 
-    static String primitiveTypeToClassType(TypeMirror primitiveType) {
-        String result = primitiveType.toString();
+    private Map<String, String> replacements = new HashMap<>();
 
-        return !primitiveType.getKind().isPrimitive() ? result
-                : Objects.equals(result, "int") ? "Integer"
-                : result.substring(0, 1).toUpperCase() + result.substring(1);
+    public void setReplacements(Map<String, String> replacements) {
+        if (replacements == null) {
+            this.replacements = new HashMap<>();
+        }
+        this.replacements = replacements;
     }
 
-    public static PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
+    String getReplacementType(TypeMirror primitiveType) {
+        String result = primitiveType.toString();
+
+        //Replace before built-in replacement to allow replacement of primitives
+        if (replacements.containsKey(result)) {
+
+            result = replacements.get(result);
+
+        } else if (primitiveType.getKind().isPrimitive()) {
+
+            result = Objects.equals(result, "int") ? "Integer" : result.substring(0, 1).toUpperCase() + result.substring(1);
+
+        }
+
+        return result;
+
+    }
+
+    String getReplacementType(String qualifiedName) {
+        return replacements.getOrDefault(qualifiedName, qualifiedName);
+    }
+
+    public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String declaredTypeString;
         boolean isPrimitive = false;
 
         List<String> declaredTypesQualifiedNames = new ArrayList<>();
 
+
         //Use lists instead of arrays
         if (typeMirror.getKind() == TypeKind.ARRAY) {
-            declaredTypeString = "java.util.List<" + primitiveTypeToClassType(((ArrayType) typeMirror).getComponentType()) + ">";
-            declaredTypesQualifiedNames.add("java.util.List");
+            String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
+            declaredTypeString = collectionTypeQualifiedName + "<" + getReplacementType(((ArrayType) typeMirror).getComponentType()) + ">";
+            declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
         } else {
             isPrimitive = typeMirror.getKind().isPrimitive();
             declaredTypeString = typeMirror.toString();
             if (typeMirror.getKind() == TypeKind.DECLARED) {
-                declaredTypesQualifiedNames.add(((DeclaredType)typeMirror).asElement().toString());
+                declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
             }
         }
 
@@ -39,7 +64,7 @@ public class AnnotationProcessorUtils {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (isPrimitive) {
-            stringBuilder.append(primitiveTypeToClassType(typeMirror));
+            stringBuilder.append(getReplacementType(typeMirror));
         } else {
             stringBuilder.append(declaredTypeString);
         }
@@ -47,7 +72,7 @@ public class AnnotationProcessorUtils {
         if (typeMirror instanceof DeclaredType) {
             for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {
                 if (typeArg.getKind() == TypeKind.DECLARED) {
-                    declaredTypesQualifiedNames.add(((DeclaredType)typeMirror).asElement().toString());
+                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
                 }
             }
         }

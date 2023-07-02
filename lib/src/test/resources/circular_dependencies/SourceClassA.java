@@ -6,9 +6,9 @@ import solutions.sulfura.gend.dtos.annotations.Dto;
 @Dto
 public class SourceClassA {
 
-    SourceClassB property;
-    SourceClassB[] propertyArray;
-    List<SourceClassB> genericProperty;
-    List<SourceClassB>[] genericPropertyArray;
+    public SourceClassB property;
+    public SourceClassB[] propertyArray;
+    public List<SourceClassB> genericProperty;
+    public List<SourceClassB>[] genericPropertyArray;
 
 }
