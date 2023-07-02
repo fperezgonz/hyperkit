@@ -6,16 +6,9 @@ import solutions.sulfura.gend.dtos.annotations.Dto;
 @Dto
 public class SourceClassA {
 
-    SourceClassB stringPropertyWithGetter;
-    SourceClassB stringPropertyWithGetterAndSetter;
-    SourceClassB stringPropertyWithSetter;
-    
-    public SourceClassB getStringPropertyWithGetter(){ return stringPropertyWithGetter; }
-
-    public SourceClassB getStringPropertyWithGetterAndSetter(){ return stringPropertyWithGetterAndSetter; }
-
-    public void setStringPropertyWithGetterAndSetter(SourceClassB stringPropertyWithGetterAndSetter){ this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter; }
-
-    public void setStringPropertyWithSetter(SourceClassB stringPropertyWithSetter){ this.stringPropertyWithSetter = stringPropertyWithSetter; }
+    SourceClassB property;
+    SourceClassB[] propertyArray;
+    List<SourceClassB> genericProperty;
+    List<SourceClassB>[] genericPropertyArray;
 
 }

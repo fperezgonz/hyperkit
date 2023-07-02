@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos;
+package solutions.sulfura.gend.dtos.generics.inheritance;
 
 import solutions.sulfura.gend.dtos.annotations.Dto;
 
