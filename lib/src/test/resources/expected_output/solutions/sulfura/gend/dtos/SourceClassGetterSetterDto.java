@@ -15,4 +15,4 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     public SourceClassGetterSetterDto(){}
 
- }
+}

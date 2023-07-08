@@ -17,4 +17,4 @@ public class SourceClassBDto implements Dto<SourceClassB>{
 
     public SourceClassBDto(){}
 
- }
+}

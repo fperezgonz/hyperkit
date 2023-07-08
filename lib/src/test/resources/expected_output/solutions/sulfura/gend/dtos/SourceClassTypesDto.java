@@ -19,4 +19,4 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public SourceClassTypesDto(){}
 
- }
+}

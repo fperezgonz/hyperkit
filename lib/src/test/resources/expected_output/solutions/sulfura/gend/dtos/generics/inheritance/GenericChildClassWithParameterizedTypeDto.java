@@ -23,4 +23,4 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     public GenericChildClassWithParameterizedTypeDto(){}
 
- }
+}

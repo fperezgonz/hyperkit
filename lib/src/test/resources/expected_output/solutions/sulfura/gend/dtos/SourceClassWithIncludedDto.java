@@ -17,4 +17,4 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     public SourceClassWithIncludedDto(){}
 
- }
+}

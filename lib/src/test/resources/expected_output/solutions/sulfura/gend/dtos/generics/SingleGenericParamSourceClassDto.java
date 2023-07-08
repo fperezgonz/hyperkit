@@ -16,4 +16,4 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
 
     public SingleGenericParamSourceClassDto(){}
 
- }
+}

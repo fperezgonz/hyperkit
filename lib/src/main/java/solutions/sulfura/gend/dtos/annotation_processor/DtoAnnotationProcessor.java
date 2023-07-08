@@ -253,42 +253,47 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         }
 
         //Class declaration
-        codeGenUtils.append('\n')
-                .append("@DtoFor(")
-                .append(element.getSimpleName())
-                .append(".class)\n")
-                .append("public class ")
-                .append(dtoClassName);
+        {
+            StringBuilder classDeclaration = new StringBuilder();
+            classDeclaration.append('\n')
+                    .append("@DtoFor(")
+                    .append(element.getSimpleName())
+                    .append(".class)\n")
+                    .append("public class ")
+                    .append(dtoClassName);
 
-        //Add parameterized types to class declaration
-        if (((DeclaredType) element.asType()).getTypeArguments().size() > 0) {
+            //Add parameterized types to class declaration
+            if (((DeclaredType) element.asType()).getTypeArguments().size() > 0) {
 
-            codeGenUtils.append('<');
-            boolean first = true;
-            for (TypeMirror typeArgument : ((DeclaredType) element.asType()).getTypeArguments()) {
-                if (first) {
-                    first = false;
-                } else {
-                    codeGenUtils.append(',')
-                            .append(' ');
+                classDeclaration.append('<');
+                boolean first = true;
+                for (TypeMirror typeArgument : ((DeclaredType) element.asType()).getTypeArguments()) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        classDeclaration.append(',')
+                                .append(' ');
+                    }
+                    classDeclaration.append(typeArgument.toString());
                 }
-                codeGenUtils.append(typeArgument.toString());
+
+                classDeclaration.append('>');
             }
 
-            codeGenUtils.append('>');
-        }
+            //Add Dto interface implementation to class declaration
+            classDeclaration.append(" implements Dto<")
+                    .append(element.getSimpleName())
+                    .append('>');
 
-        //Add Dto interface implementation to class declaration
-        codeGenUtils.append(" implements Dto<")
-                .append(element.getSimpleName())
-                .append(">{\n\n");
+            codeGenUtils.beginClass(classDeclaration.toString());
+
+        }
 
         //Generate properties
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
 
             AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror);
             //TODO add qualified names to imports if there are no clashes with other types
-            //TODO replace qualified names with simple names in the case of imported types
             codeGenUtils.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()
                     .typeDeclaration(fieldTypeDeclaration)
                     .propertyName(sourceClassPropertyData.name)
@@ -305,7 +310,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         //TODO generate builder
 
-        codeGenUtils.append(" }");
+        codeGenUtils.endClass();
         return codeGenUtils.toString();
 
     }
