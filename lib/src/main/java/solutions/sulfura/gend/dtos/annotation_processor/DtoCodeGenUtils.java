@@ -18,7 +18,7 @@ public class DtoCodeGenUtils {
     public DtoCodeGenUtils() {
     }
 
-    public DtoCodeGenUtils append(String string) {
+    public DtoCodeGenUtils append(CharSequence string) {
         stringBuilder.append(string);
         return this;
     }
@@ -79,7 +79,7 @@ public class DtoCodeGenUtils {
         return this;
     }
 
-    public DtoCodeGenUtils beginClass(String classDeclaration) {
+    public DtoCodeGenUtils beginClass(CharSequence classDeclaration) {
         stringBuilder.append(contextIndentation)
                 .append(classDeclaration)
                 .append("{\n\n");
@@ -90,7 +90,7 @@ public class DtoCodeGenUtils {
     public DtoCodeGenUtils endClass() {
         decreaseIndent();
         stringBuilder.append(contextIndentation)
-                .append('}');
+                .append("}");
         return this;
     }
 
@@ -104,30 +104,59 @@ public class DtoCodeGenUtils {
         return this;
     }
 
-    public DtoCodeGenUtils addBuilder(String baseClassName, List<DtoPropertyData> propertyDataList) {
+    public DtoCodeGenUtils addBuilder(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
+
+        //Method to get a builder from the main class
         append(contextIndentation)
-                .append("public Builder builder(){\n")
-                .append(contextIndentation).append("    ")
-                .append("return new Builder();\n")
-                .append(contextIndentation).append("}\n\n");
+                .append("public static ");
 
-        beginClass("public static class Builder");
+        if (genericTypeArgs != null) {
+            append(genericTypeArgs);
+        }
 
+        append(" Builder");
+
+        if (genericTypeArgs != null) {
+            append(genericTypeArgs);
+        }
+
+        append(" builder(){\n");
+
+        if (genericTypeArgs != null) {
+            append(contextIndentation).append("    return new Builder<>();\n");
+        } else {
+            append(contextIndentation).append("    return new Builder();\n");
+        }
+
+        append(contextIndentation).append("}\n\n");
+
+        //Builder class declaration
+        StringBuilder builderClassDeclaration = new StringBuilder("public static class Builder");
+
+        if (genericTypeArgs != null) {
+            builderClassDeclaration.append(genericTypeArgs);
+        }
+
+        beginClass(builderClassDeclaration);
+
+        //Builder fields
         for (DtoPropertyData propertyData : propertyDataList) {
             addBuilderField(propertyData);
         }
 
         append('\n');
 
+        //Builder property methods
         for (DtoPropertyData propertyData : propertyDataList) {
-            addBuilderProperty(propertyData);
+            addBuilderProperty(propertyData, genericTypeArgs);
         }
 
+        //build method
         addBuildMethod(baseClassName, propertyDataList.stream()
                 .map(propertyData -> propertyData.propertyName)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()), genericTypeArgs);
 
-        endClass();
+        endClass().append("\n\n");
 
         return this;
 
@@ -138,11 +167,15 @@ public class DtoCodeGenUtils {
         return this;
     }
 
-    public DtoCodeGenUtils addBuilderProperty(DtoPropertyData propertyData) {
+    public DtoCodeGenUtils addBuilderProperty(DtoPropertyData propertyData, CharSequence genericTypeArguments) {
 
         String typeDeclarationString = getTypeDeclarationString(propertyData);
 
-        stringBuilder.append(contextIndentation).append("public Builder ")
+        stringBuilder.append(contextIndentation).append("public Builder");
+        if (genericTypeArguments != null) {
+            stringBuilder.append(genericTypeArguments);
+        }
+        stringBuilder.append(' ')
                 .append(propertyData.propertyName)
                 .append('(')
                 .append("Option<").append(typeDeclarationString).append("> ")
@@ -150,15 +183,20 @@ public class DtoCodeGenUtils {
                 .append("){\n")
                 .append(contextIndentation).append("    this.").append(propertyData.propertyName)
                 .append(" = ").append(propertyData.propertyName).append(";\n")
+                .append(contextIndentation).append("    return this;\n")
                 .append(contextIndentation).append("}\n\n");
 
         return this;
     }
 
-    public DtoCodeGenUtils addBuildMethod(String builderSourceClass, List<String> propertyNames) {
+    public DtoCodeGenUtils addBuildMethod(CharSequence builderSourceClass, List<String> propertyNames, CharSequence genericTypeArguments) {
 
         stringBuilder.append(contextIndentation)
-                .append("public ").append(builderSourceClass).append(" build(){\n");
+                .append("public ").append(builderSourceClass);
+        if (genericTypeArguments != null) {
+            stringBuilder.append(genericTypeArguments);
+        }
+        stringBuilder.append(" build(){\n");
         increaseIndent();
 
         stringBuilder.append(contextIndentation)
@@ -171,10 +209,10 @@ public class DtoCodeGenUtils {
                     .append(" = ").append(propertyName).append(";\n");
         }
 
-        append("return instance;");
+        append(contextIndentation).append("return instance;\n");
 
         decreaseIndent();
-        stringBuilder.append(contextIndentation).append("}\n");
+        stringBuilder.append(contextIndentation).append("}\n\n");
 
         return this;
     }

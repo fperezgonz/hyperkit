@@ -252,32 +252,42 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             }
         }
 
+        StringBuilder dtoGenericTypeArgs = null;
+
         //Class declaration
         {
-            StringBuilder classDeclaration = new StringBuilder();
-            classDeclaration.append('\n')
+            codeGenUtils.append('\n')
                     .append("@DtoFor(")
                     .append(element.getSimpleName())
-                    .append(".class)\n")
-                    .append("public class ")
-                    .append(dtoClassName);
+                    .append(".class)\n");
 
+            StringBuilder classDeclaration = new StringBuilder();
+
+            classDeclaration.append("public class ")
+                    .append(dtoClassName);
             //Add parameterized types to class declaration
+
             if (((DeclaredType) element.asType()).getTypeArguments().size() > 0) {
 
-                classDeclaration.append('<');
+                dtoGenericTypeArgs = new StringBuilder();
+                dtoGenericTypeArgs.append('<');
                 boolean first = true;
+
                 for (TypeMirror typeArgument : ((DeclaredType) element.asType()).getTypeArguments()) {
+
                     if (first) {
                         first = false;
                     } else {
-                        classDeclaration.append(',')
-                                .append(' ');
+                        dtoGenericTypeArgs.append(", ");
                     }
-                    classDeclaration.append(typeArgument.toString());
+
+                    dtoGenericTypeArgs.append(typeArgument.toString());
+
                 }
 
-                classDeclaration.append('>');
+                dtoGenericTypeArgs.append('>');
+                classDeclaration.append(dtoGenericTypeArgs);
+
             }
 
             //Add Dto interface implementation to class declaration
@@ -312,8 +322,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .append(dtoClassName)
                 .append("(){}\n\n");
 
-        //TODO generate builder
-        //codeGenUtils.addBuilder(dtoClassName, dtoPropertyDataList);
+        codeGenUtils.addBuilder(dtoClassName, dtoGenericTypeArgs, dtoPropertyDataList);
 
         codeGenUtils.endClass();
         return codeGenUtils.toString();
