@@ -128,12 +128,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         //Map public field data to DtoPropertyData
         for (Element field : publicFields) {
-            SourceClassPropertyData.Builder propertyDataBuilder = SourceClassPropertyData.builder();
-            propertyDataBuilder.typeMirror = processingEnv.getTypeUtils().asMemberOf(sourceType, field);
-            propertyDataBuilder.name(field.getSimpleName().toString())
-                    .canRead(true)
-                    .canWrite(true);
-            SourceClassPropertyData propertyData = propertyDataBuilder.build();
+            SourceClassPropertyData propertyData = DtoAnnotationProcessorUtils.fieldToSourceClassPropertyData(processingEnv, field, sourceType);
             dtoProperties.put(propertyData.name, propertyData);
         }
 

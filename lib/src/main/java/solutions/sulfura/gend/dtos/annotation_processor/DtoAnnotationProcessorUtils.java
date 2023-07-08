@@ -1,5 +1,6 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
@@ -36,6 +37,15 @@ public class DtoAnnotationProcessorUtils {
         return replacements.getOrDefault(qualifiedName, qualifiedName);
     }
 
+    public static SourceClassPropertyData fieldToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element field, DeclaredType sourceType){
+
+        SourceClassPropertyData.Builder propertyDataBuilder = SourceClassPropertyData.builder();
+        propertyDataBuilder.typeMirror = processingEnv.getTypeUtils().asMemberOf(sourceType, field);
+        propertyDataBuilder.name(field.getSimpleName().toString())
+                .canRead(true)
+                .canWrite(true);
+        return propertyDataBuilder.build();
+    }
     public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String declaredTypeString;
