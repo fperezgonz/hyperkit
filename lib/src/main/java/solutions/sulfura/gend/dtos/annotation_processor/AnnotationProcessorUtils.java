@@ -111,7 +111,7 @@ public class AnnotationProcessorUtils {
         if (typeMirror instanceof DeclaredType) {
             for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {
                 if (typeArg.getKind() == TypeKind.DECLARED) {
-                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
+                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
                 }
             }
         }
