@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos;
 
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.gend.DtoAnnotationProcessor;
@@ -13,17 +14,23 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @AutoService(DtoAnnotationProcessor.class)
 public class DtoGeneratorTest {
 
-    static final String testGeneratedClassesDir = "sulfura/temp/";
+    static final String testOutputDir = "sulfura/temp/";
+    static final String expectedOutputDir = "src/test/resources/expected_output/";
+    static final String testInputResourcesPath = "/source_code/test_input_sources/";
 
     @BeforeAll
     public static void setupTempFolder() throws IOException {
-        for (File file : new File(testGeneratedClassesDir).listFiles()) {
+        for (File file : new File(testOutputDir).listFiles()) {
 
             if (Objects.equals(file.getName(), ".gitignore")) {
                 continue;
@@ -40,51 +47,65 @@ public class DtoGeneratorTest {
 
     @Test
     public void generateDtoTest() throws MalformedURLException, ClassNotFoundException {
+        String qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassTypes";
 
-        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource("/SourceClassTypes.java").getFile()
-                , "solutions.sulfura.gend.dtos.SourceClassTypes");
+        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource(testInputResourcesPath + "SourceClassTypes.java").getFile()
+                , qualifiedClassName);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName);
 
     }
 
     @Test
     public void generateDtoWithIncludedTest() throws MalformedURLException, ClassNotFoundException {
+        String qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassWithIncluded";
 
-        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource("/SourceClassWithIncluded.java").getFile()
-                , "solutions.sulfura.gend.dtos.SourceClassWithIncluded");
+        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource(testInputResourcesPath + "SourceClassWithIncluded.java").getFile()
+                , qualifiedClassName);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName);
 
     }
 
     @Test
     public void generateDtoWithGetterSetter() throws MalformedURLException, ClassNotFoundException {
+        String qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassGetterSetter";
 
-        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource("/SourceClassGetterSetter.java").getFile()
-                , "solutions.sulfura.gend.dtos.SourceClassGetterSetter");
+        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource(testInputResourcesPath + "SourceClassGetterSetter.java").getFile()
+                , qualifiedClassName);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName);
 
     }
 
     @Test
     public void generateDtoWithGenericTypes() throws MalformedURLException, ClassNotFoundException {
+        String qualifiedClassName = "solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass";
 
-        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource("/generics/SingleGenericParamSourceClass.java").getFile()
-                , "solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass");
+        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource(testInputResourcesPath + "generics/SingleGenericParamSourceClass.java").getFile()
+                , qualifiedClassName);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName);
 
     }
 
     @Test
     public void generateChildDtoWithParameterizedType() throws ClassNotFoundException, MalformedURLException {
+        String qualifiedClassName = "solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedType";
 
-        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource("/generics/inheritance/GenericChildClassWithParameterizedType.java").getFile()
-                , "solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedType");
+        Class<?> compiledClass = compileClassWithProcessor(this.getClass().getResource(testInputResourcesPath + "generics/inheritance/GenericChildClassWithParameterizedType.java").getFile()
+                , qualifiedClassName);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName);
 
     }
 
     @Test
     public void generateDtosWithCircularDependencies() throws MalformedURLException, ClassNotFoundException {
-        compileClassesWithProcessor(this.getClass().getResource("/circular_dependencies/SourceClassA.java").getFile()
-                , this.getClass().getResource("/circular_dependencies/SourceClassB.java").getFile());
+        String qualifiedClassNameA = "solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA";
+        String qualifiedClassNameB = "solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB";
+        compileClassesWithProcessor(this.getClass().getResource(testInputResourcesPath + "circular_dependencies/SourceClassA.java").getFile()
+                , this.getClass().getResource(testInputResourcesPath + "circular_dependencies/SourceClassB.java").getFile());
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassNameA);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassNameB);
     }
 
-    Class compileClassWithProcessor(String filePath, String className) throws MalformedURLException, ClassNotFoundException {
+    Class<?> compileClassWithProcessor(String filePath, String className) throws MalformedURLException, ClassNotFoundException {
         compileClassesWithProcessor(filePath);
         return loadCompiledClass(className);
     }
@@ -94,7 +115,7 @@ public class DtoGeneratorTest {
         List<String> args = new ArrayList<>();
         //Compiler options
         args.add("-d");
-        args.add(testGeneratedClassesDir);
+        args.add(testOutputDir);
         args.add("-processor");
         args.add(DtoAnnotationProcessor.class.getCanonicalName());
         //Files to compile
@@ -110,8 +131,22 @@ public class DtoGeneratorTest {
 
     }
 
+    public void assertGeneratedDtoSourceCodeMatchesExpectedOutput(String qualifiedClassName) {
+        String outputPathString = testOutputDir + "/" + qualifiedClassName.replace('.', '/') + "Dto.java";
+        String expectedOutputPathString = expectedOutputDir + "/" + qualifiedClassName.replace('.', '/') + "Dto.java";
+        Path expectedOutputPath = new File(expectedOutputPathString).toPath();
+        Path outputPath = new File(outputPathString).toPath();
+        try {
+            String expectedOutput = new String(Files.readAllBytes(expectedOutputPath));
+            String output = new String(Files.readAllBytes(outputPath));
+            Assertions.assertEquals(expectedOutput, output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Class<?> loadCompiledClass(String className) throws MalformedURLException, ClassNotFoundException {
-        URL[] classLoaderUrls = {new File(testGeneratedClassesDir).toURI().toURL()};
+        URL[] classLoaderUrls = {new File(testOutputDir).toURI().toURL()};
         ClassLoader classLoader = new URLClassLoader(classLoaderUrls);
 
         return Class.forName(className, true, classLoader);
