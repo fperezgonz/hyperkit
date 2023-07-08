@@ -1,4 +1,6 @@
-package solutions.sulfura.gend.dtos;
+package solutions.sulfura.gend.dtos.annotation_processor;
+
+import solutions.sulfura.gend.dtos.annotation_processor.DtoAnnotationProcessorUtils.*;
 
 import javax.lang.model.element.Name;
 import java.util.HashMap;
@@ -73,7 +75,7 @@ public class DtoCodeGenUtils {
         public DtoPropertyData() {
         }
 
-        DtoAnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
+        PropertyTypeDeclaration typeDeclaration;
         String propertyName;
 
         public static DtoCodeGenUtils.DtoPropertyData.Builder builder() {
@@ -81,13 +83,13 @@ public class DtoCodeGenUtils {
         }
 
         public static class Builder {
-            DtoAnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration;
+            PropertyTypeDeclaration typeDeclaration;
             String propertyName;
 
             public Builder() {
             }
 
-            public Builder typeDeclaration(DtoAnnotationProcessorUtils.PropertyTypeDeclaration typeDeclaration) {
+            public Builder typeDeclaration(PropertyTypeDeclaration typeDeclaration) {
                 this.typeDeclaration = typeDeclaration;
                 return this;
             }

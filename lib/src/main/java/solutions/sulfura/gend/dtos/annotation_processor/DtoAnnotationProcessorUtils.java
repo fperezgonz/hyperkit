@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos;
+package solutions.sulfura.gend.dtos.annotation_processor;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -78,6 +78,17 @@ public class DtoAnnotationProcessorUtils {
                 .fieldDeclarationLiteral(stringBuilder)
                 .declaredTypesQualifiedNames(declaredTypesQualifiedNames)
                 .build();
+    }
+
+    public static String getElementPackageName(TypeElement element) {
+
+        Element parentElement = element.getEnclosingElement();
+
+        while (parentElement.getKind() != ElementKind.PACKAGE) {
+            parentElement = parentElement.getEnclosingElement();
+        }
+
+        return parentElement.toString();
     }
 
     public static class SourceClassPropertyData {
@@ -224,14 +235,4 @@ public class DtoAnnotationProcessorUtils {
         }
     }
 
-    public static String getElementPackageName(TypeElement element) {
-
-        Element parentElement = element.getEnclosingElement();
-
-        while (parentElement.getKind() != ElementKind.PACKAGE) {
-            parentElement = parentElement.getEnclosingElement();
-        }
-
-        return parentElement.toString();
-    }
 }

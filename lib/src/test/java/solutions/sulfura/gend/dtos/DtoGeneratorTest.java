@@ -6,7 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import solutions.sulfura.gend.DtoAnnotationProcessor;
+import solutions.sulfura.gend.dtos.annotation_processor.DtoAnnotationProcessor;
 
 import javax.tools.ToolProvider;
 import java.io.File;

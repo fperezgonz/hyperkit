@@ -3,7 +3,7 @@ package solutions.sulfura.gend.dtos;
 public class ListOperation<T>{
 
     public enum ListOperationType{
-        INSERT, UPDATE, UPSERT, DELETE, NONE
+        NONE, INSERT, UPDATE, UPSERT, DELETE
     }
 
     ListOperationType operationType;
