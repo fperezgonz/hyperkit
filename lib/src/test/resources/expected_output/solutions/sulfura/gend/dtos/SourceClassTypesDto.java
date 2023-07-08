@@ -19,4 +19,60 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public SourceClassTypesDto(){}
 
+    public static  Builder builder(){
+        return new Builder();
+    }
+
+    public static class Builder{
+
+        public Option<List<java.lang.String>> stringArrayProperty;
+        public Option<Boolean> booleanProperty;
+        public Option<Double> doubleProperty;
+        public Option<Long> longProperty;
+        public Option<List<Boolean>> booleanArrayProperty;
+        public Option<String> stringProperty;
+
+        public Builder stringArrayProperty(Option<List<java.lang.String>> stringArrayProperty){
+            this.stringArrayProperty = stringArrayProperty;
+            return this;
+        }
+
+        public Builder booleanProperty(Option<Boolean> booleanProperty){
+            this.booleanProperty = booleanProperty;
+            return this;
+        }
+
+        public Builder doubleProperty(Option<Double> doubleProperty){
+            this.doubleProperty = doubleProperty;
+            return this;
+        }
+
+        public Builder longProperty(Option<Long> longProperty){
+            this.longProperty = longProperty;
+            return this;
+        }
+
+        public Builder booleanArrayProperty(Option<List<Boolean>> booleanArrayProperty){
+            this.booleanArrayProperty = booleanArrayProperty;
+            return this;
+        }
+
+        public Builder stringProperty(Option<String> stringProperty){
+            this.stringProperty = stringProperty;
+            return this;
+        }
+
+        public SourceClassTypesDto build(){
+            SourceClassTypesDto instance = new SourceClassTypesDto();
+            instance.stringArrayProperty = stringArrayProperty;
+            instance.booleanProperty = booleanProperty;
+            instance.doubleProperty = doubleProperty;
+            instance.longProperty = longProperty;
+            instance.booleanArrayProperty = booleanArrayProperty;
+            instance.stringProperty = stringProperty;
+            return instance;
+        }
+
+    }
+
 }

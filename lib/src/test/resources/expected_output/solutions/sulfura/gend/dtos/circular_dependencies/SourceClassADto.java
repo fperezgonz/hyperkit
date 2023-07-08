@@ -17,4 +17,46 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     public SourceClassADto(){}
 
+    public static  Builder builder(){
+        return new Builder();
+    }
+
+    public static class Builder{
+
+        public Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto>> propertyArray;
+        public Option<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB> property;
+        public Option<List<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>>> genericPropertyArray;
+        public Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>> genericProperty;
+
+        public Builder propertyArray(Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto>> propertyArray){
+            this.propertyArray = propertyArray;
+            return this;
+        }
+
+        public Builder property(Option<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB> property){
+            this.property = property;
+            return this;
+        }
+
+        public Builder genericPropertyArray(Option<List<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>>> genericPropertyArray){
+            this.genericPropertyArray = genericPropertyArray;
+            return this;
+        }
+
+        public Builder genericProperty(Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>> genericProperty){
+            this.genericProperty = genericProperty;
+            return this;
+        }
+
+        public SourceClassADto build(){
+            SourceClassADto instance = new SourceClassADto();
+            instance.propertyArray = propertyArray;
+            instance.property = property;
+            instance.genericPropertyArray = genericPropertyArray;
+            instance.genericProperty = genericProperty;
+            return instance;
+        }
+
+    }
+
 }
