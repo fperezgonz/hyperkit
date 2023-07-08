@@ -7,7 +7,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.*;
 import java.util.*;
 
-public class DtoAnnotationProcessorUtils {
+public class AnnotationProcessorUtils {
 
     private Map<String, String> replacements = new HashMap<>();
 
@@ -46,13 +46,46 @@ public class DtoAnnotationProcessorUtils {
                 .canWrite(true);
         return propertyDataBuilder.build();
     }
+
+    public static SourceClassPropertyData gsToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element getterSetter, DeclaredType sourceType){
+
+        String getterSetterName = getterSetter.getSimpleName().toString();
+        SourceClassPropertyData.Builder propertyDataBuilder = SourceClassPropertyData.builder();
+        TypeMirror propertyType;
+
+        if (getterSetterName.startsWith("get")) {
+            propertyDataBuilder.canRead(true);
+            String propertyName = getterSetterName.substring(3);
+            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            propertyDataBuilder.name(propertyName);
+            propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
+        } else if (getterSetterName.startsWith("is")) {
+            propertyDataBuilder.canRead(true);
+            String propertyName = getterSetterName.substring(2);
+            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            propertyDataBuilder.name(propertyName);
+            propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
+        } else if (getterSetterName.startsWith("set")) {
+            propertyDataBuilder.canWrite(true);
+            String propertyName = getterSetterName.substring(3);
+            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            propertyDataBuilder.name(propertyName);
+            propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getParameterTypes().get(0);
+        } else {
+            throw new RuntimeException("Error processing method " + getterSetterName + " of class " + sourceType + ". It is neither a getter nor setter");
+        }
+
+        propertyDataBuilder.typeMirror = propertyType;
+
+        return propertyDataBuilder.build();
+    }
+
     public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String declaredTypeString;
         boolean isPrimitive = false;
 
         List<String> declaredTypesQualifiedNames = new ArrayList<>();
-
 
         //Use lists instead of arrays
         if (typeMirror.getKind() == TypeKind.ARRAY) {
@@ -66,7 +99,6 @@ public class DtoAnnotationProcessorUtils {
                 declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
             }
         }
-
 
         StringBuilder stringBuilder = new StringBuilder();
 

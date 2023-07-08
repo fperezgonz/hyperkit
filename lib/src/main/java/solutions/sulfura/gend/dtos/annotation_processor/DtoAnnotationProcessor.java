@@ -2,7 +2,7 @@ package solutions.sulfura.gend.dtos.annotation_processor;
 
 import solutions.sulfura.gend.dtos.annotations.Dto;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
-import solutions.sulfura.gend.dtos.annotation_processor.DtoAnnotationProcessorUtils.*;
+import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.*;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -128,7 +128,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         //Map public field data to DtoPropertyData
         for (Element field : publicFields) {
-            SourceClassPropertyData propertyData = DtoAnnotationProcessorUtils.fieldToSourceClassPropertyData(processingEnv, field, sourceType);
+            SourceClassPropertyData propertyData = AnnotationProcessorUtils.fieldToSourceClassPropertyData(processingEnv, field, sourceType);
             dtoProperties.put(propertyData.name, propertyData);
         }
 
@@ -159,48 +159,26 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Map getters and setters data to DtoPropertyData
         for (Element getterSetter : gettersAndSetters) {
 
-            String getterSetterName = getterSetter.getSimpleName().toString();
-            SourceClassPropertyData.Builder propertyDataBuilder = SourceClassPropertyData.builder();
-            TypeMirror propertyType;
+            //Get property data from getter/setter
+            SourceClassPropertyData getterSetterPropertyData = AnnotationProcessorUtils.gsToSourceClassPropertyData(processingEnv, getterSetter, sourceType);
 
-            if (getterSetterName.startsWith("get")) {
-                propertyDataBuilder.canRead(true);
-                String propertyName = getterSetterName.substring(3);
-                propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
-                propertyDataBuilder.name(propertyName);
-                propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
-            } else if (getterSetterName.startsWith("is")) {
-                propertyDataBuilder.canRead(true);
-                String propertyName = getterSetterName.substring(2);
-                propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
-                propertyDataBuilder.name(propertyName);
-                propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
-            } else if (getterSetterName.startsWith("set")) {
-                propertyDataBuilder.canWrite(true);
-                String propertyName = getterSetterName.substring(3);
-                propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
-                propertyDataBuilder.name(propertyName);
-                propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getParameterTypes().get(0);
-            } else {
-                throw new RuntimeException("Error processing method " + getterSetterName + " of class " + element.getSimpleName() + ". It is neither a getter nor setter");
-            }
+            //Merge cached data with getter/setter data
+            SourceClassPropertyData cachedPropertyData = dtoProperties.get(getterSetterPropertyData.name);
 
-            propertyDataBuilder.typeMirror = propertyType;
+            if (cachedPropertyData != null) {
 
-            SourceClassPropertyData propertyData = dtoProperties.get(propertyDataBuilder.name);
-
-            if (propertyData == null) {
-                propertyData = propertyDataBuilder.build();
-                dtoProperties.put(propertyData.name, propertyData);
-            } else {
-                if (propertyDataBuilder.canRead) {
-                    propertyData.canRead = true;
+                if (cachedPropertyData.canRead) {
+                    getterSetterPropertyData.canRead = true;
                 }
 
-                if (propertyDataBuilder.canWrite) {
-                    propertyData.canWrite = true;
+                if (cachedPropertyData.canWrite) {
+                    getterSetterPropertyData.canWrite = true;
                 }
+
             }
+
+            //Update cache with merged instance
+            dtoProperties.put(getterSetterPropertyData.name, getterSetterPropertyData);
 
         }
 
@@ -219,7 +197,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         }
 
         if (packageName == null || packageName.isEmpty()) {
-            packageName = DtoAnnotationProcessorUtils.getElementPackageName(element);
+            packageName = AnnotationProcessorUtils.getElementPackageName(element);
         }
 
         return packageName;
@@ -250,13 +228,13 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .addImport("solutions.sulfura.gend.dtos.Dto")
                 .addImport(element.getQualifiedName().toString());
 
-        DtoAnnotationProcessorUtils dtoAnnotationProcessorUtils = new DtoAnnotationProcessorUtils();
-        dtoAnnotationProcessorUtils.setReplacements(className_replacingClassName);
+        AnnotationProcessorUtils annotationProcessorUtils = new AnnotationProcessorUtils();
+        annotationProcessorUtils.setReplacements(className_replacingClassName);
 
         //Add imports for types used in properties
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
             for (String propertyTypeQualifiedName :
-                    dtoAnnotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror).declaredTypesQualifiedNames) {
+                    annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror).declaredTypesQualifiedNames) {
                 //Replace with replacement
                 if (className_replacingClassName.containsKey(propertyTypeQualifiedName)) {
                     propertyTypeQualifiedName = className_replacingClassName.get(propertyTypeQualifiedName);
@@ -305,7 +283,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Generate properties
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
 
-            DtoAnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = dtoAnnotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror);
+            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror);
             //TODO add qualified names to imports if there are no clashes with other types
             //TODO replace qualified names with simple names in the case of imported types
             stringBuilder.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()

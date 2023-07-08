@@ -1,6 +1,6 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
-import solutions.sulfura.gend.dtos.annotation_processor.DtoAnnotationProcessorUtils.*;
+import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.*;
 
 import javax.lang.model.element.Name;
 import java.util.HashMap;
