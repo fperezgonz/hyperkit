@@ -16,17 +16,14 @@ public class AnnotationProcessorUtils {
     }
 
     String getReplacementType(TypeMirror primitiveType) {
+
         String result = primitiveType.toString();
 
         //Replace before built-in replacement to allow replacement of primitives
         if (replacements.containsKey(result)) {
-
             result = replacements.get(result);
-
         } else if (primitiveType.getKind().isPrimitive()) {
-
             result = Objects.equals(result, "int") ? "Integer" : result.substring(0, 1).toUpperCase() + result.substring(1);
-
         }
 
         return result;
@@ -44,6 +41,7 @@ public class AnnotationProcessorUtils {
         propertyDataBuilder.name(field.getSimpleName().toString())
                 .canRead(true)
                 .canWrite(true);
+
         return propertyDataBuilder.build();
     }
 
@@ -54,23 +52,29 @@ public class AnnotationProcessorUtils {
         TypeMirror propertyType;
 
         if (getterSetterName.startsWith("get")) {
+
             propertyDataBuilder.canRead(true);
             String propertyName = getterSetterName.substring(3);
             propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
             propertyDataBuilder.name(propertyName);
             propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
+
         } else if (getterSetterName.startsWith("is")) {
+
             propertyDataBuilder.canRead(true);
             String propertyName = getterSetterName.substring(2);
             propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
             propertyDataBuilder.name(propertyName);
             propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
+
         } else if (getterSetterName.startsWith("set")) {
+
             propertyDataBuilder.canWrite(true);
             String propertyName = getterSetterName.substring(3);
             propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
             propertyDataBuilder.name(propertyName);
             propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getParameterTypes().get(0);
+
         } else {
             throw new RuntimeException("Error processing method " + getterSetterName + " of class " + sourceType + ". It is neither a getter nor setter");
         }
@@ -86,9 +90,9 @@ public class AnnotationProcessorUtils {
         String declaredTypeString;
         List<String> declaredTypesQualifiedNames = new ArrayList<>();
 
-        //Use lists instead of arrays
         if (typeMirror.getKind() == TypeKind.ARRAY) {
 
+            //Use lists instead of arrays
             String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
             declaredTypeString = collectionTypeQualifiedName + "<" + getReplacementType(((ArrayType) typeMirror).getComponentType()) + ">";
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);

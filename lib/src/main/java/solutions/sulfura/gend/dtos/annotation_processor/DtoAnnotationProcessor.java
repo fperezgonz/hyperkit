@@ -61,7 +61,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 String packageName = getDestPackageName(dtoAnnotationInstance, annotatedElement);
                 JavaFileObject builderFile = processingEnv.getFiler()
                         .createSourceFile(packageName + "." + dtoAnnotationInstance.prefix() + getDtoClassName(dtoAnnotationInstance, annotatedElement));
-                
+
                 try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
                     out.print(dtoSourceCode);
                 }
@@ -223,9 +223,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         String dtoClassName = getDtoClassName(dtoAnnotationInstance, element);
 
         //Generate code
-        DtoCodeGenUtils stringBuilder = new DtoCodeGenUtils();
+        DtoCodeGenUtils codeGenUtils = new DtoCodeGenUtils();
 
-        stringBuilder.addPackageDeclaration(packageName)
+        codeGenUtils.addPackageDeclaration(packageName)
                 .addImport("io.vavr.control.Option")
                 .addImport("solutions.sulfura.gend.dtos.annotations.DtoFor")
                 .addImport("solutions.sulfura.gend.dtos.Dto")
@@ -243,17 +243,17 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                     propertyTypeQualifiedName = className_replacingClassName.get(propertyTypeQualifiedName);
                 }
 
-                String qualifiedNameForAlias = stringBuilder.importsSimpleTypes_qualifiedTypes.get(propertyTypeQualifiedName.substring(propertyTypeQualifiedName.lastIndexOf('.') + 1));
+                String qualifiedNameForAlias = codeGenUtils.importsSimpleTypes_qualifiedTypes.get(propertyTypeQualifiedName.substring(propertyTypeQualifiedName.lastIndexOf('.') + 1));
 
                 if (qualifiedNameForAlias == null) {
-                    stringBuilder.addImport(propertyTypeQualifiedName);
+                    codeGenUtils.addImport(propertyTypeQualifiedName);
                 }
 
             }
         }
 
         //Class declaration
-        stringBuilder.append('\n')
+        codeGenUtils.append('\n')
                 .append("@DtoFor(")
                 .append(element.getSimpleName())
                 .append(".class)\n")
@@ -263,23 +263,23 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Add parameterized types to class declaration
         if (((DeclaredType) element.asType()).getTypeArguments().size() > 0) {
 
-            stringBuilder.append('<');
+            codeGenUtils.append('<');
             boolean first = true;
             for (TypeMirror typeArgument : ((DeclaredType) element.asType()).getTypeArguments()) {
                 if (first) {
                     first = false;
                 } else {
-                    stringBuilder.append(',')
+                    codeGenUtils.append(',')
                             .append(' ');
                 }
-                stringBuilder.append(typeArgument.toString());
+                codeGenUtils.append(typeArgument.toString());
             }
 
-            stringBuilder.append('>');
+            codeGenUtils.append('>');
         }
 
         //Add Dto interface implementation to class declaration
-        stringBuilder.append(" implements Dto<")
+        codeGenUtils.append(" implements Dto<")
                 .append(element.getSimpleName())
                 .append(">{\n\n");
 
@@ -289,7 +289,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror);
             //TODO add qualified names to imports if there are no clashes with other types
             //TODO replace qualified names with simple names in the case of imported types
-            stringBuilder.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()
+            codeGenUtils.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()
                     .typeDeclaration(fieldTypeDeclaration)
                     .propertyName(sourceClassPropertyData.name)
                     .build());
@@ -298,15 +298,15 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
 
         //Generate constructor
-        stringBuilder.append('\n')
+        codeGenUtils.append('\n')
                 .append("    public ")
                 .append(dtoClassName)
                 .append("(){}\n\n");
 
         //TODO generate builder
 
-        stringBuilder.append(" }");
-        return stringBuilder.toString();
+        codeGenUtils.append(" }");
+        return codeGenUtils.toString();
 
     }
 

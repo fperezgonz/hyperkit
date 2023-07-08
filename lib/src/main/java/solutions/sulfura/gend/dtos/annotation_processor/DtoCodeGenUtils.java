@@ -38,22 +38,25 @@ public class DtoCodeGenUtils {
     }
 
     public DtoCodeGenUtils addImport(String importQualifiedType) {
+
         importsSimpleTypes_qualifiedTypes.put(importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1), importQualifiedType);
         stringBuilder.append("import ")
                 .append(importQualifiedType)
                 .append(";\n");
+
         return this;
+
     }
 
     public DtoCodeGenUtils addFieldDeclaration(DtoPropertyData fieldData) {
-        String typeDeclarationString = fieldData.typeDeclaration.fieldDeclarationLiteral.toString();
-        for (String propertyQualifiedName : fieldData.typeDeclaration.declaredTypesQualifiedNames) {
 
+        String typeDeclarationString = fieldData.typeDeclaration.fieldDeclarationLiteral.toString();
+
+        for (String propertyQualifiedName : fieldData.typeDeclaration.declaredTypesQualifiedNames) {
             String qualifiedNameForAlias = importsSimpleTypes_qualifiedTypes.get(propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
             if (Objects.equals(qualifiedNameForAlias, propertyQualifiedName)) {
                 typeDeclarationString = typeDeclarationString.replace(propertyQualifiedName, propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
             }
-
         }
 
         stringBuilder.append("    public Option<")
