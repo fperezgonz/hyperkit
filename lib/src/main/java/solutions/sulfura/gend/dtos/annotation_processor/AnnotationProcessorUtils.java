@@ -37,7 +37,7 @@ public class AnnotationProcessorUtils {
         return replacements.getOrDefault(qualifiedName, qualifiedName);
     }
 
-    public static SourceClassPropertyData fieldToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element field, DeclaredType sourceType){
+    public static SourceClassPropertyData fieldToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element field, DeclaredType sourceType) {
 
         SourceClassPropertyData.Builder propertyDataBuilder = SourceClassPropertyData.builder();
         propertyDataBuilder.typeMirror = processingEnv.getTypeUtils().asMemberOf(sourceType, field);
@@ -47,7 +47,7 @@ public class AnnotationProcessorUtils {
         return propertyDataBuilder.build();
     }
 
-    public static SourceClassPropertyData gsToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element getterSetter, DeclaredType sourceType){
+    public static SourceClassPropertyData gsToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element getterSetter, DeclaredType sourceType) {
 
         String getterSetterName = getterSetter.getSimpleName().toString();
         SourceClassPropertyData.Builder propertyDataBuilder = SourceClassPropertyData.builder();
@@ -81,32 +81,32 @@ public class AnnotationProcessorUtils {
     }
 
     public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
+
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String declaredTypeString;
-        boolean isPrimitive = false;
-
         List<String> declaredTypesQualifiedNames = new ArrayList<>();
 
         //Use lists instead of arrays
         if (typeMirror.getKind() == TypeKind.ARRAY) {
+
             String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
             declaredTypeString = collectionTypeQualifiedName + "<" + getReplacementType(((ArrayType) typeMirror).getComponentType()) + ">";
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
+
         } else {
-            isPrimitive = typeMirror.getKind().isPrimitive();
+
             declaredTypeString = typeMirror.toString();
-            if (typeMirror.getKind() == TypeKind.DECLARED) {
+
+            if (typeMirror.getKind().isPrimitive()) {
+                declaredTypeString = getReplacementType(typeMirror);
+            } else if (typeMirror.getKind() == TypeKind.DECLARED) {
                 declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
             }
+
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-
-        if (isPrimitive) {
-            stringBuilder.append(getReplacementType(typeMirror));
-        } else {
-            stringBuilder.append(declaredTypeString);
-        }
+        stringBuilder.append(declaredTypeString);
 
         if (typeMirror instanceof DeclaredType) {
             for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {

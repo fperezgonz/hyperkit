@@ -57,12 +57,15 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
             //Create source file
             try {
+
                 String packageName = getDestPackageName(dtoAnnotationInstance, annotatedElement);
                 JavaFileObject builderFile = processingEnv.getFiler()
                         .createSourceFile(packageName + "." + dtoAnnotationInstance.prefix() + getDtoClassName(dtoAnnotationInstance, annotatedElement));
+                
                 try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
                     out.print(dtoSourceCode);
                 }
+
             } catch (IOException | RuntimeException e) {
                 e.printStackTrace();
             }
