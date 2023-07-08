@@ -11,10 +11,7 @@ public class DtoAnnotationProcessorUtils {
     private Map<String, String> replacements = new HashMap<>();
 
     public void setReplacements(Map<String, String> replacements) {
-        if (replacements == null) {
-            this.replacements = new HashMap<>();
-        }
-        this.replacements = replacements;
+        this.replacements = replacements == null ? new HashMap<>() : replacements;
     }
 
     String getReplacementType(TypeMirror primitiveType) {
@@ -83,9 +80,9 @@ public class DtoAnnotationProcessorUtils {
                 .build();
     }
 
-    public static class DtoPropertyData {
+    public static class SourceClassPropertyData {
 
-        public DtoPropertyData() {
+        public SourceClassPropertyData() {
         }
 
         public TypeMirror typeMirror;
@@ -122,9 +119,9 @@ public class DtoAnnotationProcessorUtils {
                 return this;
             }
 
-            public DtoPropertyData build() {
+            public SourceClassPropertyData build() {
 
-                DtoPropertyData result = new DtoPropertyData();
+                SourceClassPropertyData result = new SourceClassPropertyData();
                 result.typeMirror = this.typeMirror;
                 result.name = this.name;
                 result.canRead = this.canRead;
@@ -142,7 +139,7 @@ public class DtoAnnotationProcessorUtils {
         String packageName;
         List<String> imports;
         String className;
-        Collection<DtoPropertyData> properties;
+        Collection<SourceClassPropertyData> properties;
 
         public static Builder builder() {
             return new Builder();
@@ -152,7 +149,7 @@ public class DtoAnnotationProcessorUtils {
             String packageName;
             List<String> imports;
             String className;
-            Collection<DtoPropertyData> properties;
+            Collection<SourceClassPropertyData> properties;
 
             ClassData build() {
 
@@ -180,7 +177,7 @@ public class DtoAnnotationProcessorUtils {
                 return this;
             }
 
-            Builder properties(Collection<DtoPropertyData> properties) {
+            Builder properties(Collection<SourceClassPropertyData> properties) {
                 this.properties = properties;
                 return this;
             }
