@@ -289,15 +289,19 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         }
 
+        List<DtoCodeGenUtils.DtoPropertyData> dtoPropertyDataList = new ArrayList<>();
+
         //Generate properties
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
 
             AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror);
-            //TODO add qualified names to imports if there are no clashes with other types
-            codeGenUtils.addFieldDeclaration(DtoCodeGenUtils.DtoPropertyData.builder()
+            DtoCodeGenUtils.DtoPropertyData dtoPropertyData = DtoCodeGenUtils.DtoPropertyData.builder()
                     .typeDeclaration(fieldTypeDeclaration)
                     .propertyName(sourceClassPropertyData.name)
-                    .build());
+                    .build();
+            //TODO add qualified names to imports if there are no clashes with other types
+            codeGenUtils.addFieldDeclaration(dtoPropertyData);
+            dtoPropertyDataList.add(dtoPropertyData);
 
         }
 
@@ -309,6 +313,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 .append("(){}\n\n");
 
         //TODO generate builder
+        //codeGenUtils.addBuilder(dtoClassName, dtoPropertyDataList);
 
         codeGenUtils.endClass();
         return codeGenUtils.toString();

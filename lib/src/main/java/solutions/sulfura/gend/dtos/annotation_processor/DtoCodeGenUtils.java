@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class DtoCodeGenUtils {
 
@@ -78,21 +79,6 @@ public class DtoCodeGenUtils {
         return this;
     }
 
-    public DtoCodeGenUtils addBuilder(String baseClassName, List<DtoPropertyData> propertyDataList) {
-        append(contextIndentation)
-                .append("public Builder builder(){\n")
-                .append(contextIndentation).append("    ")
-                .append("return new Builder();\n")
-                .append(contextIndentation).append("}\n");
-
-        beginClass("Builder")
-                .append(contextIndentation)
-                .append(baseClassName).append(" instance;");
-
-        return this;
-
-    }
-
     public DtoCodeGenUtils beginClass(String classDeclaration) {
         stringBuilder.append(contextIndentation)
                 .append(classDeclaration)
@@ -106,6 +92,45 @@ public class DtoCodeGenUtils {
         stringBuilder.append(contextIndentation)
                 .append('}');
         return this;
+    }
+
+    private DtoCodeGenUtils increaseIndent() {
+        contextIndentation += "    ";
+        return this;
+    }
+
+    private DtoCodeGenUtils decreaseIndent() {
+        contextIndentation = contextIndentation.substring(0, contextIndentation.length() - 4);
+        return this;
+    }
+
+    public DtoCodeGenUtils addBuilder(String baseClassName, List<DtoPropertyData> propertyDataList) {
+        append(contextIndentation)
+                .append("public Builder builder(){\n")
+                .append(contextIndentation).append("    ")
+                .append("return new Builder();\n")
+                .append(contextIndentation).append("}\n\n");
+
+        beginClass("public static class Builder");
+
+        for (DtoPropertyData propertyData : propertyDataList) {
+            addBuilderField(propertyData);
+        }
+
+        append('\n');
+
+        for (DtoPropertyData propertyData : propertyDataList) {
+            addBuilderProperty(propertyData);
+        }
+
+        addBuildMethod(baseClassName, propertyDataList.stream()
+                .map(propertyData -> propertyData.propertyName)
+                .collect(Collectors.toList()));
+
+        endClass();
+
+        return this;
+
     }
 
     public DtoCodeGenUtils addBuilderField(DtoPropertyData fieldData) {
@@ -125,33 +150,32 @@ public class DtoCodeGenUtils {
                 .append("){\n")
                 .append(contextIndentation).append("    this.").append(propertyData.propertyName)
                 .append(" = ").append(propertyData.propertyName).append(";\n")
-                .append(contextIndentation).append("    }\n");
+                .append(contextIndentation).append("}\n\n");
 
         return this;
     }
 
     public DtoCodeGenUtils addBuildMethod(String builderSourceClass, List<String> propertyNames) {
+
         stringBuilder.append(contextIndentation)
-                .append("public ").append(builderSourceClass).append("build(){\n")
-                .append(contextIndentation)
-                .append(builderSourceClass).append(" this.instance = new ")
+                .append("public ").append(builderSourceClass).append(" build(){\n");
+        increaseIndent();
+
+        stringBuilder.append(contextIndentation)
+                .append(builderSourceClass).append(" instance = new ")
                 .append(builderSourceClass).append("();\n");
+
         for (String propertyName : propertyNames) {
             stringBuilder.append(contextIndentation)
-                    .append("this.").append(propertyName)
+                    .append("instance.").append(propertyName)
                     .append(" = ").append(propertyName).append(";\n");
         }
+
+        append("return instance;");
+
+        decreaseIndent();
         stringBuilder.append(contextIndentation).append("}\n");
-        return this;
-    }
 
-    private DtoCodeGenUtils increaseIndent() {
-        contextIndentation += "    ";
-        return this;
-    }
-
-    private DtoCodeGenUtils decreaseIndent() {
-        contextIndentation = contextIndentation.substring(0, contextIndentation.length() - 4);
         return this;
     }
 
