@@ -42,7 +42,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Map<String, String> sourceClassName_dtoClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
                         elem -> getDtoQualifiedName(elem.getAnnotation(Dto.class), elem)));
-        //TODO Add mappings for existing Dtos
+        //TODO Add mappings for preexisting Dtos
 
         //Generate Dto classes for each element Annotated with @Dto
         for (TypeElement annotatedElement : elementsAnnotatedWithDto) {
