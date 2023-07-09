@@ -3,7 +3,14 @@ package solutions.sulfura.gend.dtos;
 public class ListOperation<T> {
 
     public enum ListOperationType {
-        READONLY, INSERT, UPDATE, /**If the item exists UPDATE, else INSERT*/UPSERT, DELETE
+        READONLY,
+        INSERT,
+        UPDATE,
+        /**
+         * If the item exists UPDATE, else INSERT
+         */
+        UPSERT,
+        DELETE
     }
 
     ListOperationType operationType;
@@ -23,6 +30,12 @@ public class ListOperation<T> {
 
     public void setValue(T value) {
         this.value = value;
+    }
+
+    public static <T> ListOperation<T> of(T value) {
+        ListOperation<T> result = new ListOperation<>();
+        result.setValue(value);
+        return result;
     }
 
 }
