@@ -4,17 +4,18 @@ import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.SourceClassTypes;
+import solutions.sulfura.gend.dtos.ListOperation;
 import java.util.List;
 import java.lang.String;
 
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
-    public Option<List<java.lang.String>> stringArrayProperty;
+    public Option<List<ListOperation<String>>> stringArrayProperty;
     public Option<Boolean> booleanProperty;
     public Option<Double> doubleProperty;
     public Option<Long> longProperty;
-    public Option<List<Boolean>> booleanArrayProperty;
+    public Option<List<ListOperation<Boolean>>> booleanArrayProperty;
     public Option<String> stringProperty;
 
     public SourceClassTypesDto(){}
@@ -25,14 +26,14 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public static class Builder{
 
-        public Option<List<java.lang.String>> stringArrayProperty;
+        public Option<List<ListOperation<String>>> stringArrayProperty;
         public Option<Boolean> booleanProperty;
         public Option<Double> doubleProperty;
         public Option<Long> longProperty;
-        public Option<List<Boolean>> booleanArrayProperty;
+        public Option<List<ListOperation<Boolean>>> booleanArrayProperty;
         public Option<String> stringProperty;
 
-        public Builder stringArrayProperty(Option<List<java.lang.String>> stringArrayProperty){
+        public Builder stringArrayProperty(Option<List<ListOperation<String>>> stringArrayProperty){
             this.stringArrayProperty = stringArrayProperty;
             return this;
         }
@@ -52,7 +53,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
             return this;
         }
 
-        public Builder booleanArrayProperty(Option<List<Boolean>> booleanArrayProperty){
+        public Builder booleanArrayProperty(Option<List<ListOperation<Boolean>>> booleanArrayProperty){
             this.booleanArrayProperty = booleanArrayProperty;
             return this;
         }

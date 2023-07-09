@@ -84,18 +84,22 @@ public class AnnotationProcessorUtils {
         return propertyDataBuilder.build();
     }
 
-    public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror) {
+    public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv) {
 
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String declaredTypeString;
         List<String> declaredTypesQualifiedNames = new ArrayList<>();
+
+        TypeMirror listInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.List").asType();
+        TypeMirror setInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.Set").asType();
 
         if (typeMirror.getKind() == TypeKind.ARRAY) {
             ArrayType arrayType = (ArrayType) typeMirror;
 
             //Use lists instead of arrays
             String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
-            declaredTypeString = collectionTypeQualifiedName + "<" + getReplacementType(arrayType.getComponentType()) + ">";
+            declaredTypeString = collectionTypeQualifiedName + "<ListOperation<" + getReplacementType(arrayType.getComponentType()) + ">>";
+            declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
 
             if (arrayType.getComponentType().getKind() == TypeKind.DECLARED) {
@@ -104,12 +108,38 @@ public class AnnotationProcessorUtils {
 
         } else {
 
-            declaredTypeString = typeMirror.toString();
+            //List operations for List and Set types
+            if (processingEnv.getTypeUtils().isAssignable(typeMirror, listInterfaceType)) {
 
-            if (typeMirror.getKind().isPrimitive()) {
-                declaredTypeString = getReplacementType(typeMirror);
-            } else if (typeMirror.getKind() == TypeKind.DECLARED) {
-                declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
+                TypeMirror typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
+                declaredTypeString = "java.util.List<ListOperation<" + typeArg + ">>";
+
+                if (typeArg.getKind() == TypeKind.DECLARED) {
+                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                }
+
+                declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
+
+            } else if (processingEnv.getTypeUtils().isAssignable(typeMirror, setInterfaceType)) {
+
+                TypeMirror typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
+                declaredTypeString = "java.util.Set<ListOperation<" + typeArg + ">>";
+
+                if (typeArg.getKind() == TypeKind.DECLARED) {
+                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                }
+
+                declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
+            } else {
+
+                declaredTypeString = typeMirror.toString();
+
+                if (typeMirror.getKind().isPrimitive()) {
+                    declaredTypeString = getReplacementType(typeMirror);
+                } else if (typeMirror.getKind() == TypeKind.DECLARED) {
+                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
+                }
+
             }
 
         }
