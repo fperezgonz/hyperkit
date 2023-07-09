@@ -1,9 +1,9 @@
 package solutions.sulfura.gend.dtos;
 
-public class ListOperation<T>{
+public class ListOperation<T> {
 
-    public enum ListOperationType{
-        NONE, INSERT, UPDATE, UPSERT, DELETE
+    public enum ListOperationType {
+        READONLY, INSERT, UPDATE, /**If the item exists UPDATE, else INSERT*/UPSERT, DELETE
     }
 
     ListOperationType operationType;
@@ -23,6 +23,6 @@ public class ListOperation<T>{
 
     public void setValue(T value) {
         this.value = value;
-    }    
+    }
 
 }
