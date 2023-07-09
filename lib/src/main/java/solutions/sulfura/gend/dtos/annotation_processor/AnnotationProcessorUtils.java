@@ -91,11 +91,16 @@ public class AnnotationProcessorUtils {
         List<String> declaredTypesQualifiedNames = new ArrayList<>();
 
         if (typeMirror.getKind() == TypeKind.ARRAY) {
+            ArrayType arrayType = (ArrayType) typeMirror;
 
             //Use lists instead of arrays
             String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
-            declaredTypeString = collectionTypeQualifiedName + "<" + getReplacementType(((ArrayType) typeMirror).getComponentType()) + ">";
+            declaredTypeString = collectionTypeQualifiedName + "<" + getReplacementType(arrayType.getComponentType()) + ">";
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
+
+            if (arrayType.getComponentType().getKind() == TypeKind.DECLARED) {
+                declaredTypesQualifiedNames.add(((DeclaredType) arrayType.getComponentType()).asElement().toString());
+            }
 
         } else {
 
