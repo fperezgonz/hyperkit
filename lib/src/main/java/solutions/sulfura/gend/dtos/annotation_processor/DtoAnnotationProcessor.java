@@ -10,6 +10,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -53,7 +54,6 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
             //Generate source code
             Dto dtoAnnotationInstance = annotatedElement.getAnnotation(Dto.class);
             String dtoSourceCode = generateDtoSourceCode(dtoAnnotationInstance, annotatedElement, dtoProperties, sourceClassName_dtoClassName);
-            System.out.println(dtoSourceCode);
 
             //Create source file
             try {
@@ -67,6 +67,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 }
 
             } catch (IOException | RuntimeException e) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Exception thrown while generating dto class for element " + annotatedElement + ". Exception message: " + e.getMessage());
+                System.err.println(dtoSourceCode);
                 e.printStackTrace();
             }
         }
