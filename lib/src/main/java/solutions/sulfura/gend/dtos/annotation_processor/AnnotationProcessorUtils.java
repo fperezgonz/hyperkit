@@ -99,12 +99,13 @@ public class AnnotationProcessorUtils {
             //Use lists instead of arrays
             String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
             declaredTypeString = collectionTypeQualifiedName + "<ListOperation<" + getReplacementType(arrayType.getComponentType()) + ">>";
-            declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
 
             if (arrayType.getComponentType().getKind() == TypeKind.DECLARED) {
                 declaredTypesQualifiedNames.add(((DeclaredType) arrayType.getComponentType()).asElement().toString());
             }
+
+            declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
 
         } else {
 
@@ -130,6 +131,7 @@ public class AnnotationProcessorUtils {
                 }
 
                 declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
+
             } else {
 
                 declaredTypeString = typeMirror.toString();

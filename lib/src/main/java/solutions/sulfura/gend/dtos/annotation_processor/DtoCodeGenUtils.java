@@ -42,6 +42,11 @@ public class DtoCodeGenUtils {
 
     public DtoCodeGenUtils addImport(String importQualifiedType) {
 
+        //If the type has already been imported, skip
+        if (importsSimpleTypes_qualifiedTypes.containsKey(importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1))) {
+            return this;
+        }
+
         importsSimpleTypes_qualifiedTypes.put(importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1), importQualifiedType);
         stringBuilder.append("import ")
                 .append(importQualifiedType)

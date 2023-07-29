@@ -219,7 +219,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
      * @param className_replacingClassName a structure that maps classes to replacements. The generation process will take this into account and replace the classes declared in the dto's properties with the replacement classes
      * @return the source code for the Dto of the element
      */
-    public String generateDtoSourceCode(Dto dtoAnnotationInstance, TypeElement element, Map<String, SourceClassPropertyData> dtoProperties, Map<String, String> className_replacingClassName) {
+    public String generateDtoSourceCode(Dto dtoAnnotationInstance, TypeElement element,
+                                        Map<String, SourceClassPropertyData> dtoProperties,
+                                        Map<String, String> className_replacingClassName) {
 
         String packageName = getDestPackageName(dtoAnnotationInstance, element);
         String dtoClassName = getDtoClassName(dtoAnnotationInstance, element);
@@ -227,6 +229,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Generate code
         DtoCodeGenUtils codeGenUtils = new DtoCodeGenUtils();
 
+        //Basic imports
         codeGenUtils.addPackageDeclaration(packageName)
                 .addImport("io.vavr.control.Option")
                 .addImport("solutions.sulfura.gend.dtos.annotations.DtoFor")
@@ -240,16 +243,13 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
             for (String propertyTypeQualifiedName :
                     annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv).declaredTypesQualifiedNames) {
+
                 //Replace with replacement
                 if (className_replacingClassName.containsKey(propertyTypeQualifiedName)) {
                     propertyTypeQualifiedName = className_replacingClassName.get(propertyTypeQualifiedName);
                 }
 
-                String qualifiedNameForAlias = codeGenUtils.importsSimpleTypes_qualifiedTypes.get(propertyTypeQualifiedName.substring(propertyTypeQualifiedName.lastIndexOf('.') + 1));
-
-                if (qualifiedNameForAlias == null) {
-                    codeGenUtils.addImport(propertyTypeQualifiedName);
-                }
+                codeGenUtils.addImport(propertyTypeQualifiedName);
 
             }
         }

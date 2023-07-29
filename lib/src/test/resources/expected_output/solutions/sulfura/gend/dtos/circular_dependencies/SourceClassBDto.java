@@ -4,9 +4,9 @@ import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB;
-import solutions.sulfura.gend.dtos.ListOperation;
 import java.util.List;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto;
+import solutions.sulfura.gend.dtos.ListOperation;
 
 @DtoFor(SourceClassB.class)
 public class SourceClassBDto implements Dto<SourceClassB>{
