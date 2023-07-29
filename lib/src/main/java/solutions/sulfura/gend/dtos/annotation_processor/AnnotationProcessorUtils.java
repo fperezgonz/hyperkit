@@ -95,50 +95,75 @@ public class AnnotationProcessorUtils {
 
         if (typeMirror.getKind() == TypeKind.ARRAY) {
             ArrayType arrayType = (ArrayType) typeMirror;
+            TypeMirror typeArg = arrayType.getComponentType();
 
             //Use lists instead of arrays
             String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
-            declaredTypeString = collectionTypeQualifiedName + "<ListOperation<" + getReplacementType(arrayType.getComponentType()) + ">>";
-            declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
+            String collectionElementTypeLiteral;
 
-            if (arrayType.getComponentType().getKind() == TypeKind.DECLARED) {
-                declaredTypesQualifiedNames.add(((DeclaredType) arrayType.getComponentType()).asElement().toString());
+            if (typeArg.getKind() == TypeKind.DECLARED) {
+                PropertyTypeDeclaration typeArgDeclaration = typeToPropertyTypeDeclaration(typeArg, processingEnv);
+                declaredTypesQualifiedNames.addAll(typeArgDeclaration.declaredTypesQualifiedNames);
+                declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                collectionElementTypeLiteral = typeArgDeclaration.fieldDeclarationLiteral.toString();
+            } else {
+                collectionElementTypeLiteral = getReplacementType(typeArg);
             }
+
+            declaredTypeString = collectionTypeQualifiedName + "<ListOperation<" + collectionElementTypeLiteral + ">>";
+
+            declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
 
             declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
 
         } else {
 
             //List operations for List and Set types
-            if (processingEnv.getTypeUtils().isAssignable(typeMirror, listInterfaceType)) {
+            if (processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(listInterfaceType))) {
 
                 TypeMirror typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
-                declaredTypeString = "java.util.List<ListOperation<" + typeArg + ">>";
+                declaredTypesQualifiedNames.add("java.util.List");
+
+                String collectionElementTypeLiteral;
 
                 if (typeArg.getKind() == TypeKind.DECLARED) {
+                    PropertyTypeDeclaration typeArgDeclaration = typeToPropertyTypeDeclaration(typeArg, processingEnv);
+                    declaredTypesQualifiedNames.addAll(typeArgDeclaration.declaredTypesQualifiedNames);
                     declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                    collectionElementTypeLiteral = typeArgDeclaration.fieldDeclarationLiteral.toString();
+                } else {
+                    collectionElementTypeLiteral = getReplacementType(typeArg);
                 }
+
+                declaredTypeString = "java.util.List<ListOperation<" + collectionElementTypeLiteral + ">>";
 
                 declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
 
-            } else if (processingEnv.getTypeUtils().isAssignable(typeMirror, setInterfaceType)) {
+            } else if (processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType))) {
 
                 TypeMirror typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
-                declaredTypeString = "java.util.Set<ListOperation<" + typeArg + ">>";
+                declaredTypesQualifiedNames.add("java.util.Set");
+
+                String collectionElementTypeLiteral;
 
                 if (typeArg.getKind() == TypeKind.DECLARED) {
+                    PropertyTypeDeclaration typeArgDeclaration = typeToPropertyTypeDeclaration(typeArg, processingEnv);
+                    declaredTypesQualifiedNames.addAll(typeArgDeclaration.declaredTypesQualifiedNames);
                     declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                    collectionElementTypeLiteral = typeArgDeclaration.fieldDeclarationLiteral.toString();
+                } else {
+                    collectionElementTypeLiteral = getReplacementType(typeArg);
                 }
+
+                declaredTypeString = "java.util.Set<ListOperation<" + collectionElementTypeLiteral + ">>";
 
                 declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
 
             } else {
 
-                declaredTypeString = typeMirror.toString();
+                declaredTypeString = getReplacementType(typeMirror);
 
-                if (typeMirror.getKind().isPrimitive()) {
-                    declaredTypeString = getReplacementType(typeMirror);
-                } else if (typeMirror.getKind() == TypeKind.DECLARED) {
+                if (typeMirror.getKind() == TypeKind.DECLARED) {
                     declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
                 }
 

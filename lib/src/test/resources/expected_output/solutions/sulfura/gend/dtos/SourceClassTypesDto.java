@@ -4,8 +4,8 @@ import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.SourceClassTypes;
-import java.util.List;
 import java.lang.String;
+import java.util.List;
 import solutions.sulfura.gend.dtos.ListOperation;
 
 @DtoFor(SourceClassTypes.class)

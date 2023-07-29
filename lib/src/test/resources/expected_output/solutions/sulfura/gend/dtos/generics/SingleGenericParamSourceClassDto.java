@@ -5,6 +5,7 @@ import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 import java.util.Set;
+import solutions.sulfura.gend.dtos.ListOperation;
 
 @DtoFor(SingleGenericParamSourceClass.class)
 public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericParamSourceClass>{
@@ -12,7 +13,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
     public Option<T> genericPropertyWithSetter;
     public Option<T> genericProperty;
     public Option<T> genericPropertyWithGetter;
-    public Option<Set<T>> nestedGenericProperty;
+    public Option<Set<ListOperation<T>>> nestedGenericProperty;
 
     public SingleGenericParamSourceClassDto(){}
 
@@ -25,7 +26,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
         public Option<T> genericPropertyWithSetter;
         public Option<T> genericProperty;
         public Option<T> genericPropertyWithGetter;
-        public Option<Set<T>> nestedGenericProperty;
+        public Option<Set<ListOperation<T>>> nestedGenericProperty;
 
         public Builder<T> genericPropertyWithSetter(Option<T> genericPropertyWithSetter){
             this.genericPropertyWithSetter = genericPropertyWithSetter;
@@ -42,7 +43,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
             return this;
         }
 
-        public Builder<T> nestedGenericProperty(Option<Set<T>> nestedGenericProperty){
+        public Builder<T> nestedGenericProperty(Option<Set<ListOperation<T>>> nestedGenericProperty){
             this.nestedGenericProperty = nestedGenericProperty;
             return this;
         }

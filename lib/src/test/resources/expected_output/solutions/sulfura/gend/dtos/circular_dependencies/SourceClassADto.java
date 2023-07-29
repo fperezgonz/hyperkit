@@ -4,17 +4,17 @@ import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
-import java.util.List;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto;
+import java.util.List;
 import solutions.sulfura.gend.dtos.ListOperation;
 
 @DtoFor(SourceClassA.class)
 public class SourceClassADto implements Dto<SourceClassA>{
 
-    public Option<List<ListOperation<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto>>> propertyArray;
-    public Option<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB> property;
-    public Option<List<ListOperation<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>>>> genericPropertyArray;
-    public Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>> genericProperty;
+    public Option<List<ListOperation<SourceClassBDto>>> propertyArray;
+    public Option<SourceClassBDto> property;
+    public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray;
+    public Option<List<ListOperation<SourceClassBDto>>> genericProperty;
 
     public SourceClassADto(){}
 
@@ -24,27 +24,27 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     public static class Builder{
 
-        public Option<List<ListOperation<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto>>> propertyArray;
-        public Option<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB> property;
-        public Option<List<ListOperation<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>>>> genericPropertyArray;
-        public Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>> genericProperty;
+        public Option<List<ListOperation<SourceClassBDto>>> propertyArray;
+        public Option<SourceClassBDto> property;
+        public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray;
+        public Option<List<ListOperation<SourceClassBDto>>> genericProperty;
 
-        public Builder propertyArray(Option<List<ListOperation<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto>>> propertyArray){
+        public Builder propertyArray(Option<List<ListOperation<SourceClassBDto>>> propertyArray){
             this.propertyArray = propertyArray;
             return this;
         }
 
-        public Builder property(Option<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB> property){
+        public Builder property(Option<SourceClassBDto> property){
             this.property = property;
             return this;
         }
 
-        public Builder genericPropertyArray(Option<List<ListOperation<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>>>> genericPropertyArray){
+        public Builder genericPropertyArray(Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray){
             this.genericPropertyArray = genericPropertyArray;
             return this;
         }
 
-        public Builder genericProperty(Option<List<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB>> genericProperty){
+        public Builder genericProperty(Option<List<ListOperation<SourceClassBDto>>> genericProperty){
             this.genericProperty = genericProperty;
             return this;
         }
