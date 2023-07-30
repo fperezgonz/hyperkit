@@ -15,15 +15,15 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     public SourceClassGetterSetterDto(){}
 
-    public static  Builder builder(){
-        return new Builder();
-    }
-
     public static class Builder{
 
         public Option<String> stringPropertyWithGetter;
         public Option<String> stringPropertyWithSetter;
         public Option<String> stringPropertyWithGetterAndSetter;
+
+        public static  Builder newInstance(){
+            return new Builder();
+        }
 
         public Builder stringPropertyWithGetter(Option<String> stringPropertyWithGetter){
             this.stringPropertyWithGetter = stringPropertyWithGetter;

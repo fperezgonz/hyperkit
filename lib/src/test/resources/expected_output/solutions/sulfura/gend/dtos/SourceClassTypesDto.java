@@ -20,10 +20,6 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public SourceClassTypesDto(){}
 
-    public static  Builder builder(){
-        return new Builder();
-    }
-
     public static class Builder{
 
         public Option<List<ListOperation<String>>> stringArrayProperty;
@@ -32,6 +28,10 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         public Option<Long> longProperty;
         public Option<List<ListOperation<Boolean>>> booleanArrayProperty;
         public Option<String> stringProperty;
+
+        public static  Builder newInstance(){
+            return new Builder();
+        }
 
         public Builder stringArrayProperty(Option<List<ListOperation<String>>> stringArrayProperty){
             this.stringArrayProperty = stringArrayProperty;

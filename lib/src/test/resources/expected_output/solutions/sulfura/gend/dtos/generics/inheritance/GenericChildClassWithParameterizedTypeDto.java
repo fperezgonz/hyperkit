@@ -24,10 +24,6 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     public GenericChildClassWithParameterizedTypeDto(){}
 
-    public static  Builder builder(){
-        return new Builder();
-    }
-
     public static class Builder{
 
         public Option<String> overlappingGenericProperty;
@@ -40,6 +36,10 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         public Option<String> genericProperty;
         public Option<String> genericPropertyWithGetter;
         public Option<Set<ListOperation<String>>> nestedGenericProperty;
+
+        public static  Builder newInstance(){
+            return new Builder();
+        }
 
         public Builder overlappingGenericProperty(Option<String> overlappingGenericProperty){
             this.overlappingGenericProperty = overlappingGenericProperty;

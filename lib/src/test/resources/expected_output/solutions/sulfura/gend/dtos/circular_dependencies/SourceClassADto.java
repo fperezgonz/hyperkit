@@ -18,16 +18,16 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     public SourceClassADto(){}
 
-    public static  Builder builder(){
-        return new Builder();
-    }
-
     public static class Builder{
 
         public Option<List<ListOperation<SourceClassBDto>>> propertyArray;
         public Option<SourceClassBDto> property;
         public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray;
         public Option<List<ListOperation<SourceClassBDto>>> genericProperty;
+
+        public static  Builder newInstance(){
+            return new Builder();
+        }
 
         public Builder propertyArray(Option<List<ListOperation<SourceClassBDto>>> propertyArray){
             this.propertyArray = propertyArray;

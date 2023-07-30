@@ -17,16 +17,16 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
 
     public SingleGenericParamSourceClassDto(){}
 
-    public static <T> Builder<T> builder(){
-        return new Builder<>();
-    }
-
     public static class Builder<T>{
 
         public Option<T> genericPropertyWithSetter;
         public Option<T> genericProperty;
         public Option<T> genericPropertyWithGetter;
         public Option<Set<ListOperation<T>>> nestedGenericProperty;
+
+        public static <T> Builder<T> newInstance(){
+            return new Builder<>();
+        }
 
         public Builder<T> genericPropertyWithSetter(Option<T> genericPropertyWithSetter){
             this.genericPropertyWithSetter = genericPropertyWithSetter;

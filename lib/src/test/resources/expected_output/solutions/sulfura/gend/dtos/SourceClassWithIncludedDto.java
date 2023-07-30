@@ -17,10 +17,6 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     public SourceClassWithIncludedDto(){}
 
-    public static  Builder builder(){
-        return new Builder();
-    }
-
     public static class Builder{
 
         public Option<String> stringPropertyWithGetter;
@@ -28,6 +24,10 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
         public Option<String> stringPropertyWithSetter;
         public Option<String> stringProperty;
         public Option<String> stringPropertyWithSetterAndCustomAnnotation;
+
+        public static  Builder newInstance(){
+            return new Builder();
+        }
 
         public Builder stringPropertyWithGetter(Option<String> stringPropertyWithGetter){
             this.stringPropertyWithGetter = stringPropertyWithGetter;
