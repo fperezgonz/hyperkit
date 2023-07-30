@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos.fields.conf;
+package solutions.sulfura.gend.dtos.conf.fields;
 
 /**
  * The purpose of this class is to define presence or absence of the field on processes that adhere to this configuration, such as database queries or request data

@@ -1,10 +1,12 @@
-package solutions.sulfura.gend.dtos.fields.conf;
+package solutions.sulfura.gend.dtos.conf.fields;
+
+import solutions.sulfura.gend.dtos.conf.DtoConf;
 
 /**
  * The purpose of this class is to specify the list operations allowed in the process related to this configuration
  * see {@link FieldConf}
  */
-public class DtoListConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
+public class DtoListFieldConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
 
     public boolean allowInsert = false;
     public boolean allowUpdate = false;
@@ -57,14 +59,14 @@ public class DtoListConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
                     .presence(presence);
         }
 
-        public DtoListConf<T> build() {
-            DtoListConf<T> dtoListConf = new DtoListConf<>();
-            dtoListConf.allowUpdate = this.allowUpdate;
-            dtoListConf.dtoConf = this.dtoConf;
-            dtoListConf.presence = this.presence;
-            dtoListConf.allowInsert = this.allowInsert;
-            dtoListConf.allowDelete = this.allowDelete;
-            return dtoListConf;
+        public DtoListFieldConf<T> build() {
+            DtoListFieldConf<T> dtoListFieldConf = new DtoListFieldConf<>();
+            dtoListFieldConf.allowUpdate = this.allowUpdate;
+            dtoListFieldConf.dtoConf = this.dtoConf;
+            dtoListFieldConf.presence = this.presence;
+            dtoListFieldConf.allowInsert = this.allowInsert;
+            dtoListFieldConf.allowDelete = this.allowDelete;
+            return dtoListFieldConf;
         }
     }
 }

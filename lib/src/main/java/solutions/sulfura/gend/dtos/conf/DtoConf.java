@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos.fields.conf;
+package solutions.sulfura.gend.dtos.conf;
 
 import solutions.sulfura.gend.dtos.Dto;
 

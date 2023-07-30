@@ -1,10 +1,10 @@
-package solutions.sulfura.gend.dtos.fields.conf;
+package solutions.sulfura.gend.dtos.conf.fields;
 
 /**
  * The purpose of this class is to specify the list operations allowed in the process related to this configuration
  * see {@link FieldConf}
  */
-public class ListConf extends FieldConf {
+public class ListFieldConf extends FieldConf {
 
     public boolean allowInsert = false;
     public boolean allowUpdate = false;
@@ -52,8 +52,8 @@ public class ListConf extends FieldConf {
                     .allowDelete(allowDelete);
         }
 
-        public ListConf build() {
-            ListConf listConf = new ListConf();
+        public ListFieldConf build() {
+            ListFieldConf listConf = new ListFieldConf();
             listConf.allowInsert = this.allowInsert;
             listConf.presence = this.presence;
             listConf.allowUpdate = this.allowUpdate;
