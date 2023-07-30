@@ -6,7 +6,9 @@ package solutions.sulfura.gend.dtos.fields.conf;
  * If a field is not defined as MANDATORY or IGNORED its presence or absence should be determined by the context permissions
  */
 public class FieldConf {
+
     public enum Presence {MANDATORY, IGNORED, OPTIONAL}
-    Presence presence = Presence.OPTIONAL;
+    public Presence presence = Presence.OPTIONAL;
+
 
 }
