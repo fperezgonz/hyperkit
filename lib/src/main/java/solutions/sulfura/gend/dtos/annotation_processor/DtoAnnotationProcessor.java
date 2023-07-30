@@ -216,6 +216,37 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
+     * @return null if the type does not have any parameters
+     */
+    public StringBuilder typeArgumentsString(DeclaredType genericType) {
+
+        if (genericType.getTypeArguments().isEmpty()) {
+            return null;
+        }
+
+        StringBuilder genericTypeArgs = new StringBuilder();
+        genericTypeArgs.append('<');
+        boolean first = true;
+
+        for (TypeMirror typeArgument : genericType.getTypeArguments()) {
+
+            if (first) {
+                first = false;
+            } else {
+                genericTypeArgs.append(", ");
+            }
+
+            genericTypeArgs.append(typeArgument.toString());
+
+        }
+
+        genericTypeArgs.append('>');
+
+        return genericTypeArgs;
+
+    }
+
+    /**
      * @param className_replacingClassName a structure that maps classes to replacements. The generation process will take this into account and replace the classes declared in the dto's properties with the replacement classes
      * @return the source code for the Dto of the element
      */
@@ -258,38 +289,22 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         //Class declaration
         {
+
+            //@Dto annotation
             codeGenUtils.append('\n')
                     .append("@DtoFor(")
                     .append(element.getSimpleName())
                     .append(".class)\n");
 
             StringBuilder classDeclaration = new StringBuilder();
-
             classDeclaration.append("public class ")
                     .append(dtoClassName);
+
             //Add parameterized types to class declaration
+            dtoGenericTypeArgs = typeArgumentsString((DeclaredType) element.asType());
 
-            if (((DeclaredType) element.asType()).getTypeArguments().size() > 0) {
-
-                dtoGenericTypeArgs = new StringBuilder();
-                dtoGenericTypeArgs.append('<');
-                boolean first = true;
-
-                for (TypeMirror typeArgument : ((DeclaredType) element.asType()).getTypeArguments()) {
-
-                    if (first) {
-                        first = false;
-                    } else {
-                        dtoGenericTypeArgs.append(", ");
-                    }
-
-                    dtoGenericTypeArgs.append(typeArgument.toString());
-
-                }
-
-                dtoGenericTypeArgs.append('>');
+            if (dtoGenericTypeArgs != null) {
                 classDeclaration.append(dtoGenericTypeArgs);
-
             }
 
             //Add Dto interface implementation to class declaration
