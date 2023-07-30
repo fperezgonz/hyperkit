@@ -1,8 +1,6 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
-import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.Dto;
-import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
 import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.*;
 
@@ -262,17 +260,27 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Generate code
         DtoCodeGenUtils codeGenUtils = new DtoCodeGenUtils();
 
-        //Basic imports
-        codeGenUtils.addPackageDeclaration(packageName)
-                //Dto imports
-                .addImport(Option.class.getCanonicalName())
-                .addImport(DtoFor.class.getCanonicalName())
-                .addImport(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName())
-                //Source class import
-                .addImport(element.getQualifiedName().toString());
-
         AnnotationProcessorUtils annotationProcessorUtils = new AnnotationProcessorUtils();
         annotationProcessorUtils.setReplacements(className_replacingClassName);
+
+        codeGenUtils.addPackageDeclaration(packageName);
+        List<CharSequence> requiredImports = annotationProcessorUtils.collectRequiredDtoAndConfImports(
+                dtoProperties.values().stream()
+                        .map(prop -> prop.typeMirror)
+                        .collect(Collectors.toList()),
+                true
+        );
+
+        //Basic imports
+
+        //Dto and DtoConf imports
+        for (CharSequence charSequence : requiredImports) {
+            codeGenUtils.addImport(charSequence.toString());
+            annotationProcessorUtils.putReplacement(charSequence.toString(), charSequence.toString().substring(charSequence.toString().lastIndexOf('.')));
+        }
+
+        //Source class import
+        codeGenUtils.addImport(element.getQualifiedName().toString());
 
         //Add imports for types used in properties
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {

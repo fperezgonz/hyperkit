@@ -1,6 +1,8 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
+import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;
+import solutions.sulfura.gend.dtos.annotations.DtoFor;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -11,10 +13,23 @@ import java.util.*;
 
 public class AnnotationProcessorUtils {
 
-    private Map<String, String> replacements = new HashMap<>();
+    private final Map<String, String> replacements = new HashMap<>();
+
+    public void putAllReplacements(Map<String, String> replacements) {
+        if (replacements != null) {
+            this.replacements.putAll(replacements);
+        }
+    }
+
+    public void putReplacement(String replacedName, String replacement) {
+        if (replacedName != null && replacement != null) {
+            this.replacements.put(replacedName, replacement);
+        }
+    }
 
     public void setReplacements(Map<String, String> replacements) {
-        this.replacements = replacements == null ? new HashMap<>() : replacements;
+        this.replacements.clear();
+        putAllReplacements(replacements);
     }
 
     String getReplacementType(TypeMirror primitiveType) {
@@ -32,8 +47,8 @@ public class AnnotationProcessorUtils {
 
     }
 
-    String getReplacementType(String qualifiedName) {
-        return replacements.getOrDefault(qualifiedName, qualifiedName);
+    String getReplacementType(CharSequence qualifiedName) {
+        return replacements.getOrDefault(qualifiedName.toString(), qualifiedName.toString());
     }
 
     public static SourceClassPropertyData fieldToSourceClassPropertyData(ProcessingEnvironment processingEnv, Element field, DeclaredType sourceType) {
@@ -84,6 +99,46 @@ public class AnnotationProcessorUtils {
         propertyDataBuilder.typeMirror = propertyType;
 
         return propertyDataBuilder.build();
+    }
+
+    public StringBuilder wrapWithGeneric(StringBuilder typeDeclarationString, CharSequence wrapperQualifiedName) {
+
+        return typeDeclarationString.insert(0, getReplacementType(wrapperQualifiedName))
+                .insert(0, '<')
+                .append('>');
+
+    }
+
+    public StringBuilder wrapWithGeneric(PropertyTypeDeclaration propertyTypeDeclaration, CharSequence wrapperQualifiedName) {
+
+        propertyTypeDeclaration.fieldDeclarationLiteral = wrapWithGeneric(propertyTypeDeclaration.fieldDeclarationLiteral, wrapperQualifiedName);
+        propertyTypeDeclaration.declaredTypesQualifiedNames.add(wrapperQualifiedName.toString());
+
+        return propertyTypeDeclaration.fieldDeclarationLiteral;
+
+    }
+
+    public List<CharSequence> collectRequiredDtoAndConfImports(List<TypeMirror> types, boolean addConfImports) {
+
+        List<CharSequence> result = new ArrayList<>();
+        result.add(Option.class.getCanonicalName());
+        result.add(DtoFor.class.getCanonicalName());
+        result.add(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName());
+
+        //DtoConf imports
+        //TODO import only required classes
+//                .addImport(DtoConf.class.getCanonicalName())
+//                .addImport(FieldConf.class.getCanonicalName())
+//                .addImport(ListFieldConf.class.getCanonicalName())
+//                .addImport(DtoFieldConf.class.getCanonicalName())
+//                .addImport(DtoListFieldConf.class.getCanonicalName())
+
+        //TODO property imports
+
+        //throw new RuntimeException("Not implemented yet");
+
+        return result;
+
     }
 
     public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv) {
