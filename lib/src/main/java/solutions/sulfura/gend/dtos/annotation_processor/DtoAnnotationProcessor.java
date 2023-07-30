@@ -1,6 +1,8 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
+import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.Dto;
+import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
 import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.*;
 
@@ -262,9 +264,11 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         //Basic imports
         codeGenUtils.addPackageDeclaration(packageName)
-                .addImport("io.vavr.control.Option")
-                .addImport("solutions.sulfura.gend.dtos.annotations.DtoFor")
-                .addImport("solutions.sulfura.gend.dtos.Dto")
+                //Dto imports
+                .addImport(Option.class.getCanonicalName())
+                .addImport(DtoFor.class.getCanonicalName())
+                .addImport(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName())
+                //Source class import
                 .addImport(element.getQualifiedName().toString());
 
         AnnotationProcessorUtils annotationProcessorUtils = new AnnotationProcessorUtils();

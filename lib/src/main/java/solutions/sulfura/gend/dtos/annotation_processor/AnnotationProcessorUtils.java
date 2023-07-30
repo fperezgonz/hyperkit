@@ -1,5 +1,7 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
+import solutions.sulfura.gend.dtos.ListOperation;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -85,6 +87,7 @@ public class AnnotationProcessorUtils {
     }
 
     public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv) {
+        //TODO avoid including repeated entries in declaredTypesQualifiednames
 
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
         String declaredTypeString;
@@ -98,7 +101,7 @@ public class AnnotationProcessorUtils {
             TypeMirror typeArg = arrayType.getComponentType();
 
             //Use lists instead of arrays
-            String collectionTypeQualifiedName = replacements.getOrDefault("java.util.List", "java.util.List");
+            String collectionTypeQualifiedName = replacements.getOrDefault(List.class.getCanonicalName(), List.class.getCanonicalName());
             String collectionElementTypeLiteral;
 
             if (typeArg.getKind() == TypeKind.DECLARED) {
@@ -114,7 +117,7 @@ public class AnnotationProcessorUtils {
 
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
 
-            declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
+            declaredTypesQualifiedNames.add(ListOperation.class.getCanonicalName());
 
         } else {
 
@@ -122,7 +125,7 @@ public class AnnotationProcessorUtils {
             if (processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(listInterfaceType))) {
 
                 TypeMirror typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
-                declaredTypesQualifiedNames.add("java.util.List");
+                declaredTypesQualifiedNames.add(List.class.getCanonicalName());
 
                 String collectionElementTypeLiteral;
 
@@ -137,12 +140,12 @@ public class AnnotationProcessorUtils {
 
                 declaredTypeString = "java.util.List<ListOperation<" + collectionElementTypeLiteral + ">>";
 
-                declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
+                declaredTypesQualifiedNames.add(ListOperation.class.getCanonicalName());
 
             } else if (processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType))) {
 
                 TypeMirror typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
-                declaredTypesQualifiedNames.add("java.util.Set");
+                declaredTypesQualifiedNames.add(Set.class.getCanonicalName());
 
                 String collectionElementTypeLiteral;
 
@@ -157,7 +160,7 @@ public class AnnotationProcessorUtils {
 
                 declaredTypeString = "java.util.Set<ListOperation<" + collectionElementTypeLiteral + ">>";
 
-                declaredTypesQualifiedNames.add("solutions.sulfura.gend.dtos.ListOperation");
+                declaredTypesQualifiedNames.add(ListOperation.class.getCanonicalName());
 
             } else {
 
