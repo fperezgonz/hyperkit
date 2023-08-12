@@ -71,17 +71,33 @@ public class DtoCodeGenUtils {
 
     }
 
-    public DtoCodeGenUtils addFieldDeclaration(DtoPropertyData fieldData) {
+    public DtoCodeGenUtils addFieldDeclaration(DtoPropertyData fieldData, String genericWrappingClass) {
 
         String typeDeclarationString = getTypeDeclarationString(fieldData);
 
         stringBuilder.append(contextIndentation)
-                .append("public Option<")
-                .append(typeDeclarationString).append("> ")
+                .append("public ");
+
+        if (genericWrappingClass != null) {
+            stringBuilder.append(genericWrappingClass)
+                    .append('<');
+        }
+
+        stringBuilder.append(typeDeclarationString);
+
+        if (genericWrappingClass != null) {
+            stringBuilder.append('>');
+        }
+
+        stringBuilder.append(' ')
                 .append(fieldData.propertyName)
                 .append(";\n");
 
         return this;
+    }
+
+    public DtoCodeGenUtils addDtoFieldDeclaration(DtoPropertyData fieldData) {
+        return addFieldDeclaration(fieldData, "Option");
     }
 
     public DtoCodeGenUtils beginClass(CharSequence classDeclaration) {
@@ -168,7 +184,7 @@ public class DtoCodeGenUtils {
     }
 
     public DtoCodeGenUtils addBuilderField(DtoPropertyData fieldData) {
-        addFieldDeclaration(fieldData);
+        addDtoFieldDeclaration(fieldData);
         return this;
     }
 

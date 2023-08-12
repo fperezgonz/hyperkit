@@ -227,7 +227,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @return null if the type does not have any parameters
+     * @return for a type like Map.Entry&lt K, V&gt , it would return a String containing &lt K, V&gt . It returns null if the type does not have any parameters
      */
     public StringBuilder typeArgumentsString(DeclaredType genericType) {
 
@@ -275,16 +275,16 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         AnnotationProcessorUtils annotationProcessorUtils = new AnnotationProcessorUtils();
         annotationProcessorUtils.setReplacements(className_replacingDtoClassName);
 
+        //Package name
         codeGenUtils.addPackageDeclaration(packageName);
+
+        //Dto and DtoConf imports
         List<CharSequence> requiredImports = annotationProcessorUtils.collectRequiredDtoAndConfImports(
                 dtoProperties.values().stream()
                         .map(prop -> prop.typeMirror)
                         .collect(Collectors.toList()),
                 processingEnv, true);
 
-        //Basic imports
-
-        //Dto and DtoConf imports
         for (CharSequence charSequence : requiredImports) {
             codeGenUtils.addImport(charSequence.toString());
             annotationProcessorUtils.putReplacement(charSequence.toString(), charSequence.toString().substring(charSequence.toString().lastIndexOf('.') + 1));
@@ -293,7 +293,6 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Source class import
         codeGenUtils.addImport(element.getQualifiedName().toString());
 
-        //Add imports for types used in properties
         StringBuilder dtoGenericTypeArgs = null;
 
         //Class declaration
@@ -336,7 +335,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                     .propertyName(sourceClassPropertyData.name)
                     .build();
             //TODO add qualified names to imports if there are no clashes with other types
-            codeGenUtils.addFieldDeclaration(dtoPropertyData);
+            codeGenUtils.addDtoFieldDeclaration(dtoPropertyData);
             dtoPropertyDataList.add(dtoPropertyData);
 
         }
