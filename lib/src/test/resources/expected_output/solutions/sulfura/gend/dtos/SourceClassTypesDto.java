@@ -3,10 +3,10 @@ package solutions.sulfura.gend.dtos;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.SourceClassTypes;
 import java.lang.String;
 import java.util.List;
 import solutions.sulfura.gend.dtos.ListOperation;
+import solutions.sulfura.gend.dtos.SourceClassTypes;
 
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{

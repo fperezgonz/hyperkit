@@ -3,9 +3,9 @@ package solutions.sulfura.gend.dtos.generics;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 import java.util.Set;
 import solutions.sulfura.gend.dtos.ListOperation;
+import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 
 @DtoFor(SingleGenericParamSourceClass.class)
 public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericParamSourceClass>{

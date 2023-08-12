@@ -43,6 +43,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Map<String, String> sourceClassName_dtoClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
                         elem -> getDtoQualifiedName(elem.getAnnotation(Dto.class), elem)));
+        //Same for DtoConfig
+        Map<String, String> sourceClassName_dtoConfigClassName = elementsAnnotatedWithDto.stream()
+                .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
+                        elem -> getDtoConfQualifiedName(elem.getAnnotation(Dto.class), elem)));
         //TODO Add mappings for preexisting Dtos
 
         //Generate Dto classes for each element Annotated with @Dto
@@ -53,7 +57,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
             //Generate source code
             Dto dtoAnnotationInstance = annotatedElement.getAnnotation(Dto.class);
-            String dtoSourceCode = generateDtoSourceCode(dtoAnnotationInstance, annotatedElement, dtoProperties, sourceClassName_dtoClassName);
+            String dtoSourceCode = generateDtoSourceCode(dtoAnnotationInstance, annotatedElement, dtoProperties, sourceClassName_dtoClassName, sourceClassName_dtoConfigClassName);
 
             //Create source file
             try {
@@ -216,6 +220,13 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
+     * @return the qualified name of the DtoConf that will be generated for the element
+     */
+    public String getDtoConfQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
+        return getDestPackageName(dtoAnnotationInstance, element) + "." + getDtoClassName(dtoAnnotationInstance, element) + ".DtoConf";
+    }
+
+    /**
      * @return null if the type does not have any parameters
      */
     public StringBuilder typeArgumentsString(DeclaredType genericType) {
@@ -247,12 +258,13 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @param className_replacingClassName a structure that maps classes to replacements. The generation process will take this into account and replace the classes declared in the dto's properties with the replacement classes
+     * @param className_replacingDtoClassName a structure that maps classes to replacements. The generation process will take this into account and replace the classes declared in the dto's properties with the replacement classes
      * @return the source code for the Dto of the element
      */
     public String generateDtoSourceCode(Dto dtoAnnotationInstance, TypeElement element,
                                         Map<String, SourceClassPropertyData> dtoProperties,
-                                        Map<String, String> className_replacingClassName) {
+                                        Map<String, String> className_replacingDtoClassName,
+                                        Map<String, String> className_replacingDtoConfClassName) {
 
         String packageName = getDestPackageName(dtoAnnotationInstance, element);
         String dtoClassName = getDtoClassName(dtoAnnotationInstance, element);
@@ -261,42 +273,27 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         DtoCodeGenUtils codeGenUtils = new DtoCodeGenUtils();
 
         AnnotationProcessorUtils annotationProcessorUtils = new AnnotationProcessorUtils();
-        annotationProcessorUtils.setReplacements(className_replacingClassName);
+        annotationProcessorUtils.setReplacements(className_replacingDtoClassName);
 
         codeGenUtils.addPackageDeclaration(packageName);
         List<CharSequence> requiredImports = annotationProcessorUtils.collectRequiredDtoAndConfImports(
                 dtoProperties.values().stream()
                         .map(prop -> prop.typeMirror)
                         .collect(Collectors.toList()),
-                true
-        );
+                processingEnv, true);
 
         //Basic imports
 
         //Dto and DtoConf imports
         for (CharSequence charSequence : requiredImports) {
             codeGenUtils.addImport(charSequence.toString());
-            annotationProcessorUtils.putReplacement(charSequence.toString(), charSequence.toString().substring(charSequence.toString().lastIndexOf('.')));
+            annotationProcessorUtils.putReplacement(charSequence.toString(), charSequence.toString().substring(charSequence.toString().lastIndexOf('.') + 1));
         }
 
         //Source class import
         codeGenUtils.addImport(element.getQualifiedName().toString());
 
         //Add imports for types used in properties
-        for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
-            for (String propertyTypeQualifiedName :
-                    annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv).declaredTypesQualifiedNames) {
-
-                //Replace with replacement
-                if (className_replacingClassName.containsKey(propertyTypeQualifiedName)) {
-                    propertyTypeQualifiedName = className_replacingClassName.get(propertyTypeQualifiedName);
-                }
-
-                codeGenUtils.addImport(propertyTypeQualifiedName);
-
-            }
-        }
-
         StringBuilder dtoGenericTypeArgs = null;
 
         //Class declaration

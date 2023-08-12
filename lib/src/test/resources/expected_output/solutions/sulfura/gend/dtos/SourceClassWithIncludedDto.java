@@ -3,8 +3,8 @@ package solutions.sulfura.gend.dtos;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.SourceClassWithIncluded;
 import java.lang.String;
+import solutions.sulfura.gend.dtos.SourceClassWithIncluded;
 
 @DtoFor(SourceClassWithIncluded.class)
 public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{

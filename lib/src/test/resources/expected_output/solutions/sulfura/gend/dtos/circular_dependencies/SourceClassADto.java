@@ -3,10 +3,10 @@ package solutions.sulfura.gend.dtos.circular_dependencies;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto;
 import java.util.List;
 import solutions.sulfura.gend.dtos.ListOperation;
+import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
 
 @DtoFor(SourceClassA.class)
 public class SourceClassADto implements Dto<SourceClassA>{

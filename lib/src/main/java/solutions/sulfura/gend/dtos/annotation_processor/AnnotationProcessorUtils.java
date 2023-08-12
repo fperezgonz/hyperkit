@@ -118,7 +118,7 @@ public class AnnotationProcessorUtils {
 
     }
 
-    public List<CharSequence> collectRequiredDtoAndConfImports(List<TypeMirror> types, boolean addConfImports) {
+    public List<CharSequence> collectRequiredDtoAndConfImports(List<TypeMirror> types, ProcessingEnvironment processingEnv, boolean addConfImports) {
 
         List<CharSequence> result = new ArrayList<>();
         result.add(Option.class.getCanonicalName());
@@ -126,14 +126,24 @@ public class AnnotationProcessorUtils {
         result.add(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName());
 
         //DtoConf imports
-        //TODO import only required classes
-//                .addImport(DtoConf.class.getCanonicalName())
-//                .addImport(FieldConf.class.getCanonicalName())
-//                .addImport(ListFieldConf.class.getCanonicalName())
-//                .addImport(DtoFieldConf.class.getCanonicalName())
-//                .addImport(DtoListFieldConf.class.getCanonicalName())
+        if (addConfImports) {
+//            result.add(DtoConf.class.getCanonicalName());
+//            result.add(FieldConf.class.getCanonicalName());
+//            result.add(ListFieldConf.class.getCanonicalName());
+//            result.add(DtoFieldConf.class.getCanonicalName());
+//            result.add(DtoListFieldConf.class.getCanonicalName());
+        }
 
-        //TODO property imports
+        for (TypeMirror typeMirror : types) {
+
+            for (String propertyTypeQualifiedName :
+                    typeToPropertyTypeDeclaration(typeMirror, processingEnv).declaredTypesQualifiedNames) {
+                //Replace with replacement
+                result.add(getReplacementType(propertyTypeQualifiedName));
+            }
+
+        }
+        //TODO import only required classes
 
         //throw new RuntimeException("Not implemented yet");
 
