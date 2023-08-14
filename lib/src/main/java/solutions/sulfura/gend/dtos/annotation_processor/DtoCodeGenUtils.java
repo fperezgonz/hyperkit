@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DtoCodeGenUtils {
 
     StringBuilder stringBuilder = new StringBuilder();
-    public Map<String, String> importsSimpleTypes_qualifiedTypes = new HashMap<>();
+    public Map<String, String> importsAliasedTypes_qualifiedTypes = new HashMap<>();
     public String contextIndentation = "";
 
     public DtoCodeGenUtils() {
@@ -41,17 +41,40 @@ public class DtoCodeGenUtils {
         return this;
     }
 
+    private String aliasedNameFromQualifiedName(String importQualifiedType) {
+        return importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1);
+    }
+
     public DtoCodeGenUtils addImport(String importQualifiedType) {
 
-        //If the type has already been imported, skip
-        if (importsSimpleTypes_qualifiedTypes.containsKey(importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1))) {
+        String aliasedName = aliasedNameFromQualifiedName(importQualifiedType);
+
+        //TODO find a better way to deal with these two
+        if (aliasedName.equals("Builder") || aliasedName.equals("Conf")) {
             return this;
         }
 
-        importsSimpleTypes_qualifiedTypes.put(importQualifiedType.substring(importQualifiedType.lastIndexOf('.') + 1), importQualifiedType);
+        //If the type has already been imported, skip
+        if (importsAliasedTypes_qualifiedTypes.containsKey(aliasedName)) {
+            return this;
+        }
+
+        importsAliasedTypes_qualifiedTypes.put(aliasedName, importQualifiedType);
+
         stringBuilder.append("import ")
                 .append(importQualifiedType)
                 .append(";\n");
+
+        return this;
+
+    }
+
+    public DtoCodeGenUtils addConstructor(String className) {
+
+        append('\n')
+                .append("    public ")
+                .append(className)
+                .append("(){}\n\n");
 
         return this;
 
@@ -62,9 +85,9 @@ public class DtoCodeGenUtils {
         String typeDeclarationString = fieldData.typeDeclaration.fieldDeclarationLiteral.toString();
 
         for (String propertyQualifiedName : fieldData.typeDeclaration.declaredTypesQualifiedNames) {
-            String qualifiedNameForAlias = importsSimpleTypes_qualifiedTypes.get(propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
+            String qualifiedNameForAlias = importsAliasedTypes_qualifiedTypes.get(aliasedNameFromQualifiedName(propertyQualifiedName));
             if (Objects.equals(qualifiedNameForAlias, propertyQualifiedName)) {
-                typeDeclarationString = typeDeclarationString.replace(propertyQualifiedName, propertyQualifiedName.substring(propertyQualifiedName.lastIndexOf('.') + 1));
+                typeDeclarationString = typeDeclarationString.replace(propertyQualifiedName, aliasedNameFromQualifiedName(propertyQualifiedName));
             }
         }
 
@@ -72,37 +95,20 @@ public class DtoCodeGenUtils {
 
     }
 
-    public DtoCodeGenUtils addFieldDeclaration(DtoPropertyData fieldData, String genericWrappingClass) {
+    public DtoCodeGenUtils addFieldDeclaration(DtoPropertyData fieldData) {
 
         String typeDeclarationString = getTypeDeclarationString(fieldData);
 
         stringBuilder.append(contextIndentation)
                 .append("public ");
 
-        if (genericWrappingClass != null) {
-            stringBuilder.append(genericWrappingClass)
-                    .append('<');
-        }
-
         stringBuilder.append(typeDeclarationString);
-
-        if (genericWrappingClass != null) {
-            stringBuilder.append('>');
-        }
 
         stringBuilder.append(' ')
                 .append(fieldData.propertyName)
                 .append(";\n");
 
         return this;
-    }
-
-    public DtoCodeGenUtils addDtoFieldDeclaration(DtoPropertyData fieldData) {
-        return addFieldDeclaration(fieldData, "Option");
-    }
-
-    public DtoCodeGenUtils addConfigFieldDeclaration(DtoPropertyData fieldData) {
-        return addFieldDeclaration(fieldData, null);
     }
 
     public DtoCodeGenUtils addConfigClass(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
@@ -129,8 +135,12 @@ public class DtoCodeGenUtils {
 
         //Conf fields
         for (DtoPropertyData propertyData : propertyDataList) {
-            addConfigFieldDeclaration(propertyData);
+            addFieldDeclaration(propertyData);
         }
+
+        addConstructor("Conf");
+
+        addBuilder(baseClassName + ".Conf", genericTypeArgs, propertyDataList);
 
         append('\n')
                 .endClass()
@@ -177,7 +187,7 @@ public class DtoCodeGenUtils {
 
         //Builder fields
         for (DtoPropertyData propertyData : propertyDataList) {
-            addBuilderField(propertyData);
+            addFieldDeclaration(propertyData);
         }
 
         append('\n');
@@ -222,11 +232,6 @@ public class DtoCodeGenUtils {
 
     }
 
-    public DtoCodeGenUtils addBuilderField(DtoPropertyData fieldData) {
-        addDtoFieldDeclaration(fieldData);
-        return this;
-    }
-
     public DtoCodeGenUtils addBuilderProperty(DtoPropertyData propertyData, CharSequence genericTypeArguments) {
 
         String typeDeclarationString = getTypeDeclarationString(propertyData);
@@ -237,8 +242,7 @@ public class DtoCodeGenUtils {
         }
         stringBuilder.append(' ')
                 .append(propertyData.propertyName)
-                .append('(')
-                .append("Option<").append(typeDeclarationString).append("> ")
+                .append('(').append(typeDeclarationString).append(' ')
                 .append(propertyData.propertyName)
                 .append("){\n")
                 .append(contextIndentation).append("    this.").append(propertyData.propertyName)

@@ -1,5 +1,6 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
+import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.Dto;
 import solutions.sulfura.gend.dtos.annotations.DtoProperty;
 import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.*;
@@ -283,11 +284,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
                 dtoProperties.values().stream()
                         .map(prop -> prop.typeMirror)
                         .collect(Collectors.toList()),
-                processingEnv, true);
+                processingEnv, true, className_replacingDtoConfClassName);
 
         for (CharSequence charSequence : requiredImports) {
             codeGenUtils.addImport(charSequence.toString());
-            annotationProcessorUtils.putReplacement(charSequence.toString(), charSequence.toString().substring(charSequence.toString().lastIndexOf('.') + 1));
         }
 
         //Source class import
@@ -329,23 +329,20 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
 
-            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv);
+            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv, Option.class);
             DtoCodeGenUtils.DtoPropertyData dtoPropertyData = DtoCodeGenUtils.DtoPropertyData.builder()
                     .typeDeclaration(fieldTypeDeclaration)
                     .propertyName(sourceClassPropertyData.name)
                     .build();
             //TODO add qualified names to imports if there are no clashes with other types
-            codeGenUtils.addDtoFieldDeclaration(dtoPropertyData);
+            codeGenUtils.addFieldDeclaration(dtoPropertyData);
             dtoPropertyDataList.add(dtoPropertyData);
 
         }
 
 
         //Generate constructor
-        codeGenUtils.append('\n')
-                .append("    public ")
-                .append(dtoClassName)
-                .append("(){}\n\n");
+        codeGenUtils.addConstructor(dtoClassName);
 
         codeGenUtils.addBuilder(dtoClassName, dtoGenericTypeArgs, dtoPropertyDataList);
 

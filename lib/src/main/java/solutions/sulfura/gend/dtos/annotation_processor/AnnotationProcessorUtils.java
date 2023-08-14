@@ -123,27 +123,28 @@ public class AnnotationProcessorUtils {
 
     }
 
-    public List<CharSequence> collectRequiredDtoAndConfImports(List<TypeMirror> types, ProcessingEnvironment processingEnv, boolean addConfImports) {
+    public List<CharSequence> collectRequiredDtoAndConfImports(List<TypeMirror> types, ProcessingEnvironment processingEnv, boolean addConfImports, Map<String, String> className_replacingDtoConfClassName) {
 
         List<CharSequence> result = new ArrayList<>();
-        result.add(Option.class.getCanonicalName());
         result.add(DtoFor.class.getCanonicalName());
         result.add(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName());
 
         //DtoConf imports
         if (addConfImports) {
+
             result.add(DtoConf.class.getCanonicalName());
-            result.add(FieldConf.class.getCanonicalName());
-            result.add(ListFieldConf.class.getCanonicalName());
-            result.add(DtoFieldConf.class.getCanonicalName());
             result.add(FieldConf.Presence.class.getCanonicalName());
-            result.add(DtoListFieldConf.class.getCanonicalName());
+
+            for (TypeMirror typeMirror : types) {
+                result.addAll(typeToConfPropertyTypeDeclaration(typeMirror, processingEnv, className_replacingDtoConfClassName).declaredTypesQualifiedNames);
+            }
+
         }
 
         for (TypeMirror typeMirror : types) {
 
             for (String propertyTypeQualifiedName :
-                    typeToPropertyTypeDeclaration(typeMirror, processingEnv).declaredTypesQualifiedNames) {
+                    typeToPropertyTypeDeclaration(typeMirror, processingEnv, Option.class).declaredTypesQualifiedNames) {
                 //Replace with replacement
                 result.add(getReplacementType(propertyTypeQualifiedName));
             }
@@ -157,7 +158,7 @@ public class AnnotationProcessorUtils {
 
     }
 
-    public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv) {
+    public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv, Class<?> wrappingGenericClass) {
         //TODO avoid including repeated entries in declaredTypesQualifiednames
 
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
@@ -256,10 +257,21 @@ public class AnnotationProcessorUtils {
             }
         }
 
+        //Wrapping type
+        if (wrappingGenericClass != null) {
+            stringBuilder.insert(0, wrappingGenericClass.getCanonicalName() + '<');
+            stringBuilder.append('>');
+            declaredTypesQualifiedNames.add(wrappingGenericClass.getCanonicalName());
+        }
+
         return fieldTypeDeclarationBuilder
                 .fieldDeclarationLiteral(stringBuilder)
                 .declaredTypesQualifiedNames(declaredTypesQualifiedNames)
                 .build();
+    }
+
+    public PropertyTypeDeclaration typeToPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv) {
+        return typeToPropertyTypeDeclaration(typeMirror, processingEnv, null);
     }
 
     public PropertyTypeDeclaration typeToConfPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv,
@@ -289,12 +301,19 @@ public class AnnotationProcessorUtils {
                 declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
                 //The string with the config Property types
                 declaredTypeString = DtoFieldConf.class.getSimpleName() + "<" + typeElementConfQualifiedName + ">";
-                declaredTypesQualifiedNames.add(declaredTypeString);
+                declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
             } else {
                 //Add the type of field conf for this property
                 declaredTypesQualifiedNames.add(FieldConf.class.getCanonicalName());
                 declaredTypeString = FieldConf.class.getSimpleName();
-                declaredTypesQualifiedNames.add(declaredTypeString);
+            }
+
+            if (typeMirror instanceof DeclaredType) {
+                for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {
+                    if (typeArg.getKind() == TypeKind.DECLARED) {
+                        declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                    }
+                }
             }
 
         } else {
@@ -333,14 +352,6 @@ public class AnnotationProcessorUtils {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(declaredTypeString);
-
-        if (typeMirror instanceof DeclaredType) {
-            for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {
-                if (typeArg.getKind() == TypeKind.DECLARED) {
-                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
-                }
-            }
-        }
 
         return fieldTypeDeclarationBuilder
                 .fieldDeclarationLiteral(stringBuilder)
