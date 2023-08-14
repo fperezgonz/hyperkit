@@ -17,7 +17,7 @@ public class DtoListFieldConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
         private boolean allowInsert;
         private boolean allowUpdate;
         private boolean allowDelete;
-        private Presence presence;
+        private Presence presence = Presence.IGNORED;
 
         private DtoListConfBuilder() {
         }

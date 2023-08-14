@@ -1,6 +1,7 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
 import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.PropertyTypeDeclaration;
+import solutions.sulfura.gend.dtos.conf.DtoConf;
 
 import javax.lang.model.element.Name;
 import java.util.HashMap;
@@ -98,6 +99,44 @@ public class DtoCodeGenUtils {
 
     public DtoCodeGenUtils addDtoFieldDeclaration(DtoPropertyData fieldData) {
         return addFieldDeclaration(fieldData, "Option");
+    }
+
+    public DtoCodeGenUtils addConfigFieldDeclaration(DtoPropertyData fieldData) {
+        return addFieldDeclaration(fieldData, null);
+    }
+
+    public DtoCodeGenUtils addConfigClass(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
+
+        //Conf class declaration
+        StringBuilder confClassDeclaration = new StringBuilder("public static class Conf");
+
+        if (genericTypeArgs != null) {
+            confClassDeclaration.append(genericTypeArgs);
+        }
+
+        confClassDeclaration.append(" extends ")
+                .append(DtoConf.class.getSimpleName())
+                .append('<')
+                .append(baseClassName);
+
+        if (genericTypeArgs != null) {
+            confClassDeclaration.append(genericTypeArgs);
+        }
+
+        confClassDeclaration.append('>');
+
+        beginClass(confClassDeclaration);
+
+        //Conf fields
+        for (DtoPropertyData propertyData : propertyDataList) {
+            addConfigFieldDeclaration(propertyData);
+        }
+
+        append('\n')
+                .endClass()
+                .append("\n\n");
+
+        return this;
     }
 
     public DtoCodeGenUtils beginClass(CharSequence classDeclaration) {

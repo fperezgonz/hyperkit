@@ -14,7 +14,7 @@ public class DtoFieldConf<T extends DtoConf<?>> extends FieldConf {
 
     public static final class DtoFieldConfBuilder<T extends DtoConf<?>> {
         private T dtoConf;
-        private Presence presence;
+        private Presence presence = Presence.IGNORED;
 
         private DtoFieldConfBuilder() {
         }

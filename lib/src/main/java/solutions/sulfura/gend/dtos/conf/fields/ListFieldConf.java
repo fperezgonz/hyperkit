@@ -12,7 +12,7 @@ public class ListFieldConf extends FieldConf {
 
 
     public static final class ListConfBuilder {
-        private Presence presence;
+        private Presence presence = Presence.IGNORED;
         private boolean allowInsert;
         private boolean allowUpdate;
         private boolean allowDelete;

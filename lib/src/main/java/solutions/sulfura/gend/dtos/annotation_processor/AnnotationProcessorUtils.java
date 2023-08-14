@@ -3,6 +3,11 @@ package solutions.sulfura.gend.dtos.annotation_processor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
+import solutions.sulfura.gend.dtos.conf.DtoConf;
+import solutions.sulfura.gend.dtos.conf.fields.DtoFieldConf;
+import solutions.sulfura.gend.dtos.conf.fields.DtoListFieldConf;
+import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
+import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -127,11 +132,12 @@ public class AnnotationProcessorUtils {
 
         //DtoConf imports
         if (addConfImports) {
-//            result.add(DtoConf.class.getCanonicalName());
-//            result.add(FieldConf.class.getCanonicalName());
-//            result.add(ListFieldConf.class.getCanonicalName());
-//            result.add(DtoFieldConf.class.getCanonicalName());
-//            result.add(DtoListFieldConf.class.getCanonicalName());
+            result.add(DtoConf.class.getCanonicalName());
+            result.add(FieldConf.class.getCanonicalName());
+            result.add(ListFieldConf.class.getCanonicalName());
+            result.add(DtoFieldConf.class.getCanonicalName());
+            result.add(FieldConf.Presence.class.getCanonicalName());
+            result.add(DtoListFieldConf.class.getCanonicalName());
         }
 
         for (TypeMirror typeMirror : types) {
@@ -235,6 +241,92 @@ public class AnnotationProcessorUtils {
                     declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeMirror).asElement().toString()));
                 }
 
+            }
+
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(declaredTypeString);
+
+        if (typeMirror instanceof DeclaredType) {
+            for (TypeMirror typeArg : ((DeclaredType) typeMirror).getTypeArguments()) {
+                if (typeArg.getKind() == TypeKind.DECLARED) {
+                    declaredTypesQualifiedNames.add(getReplacementType(((DeclaredType) typeArg).asElement().toString()));
+                }
+            }
+        }
+
+        return fieldTypeDeclarationBuilder
+                .fieldDeclarationLiteral(stringBuilder)
+                .declaredTypesQualifiedNames(declaredTypesQualifiedNames)
+                .build();
+    }
+
+    public PropertyTypeDeclaration typeToConfPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv,
+                                                                     Map<String, String> className_replacingDtoConfClassName) {
+        //TODO avoid including repeated entries in declaredTypesQualifiednames
+
+        PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
+        String declaredTypeString;
+        List<String> declaredTypesQualifiedNames = new ArrayList<>();
+
+        TypeMirror listInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.List").asType();
+        TypeMirror setInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.Set").asType();
+
+        //If it is not an array, list or set, use FieldConf or DtoFieldConf
+        if (typeMirror.getKind() != TypeKind.ARRAY
+
+                //Is not a list
+                && !processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(listInterfaceType))
+                //Is not a set
+                && !processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType))) {
+
+            if (typeMirror.getKind() == TypeKind.DECLARED && className_replacingDtoConfClassName.containsKey(((DeclaredType) typeMirror).asElement().toString())) {
+                //Add the type of field conf for this property
+                declaredTypesQualifiedNames.add(DtoFieldConf.class.getCanonicalName());
+                String typeElementQualifiedName = ((DeclaredType) typeMirror).asElement().toString();
+                String typeElementConfQualifiedName = className_replacingDtoConfClassName.get(typeElementQualifiedName);
+                declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
+                //The string with the config Property types
+                declaredTypeString = DtoFieldConf.class.getSimpleName() + "<" + typeElementConfQualifiedName + ">";
+                declaredTypesQualifiedNames.add(declaredTypeString);
+            } else {
+                //Add the type of field conf for this property
+                declaredTypesQualifiedNames.add(FieldConf.class.getCanonicalName());
+                declaredTypeString = FieldConf.class.getSimpleName();
+                declaredTypesQualifiedNames.add(declaredTypeString);
+            }
+
+        } else {
+            //If it is an array, list or set, use ListFieldConf or DtoListFieldConf
+
+            TypeMirror typeArg;
+
+            //Find out the declared type of the elements in the array/list/set
+            if (typeMirror.getKind() == TypeKind.ARRAY) {
+                ArrayType arrayType = (ArrayType) typeMirror;
+                typeArg = arrayType.getComponentType();
+            } else {
+                typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
+            }
+
+            //If there is a Conf type for the type of the elements of the array
+            if (typeArg.getKind() == TypeKind.DECLARED && className_replacingDtoConfClassName.containsKey(((DeclaredType) typeArg).asElement().toString())) {
+                //Add the type of field conf for this property
+                declaredTypesQualifiedNames.add(DtoListFieldConf.class.getCanonicalName());
+                //Recursive call to get nested parameterized types
+                PropertyTypeDeclaration typeArgDeclaration = typeToConfPropertyTypeDeclaration(typeArg, processingEnv, className_replacingDtoConfClassName);
+                //Add the nested parameterized types to the list of declared types in this property declaration
+                declaredTypesQualifiedNames.addAll(typeArgDeclaration.declaredTypesQualifiedNames);
+                String typeElementQualifiedName = ((DeclaredType) typeArg).asElement().toString();
+                String typeElementConfQualifiedName = className_replacingDtoConfClassName.get(typeElementQualifiedName);
+                declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
+                //The string with the config Property types
+                declaredTypeString = DtoListFieldConf.class.getSimpleName() + "<" + typeElementConfQualifiedName + ">";
+            } else {
+                //Add the type of field conf for this property
+                declaredTypesQualifiedNames.add(ListFieldConf.class.getCanonicalName());
+                declaredTypeString = ListFieldConf.class.getSimpleName();
             }
 
         }

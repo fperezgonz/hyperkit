@@ -223,7 +223,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
      * @return the qualified name of the DtoConf that will be generated for the element
      */
     public String getDtoConfQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
-        return getDestPackageName(dtoAnnotationInstance, element) + "." + getDtoClassName(dtoAnnotationInstance, element) + ".DtoConf";
+        return getDestPackageName(dtoAnnotationInstance, element) + "." + getDtoClassName(dtoAnnotationInstance, element) + ".Conf";
     }
 
     /**
@@ -324,9 +324,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         }
 
+        //Generate properties
         List<DtoCodeGenUtils.DtoPropertyData> dtoPropertyDataList = new ArrayList<>();
 
-        //Generate properties
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
 
             AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv);
@@ -349,7 +349,24 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         codeGenUtils.addBuilder(dtoClassName, dtoGenericTypeArgs, dtoPropertyDataList);
 
+        //Generate Conf class properties
+        List<DtoCodeGenUtils.DtoPropertyData> confPropertyDataList = new ArrayList<>();
+
+        for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
+
+            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToConfPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv, className_replacingDtoConfClassName);
+            DtoCodeGenUtils.DtoPropertyData dtoPropertyData = DtoCodeGenUtils.DtoPropertyData.builder()
+                    .typeDeclaration(fieldTypeDeclaration)
+                    .propertyName(sourceClassPropertyData.name)
+                    .build();
+            //TODO add qualified names to imports if there are no clashes with other types
+            confPropertyDataList.add(dtoPropertyData);
+
+        }
+
+        codeGenUtils.addConfigClass(dtoClassName, dtoGenericTypeArgs, confPropertyDataList);
         codeGenUtils.endClass();
+
         return codeGenUtils.toString();
 
     }

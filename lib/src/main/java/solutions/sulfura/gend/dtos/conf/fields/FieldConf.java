@@ -14,4 +14,25 @@ public class FieldConf {
     public Presence presence = Presence.IGNORED;
 
 
+    public static final class FieldConfBuilder {
+        private Presence presence = Presence.IGNORED;
+
+        private FieldConfBuilder() {
+        }
+
+        public static FieldConfBuilder newInstance() {
+            return new FieldConfBuilder();
+        }
+
+        public FieldConfBuilder presence(Presence presence) {
+            this.presence = presence;
+            return this;
+        }
+
+        public FieldConf build() {
+            FieldConf fieldConf = new FieldConf();
+            fieldConf.presence = this.presence;
+            return fieldConf;
+        }
+    }
 }
