@@ -1,9 +1,11 @@
 package solutions.sulfura.gend.dtos;
 
-import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.conf.DtoConf;
+import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
 import java.lang.String;
+import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.SourceClassWithIncluded;
 
 @DtoFor(SourceClassWithIncluded.class)
@@ -63,6 +65,68 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
             instance.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation;
             return instance;
         }
+
+    }
+
+    public static class Conf extends DtoConf<SourceClassWithIncludedDto>{
+
+        public FieldConf stringPropertyWithGetter;
+        public FieldConf stringPropertyWithCustomAnnotation;
+        public FieldConf stringPropertyWithSetter;
+        public FieldConf stringProperty;
+        public FieldConf stringPropertyWithSetterAndCustomAnnotation;
+
+        public Conf(){}
+
+        public static class Builder{
+
+            public FieldConf stringPropertyWithGetter;
+            public FieldConf stringPropertyWithCustomAnnotation;
+            public FieldConf stringPropertyWithSetter;
+            public FieldConf stringProperty;
+            public FieldConf stringPropertyWithSetterAndCustomAnnotation;
+
+            public static  Builder newInstance(){
+                return new Builder();
+            }
+
+            public Builder stringPropertyWithGetter(FieldConf stringPropertyWithGetter){
+                this.stringPropertyWithGetter = stringPropertyWithGetter;
+                return this;
+            }
+
+            public Builder stringPropertyWithCustomAnnotation(FieldConf stringPropertyWithCustomAnnotation){
+                this.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation;
+                return this;
+            }
+
+            public Builder stringPropertyWithSetter(FieldConf stringPropertyWithSetter){
+                this.stringPropertyWithSetter = stringPropertyWithSetter;
+                return this;
+            }
+
+            public Builder stringProperty(FieldConf stringProperty){
+                this.stringProperty = stringProperty;
+                return this;
+            }
+
+            public Builder stringPropertyWithSetterAndCustomAnnotation(FieldConf stringPropertyWithSetterAndCustomAnnotation){
+                this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation;
+                return this;
+            }
+
+            public SourceClassWithIncludedDto.Conf build(){
+                SourceClassWithIncludedDto.Conf instance = new SourceClassWithIncludedDto.Conf();
+                instance.stringPropertyWithGetter = stringPropertyWithGetter;
+                instance.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation;
+                instance.stringPropertyWithSetter = stringPropertyWithSetter;
+                instance.stringProperty = stringProperty;
+                instance.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation;
+                return instance;
+            }
+
+        }
+
 
     }
 

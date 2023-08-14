@@ -72,7 +72,8 @@ public class DtoCodeGenUtils {
     public DtoCodeGenUtils addConstructor(String className) {
 
         append('\n')
-                .append("    public ")
+                .append(contextIndentation)
+                .append("public ")
                 .append(className)
                 .append("(){}\n\n");
 

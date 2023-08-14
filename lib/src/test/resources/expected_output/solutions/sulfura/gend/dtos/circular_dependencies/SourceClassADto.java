@@ -3,7 +3,6 @@ package solutions.sulfura.gend.dtos.circular_dependencies;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.conf.fields.DtoListFieldConf;
 import solutions.sulfura.gend.dtos.conf.fields.DtoFieldConf;
 import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;

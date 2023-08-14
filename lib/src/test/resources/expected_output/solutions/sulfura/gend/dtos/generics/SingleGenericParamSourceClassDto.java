@@ -1,8 +1,11 @@
 package solutions.sulfura.gend.dtos.generics;
 
-import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.conf.DtoConf;
+import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
+import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
+import io.vavr.control.Option;
 import java.util.Set;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
@@ -56,6 +59,60 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
             instance.nestedGenericProperty = nestedGenericProperty;
             return instance;
         }
+
+    }
+
+    public static class Conf<T> extends DtoConf<SingleGenericParamSourceClassDto<T>>{
+
+        public FieldConf genericPropertyWithSetter;
+        public FieldConf genericProperty;
+        public FieldConf genericPropertyWithGetter;
+        public ListFieldConf nestedGenericProperty;
+
+        public Conf(){}
+
+        public static class Builder<T>{
+
+            public FieldConf genericPropertyWithSetter;
+            public FieldConf genericProperty;
+            public FieldConf genericPropertyWithGetter;
+            public ListFieldConf nestedGenericProperty;
+
+            public static <T> Builder<T> newInstance(){
+                return new Builder<>();
+            }
+
+            public Builder<T> genericPropertyWithSetter(FieldConf genericPropertyWithSetter){
+                this.genericPropertyWithSetter = genericPropertyWithSetter;
+                return this;
+            }
+
+            public Builder<T> genericProperty(FieldConf genericProperty){
+                this.genericProperty = genericProperty;
+                return this;
+            }
+
+            public Builder<T> genericPropertyWithGetter(FieldConf genericPropertyWithGetter){
+                this.genericPropertyWithGetter = genericPropertyWithGetter;
+                return this;
+            }
+
+            public Builder<T> nestedGenericProperty(ListFieldConf nestedGenericProperty){
+                this.nestedGenericProperty = nestedGenericProperty;
+                return this;
+            }
+
+            public SingleGenericParamSourceClassDto.Conf<T> build(){
+                SingleGenericParamSourceClassDto.Conf instance = new SingleGenericParamSourceClassDto.Conf();
+                instance.genericPropertyWithSetter = genericPropertyWithSetter;
+                instance.genericProperty = genericProperty;
+                instance.genericPropertyWithGetter = genericPropertyWithGetter;
+                instance.nestedGenericProperty = nestedGenericProperty;
+                return instance;
+            }
+
+        }
+
 
     }
 
