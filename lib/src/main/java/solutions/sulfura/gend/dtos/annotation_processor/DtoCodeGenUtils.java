@@ -265,8 +265,16 @@ public class DtoCodeGenUtils {
         increaseIndent();
 
         stringBuilder.append(contextIndentation)
-                .append(builderSourceClass).append(" instance = new ")
-                .append(builderSourceClass).append("();\n");
+                .append(builderSourceClass);
+        if (genericTypeArguments != null) {
+            stringBuilder.append(genericTypeArguments);
+        }
+        stringBuilder.append(" instance = new ")
+                .append(builderSourceClass);
+        if (genericTypeArguments != null) {
+            stringBuilder.append("<>");
+        }
+        stringBuilder.append("();\n");
 
         for (String propertyName : propertyNames) {
             stringBuilder.append(contextIndentation)

@@ -317,8 +317,13 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
             //Add Dto interface implementation to class declaration
             classDeclaration.append(" implements Dto<")
-                    .append(element.getSimpleName())
-                    .append('>');
+                    .append(element.getSimpleName());
+
+            if (dtoGenericTypeArgs != null) {
+                classDeclaration.append(dtoGenericTypeArgs);
+            }
+
+                    classDeclaration.append('>');
 
             codeGenUtils.beginClass(classDeclaration.toString());
 

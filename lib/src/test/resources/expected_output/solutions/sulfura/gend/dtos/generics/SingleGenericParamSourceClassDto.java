@@ -11,7 +11,7 @@ import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 
 @DtoFor(SingleGenericParamSourceClass.class)
-public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericParamSourceClass>{
+public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericParamSourceClass<T>>{
 
     public Option<T> genericPropertyWithSetter;
     public Option<T> genericProperty;
@@ -52,7 +52,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
         }
 
         public SingleGenericParamSourceClassDto<T> build(){
-            SingleGenericParamSourceClassDto instance = new SingleGenericParamSourceClassDto();
+            SingleGenericParamSourceClassDto<T> instance = new SingleGenericParamSourceClassDto<>();
             instance.genericPropertyWithSetter = genericPropertyWithSetter;
             instance.genericProperty = genericProperty;
             instance.genericPropertyWithGetter = genericPropertyWithGetter;
@@ -103,7 +103,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
             }
 
             public SingleGenericParamSourceClassDto.Conf<T> build(){
-                SingleGenericParamSourceClassDto.Conf instance = new SingleGenericParamSourceClassDto.Conf();
+                SingleGenericParamSourceClassDto.Conf<T> instance = new SingleGenericParamSourceClassDto.Conf<>();
                 instance.genericPropertyWithSetter = genericPropertyWithSetter;
                 instance.genericProperty = genericProperty;
                 instance.genericPropertyWithGetter = genericPropertyWithGetter;
