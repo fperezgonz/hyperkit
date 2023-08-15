@@ -9,6 +9,7 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'maven-publish'
 }
 
 repositories {
@@ -24,6 +25,32 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.13.0'
 
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'solutions.sulfura'
+            artifactId = 'gen-d'
+            version = '1.0-beta'
+
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "https://gitlab.com/api/v4/46985246/packages/maven"
+            credentials(HttpHeaderCredentials) {
+                name = "Job-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
+    }
+}
+
+
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
