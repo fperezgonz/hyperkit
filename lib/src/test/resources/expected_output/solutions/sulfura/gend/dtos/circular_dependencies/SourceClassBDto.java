@@ -15,41 +15,41 @@ import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB;
 @DtoFor(SourceClassB.class)
 public class SourceClassBDto implements Dto<SourceClassB>{
 
-    public Option<List<ListOperation<SourceClassADto>>> propertyArray;
-    public Option<SourceClassADto> property;
-    public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray;
-    public Option<List<ListOperation<SourceClassADto>>> genericProperty;
+    public Option<List<ListOperation<SourceClassADto>>> propertyArray = Option.some(null);
+    public Option<SourceClassADto> property = Option.some(null);
+    public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = Option.some(null);
+    public Option<List<ListOperation<SourceClassADto>>> genericProperty = Option.some(null);
 
     public SourceClassBDto(){}
 
     public static class Builder{
 
-        public Option<List<ListOperation<SourceClassADto>>> propertyArray;
-        public Option<SourceClassADto> property;
-        public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray;
-        public Option<List<ListOperation<SourceClassADto>>> genericProperty;
+        public Option<List<ListOperation<SourceClassADto>>> propertyArray = Option.some(null);
+        public Option<SourceClassADto> property = Option.some(null);
+        public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = Option.some(null);
+        public Option<List<ListOperation<SourceClassADto>>> genericProperty = Option.some(null);
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
         public Builder propertyArray(Option<List<ListOperation<SourceClassADto>>> propertyArray){
-            this.propertyArray = propertyArray;
+            this.propertyArray = propertyArray == null ? Option.some(null) : propertyArray;
             return this;
         }
 
         public Builder property(Option<SourceClassADto> property){
-            this.property = property;
+            this.property = property == null ? Option.some(null) : property;
             return this;
         }
 
         public Builder genericPropertyArray(Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray){
-            this.genericPropertyArray = genericPropertyArray;
+            this.genericPropertyArray = genericPropertyArray == null ? Option.some(null) : genericPropertyArray;
             return this;
         }
 
         public Builder genericProperty(Option<List<ListOperation<SourceClassADto>>> genericProperty){
-            this.genericProperty = genericProperty;
+            this.genericProperty = genericProperty == null ? Option.some(null) : genericProperty;
             return this;
         }
 

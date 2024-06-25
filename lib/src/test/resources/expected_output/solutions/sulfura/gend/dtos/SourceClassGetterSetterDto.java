@@ -11,34 +11,34 @@ import solutions.sulfura.gend.dtos.SourceClassGetterSetter;
 @DtoFor(SourceClassGetterSetter.class)
 public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
-    public Option<String> stringPropertyWithGetter;
-    public Option<String> stringPropertyWithSetter;
-    public Option<String> stringPropertyWithGetterAndSetter;
+    public Option<String> stringPropertyWithGetter = Option.some(null);
+    public Option<String> stringPropertyWithSetter = Option.some(null);
+    public Option<String> stringPropertyWithGetterAndSetter = Option.some(null);
 
     public SourceClassGetterSetterDto(){}
 
     public static class Builder{
 
-        public Option<String> stringPropertyWithGetter;
-        public Option<String> stringPropertyWithSetter;
-        public Option<String> stringPropertyWithGetterAndSetter;
+        public Option<String> stringPropertyWithGetter = Option.some(null);
+        public Option<String> stringPropertyWithSetter = Option.some(null);
+        public Option<String> stringPropertyWithGetterAndSetter = Option.some(null);
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
         public Builder stringPropertyWithGetter(Option<String> stringPropertyWithGetter){
-            this.stringPropertyWithGetter = stringPropertyWithGetter;
+            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? Option.some(null) : stringPropertyWithGetter;
             return this;
         }
 
         public Builder stringPropertyWithSetter(Option<String> stringPropertyWithSetter){
-            this.stringPropertyWithSetter = stringPropertyWithSetter;
+            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? Option.some(null) : stringPropertyWithSetter;
             return this;
         }
 
         public Builder stringPropertyWithGetterAndSetter(Option<String> stringPropertyWithGetterAndSetter){
-            this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter;
+            this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter == null ? Option.some(null) : stringPropertyWithGetterAndSetter;
             return this;
         }
 

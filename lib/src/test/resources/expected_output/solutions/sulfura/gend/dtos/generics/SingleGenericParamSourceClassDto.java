@@ -13,41 +13,41 @@ import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 @DtoFor(SingleGenericParamSourceClass.class)
 public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericParamSourceClass<T>>{
 
-    public Option<T> genericPropertyWithSetter;
-    public Option<T> genericProperty;
-    public Option<T> genericPropertyWithGetter;
-    public Option<Set<ListOperation<T>>> nestedGenericProperty;
+    public Option<T> genericPropertyWithSetter = Option.some(null);
+    public Option<T> genericProperty = Option.some(null);
+    public Option<T> genericPropertyWithGetter = Option.some(null);
+    public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.some(null);
 
     public SingleGenericParamSourceClassDto(){}
 
     public static class Builder<T>{
 
-        public Option<T> genericPropertyWithSetter;
-        public Option<T> genericProperty;
-        public Option<T> genericPropertyWithGetter;
-        public Option<Set<ListOperation<T>>> nestedGenericProperty;
+        public Option<T> genericPropertyWithSetter = Option.some(null);
+        public Option<T> genericProperty = Option.some(null);
+        public Option<T> genericPropertyWithGetter = Option.some(null);
+        public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.some(null);
 
         public static <T> Builder<T> newInstance(){
             return new Builder<>();
         }
 
         public Builder<T> genericPropertyWithSetter(Option<T> genericPropertyWithSetter){
-            this.genericPropertyWithSetter = genericPropertyWithSetter;
+            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.some(null) : genericPropertyWithSetter;
             return this;
         }
 
         public Builder<T> genericProperty(Option<T> genericProperty){
-            this.genericProperty = genericProperty;
+            this.genericProperty = genericProperty == null ? Option.some(null) : genericProperty;
             return this;
         }
 
         public Builder<T> genericPropertyWithGetter(Option<T> genericPropertyWithGetter){
-            this.genericPropertyWithGetter = genericPropertyWithGetter;
+            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.some(null) : genericPropertyWithGetter;
             return this;
         }
 
         public Builder<T> nestedGenericProperty(Option<Set<ListOperation<T>>> nestedGenericProperty){
-            this.nestedGenericProperty = nestedGenericProperty;
+            this.nestedGenericProperty = nestedGenericProperty == null ? Option.some(null) : nestedGenericProperty;
             return this;
         }
 

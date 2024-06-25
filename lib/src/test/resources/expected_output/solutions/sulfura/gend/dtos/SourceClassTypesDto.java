@@ -14,55 +14,55 @@ import solutions.sulfura.gend.dtos.SourceClassTypes;
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
-    public Option<List<ListOperation<String>>> stringArrayProperty;
-    public Option<Boolean> booleanProperty;
-    public Option<Double> doubleProperty;
-    public Option<Long> longProperty;
-    public Option<List<ListOperation<Boolean>>> booleanArrayProperty;
-    public Option<String> stringProperty;
+    public Option<List<ListOperation<String>>> stringArrayProperty = Option.some(null);
+    public Option<Boolean> booleanProperty = Option.some(null);
+    public Option<Double> doubleProperty = Option.some(null);
+    public Option<Long> longProperty = Option.some(null);
+    public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.some(null);
+    public Option<String> stringProperty = Option.some(null);
 
     public SourceClassTypesDto(){}
 
     public static class Builder{
 
-        public Option<List<ListOperation<String>>> stringArrayProperty;
-        public Option<Boolean> booleanProperty;
-        public Option<Double> doubleProperty;
-        public Option<Long> longProperty;
-        public Option<List<ListOperation<Boolean>>> booleanArrayProperty;
-        public Option<String> stringProperty;
+        public Option<List<ListOperation<String>>> stringArrayProperty = Option.some(null);
+        public Option<Boolean> booleanProperty = Option.some(null);
+        public Option<Double> doubleProperty = Option.some(null);
+        public Option<Long> longProperty = Option.some(null);
+        public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.some(null);
+        public Option<String> stringProperty = Option.some(null);
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
         public Builder stringArrayProperty(Option<List<ListOperation<String>>> stringArrayProperty){
-            this.stringArrayProperty = stringArrayProperty;
+            this.stringArrayProperty = stringArrayProperty == null ? Option.some(null) : stringArrayProperty;
             return this;
         }
 
         public Builder booleanProperty(Option<Boolean> booleanProperty){
-            this.booleanProperty = booleanProperty;
+            this.booleanProperty = booleanProperty == null ? Option.some(null) : booleanProperty;
             return this;
         }
 
         public Builder doubleProperty(Option<Double> doubleProperty){
-            this.doubleProperty = doubleProperty;
+            this.doubleProperty = doubleProperty == null ? Option.some(null) : doubleProperty;
             return this;
         }
 
         public Builder longProperty(Option<Long> longProperty){
-            this.longProperty = longProperty;
+            this.longProperty = longProperty == null ? Option.some(null) : longProperty;
             return this;
         }
 
         public Builder booleanArrayProperty(Option<List<ListOperation<Boolean>>> booleanArrayProperty){
-            this.booleanArrayProperty = booleanArrayProperty;
+            this.booleanArrayProperty = booleanArrayProperty == null ? Option.some(null) : booleanArrayProperty;
             return this;
         }
 
         public Builder stringProperty(Option<String> stringProperty){
-            this.stringProperty = stringProperty;
+            this.stringProperty = stringProperty == null ? Option.some(null) : stringProperty;
             return this;
         }
 

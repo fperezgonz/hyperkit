@@ -101,13 +101,16 @@ public class DtoCodeGenUtils {
         String typeDeclarationString = getTypeDeclarationString(fieldData);
 
         stringBuilder.append(contextIndentation)
-                .append("public ");
+                .append("public ")
+                .append(typeDeclarationString)
+                .append(' ')
+                .append(fieldData.propertyName);
 
-        stringBuilder.append(typeDeclarationString);
+        if (typeDeclarationString.startsWith("Option<")) {
+            stringBuilder.append(" = Option.some(null)");
+        }
 
-        stringBuilder.append(' ')
-                .append(fieldData.propertyName)
-                .append(";\n");
+        stringBuilder.append(";\n");
 
         return this;
     }
@@ -247,7 +250,11 @@ public class DtoCodeGenUtils {
                 .append(propertyData.propertyName)
                 .append("){\n")
                 .append(contextIndentation).append("    this.").append(propertyData.propertyName)
-                .append(" = ").append(propertyData.propertyName).append(";\n")
+                .append(" = ");
+        if (typeDeclarationString.startsWith("Option<")) {
+            stringBuilder.append(propertyData.propertyName).append(" == null ? Option.some(null) : ");
+        }
+        stringBuilder.append(propertyData.propertyName).append(";\n")
                 .append(contextIndentation).append("    return this;\n")
                 .append(contextIndentation).append("}\n\n");
 
