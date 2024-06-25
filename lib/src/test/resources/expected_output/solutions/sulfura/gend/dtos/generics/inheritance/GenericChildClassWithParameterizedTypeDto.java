@@ -8,6 +8,7 @@ import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
 import java.lang.String;
 import io.vavr.control.Option;
 import java.util.Set;
+import java.util.HashSet;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedType;
 
@@ -17,13 +18,13 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
     public Option<String> overlappingGenericProperty = Option.some(null);
     public Option<String> inheritedGenericPropertyWithGetter = Option.some(null);
     public Option<String> inheritedGenericProperty = Option.some(null);
-    public Option<Set<ListOperation<String>>> inheritedNestedGenericProperty = Option.some(null);
-    public Option<Set<ListOperation<String>>> overlappingNestedGenericProperty = Option.some(null);
+    public Set<ListOperation<String>> inheritedNestedGenericProperty = new HashSet<>();
+    public Set<ListOperation<String>> overlappingNestedGenericProperty = new HashSet<>();
     public Option<String> inheritedGenericPropertyWithSetter = Option.some(null);
     public Option<String> genericPropertyWithSetter = Option.some(null);
     public Option<String> genericProperty = Option.some(null);
     public Option<String> genericPropertyWithGetter = Option.some(null);
-    public Option<Set<ListOperation<String>>> nestedGenericProperty = Option.some(null);
+    public Set<ListOperation<String>> nestedGenericProperty = new HashSet<>();
 
     public GenericChildClassWithParameterizedTypeDto(){}
 
@@ -32,13 +33,13 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         public Option<String> overlappingGenericProperty = Option.some(null);
         public Option<String> inheritedGenericPropertyWithGetter = Option.some(null);
         public Option<String> inheritedGenericProperty = Option.some(null);
-        public Option<Set<ListOperation<String>>> inheritedNestedGenericProperty = Option.some(null);
-        public Option<Set<ListOperation<String>>> overlappingNestedGenericProperty = Option.some(null);
+        public Set<ListOperation<String>> inheritedNestedGenericProperty = new HashSet<>();
+        public Set<ListOperation<String>> overlappingNestedGenericProperty = new HashSet<>();
         public Option<String> inheritedGenericPropertyWithSetter = Option.some(null);
         public Option<String> genericPropertyWithSetter = Option.some(null);
         public Option<String> genericProperty = Option.some(null);
         public Option<String> genericPropertyWithGetter = Option.some(null);
-        public Option<Set<ListOperation<String>>> nestedGenericProperty = Option.some(null);
+        public Set<ListOperation<String>> nestedGenericProperty = new HashSet<>();
 
         public static  Builder newInstance(){
             return new Builder();
@@ -59,13 +60,13 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
             return this;
         }
 
-        public Builder inheritedNestedGenericProperty(Option<Set<ListOperation<String>>> inheritedNestedGenericProperty){
-            this.inheritedNestedGenericProperty = inheritedNestedGenericProperty == null ? Option.some(null) : inheritedNestedGenericProperty;
+        public Builder inheritedNestedGenericProperty(Set<ListOperation<String>> inheritedNestedGenericProperty){
+            this.inheritedNestedGenericProperty = inheritedNestedGenericProperty == null ? new HashSet<>() : inheritedNestedGenericProperty;
             return this;
         }
 
-        public Builder overlappingNestedGenericProperty(Option<Set<ListOperation<String>>> overlappingNestedGenericProperty){
-            this.overlappingNestedGenericProperty = overlappingNestedGenericProperty == null ? Option.some(null) : overlappingNestedGenericProperty;
+        public Builder overlappingNestedGenericProperty(Set<ListOperation<String>> overlappingNestedGenericProperty){
+            this.overlappingNestedGenericProperty = overlappingNestedGenericProperty == null ? new HashSet<>() : overlappingNestedGenericProperty;
             return this;
         }
 
@@ -89,8 +90,8 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
             return this;
         }
 
-        public Builder nestedGenericProperty(Option<Set<ListOperation<String>>> nestedGenericProperty){
-            this.nestedGenericProperty = nestedGenericProperty == null ? Option.some(null) : nestedGenericProperty;
+        public Builder nestedGenericProperty(Set<ListOperation<String>> nestedGenericProperty){
+            this.nestedGenericProperty = nestedGenericProperty == null ? new HashSet<>() : nestedGenericProperty;
             return this;
         }
 

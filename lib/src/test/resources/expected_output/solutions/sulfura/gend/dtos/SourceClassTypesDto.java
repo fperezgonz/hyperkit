@@ -7,6 +7,7 @@ import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
 import java.lang.String;
 import java.util.List;
+import java.util.ArrayList;
 import solutions.sulfura.gend.dtos.ListOperation;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.SourceClassTypes;
@@ -14,30 +15,30 @@ import solutions.sulfura.gend.dtos.SourceClassTypes;
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
-    public Option<List<ListOperation<String>>> stringArrayProperty = Option.some(null);
+    public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();
     public Option<Boolean> booleanProperty = Option.some(null);
     public Option<Double> doubleProperty = Option.some(null);
     public Option<Long> longProperty = Option.some(null);
-    public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.some(null);
+    public List<ListOperation<Boolean>> booleanArrayProperty = new ArrayList<>();
     public Option<String> stringProperty = Option.some(null);
 
     public SourceClassTypesDto(){}
 
     public static class Builder{
 
-        public Option<List<ListOperation<String>>> stringArrayProperty = Option.some(null);
+        public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();
         public Option<Boolean> booleanProperty = Option.some(null);
         public Option<Double> doubleProperty = Option.some(null);
         public Option<Long> longProperty = Option.some(null);
-        public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.some(null);
+        public List<ListOperation<Boolean>> booleanArrayProperty = new ArrayList<>();
         public Option<String> stringProperty = Option.some(null);
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringArrayProperty(Option<List<ListOperation<String>>> stringArrayProperty){
-            this.stringArrayProperty = stringArrayProperty == null ? Option.some(null) : stringArrayProperty;
+        public Builder stringArrayProperty(List<ListOperation<String>> stringArrayProperty){
+            this.stringArrayProperty = stringArrayProperty == null ? new ArrayList<>() : stringArrayProperty;
             return this;
         }
 
@@ -56,8 +57,8 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
             return this;
         }
 
-        public Builder booleanArrayProperty(Option<List<ListOperation<Boolean>>> booleanArrayProperty){
-            this.booleanArrayProperty = booleanArrayProperty == null ? Option.some(null) : booleanArrayProperty;
+        public Builder booleanArrayProperty(List<ListOperation<Boolean>> booleanArrayProperty){
+            this.booleanArrayProperty = booleanArrayProperty == null ? new ArrayList<>() : booleanArrayProperty;
             return this;
         }
 

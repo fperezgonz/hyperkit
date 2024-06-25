@@ -141,9 +141,20 @@ public class AnnotationProcessorUtils {
         }
 
         for (TypeMirror typeMirror : types) {
+            Class<?> wrappingClass = null;
+
+            TypeMirror listInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.List").asType();
+            TypeMirror setInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.Set").asType();
+
+            //If it is not an array, List or Set, wrap inside an Option
+            if (typeMirror.getKind() != TypeKind.ARRAY
+                    && (!processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(listInterfaceType)))
+                    && (!processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType)))) {
+                wrappingClass = Option.class;
+            }
 
             for (String propertyTypeQualifiedName :
-                    typeToPropertyTypeDeclaration(typeMirror, processingEnv, Option.class).declaredTypesQualifiedNames) {
+                    typeToPropertyTypeDeclaration(typeMirror, processingEnv, wrappingClass).declaredTypesQualifiedNames) {
                 //Replace with replacement
                 result.add(getReplacementType(propertyTypeQualifiedName));
             }
@@ -188,6 +199,7 @@ public class AnnotationProcessorUtils {
 
             declaredTypesQualifiedNames.add(collectionTypeQualifiedName);
 
+            declaredTypesQualifiedNames.add(ArrayList.class.getCanonicalName());
             declaredTypesQualifiedNames.add(ListOperation.class.getCanonicalName());
 
         } else {
@@ -211,6 +223,7 @@ public class AnnotationProcessorUtils {
 
                 declaredTypeString = "java.util.List<ListOperation<" + collectionElementTypeLiteral + ">>";
 
+                declaredTypesQualifiedNames.add(ArrayList.class.getCanonicalName());
                 declaredTypesQualifiedNames.add(ListOperation.class.getCanonicalName());
 
             } else if (processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType))) {
@@ -231,6 +244,7 @@ public class AnnotationProcessorUtils {
 
                 declaredTypeString = "java.util.Set<ListOperation<" + collectionElementTypeLiteral + ">>";
 
+                declaredTypesQualifiedNames.add(HashSet.class.getCanonicalName());
                 declaredTypesQualifiedNames.add(ListOperation.class.getCanonicalName());
 
             } else {

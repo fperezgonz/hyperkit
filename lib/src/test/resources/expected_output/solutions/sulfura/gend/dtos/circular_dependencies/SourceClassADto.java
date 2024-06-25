@@ -8,6 +8,7 @@ import solutions.sulfura.gend.dtos.conf.fields.DtoFieldConf;
 import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto;
 import java.util.List;
+import java.util.ArrayList;
 import solutions.sulfura.gend.dtos.ListOperation;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
@@ -15,26 +16,26 @@ import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
 @DtoFor(SourceClassA.class)
 public class SourceClassADto implements Dto<SourceClassA>{
 
-    public Option<List<ListOperation<SourceClassBDto>>> propertyArray = Option.some(null);
+    public List<ListOperation<SourceClassBDto>> propertyArray = new ArrayList<>();
     public Option<SourceClassBDto> property = Option.some(null);
-    public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray = Option.some(null);
-    public Option<List<ListOperation<SourceClassBDto>>> genericProperty = Option.some(null);
+    public List<ListOperation<List<ListOperation<SourceClassBDto>>>> genericPropertyArray = new ArrayList<>();
+    public List<ListOperation<SourceClassBDto>> genericProperty = new ArrayList<>();
 
     public SourceClassADto(){}
 
     public static class Builder{
 
-        public Option<List<ListOperation<SourceClassBDto>>> propertyArray = Option.some(null);
+        public List<ListOperation<SourceClassBDto>> propertyArray = new ArrayList<>();
         public Option<SourceClassBDto> property = Option.some(null);
-        public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray = Option.some(null);
-        public Option<List<ListOperation<SourceClassBDto>>> genericProperty = Option.some(null);
+        public List<ListOperation<List<ListOperation<SourceClassBDto>>>> genericPropertyArray = new ArrayList<>();
+        public List<ListOperation<SourceClassBDto>> genericProperty = new ArrayList<>();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder propertyArray(Option<List<ListOperation<SourceClassBDto>>> propertyArray){
-            this.propertyArray = propertyArray == null ? Option.some(null) : propertyArray;
+        public Builder propertyArray(List<ListOperation<SourceClassBDto>> propertyArray){
+            this.propertyArray = propertyArray == null ? new ArrayList<>() : propertyArray;
             return this;
         }
 
@@ -43,13 +44,13 @@ public class SourceClassADto implements Dto<SourceClassA>{
             return this;
         }
 
-        public Builder genericPropertyArray(Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray){
-            this.genericPropertyArray = genericPropertyArray == null ? Option.some(null) : genericPropertyArray;
+        public Builder genericPropertyArray(List<ListOperation<List<ListOperation<SourceClassBDto>>>> genericPropertyArray){
+            this.genericPropertyArray = genericPropertyArray == null ? new ArrayList<>() : genericPropertyArray;
             return this;
         }
 
-        public Builder genericProperty(Option<List<ListOperation<SourceClassBDto>>> genericProperty){
-            this.genericProperty = genericProperty == null ? Option.some(null) : genericProperty;
+        public Builder genericProperty(List<ListOperation<SourceClassBDto>> genericProperty){
+            this.genericProperty = genericProperty == null ? new ArrayList<>() : genericProperty;
             return this;
         }
 

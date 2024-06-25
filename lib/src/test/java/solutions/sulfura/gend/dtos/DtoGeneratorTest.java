@@ -1,7 +1,6 @@
 package solutions.sulfura.gend.dtos;
 
 
-import com.google.auto.service.AutoService;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

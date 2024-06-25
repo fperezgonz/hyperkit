@@ -7,6 +7,7 @@ import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
 import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
 import io.vavr.control.Option;
 import java.util.Set;
+import java.util.HashSet;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 
@@ -16,7 +17,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
     public Option<T> genericPropertyWithSetter = Option.some(null);
     public Option<T> genericProperty = Option.some(null);
     public Option<T> genericPropertyWithGetter = Option.some(null);
-    public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.some(null);
+    public Set<ListOperation<T>> nestedGenericProperty = new HashSet<>();
 
     public SingleGenericParamSourceClassDto(){}
 
@@ -25,7 +26,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
         public Option<T> genericPropertyWithSetter = Option.some(null);
         public Option<T> genericProperty = Option.some(null);
         public Option<T> genericPropertyWithGetter = Option.some(null);
-        public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.some(null);
+        public Set<ListOperation<T>> nestedGenericProperty = new HashSet<>();
 
         public static <T> Builder<T> newInstance(){
             return new Builder<>();
@@ -46,8 +47,8 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
             return this;
         }
 
-        public Builder<T> nestedGenericProperty(Option<Set<ListOperation<T>>> nestedGenericProperty){
-            this.nestedGenericProperty = nestedGenericProperty == null ? Option.some(null) : nestedGenericProperty;
+        public Builder<T> nestedGenericProperty(Set<ListOperation<T>> nestedGenericProperty){
+            this.nestedGenericProperty = nestedGenericProperty == null ? new HashSet<>() : nestedGenericProperty;
             return this;
         }
 
