@@ -3,6 +3,8 @@
 .idea
 .vscode
 
-lib/bin
-lib/build
+gen-d-annotation-processor/bin
+gen-d-annotation-processor/build
+gen-d-api/bin
+gen-d-api/build
 

@@ -14,10 +14,12 @@ plugins {
 
 repositories {
     // Use Maven Central for resolving dependencies.
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
+    implementation 'com.digitalizat:gen-d-api:1.0-SNAPSHOT'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
     api "io.vavr:vavr:0.10.4"
     testImplementation 'commons-io:commons-io:2.13.0'
@@ -28,7 +30,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.digitalizat'
-            artifactId = 'gen-d'
+            artifactId = 'gen-d-annotation-processor'
             version = '1.0-SNAPSHOT'
 
             from components.java
