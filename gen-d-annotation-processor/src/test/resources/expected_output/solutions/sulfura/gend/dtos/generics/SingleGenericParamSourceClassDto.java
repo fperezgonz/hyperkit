@@ -21,6 +21,10 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
 
     public SingleGenericParamSourceClassDto(){}
 
+    public Class<SingleGenericParamSourceClass> getSourceClass() {
+        return SingleGenericParamSourceClass.class;
+    }
+
     public static class Builder<T>{
 
         public Option<T> genericPropertyWithSetter = Option.some(null);

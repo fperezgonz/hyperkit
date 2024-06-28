@@ -17,6 +17,10 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     public SourceClassGetterSetterDto(){}
 
+    public Class<SourceClassGetterSetter> getSourceClass() {
+        return SourceClassGetterSetter.class;
+    }
+
     public static class Builder{
 
         public Option<String> stringPropertyWithGetter = Option.some(null);

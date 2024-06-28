@@ -24,6 +24,10 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public SourceClassTypesDto(){}
 
+    public Class<SourceClassTypes> getSourceClass() {
+        return SourceClassTypes.class;
+    }
+
     public static class Builder{
 
         public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();

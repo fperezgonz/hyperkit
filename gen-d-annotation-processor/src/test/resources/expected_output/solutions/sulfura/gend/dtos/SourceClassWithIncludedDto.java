@@ -19,6 +19,10 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     public SourceClassWithIncludedDto(){}
 
+    public Class<SourceClassWithIncluded> getSourceClass() {
+        return SourceClassWithIncluded.class;
+    }
+
     public static class Builder{
 
         public Option<String> stringPropertyWithGetter = Option.some(null);

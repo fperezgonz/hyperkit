@@ -358,6 +358,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Generate constructor
         codeGenUtils.addConstructor(dtoClassName);
 
+        codeGenUtils.addSourceClassGetter(element.getSimpleName());
+
         codeGenUtils.addBuilder(dtoClassName, dtoGenericTypeArgs, dtoPropertyDataList);
 
         //Generate Conf class properties

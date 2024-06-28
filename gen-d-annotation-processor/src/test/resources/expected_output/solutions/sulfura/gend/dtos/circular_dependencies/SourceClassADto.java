@@ -23,6 +23,10 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     public SourceClassADto(){}
 
+    public Class<SourceClassA> getSourceClass() {
+        return SourceClassA.class;
+    }
+
     public static class Builder{
 
         public List<ListOperation<SourceClassBDto>> propertyArray = new ArrayList<>();

@@ -6,21 +6,29 @@ public class ListOperation<T> {
         /**Don't perform automatic data modification with this item*/
         READONLY,
         /**Add to the list*/
-        INSERT,
-        /**Create or update entity data if it is on the list*/
-        UPDATE,
-        /**
-         * If the item is not on the list, add it
-         * Also create or update the entity data
-         */
-        UPSERT,
+        ADD,
         /**
          * Remove the entity from the list. If this list represents an aggregate, the process might delete the entity from the database upon removal from the list
          * */
         DELETE
     }
 
+    public enum ItemOperationType {
+        /**Don't perform automatic data modification with this item*/
+        READONLY,
+        /**Create entity if it is going to be added to the list*/
+        INSERT,
+        /**Update entity data if it is on the list or is going to be added to it*/
+        UPDATE,
+        /**
+         * If the item does not exist, create it with the supplied data
+         * If the entity is on the list or is going to be added to it, update the data
+         */
+        UPSERT,
+    }
+
     ListOperationType operationType;
+    ItemOperationType itemOperationType;
     T value;
 
     public ListOperationType getOperationType() {
@@ -29,6 +37,14 @@ public class ListOperation<T> {
 
     public void setOperationType(ListOperationType operationType) {
         this.operationType = operationType;
+    }
+
+    public ItemOperationType getItemOperationType() {
+        return itemOperationType;
+    }
+
+    public void setItemOperationType(ItemOperationType itemOperationType) {
+        this.itemOperationType = itemOperationType;
     }
 
     public T getValue() {

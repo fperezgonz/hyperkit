@@ -314,6 +314,21 @@ public class DtoCodeGenUtils {
         return stringBuilder.toString();
     }
 
+    public DtoCodeGenUtils addSourceClassGetter(Name simpleName) {
+        stringBuilder.append(contextIndentation)
+                .append("public Class<")
+                .append(simpleName)
+                .append("> getSourceClass() {\n");
+        increaseIndent();
+        stringBuilder.append(contextIndentation)
+                .append("return ").append(simpleName).append(".class;\n");
+        decreaseIndent();
+        stringBuilder.append(contextIndentation)
+                .append("}\n\n");
+
+        return this;
+    }
+
 
     public static class DtoPropertyData {
 
