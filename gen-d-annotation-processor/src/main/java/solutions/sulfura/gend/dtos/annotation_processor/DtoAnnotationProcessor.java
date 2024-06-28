@@ -226,7 +226,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @return for a type like Map.Entry&lt K, V&gt , it would return a String containing &lt K, V&gt . It returns null if the type does not have any parameters
+     * @return for a type like Map.Entry&lt; K, V&gt; , it would return a String containing &lt; K, V&gt; . It returns null if the type does not have any parameters
      */
     public StringBuilder typeArgumentsString(DeclaredType genericType) {
 
