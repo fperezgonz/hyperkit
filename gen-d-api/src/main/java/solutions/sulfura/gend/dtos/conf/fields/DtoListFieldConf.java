@@ -9,13 +9,11 @@ import solutions.sulfura.gend.dtos.conf.DtoConf;
 public class DtoListFieldConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
 
     public boolean allowInsert = false;
-    public boolean allowUpdate = false;
     public boolean allowDelete = false;
 
     public static final class DtoListConfBuilder<T extends DtoConf<?>> {
         private T dtoConf;
         private boolean allowInsert;
-        private boolean allowUpdate;
         private boolean allowDelete;
         private Presence presence = Presence.IGNORED;
 
@@ -36,11 +34,6 @@ public class DtoListFieldConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
             return this;
         }
 
-        public DtoListConfBuilder<T> allowUpdate(boolean allowUpdate) {
-            this.allowUpdate = allowUpdate;
-            return this;
-        }
-
         public DtoListConfBuilder<T> allowDelete(boolean allowDelete) {
             this.allowDelete = allowDelete;
             return this;
@@ -54,14 +47,12 @@ public class DtoListFieldConf<T extends DtoConf<?>> extends DtoFieldConf<T> {
         public DtoListConfBuilder<T> but() {
             return DtoListConfBuilder.<T>newInstance().dtoConf(dtoConf)
                     .allowInsert(allowInsert)
-                    .allowUpdate(allowUpdate)
                     .allowDelete(allowDelete)
                     .presence(presence);
         }
 
         public DtoListFieldConf<T> build() {
             DtoListFieldConf<T> dtoListFieldConf = new DtoListFieldConf<>();
-            dtoListFieldConf.allowUpdate = this.allowUpdate;
             dtoListFieldConf.dtoConf = this.dtoConf;
             dtoListFieldConf.presence = this.presence;
             dtoListFieldConf.allowInsert = this.allowInsert;
