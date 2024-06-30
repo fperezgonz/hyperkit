@@ -11,11 +11,11 @@ import solutions.sulfura.gend.dtos.SourceClassWithIncluded;
 @DtoFor(SourceClassWithIncluded.class)
 public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
-    public Option<String> stringPropertyWithGetter = Option.some(null);
-    public Option<String> stringPropertyWithCustomAnnotation = Option.some(null);
-    public Option<String> stringPropertyWithSetter = Option.some(null);
-    public Option<String> stringProperty = Option.some(null);
-    public Option<String> stringPropertyWithSetterAndCustomAnnotation = Option.some(null);
+    public Option<String> stringPropertyWithGetter = Option.none();
+    public Option<String> stringPropertyWithCustomAnnotation = Option.none();
+    public Option<String> stringPropertyWithSetter = Option.none();
+    public Option<String> stringProperty = Option.none();
+    public Option<String> stringPropertyWithSetterAndCustomAnnotation = Option.none();
 
     public SourceClassWithIncludedDto(){}
 
@@ -25,38 +25,38 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     public static class Builder{
 
-        public Option<String> stringPropertyWithGetter = Option.some(null);
-        public Option<String> stringPropertyWithCustomAnnotation = Option.some(null);
-        public Option<String> stringPropertyWithSetter = Option.some(null);
-        public Option<String> stringProperty = Option.some(null);
-        public Option<String> stringPropertyWithSetterAndCustomAnnotation = Option.some(null);
+        public Option<String> stringPropertyWithGetter = Option.none();
+        public Option<String> stringPropertyWithCustomAnnotation = Option.none();
+        public Option<String> stringPropertyWithSetter = Option.none();
+        public Option<String> stringProperty = Option.none();
+        public Option<String> stringPropertyWithSetterAndCustomAnnotation = Option.none();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
         public Builder stringPropertyWithGetter(Option<String> stringPropertyWithGetter){
-            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? Option.some(null) : stringPropertyWithGetter;
+            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? Option.none() : stringPropertyWithGetter;
             return this;
         }
 
         public Builder stringPropertyWithCustomAnnotation(Option<String> stringPropertyWithCustomAnnotation){
-            this.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation == null ? Option.some(null) : stringPropertyWithCustomAnnotation;
+            this.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation == null ? Option.none() : stringPropertyWithCustomAnnotation;
             return this;
         }
 
         public Builder stringPropertyWithSetter(Option<String> stringPropertyWithSetter){
-            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? Option.some(null) : stringPropertyWithSetter;
+            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? Option.none() : stringPropertyWithSetter;
             return this;
         }
 
         public Builder stringProperty(Option<String> stringProperty){
-            this.stringProperty = stringProperty == null ? Option.some(null) : stringProperty;
+            this.stringProperty = stringProperty == null ? Option.none() : stringProperty;
             return this;
         }
 
         public Builder stringPropertyWithSetterAndCustomAnnotation(Option<String> stringPropertyWithSetterAndCustomAnnotation){
-            this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation == null ? Option.some(null) : stringPropertyWithSetterAndCustomAnnotation;
+            this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation == null ? Option.none() : stringPropertyWithSetterAndCustomAnnotation;
             return this;
         }
 

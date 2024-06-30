@@ -52,7 +52,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         for (TypeElement annotatedElement : elementsAnnotatedWithDto) {
 
             //Collect class properties
-            Map<String, SourceClassPropertyData> dtoProperties = collectClassPropertiesData((DeclaredType) annotatedElement.asType(), annotatedElement);
+            Map<String, SourceClassPropertyData> dtoProperties = collectClassPropertiesData((DeclaredType) annotatedElement.asType(), annotatedElement, null);
 
             //Generate source code
             Dto dtoAnnotationInstance = annotatedElement.getAnnotation(Dto.class);
@@ -84,14 +84,32 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
      * @param sourceType The class referenced by the Dto annotation
      * @param element    The class whose properties are going to be collected. It can be the class referenced by the Dto annotation, or another ancestor class or interface in the Type hierarchy
      */
-    public Map<String, SourceClassPropertyData> collectClassPropertiesData(DeclaredType sourceType, TypeElement element) {
+    public Map<String, SourceClassPropertyData> collectClassPropertiesData(DeclaredType sourceType, TypeElement element, List<TypeMirror> includedAnnotations) {
 
+
+        //Collect annotation data
+        Dto dtoAnnotation = element.getAnnotation(Dto.class);
+        List<TypeMirror> types = new ArrayList<>();
+
+        if (dtoAnnotation != null) {
+            try {
+                dtoAnnotation.include();
+            } catch (MirroredTypesException mte) {
+                types.addAll(mte.getTypeMirrors());
+            }
+        }
+
+        if (includedAnnotations != null) {
+            types.addAll(includedAnnotations);
+        }
+
+        //Collect properties from ancestor classes and interfaces
         Map<String, SourceClassPropertyData> dtoProperties = null;
         List<? extends TypeMirror> superTypes = processingEnv.getTypeUtils().directSupertypes(element.asType());
-        //Collect properties from ancestor classes and interfaces
+
         for (DeclaredType type : (List<DeclaredType>) superTypes) {
             if (!Objects.equals(type.toString(), "java.lang.Object")) {
-                Map<String, SourceClassPropertyData> superClassProperties = collectClassPropertiesData(sourceType, (TypeElement) type.asElement());
+                Map<String, SourceClassPropertyData> superClassProperties = collectClassPropertiesData(sourceType, (TypeElement) type.asElement(), types);
                 if (superClassProperties != null) {
                     if (dtoProperties == null) {
                         dtoProperties = superClassProperties;
@@ -104,20 +122,6 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         if (dtoProperties == null) {
             dtoProperties = new HashMap<>();
-        }
-
-        //Collect annotation data
-        Dto dtoAnnotation = element.getAnnotation(Dto.class);
-        List<? extends TypeMirror> types = null;
-
-        if (dtoAnnotation == null) {
-            types = Collections.EMPTY_LIST;
-        } else {
-            try {
-                dtoAnnotation.include();
-            } catch (MirroredTypesException mte) {
-                types = mte.getTypeMirrors();
-            }
         }
 
         final List<? extends TypeMirror> finalIncludedTypes = types;

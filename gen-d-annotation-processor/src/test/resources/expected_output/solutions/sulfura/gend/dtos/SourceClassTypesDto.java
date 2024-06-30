@@ -16,11 +16,11 @@ import solutions.sulfura.gend.dtos.SourceClassTypes;
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();
-    public Option<Boolean> booleanProperty = Option.some(null);
-    public Option<Double> doubleProperty = Option.some(null);
-    public Option<Long> longProperty = Option.some(null);
+    public Option<Boolean> booleanProperty = Option.none();
+    public Option<Double> doubleProperty = Option.none();
+    public Option<Long> longProperty = Option.none();
     public List<ListOperation<Boolean>> booleanArrayProperty = new ArrayList<>();
-    public Option<String> stringProperty = Option.some(null);
+    public Option<String> stringProperty = Option.none();
 
     public SourceClassTypesDto(){}
 
@@ -31,11 +31,11 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
     public static class Builder{
 
         public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();
-        public Option<Boolean> booleanProperty = Option.some(null);
-        public Option<Double> doubleProperty = Option.some(null);
-        public Option<Long> longProperty = Option.some(null);
+        public Option<Boolean> booleanProperty = Option.none();
+        public Option<Double> doubleProperty = Option.none();
+        public Option<Long> longProperty = Option.none();
         public List<ListOperation<Boolean>> booleanArrayProperty = new ArrayList<>();
-        public Option<String> stringProperty = Option.some(null);
+        public Option<String> stringProperty = Option.none();
 
         public static  Builder newInstance(){
             return new Builder();
@@ -47,17 +47,17 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         }
 
         public Builder booleanProperty(Option<Boolean> booleanProperty){
-            this.booleanProperty = booleanProperty == null ? Option.some(null) : booleanProperty;
+            this.booleanProperty = booleanProperty == null ? Option.none() : booleanProperty;
             return this;
         }
 
         public Builder doubleProperty(Option<Double> doubleProperty){
-            this.doubleProperty = doubleProperty == null ? Option.some(null) : doubleProperty;
+            this.doubleProperty = doubleProperty == null ? Option.none() : doubleProperty;
             return this;
         }
 
         public Builder longProperty(Option<Long> longProperty){
-            this.longProperty = longProperty == null ? Option.some(null) : longProperty;
+            this.longProperty = longProperty == null ? Option.none() : longProperty;
             return this;
         }
 
@@ -67,7 +67,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         }
 
         public Builder stringProperty(Option<String> stringProperty){
-            this.stringProperty = stringProperty == null ? Option.some(null) : stringProperty;
+            this.stringProperty = stringProperty == null ? Option.none() : stringProperty;
             return this;
         }
 

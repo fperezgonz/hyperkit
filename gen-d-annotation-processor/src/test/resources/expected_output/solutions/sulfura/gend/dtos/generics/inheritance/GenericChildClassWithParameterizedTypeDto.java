@@ -15,15 +15,15 @@ import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithPar
 @DtoFor(GenericChildClassWithParameterizedType.class)
 public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChildClassWithParameterizedType>{
 
-    public Option<String> overlappingGenericProperty = Option.some(null);
-    public Option<String> inheritedGenericPropertyWithGetter = Option.some(null);
-    public Option<String> inheritedGenericProperty = Option.some(null);
+    public Option<String> overlappingGenericProperty = Option.none();
+    public Option<String> inheritedGenericPropertyWithGetter = Option.none();
+    public Option<String> inheritedGenericProperty = Option.none();
     public Set<ListOperation<String>> inheritedNestedGenericProperty = new HashSet<>();
     public Set<ListOperation<String>> overlappingNestedGenericProperty = new HashSet<>();
-    public Option<String> inheritedGenericPropertyWithSetter = Option.some(null);
-    public Option<String> genericPropertyWithSetter = Option.some(null);
-    public Option<String> genericProperty = Option.some(null);
-    public Option<String> genericPropertyWithGetter = Option.some(null);
+    public Option<String> inheritedGenericPropertyWithSetter = Option.none();
+    public Option<String> genericPropertyWithSetter = Option.none();
+    public Option<String> genericProperty = Option.none();
+    public Option<String> genericPropertyWithGetter = Option.none();
     public Set<ListOperation<String>> nestedGenericProperty = new HashSet<>();
 
     public GenericChildClassWithParameterizedTypeDto(){}
@@ -34,15 +34,15 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     public static class Builder{
 
-        public Option<String> overlappingGenericProperty = Option.some(null);
-        public Option<String> inheritedGenericPropertyWithGetter = Option.some(null);
-        public Option<String> inheritedGenericProperty = Option.some(null);
+        public Option<String> overlappingGenericProperty = Option.none();
+        public Option<String> inheritedGenericPropertyWithGetter = Option.none();
+        public Option<String> inheritedGenericProperty = Option.none();
         public Set<ListOperation<String>> inheritedNestedGenericProperty = new HashSet<>();
         public Set<ListOperation<String>> overlappingNestedGenericProperty = new HashSet<>();
-        public Option<String> inheritedGenericPropertyWithSetter = Option.some(null);
-        public Option<String> genericPropertyWithSetter = Option.some(null);
-        public Option<String> genericProperty = Option.some(null);
-        public Option<String> genericPropertyWithGetter = Option.some(null);
+        public Option<String> inheritedGenericPropertyWithSetter = Option.none();
+        public Option<String> genericPropertyWithSetter = Option.none();
+        public Option<String> genericProperty = Option.none();
+        public Option<String> genericPropertyWithGetter = Option.none();
         public Set<ListOperation<String>> nestedGenericProperty = new HashSet<>();
 
         public static  Builder newInstance(){
@@ -50,17 +50,17 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         }
 
         public Builder overlappingGenericProperty(Option<String> overlappingGenericProperty){
-            this.overlappingGenericProperty = overlappingGenericProperty == null ? Option.some(null) : overlappingGenericProperty;
+            this.overlappingGenericProperty = overlappingGenericProperty == null ? Option.none() : overlappingGenericProperty;
             return this;
         }
 
         public Builder inheritedGenericPropertyWithGetter(Option<String> inheritedGenericPropertyWithGetter){
-            this.inheritedGenericPropertyWithGetter = inheritedGenericPropertyWithGetter == null ? Option.some(null) : inheritedGenericPropertyWithGetter;
+            this.inheritedGenericPropertyWithGetter = inheritedGenericPropertyWithGetter == null ? Option.none() : inheritedGenericPropertyWithGetter;
             return this;
         }
 
         public Builder inheritedGenericProperty(Option<String> inheritedGenericProperty){
-            this.inheritedGenericProperty = inheritedGenericProperty == null ? Option.some(null) : inheritedGenericProperty;
+            this.inheritedGenericProperty = inheritedGenericProperty == null ? Option.none() : inheritedGenericProperty;
             return this;
         }
 
@@ -75,22 +75,22 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         }
 
         public Builder inheritedGenericPropertyWithSetter(Option<String> inheritedGenericPropertyWithSetter){
-            this.inheritedGenericPropertyWithSetter = inheritedGenericPropertyWithSetter == null ? Option.some(null) : inheritedGenericPropertyWithSetter;
+            this.inheritedGenericPropertyWithSetter = inheritedGenericPropertyWithSetter == null ? Option.none() : inheritedGenericPropertyWithSetter;
             return this;
         }
 
         public Builder genericPropertyWithSetter(Option<String> genericPropertyWithSetter){
-            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.some(null) : genericPropertyWithSetter;
+            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.none() : genericPropertyWithSetter;
             return this;
         }
 
         public Builder genericProperty(Option<String> genericProperty){
-            this.genericProperty = genericProperty == null ? Option.some(null) : genericProperty;
+            this.genericProperty = genericProperty == null ? Option.none() : genericProperty;
             return this;
         }
 
         public Builder genericPropertyWithGetter(Option<String> genericPropertyWithGetter){
-            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.some(null) : genericPropertyWithGetter;
+            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.none() : genericPropertyWithGetter;
             return this;
         }
 

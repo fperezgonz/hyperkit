@@ -17,7 +17,7 @@ import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
 public class SourceClassADto implements Dto<SourceClassA>{
 
     public List<ListOperation<SourceClassBDto>> propertyArray = new ArrayList<>();
-    public Option<SourceClassBDto> property = Option.some(null);
+    public Option<SourceClassBDto> property = Option.none();
     public List<ListOperation<List<ListOperation<SourceClassBDto>>>> genericPropertyArray = new ArrayList<>();
     public List<ListOperation<SourceClassBDto>> genericProperty = new ArrayList<>();
 
@@ -30,7 +30,7 @@ public class SourceClassADto implements Dto<SourceClassA>{
     public static class Builder{
 
         public List<ListOperation<SourceClassBDto>> propertyArray = new ArrayList<>();
-        public Option<SourceClassBDto> property = Option.some(null);
+        public Option<SourceClassBDto> property = Option.none();
         public List<ListOperation<List<ListOperation<SourceClassBDto>>>> genericPropertyArray = new ArrayList<>();
         public List<ListOperation<SourceClassBDto>> genericProperty = new ArrayList<>();
 
@@ -44,7 +44,7 @@ public class SourceClassADto implements Dto<SourceClassA>{
         }
 
         public Builder property(Option<SourceClassBDto> property){
-            this.property = property == null ? Option.some(null) : property;
+            this.property = property == null ? Option.none() : property;
             return this;
         }
 
