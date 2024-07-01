@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos.conf.fields;
+package solutions.sulfura.gend.dtos.projection.fields;
 
 /**
  * The purpose of this class is to define presence or absence of the field on processes that adhere to this configuration, such as database queries or request data
@@ -13,6 +13,10 @@ public class FieldConf {
     public enum Presence {MANDATORY, IGNORED, OPTIONAL}
 
     protected Presence presence = Presence.IGNORED;
+
+    public Presence getPresence() {
+        return presence;
+    }
 
     public static FieldConf valueOf(Presence presence) {
         FieldConf fieldConf = new FieldConf();

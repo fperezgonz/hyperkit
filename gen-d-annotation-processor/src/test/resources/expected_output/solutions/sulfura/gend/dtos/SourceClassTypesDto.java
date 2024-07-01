@@ -2,9 +2,9 @@ package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.String;
 import java.util.List;
 import solutions.sulfura.gend.dtos.ListOperation;
@@ -83,7 +83,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     }
 
-    public static class Conf extends DtoConf<SourceClassTypesDto>{
+    public static class Projection extends DtoProjection<SourceClassTypesDto>{
 
         public ListFieldConf stringArrayProperty;
         public FieldConf booleanProperty;
@@ -92,7 +92,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         public ListFieldConf booleanArrayProperty;
         public FieldConf stringProperty;
 
-        public Conf(){}
+        public Projection(){}
 
         public static class Builder{
 
@@ -137,8 +137,8 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
                 return this;
             }
 
-            public SourceClassTypesDto.Conf build(){
-                SourceClassTypesDto.Conf instance = new SourceClassTypesDto.Conf();
+            public SourceClassTypesDto.Projection build(){
+                SourceClassTypesDto.Projection instance = new SourceClassTypesDto.Projection();
                 instance.stringArrayProperty = stringArrayProperty;
                 instance.booleanProperty = booleanProperty;
                 instance.doubleProperty = doubleProperty;

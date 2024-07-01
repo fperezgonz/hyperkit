@@ -1,7 +1,7 @@
 package solutions.sulfura.gend.dtos.annotation_processor;
 
 import solutions.sulfura.gend.dtos.annotation_processor.AnnotationProcessorUtils.PropertyTypeDeclaration;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
 
 import javax.lang.model.element.Name;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class DtoCodeGenUtils {
         String aliasedName = aliasedNameFromQualifiedName(importQualifiedType);
 
         //TODO find a better way to deal with these two
-        if (aliasedName.equals("Builder") || aliasedName.equals("Conf")) {
+        if (aliasedName.equals("Builder") || aliasedName.equals("Projection")) {
             return this;
         }
 
@@ -120,14 +120,14 @@ public class DtoCodeGenUtils {
     public DtoCodeGenUtils addConfigClass(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
 
         //Conf class declaration
-        StringBuilder confClassDeclaration = new StringBuilder("public static class Conf");
+        StringBuilder confClassDeclaration = new StringBuilder("public static class Projection");
 
         if (genericTypeArgs != null) {
             confClassDeclaration.append(genericTypeArgs);
         }
 
         confClassDeclaration.append(" extends ")
-                .append(DtoConf.class.getSimpleName())
+                .append(DtoProjection.class.getSimpleName())
                 .append('<')
                 .append(baseClassName);
 
@@ -144,9 +144,9 @@ public class DtoCodeGenUtils {
             addFieldDeclaration(propertyData);
         }
 
-        addConstructor("Conf");
+        addConstructor("Projection");
 
-        addBuilder(baseClassName + ".Conf", genericTypeArgs, propertyDataList);
+        addBuilder(baseClassName + ".Projection", genericTypeArgs, propertyDataList);
 
         append('\n')
                 .endClass()

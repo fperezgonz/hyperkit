@@ -42,7 +42,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Map<String, String> sourceClassName_dtoClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
                         elem -> getDtoQualifiedName(elem.getAnnotation(Dto.class), elem)));
-        //Same for DtoConfig
+        //Same for DtoProjectionig
         Map<String, String> sourceClassName_dtoConfigClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
                         elem -> getDtoConfQualifiedName(elem.getAnnotation(Dto.class), elem)));
@@ -223,10 +223,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @return the qualified name of the DtoConf that will be generated for the element
+     * @return the qualified name of the DtoProjection that will be generated for the element
      */
     public String getDtoConfQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
-        return getDestPackageName(dtoAnnotationInstance, element) + "." + getDtoClassName(dtoAnnotationInstance, element) + ".Conf";
+        return getDestPackageName(dtoAnnotationInstance, element) + "." + getDtoClassName(dtoAnnotationInstance, element) + ".Projection";
     }
 
     /**
@@ -281,7 +281,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Package name
         codeGenUtils.addPackageDeclaration(packageName);
 
-        //Dto and DtoConf imports
+        //Dto and DtoProjection imports
         List<CharSequence> requiredImports = annotationProcessorUtils.collectRequiredDtoAndConfImports(
                 dtoProperties.values().stream()
                         .map(prop -> prop.typeMirror)

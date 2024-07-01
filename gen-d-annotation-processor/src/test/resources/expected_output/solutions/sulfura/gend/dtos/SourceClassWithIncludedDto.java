@@ -2,8 +2,8 @@ package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.String;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.SourceClassWithIncluded;
@@ -72,7 +72,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     }
 
-    public static class Conf extends DtoConf<SourceClassWithIncludedDto>{
+    public static class Projection extends DtoProjection<SourceClassWithIncludedDto>{
 
         public FieldConf stringPropertyWithGetter;
         public FieldConf stringPropertyWithCustomAnnotation;
@@ -80,7 +80,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
         public FieldConf stringProperty;
         public FieldConf stringPropertyWithSetterAndCustomAnnotation;
 
-        public Conf(){}
+        public Projection(){}
 
         public static class Builder{
 
@@ -119,8 +119,8 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
                 return this;
             }
 
-            public SourceClassWithIncludedDto.Conf build(){
-                SourceClassWithIncludedDto.Conf instance = new SourceClassWithIncludedDto.Conf();
+            public SourceClassWithIncludedDto.Projection build(){
+                SourceClassWithIncludedDto.Projection instance = new SourceClassWithIncludedDto.Projection();
                 instance.stringPropertyWithGetter = stringPropertyWithGetter;
                 instance.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation;
                 instance.stringPropertyWithSetter = stringPropertyWithSetter;

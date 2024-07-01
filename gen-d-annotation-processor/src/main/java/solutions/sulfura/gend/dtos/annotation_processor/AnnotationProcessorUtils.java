@@ -3,11 +3,11 @@ package solutions.sulfura.gend.dtos.annotation_processor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.DtoFieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.DtoListFieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.DtoFieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -129,10 +129,10 @@ public class AnnotationProcessorUtils {
         result.add(DtoFor.class.getCanonicalName());
         result.add(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName());
 
-        //DtoConf imports
+        //DtoProjection imports
         if (addConfImports) {
 
-            result.add(DtoConf.class.getCanonicalName());
+            result.add(DtoProjection.class.getCanonicalName());
 
             for (TypeMirror typeMirror : types) {
                 result.addAll(typeToConfPropertyTypeDeclaration(typeMirror, processingEnv, className_replacingDtoConfClassName).declaredTypesQualifiedNames);

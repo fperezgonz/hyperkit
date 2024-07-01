@@ -2,10 +2,10 @@ package solutions.sulfura.gend.dtos.circular_dependencies;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.DtoListFieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.DtoFieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.DtoFieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto;
 import java.util.List;
 import solutions.sulfura.gend.dtos.ListOperation;
@@ -68,32 +68,32 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     }
 
-    public static class Conf extends DtoConf<SourceClassADto>{
+    public static class Projection extends DtoProjection<SourceClassADto>{
 
-        public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> propertyArray;
-        public DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> property;
+        public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> propertyArray;
+        public DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> property;
         public ListFieldConf genericPropertyArray;
-        public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> genericProperty;
+        public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> genericProperty;
 
-        public Conf(){}
+        public Projection(){}
 
         public static class Builder{
 
-            public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> propertyArray;
-            public DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> property;
+            public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> propertyArray;
+            public DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> property;
             public ListFieldConf genericPropertyArray;
-            public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> genericProperty;
+            public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> genericProperty;
 
             public static  Builder newInstance(){
                 return new Builder();
             }
 
-            public Builder propertyArray(DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> propertyArray){
+            public Builder propertyArray(DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> propertyArray){
                 this.propertyArray = propertyArray;
                 return this;
             }
 
-            public Builder property(DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> property){
+            public Builder property(DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> property){
                 this.property = property;
                 return this;
             }
@@ -103,13 +103,13 @@ public class SourceClassADto implements Dto<SourceClassA>{
                 return this;
             }
 
-            public Builder genericProperty(DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Conf> genericProperty){
+            public Builder genericProperty(DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> genericProperty){
                 this.genericProperty = genericProperty;
                 return this;
             }
 
-            public SourceClassADto.Conf build(){
-                SourceClassADto.Conf instance = new SourceClassADto.Conf();
+            public SourceClassADto.Projection build(){
+                SourceClassADto.Projection instance = new SourceClassADto.Projection();
                 instance.propertyArray = propertyArray;
                 instance.property = property;
                 instance.genericPropertyArray = genericPropertyArray;

@@ -2,8 +2,8 @@ package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.String;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.SourceClassGetterSetter;
@@ -56,13 +56,13 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     }
 
-    public static class Conf extends DtoConf<SourceClassGetterSetterDto>{
+    public static class Projection extends DtoProjection<SourceClassGetterSetterDto>{
 
         public FieldConf stringPropertyWithGetter;
         public FieldConf stringPropertyWithSetter;
         public FieldConf stringPropertyWithGetterAndSetter;
 
-        public Conf(){}
+        public Projection(){}
 
         public static class Builder{
 
@@ -89,8 +89,8 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
                 return this;
             }
 
-            public SourceClassGetterSetterDto.Conf build(){
-                SourceClassGetterSetterDto.Conf instance = new SourceClassGetterSetterDto.Conf();
+            public SourceClassGetterSetterDto.Projection build(){
+                SourceClassGetterSetterDto.Projection instance = new SourceClassGetterSetterDto.Projection();
                 instance.stringPropertyWithGetter = stringPropertyWithGetter;
                 instance.stringPropertyWithSetter = stringPropertyWithSetter;
                 instance.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter;

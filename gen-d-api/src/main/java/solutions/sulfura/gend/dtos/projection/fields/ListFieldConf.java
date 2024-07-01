@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos.conf.fields;
+package solutions.sulfura.gend.dtos.projection.fields;
 
 /**
  * The purpose of this class is to specify the list operations allowed in the process related to this configuration

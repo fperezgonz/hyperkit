@@ -2,9 +2,9 @@ package solutions.sulfura.gend.dtos.generics;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import io.vavr.control.Option;
 import java.util.Set;
 import solutions.sulfura.gend.dtos.ListOperation;
@@ -66,14 +66,14 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
 
     }
 
-    public static class Conf<T> extends DtoConf<SingleGenericParamSourceClassDto<T>>{
+    public static class Projection<T> extends DtoProjection<SingleGenericParamSourceClassDto<T>>{
 
         public FieldConf genericPropertyWithSetter;
         public FieldConf genericProperty;
         public FieldConf genericPropertyWithGetter;
         public ListFieldConf nestedGenericProperty;
 
-        public Conf(){}
+        public Projection(){}
 
         public static class Builder<T>{
 
@@ -106,8 +106,8 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
                 return this;
             }
 
-            public SingleGenericParamSourceClassDto.Conf<T> build(){
-                SingleGenericParamSourceClassDto.Conf<T> instance = new SingleGenericParamSourceClassDto.Conf<>();
+            public SingleGenericParamSourceClassDto.Projection<T> build(){
+                SingleGenericParamSourceClassDto.Projection<T> instance = new SingleGenericParamSourceClassDto.Projection<>();
                 instance.genericPropertyWithSetter = genericPropertyWithSetter;
                 instance.genericProperty = genericProperty;
                 instance.genericPropertyWithGetter = genericPropertyWithGetter;

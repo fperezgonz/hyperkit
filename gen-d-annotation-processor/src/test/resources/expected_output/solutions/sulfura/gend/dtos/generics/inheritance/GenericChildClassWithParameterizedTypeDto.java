@@ -2,9 +2,9 @@ package solutions.sulfura.gend.dtos.generics.inheritance;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.conf.DtoConf;
-import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
-import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import java.lang.String;
 import io.vavr.control.Option;
 import java.util.Set;
@@ -115,7 +115,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     }
 
-    public static class Conf extends DtoConf<GenericChildClassWithParameterizedTypeDto>{
+    public static class Projection extends DtoProjection<GenericChildClassWithParameterizedTypeDto>{
 
         public FieldConf overlappingGenericProperty;
         public FieldConf inheritedGenericPropertyWithGetter;
@@ -128,7 +128,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         public FieldConf genericPropertyWithGetter;
         public ListFieldConf nestedGenericProperty;
 
-        public Conf(){}
+        public Projection(){}
 
         public static class Builder{
 
@@ -197,8 +197,8 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
-            public GenericChildClassWithParameterizedTypeDto.Conf build(){
-                GenericChildClassWithParameterizedTypeDto.Conf instance = new GenericChildClassWithParameterizedTypeDto.Conf();
+            public GenericChildClassWithParameterizedTypeDto.Projection build(){
+                GenericChildClassWithParameterizedTypeDto.Projection instance = new GenericChildClassWithParameterizedTypeDto.Projection();
                 instance.overlappingGenericProperty = overlappingGenericProperty;
                 instance.inheritedGenericPropertyWithGetter = inheritedGenericPropertyWithGetter;
                 instance.inheritedGenericProperty = inheritedGenericProperty;

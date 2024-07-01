@@ -1,4 +1,4 @@
-package solutions.sulfura.gend.dtos.conf;
+package solutions.sulfura.gend.dtos.projection;
 
 import solutions.sulfura.gend.dtos.Dto;
 
