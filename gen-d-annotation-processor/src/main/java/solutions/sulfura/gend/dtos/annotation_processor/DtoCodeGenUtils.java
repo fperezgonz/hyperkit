@@ -110,10 +110,6 @@ public class DtoCodeGenUtils {
 
         if (fieldDeclarationLiteral.startsWith("io.vavr.control.Option")) {
             stringBuilder.append(" = Option.none()");
-        } else if (fieldDeclarationLiteral.startsWith("java.util.Set")) {
-            stringBuilder.append(" = new HashSet<>()");
-        } else if (fieldDeclarationLiteral.startsWith("java.util.List")) {
-            stringBuilder.append(" = new ArrayList<>()");
         }
 
         stringBuilder.append(";\n");
@@ -261,10 +257,6 @@ public class DtoCodeGenUtils {
         String fieldDeclarationLiteral = propertyData.typeDeclaration.fieldDeclarationLiteral.toString();
         if (fieldDeclarationLiteral.startsWith("io.vavr.control.Option")) {
             stringBuilder.append(propertyData.propertyName).append(" == null ? Option.none() : ");
-        } else if (fieldDeclarationLiteral.startsWith("java.util.Set")) {
-            stringBuilder.append(propertyData.propertyName).append(" == null ? new HashSet<>() : ");
-        } else if (fieldDeclarationLiteral.startsWith("java.util.List")) {
-            stringBuilder.append(propertyData.propertyName).append(" == null ? new ArrayList<>() : ");
         }
         stringBuilder.append(propertyData.propertyName).append(";\n")
                 .append(contextIndentation).append("    return this;\n")

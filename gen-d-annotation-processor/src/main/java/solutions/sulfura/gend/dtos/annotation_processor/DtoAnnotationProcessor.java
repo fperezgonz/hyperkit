@@ -335,18 +335,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         List<DtoCodeGenUtils.DtoPropertyData> dtoPropertyDataList = new ArrayList<>();
 
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
-            Class<?> wrappingClass = null;
 
-            TypeMirror listInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.List").asType();
-            TypeMirror setInterfaceType = processingEnv.getElementUtils().getTypeElement("java.util.Set").asType();
-
-            //If it is not an array, List or Set, wran inside an Option
-            if (sourceClassPropertyData.typeMirror.getKind() != TypeKind.ARRAY
-                    && (!processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(sourceClassPropertyData.typeMirror), processingEnv.getTypeUtils().erasure(listInterfaceType)))
-                    && (!processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(sourceClassPropertyData.typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType)))) {
-                wrappingClass = Option.class;
-            }
-
+            Class<?> wrappingClass = Option.class;
             AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv, wrappingClass);
             DtoCodeGenUtils.DtoPropertyData dtoPropertyData = DtoCodeGenUtils.DtoPropertyData.builder()
                     .typeDeclaration(fieldTypeDeclaration)

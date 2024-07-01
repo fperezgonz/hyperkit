@@ -11,8 +11,14 @@ package solutions.sulfura.gend.dtos.conf.fields;
 public class FieldConf {
 
     public enum Presence {MANDATORY, IGNORED, OPTIONAL}
-    public Presence presence = Presence.IGNORED;
 
+    protected Presence presence = Presence.IGNORED;
+
+    public static FieldConf valueOf(Presence presence) {
+        FieldConf fieldConf = new FieldConf();
+        fieldConf.presence = presence;
+        return fieldConf;
+    }
 
     public static final class FieldConfBuilder {
         private Presence presence = Presence.IGNORED;
@@ -22,6 +28,10 @@ public class FieldConf {
 
         public static FieldConfBuilder newInstance() {
             return new FieldConfBuilder();
+        }
+
+        public static FieldConfBuilder valueOf(Presence presence) {
+            return FieldConfBuilder.newInstance().presence(presence);
         }
 
         public FieldConfBuilder presence(Presence presence) {

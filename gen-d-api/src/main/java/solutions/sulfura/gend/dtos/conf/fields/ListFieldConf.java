@@ -7,14 +7,18 @@ package solutions.sulfura.gend.dtos.conf.fields;
 public class ListFieldConf extends FieldConf {
 
     public boolean allowInsert = false;
-    public boolean allowUpdate = false;
     public boolean allowDelete = false;
+
+    public static ListFieldConf valueOf(Presence presence) {
+        ListFieldConf fieldConf = new ListFieldConf();
+        fieldConf.presence = presence;
+        return fieldConf;
+    }
 
 
     public static final class ListConfBuilder {
         private Presence presence = Presence.IGNORED;
         private boolean allowInsert;
-        private boolean allowUpdate;
         private boolean allowDelete;
 
         private ListConfBuilder() {
@@ -22,6 +26,10 @@ public class ListFieldConf extends FieldConf {
 
         public static ListConfBuilder newInstance() {
             return new ListConfBuilder();
+        }
+
+        public static ListConfBuilder valueOf(Presence presence) {
+            return ListConfBuilder.newInstance().presence(presence);
         }
 
         public ListConfBuilder presence(Presence presence) {
@@ -34,11 +42,6 @@ public class ListFieldConf extends FieldConf {
             return this;
         }
 
-        public ListConfBuilder allowUpdate(boolean allowUpdate) {
-            this.allowUpdate = allowUpdate;
-            return this;
-        }
-
         public ListConfBuilder allowDelete(boolean allowDelete) {
             this.allowDelete = allowDelete;
             return this;
@@ -48,7 +51,6 @@ public class ListFieldConf extends FieldConf {
             return newInstance()
                     .presence(presence)
                     .allowInsert(allowInsert)
-                    .allowUpdate(allowUpdate)
                     .allowDelete(allowDelete);
         }
 
@@ -56,7 +58,6 @@ public class ListFieldConf extends FieldConf {
             ListFieldConf listConf = new ListFieldConf();
             listConf.allowInsert = this.allowInsert;
             listConf.presence = this.presence;
-            listConf.allowUpdate = this.allowUpdate;
             listConf.allowDelete = this.allowDelete;
             return listConf;
         }

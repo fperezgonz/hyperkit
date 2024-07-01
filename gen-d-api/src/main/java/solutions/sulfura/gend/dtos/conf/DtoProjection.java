@@ -20,6 +20,6 @@ import solutions.sulfura.gend.dtos.Dto;
  * }
  * }</pre>
  * */
-public abstract class DtoConf<T extends Dto<?>> {
+public abstract class DtoProjection<T extends Dto<?>> {
 
 }

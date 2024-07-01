@@ -7,7 +7,6 @@ import solutions.sulfura.gend.dtos.conf.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.conf.fields.FieldConf;
 import java.lang.String;
 import java.util.List;
-import java.util.ArrayList;
 import solutions.sulfura.gend.dtos.ListOperation;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.SourceClassTypes;
@@ -15,11 +14,11 @@ import solutions.sulfura.gend.dtos.SourceClassTypes;
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
-    public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();
+    public Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
     public Option<Boolean> booleanProperty = Option.none();
     public Option<Double> doubleProperty = Option.none();
     public Option<Long> longProperty = Option.none();
-    public List<ListOperation<Boolean>> booleanArrayProperty = new ArrayList<>();
+    public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
     public Option<String> stringProperty = Option.none();
 
     public SourceClassTypesDto(){}
@@ -30,19 +29,19 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public static class Builder{
 
-        public List<ListOperation<String>> stringArrayProperty = new ArrayList<>();
+        public Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
         public Option<Boolean> booleanProperty = Option.none();
         public Option<Double> doubleProperty = Option.none();
         public Option<Long> longProperty = Option.none();
-        public List<ListOperation<Boolean>> booleanArrayProperty = new ArrayList<>();
+        public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
         public Option<String> stringProperty = Option.none();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringArrayProperty(List<ListOperation<String>> stringArrayProperty){
-            this.stringArrayProperty = stringArrayProperty == null ? new ArrayList<>() : stringArrayProperty;
+        public Builder stringArrayProperty(Option<List<ListOperation<String>>> stringArrayProperty){
+            this.stringArrayProperty = stringArrayProperty == null ? Option.none() : stringArrayProperty;
             return this;
         }
 
@@ -61,8 +60,8 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
             return this;
         }
 
-        public Builder booleanArrayProperty(List<ListOperation<Boolean>> booleanArrayProperty){
-            this.booleanArrayProperty = booleanArrayProperty == null ? new ArrayList<>() : booleanArrayProperty;
+        public Builder booleanArrayProperty(Option<List<ListOperation<Boolean>>> booleanArrayProperty){
+            this.booleanArrayProperty = booleanArrayProperty == null ? Option.none() : booleanArrayProperty;
             return this;
         }
 
