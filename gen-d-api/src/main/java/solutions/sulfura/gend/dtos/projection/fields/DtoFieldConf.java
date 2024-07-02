@@ -9,17 +9,17 @@ import solutions.sulfura.gend.dtos.projection.DtoProjection;
  */
 public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
-    public T dtoConf;
+    public T dtoProjection;
 
-    public static DtoFieldConf valueOf(Presence presence, DtoProjection dtoConf) {
+    public static DtoFieldConf valueOf(Presence presence, DtoProjection dtoProjection) {
         DtoFieldConf fieldConf = new DtoFieldConf();
         fieldConf.presence = presence;
-        fieldConf.dtoConf = dtoConf;
+        fieldConf.dtoProjection = dtoProjection;
         return fieldConf;
     }
 
     public static final class DtoFieldConfBuilder<T extends DtoProjection<?>> {
-        private T dtoConf;
+        private T dtoProjection;
         private Presence presence = Presence.IGNORED;
 
         private DtoFieldConfBuilder() {
@@ -32,11 +32,11 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
         public static <T extends DtoProjection<?>> DtoFieldConf.DtoFieldConfBuilder<T> valueOf(Presence presence, T elemConf) {
             return DtoFieldConf.DtoFieldConfBuilder.<T>newInstance()
                     .presence(presence)
-                    .dtoConf(elemConf);
+                    .dtoProjection(elemConf);
         }
 
-        public DtoFieldConfBuilder<T> dtoConf(T dtoConf) {
-            this.dtoConf = dtoConf;
+        public DtoFieldConfBuilder<T> dtoProjection(T dtoConf) {
+            this.dtoProjection = dtoConf;
             return this;
         }
 
@@ -47,7 +47,7 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
         public DtoFieldConf<T> build() {
             DtoFieldConf<T> dtoFieldConf = new DtoFieldConf<>();
-            dtoFieldConf.dtoConf = this.dtoConf;
+            dtoFieldConf.dtoProjection = this.dtoProjection;
             dtoFieldConf.presence = this.presence;
             return dtoFieldConf;
         }

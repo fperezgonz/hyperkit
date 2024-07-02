@@ -56,6 +56,16 @@ public class DtoGeneratorTest {
     }
 
     @Test
+    public void generateDtoWithUppercasePropertiesTest() throws MalformedURLException, ClassNotFoundException, URISyntaxException {
+        String qualifiedClassName = "solutions.sulfura.gend.dtos.SourceUpperCaseProperties";
+
+        Class<?> compiledClass = compileClassWithProcessor(Paths.get(this.getClass().getResource(testInputResourcesPath + "SourceUpperCaseProperties.java").toURI()).toString()
+                , qualifiedClassName);
+        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName);
+
+    }
+
+    @Test
     public void generateDtoWithIncludedTest() throws MalformedURLException, ClassNotFoundException, URISyntaxException {
         String qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassWithIncluded";
 

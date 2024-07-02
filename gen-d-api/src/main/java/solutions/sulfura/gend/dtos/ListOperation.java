@@ -3,22 +3,32 @@ package solutions.sulfura.gend.dtos;
 public class ListOperation<T> {
 
     public enum ListOperationType {
-        /**Don't perform automatic data modification with this item*/
+        /**
+         * Don't perform automatic data modification with this item
+         */
         READONLY,
-        /**Add to the list*/
+        /**
+         * Add to the list
+         */
         ADD,
         /**
          * Remove the entity from the list. If this list represents an aggregate, the process might delete the entity from the database upon removal from the list
-         * */
+         */
         DELETE
     }
 
     public enum ItemOperationType {
-        /**Don't perform automatic data modification with this item*/
+        /**
+         * Don't perform automatic data modification with this item
+         */
         READONLY,
-        /**Create entity if it is going to be added to the list*/
+        /**
+         * Create entity if it is going to be added to the list
+         */
         INSERT,
-        /**Update entity data if it is on the list or is going to be added to it*/
+        /**
+         * Update entity data if it is on the list or is going to be added to it
+         */
         UPDATE,
         /**
          * If the item does not exist, create it with the supplied data
@@ -55,10 +65,16 @@ public class ListOperation<T> {
         this.value = value;
     }
 
-    public static <T> ListOperation<T> of(T value) {
+    public static <T> ListOperation<T> valueOf(T value, ListOperationType listOperationType, ItemOperationType itemOperationType) {
         ListOperation<T> result = new ListOperation<>();
         result.setValue(value);
+        result.operationType = listOperationType;
+        result.itemOperationType = itemOperationType;
         return result;
+    }
+
+    public static <T> ListOperation<T> valueOf(T value) {
+        return valueOf(value, ListOperationType.READONLY, ItemOperationType.READONLY);
     }
 
 }
