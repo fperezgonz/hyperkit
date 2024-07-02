@@ -11,9 +11,10 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
     public boolean allowInsert = false;
     public boolean allowDelete = false;
 
-    public static DtoListFieldConf valueOf(Presence presence) {
-        DtoListFieldConf<?> fieldConf = new DtoListFieldConf();
+    public static DtoListFieldConf valueOf(Presence presence, DtoProjection dtoConf) {
+        DtoListFieldConf fieldConf = new DtoListFieldConf();
         fieldConf.presence = presence;
+        fieldConf.dtoConf=dtoConf;
         return fieldConf;
     }
 

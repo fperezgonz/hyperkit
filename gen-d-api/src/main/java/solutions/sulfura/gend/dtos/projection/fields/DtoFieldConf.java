@@ -11,9 +11,10 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
     public T dtoConf;
 
-    public static DtoFieldConf valueOf(Presence presence) {
-        DtoFieldConf<?> fieldConf = new DtoFieldConf();
+    public static DtoFieldConf valueOf(Presence presence, DtoProjection dtoConf) {
+        DtoFieldConf fieldConf = new DtoFieldConf();
         fieldConf.presence = presence;
+        fieldConf.dtoConf = dtoConf;
         return fieldConf;
     }
 
