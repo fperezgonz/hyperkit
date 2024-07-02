@@ -77,7 +77,12 @@ public class AnnotationProcessorUtils {
 
             propertyDataBuilder.canRead(true);
             String propertyName = getterSetterName.substring(3);
-            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            if (propertyName.length() > 1) {
+                String propertyNameFirstTwoChars = propertyName.substring(0, 2);
+                if (!propertyNameFirstTwoChars.equals(propertyNameFirstTwoChars.toUpperCase())) {
+                    propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                }
+            }
             propertyDataBuilder.name(propertyName);
             propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
 
@@ -85,7 +90,12 @@ public class AnnotationProcessorUtils {
 
             propertyDataBuilder.canRead(true);
             String propertyName = getterSetterName.substring(2);
-            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            if (propertyName.length() > 1) {
+                String propertyNameFirstTwoChars = propertyName.substring(0, 2);
+                if (!propertyNameFirstTwoChars.equals(propertyNameFirstTwoChars.toUpperCase())) {
+                    propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                }
+            }
             propertyDataBuilder.name(propertyName);
             propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getReturnType();
 
@@ -93,7 +103,12 @@ public class AnnotationProcessorUtils {
 
             propertyDataBuilder.canWrite(true);
             String propertyName = getterSetterName.substring(3);
-            propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+            if (propertyName.length() > 1) {
+                String propertyNameFirstTwoChars = propertyName.substring(0, 2);
+                if (!propertyNameFirstTwoChars.equals(propertyNameFirstTwoChars.toUpperCase())) {
+                    propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                }
+            }
             propertyDataBuilder.name(propertyName);
             propertyType = ((ExecutableType) processingEnv.getTypeUtils().asMemberOf(sourceType, getterSetter)).getParameterTypes().get(0);
 
