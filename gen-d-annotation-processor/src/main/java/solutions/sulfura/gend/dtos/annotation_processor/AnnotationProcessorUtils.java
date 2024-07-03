@@ -303,7 +303,6 @@ public class AnnotationProcessorUtils {
 
         //If it is not an array, list or set, use FieldConf or DtoFieldConf
         if (typeMirror.getKind() != TypeKind.ARRAY
-
                 //Is not a list
                 && !processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(listInterfaceType))
                 //Is not a set

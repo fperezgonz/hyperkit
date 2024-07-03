@@ -146,6 +146,7 @@ public class DtoCodeGenUtils {
 
         addConstructor("Projection");
 
+        //TODO specific builder for projection classes, must also be able to accept just Presence for FieldConf and ListConf, and just a Projection for DtoFieldConf and ListDtoFieldFond
         addBuilder(baseClassName + ".Projection", genericTypeArgs, propertyDataList);
 
         append('\n')

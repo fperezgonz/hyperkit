@@ -349,14 +349,12 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         }
 
 
-        //Generate constructor
+        //Generate constructor, getters and builder
         codeGenUtils.addConstructor(dtoClassName);
-
         codeGenUtils.addSourceClassGetter(element.getSimpleName());
-
         codeGenUtils.addBuilder(dtoClassName, dtoGenericTypeArgs, dtoPropertyDataList);
 
-        //Generate Projection class properties
+        //Collect Projection class properties
         List<DtoCodeGenUtils.DtoPropertyData> projectionPropertyDataList = new ArrayList<>();
 
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
@@ -371,7 +369,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         }
 
+        //Generate Projection class
         codeGenUtils.addProjectionClass(dtoClassName, dtoGenericTypeArgs, projectionPropertyDataList);
+
+        //Close Dto class
         codeGenUtils.endClass();
 
         return codeGenUtils.toString();
