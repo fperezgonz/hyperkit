@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.digitalizat:gen-d-api:1.0-SNAPSHOT'
+    implementation project(':gen-d-api')
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
     api "io.vavr:vavr:0.10.4"
     testImplementation 'commons-io:commons-io:2.13.0'
