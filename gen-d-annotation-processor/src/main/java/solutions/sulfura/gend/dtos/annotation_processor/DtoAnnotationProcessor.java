@@ -45,7 +45,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Same for DtoProjectionig
         Map<String, String> sourceClassName_dtoConfigClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
-                        elem -> getDtoConfQualifiedName(elem.getAnnotation(Dto.class), elem)));
+                        elem -> getDtoProjectionQualifiedName(elem.getAnnotation(Dto.class), elem)));
         //TODO Add mappings for preexisting Dtos
 
         //Generate Dto classes for each element Annotated with @Dto
@@ -225,7 +225,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     /**
      * @return the qualified name of the DtoProjection that will be generated for the element
      */
-    public String getDtoConfQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
+    public String getDtoProjectionQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
         return getDestPackageName(dtoAnnotationInstance, element) + "." + getDtoClassName(dtoAnnotationInstance, element) + ".Projection";
     }
 
@@ -267,7 +267,7 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     public String generateDtoSourceCode(Dto dtoAnnotationInstance, TypeElement element,
                                         Map<String, SourceClassPropertyData> dtoProperties,
                                         Map<String, String> className_replacingDtoClassName,
-                                        Map<String, String> className_replacingDtoConfClassName) {
+                                        Map<String, String> className_replacingDtoProjectionClassName) {
 
         String packageName = getDestPackageName(dtoAnnotationInstance, element);
         String dtoClassName = getDtoClassName(dtoAnnotationInstance, element);
@@ -282,11 +282,11 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         codeGenUtils.addPackageDeclaration(packageName);
 
         //Dto and DtoProjection imports
-        List<CharSequence> requiredImports = annotationProcessorUtils.collectRequiredDtoAndConfImports(
+        List<CharSequence> requiredImports = annotationProcessorUtils.collectRequiredDtoAndProjectionImports(
                 dtoProperties.values().stream()
                         .map(prop -> prop.typeMirror)
                         .collect(Collectors.toList()),
-                processingEnv, true, className_replacingDtoConfClassName);
+                processingEnv, true, className_replacingDtoProjectionClassName);
 
         for (CharSequence charSequence : requiredImports) {
             codeGenUtils.addImport(charSequence.toString());
@@ -356,22 +356,22 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         codeGenUtils.addBuilder(dtoClassName, dtoGenericTypeArgs, dtoPropertyDataList);
 
-        //Generate Conf class properties
-        List<DtoCodeGenUtils.DtoPropertyData> confPropertyDataList = new ArrayList<>();
+        //Generate Projection class properties
+        List<DtoCodeGenUtils.DtoPropertyData> projectionPropertyDataList = new ArrayList<>();
 
         for (SourceClassPropertyData sourceClassPropertyData : dtoProperties.values()) {
 
-            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToConfPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv, className_replacingDtoConfClassName);
+            AnnotationProcessorUtils.PropertyTypeDeclaration fieldTypeDeclaration = annotationProcessorUtils.typeToProjectionPropertyTypeDeclaration(sourceClassPropertyData.typeMirror, processingEnv, className_replacingDtoProjectionClassName);
             DtoCodeGenUtils.DtoPropertyData dtoPropertyData = DtoCodeGenUtils.DtoPropertyData.builder()
                     .typeDeclaration(fieldTypeDeclaration)
                     .propertyName(sourceClassPropertyData.name)
                     .build();
             //TODO add qualified names to imports if there are no clashes with other types
-            confPropertyDataList.add(dtoPropertyData);
+            projectionPropertyDataList.add(dtoPropertyData);
 
         }
 
-        codeGenUtils.addConfigClass(dtoClassName, dtoGenericTypeArgs, confPropertyDataList);
+        codeGenUtils.addProjectionClass(dtoClassName, dtoGenericTypeArgs, projectionPropertyDataList);
         codeGenUtils.endClass();
 
         return codeGenUtils.toString();

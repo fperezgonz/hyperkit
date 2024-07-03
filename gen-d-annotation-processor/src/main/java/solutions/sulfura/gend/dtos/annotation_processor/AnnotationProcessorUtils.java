@@ -138,19 +138,19 @@ public class AnnotationProcessorUtils {
 
     }
 
-    public List<CharSequence> collectRequiredDtoAndConfImports(List<TypeMirror> types, ProcessingEnvironment processingEnv, boolean addConfImports, Map<String, String> className_replacingDtoConfClassName) {
+    public List<CharSequence> collectRequiredDtoAndProjectionImports(List<TypeMirror> types, ProcessingEnvironment processingEnv, boolean addProjectionImports, Map<String, String> className_replacingDtoConfClassName) {
 
         List<CharSequence> result = new ArrayList<>();
         result.add(DtoFor.class.getCanonicalName());
         result.add(solutions.sulfura.gend.dtos.Dto.class.getCanonicalName());
 
         //DtoProjection imports
-        if (addConfImports) {
+        if (addProjectionImports) {
 
             result.add(DtoProjection.class.getCanonicalName());
 
             for (TypeMirror typeMirror : types) {
-                result.addAll(typeToConfPropertyTypeDeclaration(typeMirror, processingEnv, className_replacingDtoConfClassName).declaredTypesQualifiedNames);
+                result.addAll(typeToProjectionPropertyTypeDeclaration(typeMirror, processingEnv, className_replacingDtoConfClassName).declaredTypesQualifiedNames);
             }
 
         }
@@ -290,8 +290,8 @@ public class AnnotationProcessorUtils {
         return typeToPropertyTypeDeclaration(typeMirror, processingEnv, null);
     }
 
-    public PropertyTypeDeclaration typeToConfPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv,
-                                                                     Map<String, String> className_replacingDtoConfClassName) {
+    public PropertyTypeDeclaration typeToProjectionPropertyTypeDeclaration(TypeMirror typeMirror, ProcessingEnvironment processingEnv,
+                                                                           Map<String, String> className_replacingDtoProjectionClassName) {
         //TODO avoid including repeated entries in declaredTypesQualifiednames
 
         PropertyTypeDeclaration.Builder fieldTypeDeclarationBuilder = PropertyTypeDeclaration.builder();
@@ -309,15 +309,15 @@ public class AnnotationProcessorUtils {
                 //Is not a set
                 && !processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(typeMirror), processingEnv.getTypeUtils().erasure(setInterfaceType))) {
 
-            if (typeMirror.getKind() == TypeKind.DECLARED && className_replacingDtoConfClassName.containsKey(((DeclaredType) typeMirror).asElement().toString())) {
+            if (typeMirror.getKind() == TypeKind.DECLARED && className_replacingDtoProjectionClassName.containsKey(((DeclaredType) typeMirror).asElement().toString())) {
                 //Add the type of field conf for this property
                 declaredTypesQualifiedNames.add(DtoFieldConf.class.getCanonicalName());
                 String typeElementQualifiedName = ((DeclaredType) typeMirror).asElement().toString();
-                String typeElementConfQualifiedName = className_replacingDtoConfClassName.get(typeElementQualifiedName);
-                declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
+                String typeElementProjectionQualifiedName = className_replacingDtoProjectionClassName.get(typeElementQualifiedName);
+                declaredTypesQualifiedNames.add(typeElementProjectionQualifiedName);
                 //The string with the config Property types
-                declaredTypeString = DtoFieldConf.class.getSimpleName() + "<" + typeElementConfQualifiedName + ">";
-                declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
+                declaredTypeString = DtoFieldConf.class.getSimpleName() + "<" + typeElementProjectionQualifiedName + ">";
+                declaredTypesQualifiedNames.add(typeElementProjectionQualifiedName);
             } else {
                 //Add the type of field conf for this property
                 declaredTypesQualifiedNames.add(FieldConf.class.getCanonicalName());
@@ -345,19 +345,19 @@ public class AnnotationProcessorUtils {
                 typeArg = ((DeclaredType) typeMirror).getTypeArguments().get(0);
             }
 
-            //If there is a Conf type for the type of the elements of the array
-            if (typeArg.getKind() == TypeKind.DECLARED && className_replacingDtoConfClassName.containsKey(((DeclaredType) typeArg).asElement().toString())) {
+            //If there is a Projection type for the type of the elements of the array
+            if (typeArg.getKind() == TypeKind.DECLARED && className_replacingDtoProjectionClassName.containsKey(((DeclaredType) typeArg).asElement().toString())) {
                 //Add the type of field conf for this property
                 declaredTypesQualifiedNames.add(DtoListFieldConf.class.getCanonicalName());
                 //Recursive call to get nested parameterized types
-                PropertyTypeDeclaration typeArgDeclaration = typeToConfPropertyTypeDeclaration(typeArg, processingEnv, className_replacingDtoConfClassName);
+                PropertyTypeDeclaration typeArgDeclaration = typeToProjectionPropertyTypeDeclaration(typeArg, processingEnv, className_replacingDtoProjectionClassName);
                 //Add the nested parameterized types to the list of declared types in this property declaration
                 declaredTypesQualifiedNames.addAll(typeArgDeclaration.declaredTypesQualifiedNames);
                 String typeElementQualifiedName = ((DeclaredType) typeArg).asElement().toString();
-                String typeElementConfQualifiedName = className_replacingDtoConfClassName.get(typeElementQualifiedName);
-                declaredTypesQualifiedNames.add(typeElementConfQualifiedName);
-                //The string with the config Property types
-                declaredTypeString = DtoListFieldConf.class.getSimpleName() + "<" + typeElementConfQualifiedName + ">";
+                String typeElementProjectionQualifiedName = className_replacingDtoProjectionClassName.get(typeElementQualifiedName);
+                declaredTypesQualifiedNames.add(typeElementProjectionQualifiedName);
+                //The string with the conf Property types
+                declaredTypeString = DtoListFieldConf.class.getSimpleName() + "<" + typeElementProjectionQualifiedName + ">";
             } else {
                 //Add the type of field conf for this property
                 declaredTypesQualifiedNames.add(ListFieldConf.class.getCanonicalName());

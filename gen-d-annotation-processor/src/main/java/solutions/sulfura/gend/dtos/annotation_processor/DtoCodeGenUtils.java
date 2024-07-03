@@ -117,29 +117,29 @@ public class DtoCodeGenUtils {
         return this;
     }
 
-    public DtoCodeGenUtils addConfigClass(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
+    public DtoCodeGenUtils addProjectionClass(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
 
-        //Conf class declaration
-        StringBuilder confClassDeclaration = new StringBuilder("public static class Projection");
+        //Projection class declaration
+        StringBuilder projectionClassDeclaration = new StringBuilder("public static class Projection");
 
         if (genericTypeArgs != null) {
-            confClassDeclaration.append(genericTypeArgs);
+            projectionClassDeclaration.append(genericTypeArgs);
         }
 
-        confClassDeclaration.append(" extends ")
+        projectionClassDeclaration.append(" extends ")
                 .append(DtoProjection.class.getSimpleName())
                 .append('<')
                 .append(baseClassName);
 
         if (genericTypeArgs != null) {
-            confClassDeclaration.append(genericTypeArgs);
+            projectionClassDeclaration.append(genericTypeArgs);
         }
 
-        confClassDeclaration.append('>');
+        projectionClassDeclaration.append('>');
 
-        beginClass(confClassDeclaration);
+        beginClass(projectionClassDeclaration);
 
-        //Conf fields
+        //Projection fields
         for (DtoPropertyData propertyData : propertyDataList) {
             addFieldDeclaration(propertyData);
         }
