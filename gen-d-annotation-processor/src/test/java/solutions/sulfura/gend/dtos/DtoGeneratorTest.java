@@ -30,6 +30,7 @@ public class DtoGeneratorTest {
 
     @BeforeAll
     public static void setupTempFolder() throws IOException {
+        System.out.print(new File(".").getAbsolutePath());
         for (File file : new File(testOutputDir).listFiles()) {
 
             if (Objects.equals(file.getName(), ".gitignore")) {
