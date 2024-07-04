@@ -30,7 +30,11 @@ public class DtoGeneratorTest {
 
     @BeforeAll
     public static void setupTempFolder() throws IOException {
-        System.out.print(new File(".").getAbsolutePath());
+        System.out.print(new File(testOutputDir).getAbsolutePath());
+        System.out.print(new File(testOutputDir).exists());
+        System.out.print(new File("sulfura/temp").getAbsolutePath());
+        System.out.print(new File("sulfura/temp").exists());
+        System.out.print(new File(".").listFiles());
         for (File file : new File(testOutputDir).listFiles()) {
 
             if (Objects.equals(file.getName(), ".gitignore")) {
