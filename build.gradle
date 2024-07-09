@@ -2,6 +2,6 @@ plugins {
     id 'java-library'
 }
 
-tasks.register('publishing') {
+tasks.register('publish') {
     dependsOn subprojects*.publish
 }
