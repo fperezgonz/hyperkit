@@ -217,4 +217,19 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     }
 
+    public static class DtoModel{
+
+        public static final String _overlappingGenericProperty = "overlappingGenericProperty";
+        public static final String _inheritedGenericPropertyWithGetter = "inheritedGenericPropertyWithGetter";
+        public static final String _inheritedGenericProperty = "inheritedGenericProperty";
+        public static final String _inheritedNestedGenericProperty = "inheritedNestedGenericProperty";
+        public static final String _overlappingNestedGenericProperty = "overlappingNestedGenericProperty";
+        public static final String _inheritedGenericPropertyWithSetter = "inheritedGenericPropertyWithSetter";
+        public static final String _genericPropertyWithSetter = "genericPropertyWithSetter";
+        public static final String _genericProperty = "genericProperty";
+        public static final String _genericPropertyWithGetter = "genericPropertyWithGetter";
+        public static final String _nestedGenericProperty = "nestedGenericProperty";
+
+    }
+
 }

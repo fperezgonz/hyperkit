@@ -153,4 +153,15 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     }
 
+    public static class DtoModel{
+
+        public static final String _stringArrayProperty = "stringArrayProperty";
+        public static final String _booleanProperty = "booleanProperty";
+        public static final String _doubleProperty = "doubleProperty";
+        public static final String _longProperty = "longProperty";
+        public static final String _booleanArrayProperty = "booleanArrayProperty";
+        public static final String _stringProperty = "stringProperty";
+
+    }
+
 }

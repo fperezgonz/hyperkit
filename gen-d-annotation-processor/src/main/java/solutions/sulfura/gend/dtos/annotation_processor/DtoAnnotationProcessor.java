@@ -372,6 +372,14 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         //Generate Projection class
         codeGenUtils.addProjectionClass(dtoClassName, dtoGenericTypeArgs, projectionPropertyDataList);
 
+        //Collect Model class properties
+        List<String> modelPropertyList = projectionPropertyDataList.stream()
+                .map(dtoPropertyData -> dtoPropertyData.propertyName)
+                .collect(Collectors.toList());
+
+        //Generate Model class
+        codeGenUtils.addModelClass("DtoModel", modelPropertyList);
+
         //Close Dto class
         codeGenUtils.endClass();
 

@@ -120,4 +120,13 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
 
     }
 
+    public static class DtoModel{
+
+        public static final String _genericPropertyWithSetter = "genericPropertyWithSetter";
+        public static final String _genericProperty = "genericProperty";
+        public static final String _genericPropertyWithGetter = "genericPropertyWithGetter";
+        public static final String _nestedGenericProperty = "nestedGenericProperty";
+
+    }
+
 }

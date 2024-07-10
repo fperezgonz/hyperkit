@@ -102,4 +102,12 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     }
 
+    public static class DtoModel{
+
+        public static final String _stringPropertyWithGetter = "stringPropertyWithGetter";
+        public static final String _stringPropertyWithSetter = "stringPropertyWithSetter";
+        public static final String _stringPropertyWithGetterAndSetter = "stringPropertyWithGetterAndSetter";
+
+    }
+
 }

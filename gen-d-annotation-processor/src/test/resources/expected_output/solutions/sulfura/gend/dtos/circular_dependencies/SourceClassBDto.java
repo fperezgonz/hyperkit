@@ -122,4 +122,13 @@ public class SourceClassBDto implements Dto<SourceClassB>{
 
     }
 
+    public static class DtoModel{
+
+        public static final String _propertyArray = "propertyArray";
+        public static final String _property = "property";
+        public static final String _genericPropertyArray = "genericPropertyArray";
+        public static final String _genericProperty = "genericProperty";
+
+    }
+
 }

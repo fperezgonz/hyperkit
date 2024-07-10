@@ -134,4 +134,14 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     }
 
+    public static class DtoModel{
+
+        public static final String _stringPropertyWithGetter = "stringPropertyWithGetter";
+        public static final String _stringPropertyWithCustomAnnotation = "stringPropertyWithCustomAnnotation";
+        public static final String _stringPropertyWithSetter = "stringPropertyWithSetter";
+        public static final String _stringProperty = "stringProperty";
+        public static final String _stringPropertyWithSetterAndCustomAnnotation = "stringPropertyWithSetterAndCustomAnnotation";
+
+    }
+
 }

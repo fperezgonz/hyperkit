@@ -86,4 +86,11 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
     }
 
+    public static class DtoModel{
+
+        public static final String _UPPERCASE_FIELD_PROPERTY = "UPPERCASE_FIELD_PROPERTY";
+        public static final String _UPPERCASE_GETTER_PROPERTY = "UPPERCASE_GETTER_PROPERTY";
+
+    }
+
 }

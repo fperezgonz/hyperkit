@@ -156,6 +156,23 @@ public class DtoCodeGenUtils {
         return this;
     }
 
+    public DtoCodeGenUtils addModelClass(CharSequence baseClassName, List<String> propertyNames) {
+
+        //Projection class declaration
+        beginClass("public static class " + baseClassName);
+
+        //Projection fields
+        for (String propertyName : propertyNames) {
+            this.append(contextIndentation).append("public static final String _" + propertyName + " = \"" + propertyName + "\";\n");
+        }
+
+        append('\n')
+                .endClass()
+                .append("\n\n");
+
+        return this;
+    }
+
     public DtoCodeGenUtils beginClass(CharSequence classDeclaration) {
         stringBuilder.append(contextIndentation)
                 .append(classDeclaration)
