@@ -11,11 +11,15 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
     public T dtoProjection;
 
-    public static DtoFieldConf valueOf(Presence presence, DtoProjection dtoProjection) {
-        DtoFieldConf fieldConf = new DtoFieldConf();
+    public static <T extends DtoProjection<?>> DtoFieldConf<T> of(Presence presence, T dtoProjection) {
+        DtoFieldConf<T> fieldConf = new DtoFieldConf<T>();
         fieldConf.presence = presence;
         fieldConf.dtoProjection = dtoProjection;
         return fieldConf;
+    }
+
+    public static <T extends DtoProjection<?>> DtoFieldConf<T> valueOf(Presence presence, T dtoProjection) {
+        return of(presence, dtoProjection);
     }
 
     public static final class DtoFieldConfBuilder<T extends DtoProjection<?>> {
@@ -29,10 +33,15 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
             return new DtoFieldConfBuilder<>();
         }
 
-        public static <T extends DtoProjection<?>> DtoFieldConf.DtoFieldConfBuilder<T> valueOf(Presence presence, T elemConf) {
+
+        public static <T extends DtoProjection<?>> DtoFieldConf.DtoFieldConfBuilder<T> of(Presence presence, T elemConf) {
             return DtoFieldConf.DtoFieldConfBuilder.<T>newInstance()
                     .presence(presence)
                     .dtoProjection(elemConf);
+        }
+
+        public static <T extends DtoProjection<?>> DtoFieldConf.DtoFieldConfBuilder<T> valueOf(Presence presence, T elemConf) {
+            return of(presence, elemConf);
         }
 
         public DtoFieldConfBuilder<T> dtoProjection(T dtoConf) {

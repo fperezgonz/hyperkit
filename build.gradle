@@ -5,3 +5,7 @@ plugins {
 tasks.register('publish') {
     dependsOn subprojects*.publish
 }
+
+tasks.register('publishMavenPublicationToMavenLocal') {
+    dependsOn subprojects*.publishMavenPublicationToMavenLocal
+}

@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos.generics;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import io.vavr.control.Option;
@@ -91,8 +92,18 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
                 return this;
             }
 
+            public Builder<T> genericPropertyWithSetter(Presence presence){
+                genericPropertyWithSetter = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder<T> genericProperty(FieldConf genericProperty){
                 this.genericProperty = genericProperty;
+                return this;
+            }
+
+            public Builder<T> genericProperty(Presence presence){
+                genericProperty = FieldConf.of(presence);
                 return this;
             }
 
@@ -101,8 +112,18 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
                 return this;
             }
 
+            public Builder<T> genericPropertyWithGetter(Presence presence){
+                genericPropertyWithGetter = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder<T> nestedGenericProperty(ListFieldConf nestedGenericProperty){
                 this.nestedGenericProperty = nestedGenericProperty;
+                return this;
+            }
+
+            public Builder<T> nestedGenericProperty(Presence presence){
+                nestedGenericProperty = ListFieldConf.of(presence);
                 return this;
             }
 

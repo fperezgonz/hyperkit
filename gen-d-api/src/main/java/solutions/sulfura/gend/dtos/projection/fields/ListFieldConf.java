@@ -9,10 +9,14 @@ public class ListFieldConf extends FieldConf {
     public boolean allowInsert = false;
     public boolean allowDelete = false;
 
-    public static ListFieldConf valueOf(Presence presence) {
+    public static ListFieldConf of(Presence presence) {
         ListFieldConf fieldConf = new ListFieldConf();
         fieldConf.presence = presence;
         return fieldConf;
+    }
+
+    public static ListFieldConf valueOf(Presence presence) {
+        return of(presence);
     }
 
 
@@ -28,8 +32,12 @@ public class ListFieldConf extends FieldConf {
             return new ListConfBuilder();
         }
 
-        public static ListConfBuilder valueOf(Presence presence) {
+        public static ListConfBuilder of(Presence presence) {
             return ListConfBuilder.newInstance().presence(presence);
+        }
+
+        public static ListConfBuilder valueOf(Presence presence) {
+            return of(presence);
         }
 
         public ListConfBuilder presence(Presence presence) {

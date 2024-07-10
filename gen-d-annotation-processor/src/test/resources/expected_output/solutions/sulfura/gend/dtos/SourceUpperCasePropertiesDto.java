@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.String;
 import io.vavr.control.Option;
@@ -69,8 +70,18 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
                 return this;
             }
 
+            public Builder UPPERCASE_FIELD_PROPERTY(Presence presence){
+                UPPERCASE_FIELD_PROPERTY = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder UPPERCASE_GETTER_PROPERTY(FieldConf UPPERCASE_GETTER_PROPERTY){
                 this.UPPERCASE_GETTER_PROPERTY = UPPERCASE_GETTER_PROPERTY;
+                return this;
+            }
+
+            public Builder UPPERCASE_GETTER_PROPERTY(Presence presence){
+                UPPERCASE_GETTER_PROPERTY = FieldConf.of(presence);
                 return this;
             }
 

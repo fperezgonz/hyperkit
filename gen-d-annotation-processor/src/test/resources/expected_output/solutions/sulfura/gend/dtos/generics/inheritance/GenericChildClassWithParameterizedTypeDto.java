@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos.generics.inheritance;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import java.lang.String;
@@ -152,8 +153,18 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
+            public Builder overlappingGenericProperty(Presence presence){
+                overlappingGenericProperty = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder inheritedGenericPropertyWithGetter(FieldConf inheritedGenericPropertyWithGetter){
                 this.inheritedGenericPropertyWithGetter = inheritedGenericPropertyWithGetter;
+                return this;
+            }
+
+            public Builder inheritedGenericPropertyWithGetter(Presence presence){
+                inheritedGenericPropertyWithGetter = FieldConf.of(presence);
                 return this;
             }
 
@@ -162,8 +173,18 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
+            public Builder inheritedGenericProperty(Presence presence){
+                inheritedGenericProperty = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder inheritedNestedGenericProperty(ListFieldConf inheritedNestedGenericProperty){
                 this.inheritedNestedGenericProperty = inheritedNestedGenericProperty;
+                return this;
+            }
+
+            public Builder inheritedNestedGenericProperty(Presence presence){
+                inheritedNestedGenericProperty = ListFieldConf.of(presence);
                 return this;
             }
 
@@ -172,8 +193,18 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
+            public Builder overlappingNestedGenericProperty(Presence presence){
+                overlappingNestedGenericProperty = ListFieldConf.of(presence);
+                return this;
+            }
+
             public Builder inheritedGenericPropertyWithSetter(FieldConf inheritedGenericPropertyWithSetter){
                 this.inheritedGenericPropertyWithSetter = inheritedGenericPropertyWithSetter;
+                return this;
+            }
+
+            public Builder inheritedGenericPropertyWithSetter(Presence presence){
+                inheritedGenericPropertyWithSetter = FieldConf.of(presence);
                 return this;
             }
 
@@ -182,8 +213,18 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
+            public Builder genericPropertyWithSetter(Presence presence){
+                genericPropertyWithSetter = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder genericProperty(FieldConf genericProperty){
                 this.genericProperty = genericProperty;
+                return this;
+            }
+
+            public Builder genericProperty(Presence presence){
+                genericProperty = FieldConf.of(presence);
                 return this;
             }
 
@@ -192,8 +233,18 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
+            public Builder genericPropertyWithGetter(Presence presence){
+                genericPropertyWithGetter = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder nestedGenericProperty(ListFieldConf nestedGenericProperty){
                 this.nestedGenericProperty = nestedGenericProperty;
+                return this;
+            }
+
+            public Builder nestedGenericProperty(Presence presence){
+                nestedGenericProperty = ListFieldConf.of(presence);
                 return this;
             }
 

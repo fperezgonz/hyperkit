@@ -148,6 +148,7 @@ public class AnnotationProcessorUtils {
         if (addProjectionImports) {
 
             result.add(DtoProjection.class.getCanonicalName());
+            result.add(FieldConf.Presence.class.getCanonicalName());
 
             for (TypeMirror typeMirror : types) {
                 result.addAll(typeToProjectionPropertyTypeDeclaration(typeMirror, processingEnv, className_replacingDtoConfClassName).declaredTypesQualifiedNames);

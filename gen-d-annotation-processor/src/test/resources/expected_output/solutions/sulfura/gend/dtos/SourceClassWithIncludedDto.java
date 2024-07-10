@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.String;
 import io.vavr.control.Option;
@@ -99,8 +100,18 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
                 return this;
             }
 
+            public Builder stringPropertyWithGetter(Presence presence){
+                stringPropertyWithGetter = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder stringPropertyWithCustomAnnotation(FieldConf stringPropertyWithCustomAnnotation){
                 this.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation;
+                return this;
+            }
+
+            public Builder stringPropertyWithCustomAnnotation(Presence presence){
+                stringPropertyWithCustomAnnotation = FieldConf.of(presence);
                 return this;
             }
 
@@ -109,13 +120,28 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
                 return this;
             }
 
+            public Builder stringPropertyWithSetter(Presence presence){
+                stringPropertyWithSetter = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder stringProperty(FieldConf stringProperty){
                 this.stringProperty = stringProperty;
                 return this;
             }
 
+            public Builder stringProperty(Presence presence){
+                stringProperty = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder stringPropertyWithSetterAndCustomAnnotation(FieldConf stringPropertyWithSetterAndCustomAnnotation){
                 this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation;
+                return this;
+            }
+
+            public Builder stringPropertyWithSetterAndCustomAnnotation(Presence presence){
+                stringPropertyWithSetterAndCustomAnnotation = FieldConf.of(presence);
                 return this;
             }
 

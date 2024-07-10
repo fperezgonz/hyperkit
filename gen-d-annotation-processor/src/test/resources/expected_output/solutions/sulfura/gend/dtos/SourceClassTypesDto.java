@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.String;
@@ -112,8 +113,18 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
                 return this;
             }
 
+            public Builder stringArrayProperty(Presence presence){
+                stringArrayProperty = ListFieldConf.of(presence);
+                return this;
+            }
+
             public Builder booleanProperty(FieldConf booleanProperty){
                 this.booleanProperty = booleanProperty;
+                return this;
+            }
+
+            public Builder booleanProperty(Presence presence){
+                booleanProperty = FieldConf.of(presence);
                 return this;
             }
 
@@ -122,8 +133,18 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
                 return this;
             }
 
+            public Builder doubleProperty(Presence presence){
+                doubleProperty = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder longProperty(FieldConf longProperty){
                 this.longProperty = longProperty;
+                return this;
+            }
+
+            public Builder longProperty(Presence presence){
+                longProperty = FieldConf.of(presence);
                 return this;
             }
 
@@ -132,8 +153,18 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
                 return this;
             }
 
+            public Builder booleanArrayProperty(Presence presence){
+                booleanArrayProperty = ListFieldConf.of(presence);
+                return this;
+            }
+
             public Builder stringProperty(FieldConf stringProperty){
                 this.stringProperty = stringProperty;
+                return this;
+            }
+
+            public Builder stringProperty(Presence presence){
+                stringProperty = FieldConf.of(presence);
                 return this;
             }
 

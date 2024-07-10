@@ -147,7 +147,7 @@ public class DtoCodeGenUtils {
         addConstructor("Projection");
 
         //TODO specific builder for projection classes, must also be able to accept just Presence for FieldConf and ListConf, and just a Projection for DtoFieldConf and ListDtoFieldFond
-        addBuilder(baseClassName + ".Projection", genericTypeArgs, propertyDataList);
+        addProjectionBuilder(baseClassName + ".Projection", genericTypeArgs, propertyDataList);
 
         append('\n')
                 .endClass()
@@ -317,6 +317,118 @@ public class DtoCodeGenUtils {
         stringBuilder.append(contextIndentation).append("}\n\n");
 
         return this;
+    }
+
+    public DtoCodeGenUtils addProjectionBuilderProperty(CharSequence projectionClassName, DtoPropertyData propertyData, CharSequence genericTypeArguments) {
+
+        stringBuilder.append(contextIndentation).append("public Builder");
+        if (genericTypeArguments != null) {
+            stringBuilder.append(genericTypeArguments);
+        }
+        stringBuilder.append(' ')
+                .append(propertyData.propertyName);
+
+        String fieldDeclarationLiteral = getTypeDeclarationString(propertyData);
+        if (fieldDeclarationLiteral.startsWith("FieldConf")) {
+
+            stringBuilder.append("(Presence presence){\n");
+            increaseIndent();
+            stringBuilder.append(contextIndentation)
+                    .append(propertyData.propertyName)
+                    .append(" = FieldConf.of(presence);\n");
+
+        } else if (fieldDeclarationLiteral.startsWith("ListFieldConf")) {
+
+            stringBuilder.append("(Presence presence){\n");
+            increaseIndent();
+            stringBuilder.append(contextIndentation)
+                    .append(propertyData.propertyName)
+                    .append(" = ListFieldConf.of(presence);\n");
+
+        } else if (fieldDeclarationLiteral.startsWith("DtoFieldConf")) {
+
+            stringBuilder.append("(Presence presence, " + fieldDeclarationLiteral.substring(13, fieldDeclarationLiteral.length()-1) + " projection){\n");
+            increaseIndent();
+            stringBuilder.append(contextIndentation)
+                    .append(propertyData.propertyName)
+                    .append(" = DtoFieldConf.of(presence, projection);\n");
+
+        } else if (fieldDeclarationLiteral.startsWith("DtoListFieldConf")) {
+
+            stringBuilder.append("(Presence presence, " + fieldDeclarationLiteral.substring(17, fieldDeclarationLiteral.length()-1) + " projection){\n");
+            increaseIndent();
+            stringBuilder.append(contextIndentation)
+                    .append(propertyData.propertyName)
+                    .append(" = DtoListFieldConf.of(presence, projection);\n");
+
+        } else {
+            throw new RuntimeException("Invalid type for projection builder method: " + fieldDeclarationLiteral);
+        }
+        decreaseIndent();
+        stringBuilder.append(contextIndentation).append("    return this;\n")
+                .append(contextIndentation).append("}\n\n");
+
+        return this;
+    }
+
+    public DtoCodeGenUtils addProjectionBuilder(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
+
+        //Builder class declaration
+        StringBuilder builderClassDeclaration = new StringBuilder("public static class Builder");
+
+        if (genericTypeArgs != null) {
+            builderClassDeclaration.append(genericTypeArgs);
+        }
+
+        beginClass(builderClassDeclaration);
+
+        //Builder fields
+        for (DtoPropertyData propertyData : propertyDataList) {
+            addFieldDeclaration(propertyData);
+        }
+
+        append('\n');
+
+        //Method to get a builder from the main class
+        append(contextIndentation)
+                .append("public static ");
+
+        if (genericTypeArgs != null) {
+            append(genericTypeArgs);
+        }
+
+        append(" Builder");
+
+        if (genericTypeArgs != null) {
+            append(genericTypeArgs);
+        }
+
+        append(" newInstance(){\n");
+
+        if (genericTypeArgs != null) {
+            append(contextIndentation).append("    return new Builder<>();\n");
+        } else {
+            append(contextIndentation).append("    return new Builder();\n");
+        }
+
+        append(contextIndentation).append("}\n\n");
+
+        //Builder property methods
+        for (DtoPropertyData propertyData : propertyDataList) {
+            //TODO remove this on the next major version?
+            addBuilderProperty(propertyData, genericTypeArgs);
+            addProjectionBuilderProperty(baseClassName, propertyData, genericTypeArgs);
+        }
+
+        //build method
+        addBuildMethod(baseClassName, propertyDataList.stream()
+                .map(propertyData -> propertyData.propertyName)
+                .collect(Collectors.toList()), genericTypeArgs);
+
+        endClass().append("\n\n");
+
+        return this;
+
     }
 
     @Override

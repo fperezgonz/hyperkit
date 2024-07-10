@@ -18,10 +18,14 @@ public class FieldConf {
         return presence;
     }
 
-    public static FieldConf valueOf(Presence presence) {
+    public static FieldConf of(Presence presence) {
         FieldConf fieldConf = new FieldConf();
         fieldConf.presence = presence;
         return fieldConf;
+    }
+
+    public static FieldConf valueOf(Presence presence) {
+        return of(presence);
     }
 
     public static final class FieldConfBuilder {
@@ -32,6 +36,10 @@ public class FieldConf {
 
         public static FieldConfBuilder newInstance() {
             return new FieldConfBuilder();
+        }
+
+        public static FieldConfBuilder of(Presence presence) {
+            return FieldConfBuilder.newInstance().presence(presence);
         }
 
         public static FieldConfBuilder valueOf(Presence presence) {

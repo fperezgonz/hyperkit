@@ -3,6 +3,7 @@ package solutions.sulfura.gend.dtos.circular_dependencies;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
@@ -93,8 +94,18 @@ public class SourceClassBDto implements Dto<SourceClassB>{
                 return this;
             }
 
+            public Builder propertyArray(Presence presence, solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto.Projection projection){
+                propertyArray = DtoListFieldConf.of(presence, projection);
+                return this;
+            }
+
             public Builder property(DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto.Projection> property){
                 this.property = property;
+                return this;
+            }
+
+            public Builder property(Presence presence, solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto.Projection projection){
+                property = DtoFieldConf.of(presence, projection);
                 return this;
             }
 
@@ -103,8 +114,18 @@ public class SourceClassBDto implements Dto<SourceClassB>{
                 return this;
             }
 
+            public Builder genericPropertyArray(Presence presence){
+                genericPropertyArray = ListFieldConf.of(presence);
+                return this;
+            }
+
             public Builder genericProperty(DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto.Projection> genericProperty){
                 this.genericProperty = genericProperty;
+                return this;
+            }
+
+            public Builder genericProperty(Presence presence, solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto.Projection projection){
+                genericProperty = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
