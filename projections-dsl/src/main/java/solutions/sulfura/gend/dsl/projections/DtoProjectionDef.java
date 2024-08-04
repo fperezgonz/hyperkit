@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface DtoProjectionDef {
 
-    String prefix() default "";
+    String name() default "";
 
     String projectionDef();
 
