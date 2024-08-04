@@ -27,6 +27,7 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
         private boolean allowInsert;
         private boolean allowDelete;
         private Presence presence = Presence.IGNORED;
+        private boolean readonly;
 
         private DtoListConfBuilder() {
         }
@@ -34,7 +35,7 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
         public static <T extends DtoProjection<?>> DtoListConfBuilder<T> of(Presence presence, T elemConf) {
             return DtoListConfBuilder.<T>newInstance()
                     .presence(presence)
-                    .dtoConf(elemConf);
+                    .dtoProjection(elemConf);
         }
 
         public static <T extends DtoProjection<?>> DtoListConfBuilder<T> valueOf(Presence presence, T elemConf) {
@@ -49,7 +50,7 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             return FieldConfBuilder.newInstance().presence(presence);
         }
 
-        public DtoListConfBuilder<T> dtoConf(T dtoProjection) {
+        public DtoListConfBuilder<T> dtoProjection(T dtoProjection) {
             this.dtoProjection = dtoProjection;
             return this;
         }
@@ -69,8 +70,13 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             return this;
         }
 
+        public DtoListConfBuilder<T> readonly(boolean readonly) {
+            this.readonly = readonly;
+            return this;
+        }
+
         public DtoListConfBuilder<T> but() {
-            return DtoListConfBuilder.<T>newInstance().dtoConf(dtoProjection)
+            return DtoListConfBuilder.<T>newInstance().dtoProjection(dtoProjection)
                     .allowInsert(allowInsert)
                     .allowDelete(allowDelete)
                     .presence(presence);
@@ -80,6 +86,7 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             DtoListFieldConf<T> dtoListFieldConf = new DtoListFieldConf<>();
             dtoListFieldConf.dtoProjection = this.dtoProjection;
             dtoListFieldConf.presence = this.presence;
+            dtoListFieldConf.readonly = this.readonly;
             dtoListFieldConf.allowInsert = this.allowInsert;
             dtoListFieldConf.allowDelete = this.allowDelete;
             return dtoListFieldConf;

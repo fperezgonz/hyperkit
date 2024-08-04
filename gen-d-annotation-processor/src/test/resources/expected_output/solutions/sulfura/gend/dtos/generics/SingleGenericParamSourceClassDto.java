@@ -2,6 +2,7 @@ package solutions.sulfura.gend.dtos.generics;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -67,6 +68,7 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
 
     }
 
+    @ProjectionFor(SingleGenericParamSourceClassDto.class)
     public static class Projection<T> extends DtoProjection<SingleGenericParamSourceClassDto<T>>{
 
         public FieldConf genericPropertyWithSetter;

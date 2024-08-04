@@ -4,6 +4,7 @@ import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -147,6 +148,7 @@ public class AnnotationProcessorUtils {
         //DtoProjection imports
         if (addProjectionImports) {
 
+            result.add(ProjectionFor.class.getCanonicalName());
             result.add(DtoProjection.class.getCanonicalName());
             result.add(FieldConf.Presence.class.getCanonicalName());
 

@@ -13,9 +13,14 @@ public class FieldConf {
     public enum Presence {MANDATORY, IGNORED, OPTIONAL}
 
     protected Presence presence = Presence.IGNORED;
+    protected boolean readonly;
 
     public Presence getPresence() {
         return presence;
+    }
+
+    public boolean isReadonly() {
+        return readonly;
     }
 
     public static FieldConf of(Presence presence) {
@@ -30,6 +35,7 @@ public class FieldConf {
 
     public static final class FieldConfBuilder {
         private Presence presence = Presence.IGNORED;
+        private boolean readonly;
 
         private FieldConfBuilder() {
         }
@@ -51,9 +57,15 @@ public class FieldConf {
             return this;
         }
 
+        public FieldConfBuilder readonly(boolean readonly) {
+            this.readonly = readonly;
+            return this;
+        }
+
         public FieldConf build() {
             FieldConf fieldConf = new FieldConf();
             fieldConf.presence = this.presence;
+            fieldConf.readonly = this.readonly;
             return fieldConf;
         }
     }

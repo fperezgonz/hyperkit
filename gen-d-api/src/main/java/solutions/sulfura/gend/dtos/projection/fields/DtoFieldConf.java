@@ -25,6 +25,7 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
     public static final class DtoFieldConfBuilder<T extends DtoProjection<?>> {
         private T dtoProjection;
         private Presence presence = Presence.IGNORED;
+        private boolean readonly;
 
         private DtoFieldConfBuilder() {
         }
@@ -54,10 +55,16 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
             return this;
         }
 
+        public DtoFieldConfBuilder<T> readonly(boolean readonly) {
+            this.readonly = readonly;
+            return this;
+        }
+
         public DtoFieldConf<T> build() {
             DtoFieldConf<T> dtoFieldConf = new DtoFieldConf<>();
             dtoFieldConf.dtoProjection = this.dtoProjection;
             dtoFieldConf.presence = this.presence;
+            dtoFieldConf.readonly = this.readonly;
             return dtoFieldConf;
         }
     }

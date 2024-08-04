@@ -2,6 +2,7 @@ package solutions.sulfura.gend.dtos.circular_dependencies;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
@@ -69,6 +70,7 @@ public class SourceClassBDto implements Dto<SourceClassB>{
 
     }
 
+    @ProjectionFor(SourceClassBDto.class)
     public static class Projection extends DtoProjection<SourceClassBDto>{
 
         public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassADto.Projection> propertyArray;

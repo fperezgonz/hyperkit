@@ -2,6 +2,7 @@ package solutions.sulfura.gend.dtos.generics.inheritance;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -116,6 +117,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     }
 
+    @ProjectionFor(GenericChildClassWithParameterizedTypeDto.class)
     public static class Projection extends DtoProjection<GenericChildClassWithParameterizedTypeDto>{
 
         public FieldConf overlappingGenericProperty;

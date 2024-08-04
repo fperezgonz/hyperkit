@@ -2,6 +2,7 @@ package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
@@ -84,6 +85,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     }
 
+    @ProjectionFor(SourceClassTypesDto.class)
     public static class Projection extends DtoProjection<SourceClassTypesDto>{
 
         public ListFieldConf stringArrayProperty;

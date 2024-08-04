@@ -22,6 +22,7 @@ public class ListFieldConf extends FieldConf {
 
     public static final class ListConfBuilder {
         private Presence presence = Presence.IGNORED;
+        private boolean readonly;
         private boolean allowInsert;
         private boolean allowDelete;
 
@@ -45,6 +46,11 @@ public class ListFieldConf extends FieldConf {
             return this;
         }
 
+        public ListConfBuilder readonly(boolean readonly) {
+            this.readonly = readonly;
+            return this;
+        }
+
         public ListConfBuilder allowInsert(boolean allowInsert) {
             this.allowInsert = allowInsert;
             return this;
@@ -64,8 +70,9 @@ public class ListFieldConf extends FieldConf {
 
         public ListFieldConf build() {
             ListFieldConf listConf = new ListFieldConf();
-            listConf.allowInsert = this.allowInsert;
             listConf.presence = this.presence;
+            listConf.readonly = this.readonly;
+            listConf.allowInsert = this.allowInsert;
             listConf.allowDelete = this.allowDelete;
             return listConf;
         }

@@ -120,7 +120,9 @@ public class DtoCodeGenUtils {
     public DtoCodeGenUtils addProjectionClass(CharSequence baseClassName, CharSequence genericTypeArgs, List<DtoPropertyData> propertyDataList) {
 
         //Projection class declaration
-        StringBuilder projectionClassDeclaration = new StringBuilder("public static class Projection");
+        StringBuilder projectionClassDeclaration = new StringBuilder()
+                .append("@ProjectionFor(").append(baseClassName).append(".class)\n")
+                .append(contextIndentation).append("public static class Projection");
 
         if (genericTypeArgs != null) {
             projectionClassDeclaration.append(genericTypeArgs);

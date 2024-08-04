@@ -2,6 +2,7 @@ package solutions.sulfura.gend.dtos;
 
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -49,6 +50,7 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
     }
 
+    @ProjectionFor(SourceUpperCasePropertiesDto.class)
     public static class Projection extends DtoProjection<SourceUpperCasePropertiesDto>{
 
         public FieldConf UPPERCASE_FIELD_PROPERTY;
