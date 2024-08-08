@@ -3,6 +3,8 @@ package solutions.sulfura.gend.dtos.circular_dependencies;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
@@ -77,6 +79,13 @@ public class SourceClassADto implements Dto<SourceClassA>{
         public DtoFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> property;
         public ListFieldConf genericPropertyArray;
         public DtoListFieldConf<solutions.sulfura.gend.dtos.circular_dependencies.SourceClassBDto.Projection> genericProperty;
+
+        public void applyProjectionTo(SourceClassADto dto) throws DtoProjectionException {
+            dto.propertyArray = ProjectionUtils.getProjectedValue(dto.propertyArray, this.propertyArray);
+            dto.property = ProjectionUtils.getProjectedValue(dto.property, this.property);
+            dto.genericPropertyArray = ProjectionUtils.getProjectedValue(dto.genericPropertyArray, this.genericPropertyArray);
+            dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
+        }
 
         public Projection(){}
 

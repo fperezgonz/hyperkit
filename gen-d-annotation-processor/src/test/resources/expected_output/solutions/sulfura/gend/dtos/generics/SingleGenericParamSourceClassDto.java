@@ -3,6 +3,8 @@ package solutions.sulfura.gend.dtos.generics;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -75,6 +77,13 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
         public FieldConf genericProperty;
         public FieldConf genericPropertyWithGetter;
         public ListFieldConf nestedGenericProperty;
+
+        public void applyProjectionTo(SingleGenericParamSourceClassDto dto) throws DtoProjectionException {
+            dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
+            dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
+            dto.genericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithGetter, this.genericPropertyWithGetter);
+            dto.nestedGenericProperty = ProjectionUtils.getProjectedValue(dto.nestedGenericProperty, this.nestedGenericProperty);
+        }
 
         public Projection(){}
 

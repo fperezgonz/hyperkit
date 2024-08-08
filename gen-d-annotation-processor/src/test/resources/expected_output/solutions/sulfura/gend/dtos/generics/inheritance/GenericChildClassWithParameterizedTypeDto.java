@@ -3,6 +3,8 @@ package solutions.sulfura.gend.dtos.generics.inheritance;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -130,6 +132,19 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         public FieldConf genericProperty;
         public FieldConf genericPropertyWithGetter;
         public ListFieldConf nestedGenericProperty;
+
+        public void applyProjectionTo(GenericChildClassWithParameterizedTypeDto dto) throws DtoProjectionException {
+            dto.overlappingGenericProperty = ProjectionUtils.getProjectedValue(dto.overlappingGenericProperty, this.overlappingGenericProperty);
+            dto.inheritedGenericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.inheritedGenericPropertyWithGetter, this.inheritedGenericPropertyWithGetter);
+            dto.inheritedGenericProperty = ProjectionUtils.getProjectedValue(dto.inheritedGenericProperty, this.inheritedGenericProperty);
+            dto.inheritedNestedGenericProperty = ProjectionUtils.getProjectedValue(dto.inheritedNestedGenericProperty, this.inheritedNestedGenericProperty);
+            dto.overlappingNestedGenericProperty = ProjectionUtils.getProjectedValue(dto.overlappingNestedGenericProperty, this.overlappingNestedGenericProperty);
+            dto.inheritedGenericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.inheritedGenericPropertyWithSetter, this.inheritedGenericPropertyWithSetter);
+            dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
+            dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
+            dto.genericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithGetter, this.genericPropertyWithGetter);
+            dto.nestedGenericProperty = ProjectionUtils.getProjectedValue(dto.nestedGenericProperty, this.nestedGenericProperty);
+        }
 
         public Projection(){}
 

@@ -3,6 +3,16 @@ plugins {
     id 'maven-publish'
 }
 
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    api "io.vavr:vavr:0.10.4"
+}
+
 publishing {
     publications {
         maven(MavenPublication) {

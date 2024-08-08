@@ -3,6 +3,8 @@ package solutions.sulfura.gend.dtos;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -55,6 +57,11 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
         public FieldConf UPPERCASE_FIELD_PROPERTY;
         public FieldConf UPPERCASE_GETTER_PROPERTY;
+
+        public void applyProjectionTo(SourceUpperCasePropertiesDto dto) throws DtoProjectionException {
+            dto.UPPERCASE_FIELD_PROPERTY = ProjectionUtils.getProjectedValue(dto.UPPERCASE_FIELD_PROPERTY, this.UPPERCASE_FIELD_PROPERTY);
+            dto.UPPERCASE_GETTER_PROPERTY = ProjectionUtils.getProjectedValue(dto.UPPERCASE_GETTER_PROPERTY, this.UPPERCASE_GETTER_PROPERTY);
+        }
 
         public Projection(){}
 

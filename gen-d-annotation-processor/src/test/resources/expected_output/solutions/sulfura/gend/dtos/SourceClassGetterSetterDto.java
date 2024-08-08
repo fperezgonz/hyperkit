@@ -3,6 +3,8 @@ package solutions.sulfura.gend.dtos;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -64,6 +66,12 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
         public FieldConf stringPropertyWithGetter;
         public FieldConf stringPropertyWithSetter;
         public FieldConf stringPropertyWithGetterAndSetter;
+
+        public void applyProjectionTo(SourceClassGetterSetterDto dto) throws DtoProjectionException {
+            dto.stringPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetter, this.stringPropertyWithGetter);
+            dto.stringPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetter, this.stringPropertyWithSetter);
+            dto.stringPropertyWithGetterAndSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetterAndSetter, this.stringPropertyWithGetterAndSetter);
+        }
 
         public Projection(){}
 

@@ -146,6 +146,28 @@ public class DtoCodeGenUtils {
             addFieldDeclaration(propertyData);
         }
 
+        //public void applyProjectionTo(Dto dto)
+        append('\n')
+                .append(contextIndentation)
+                .append("public void applyProjectionTo(")
+                .append(baseClassName).append(" dto")
+                .append(") throws DtoProjectionException {\n")
+                .increaseIndent();
+
+        for (DtoPropertyData propertyData : propertyDataList) {
+
+            String propName = propertyData.propertyName;
+            append(contextIndentation).append("dto.").append(propName)
+                    .append(" = ProjectionUtils.getProjectedValue(dto.").append(propName)
+                    .append(", this.").append(propName).append(");\n");
+
+        }
+
+        decreaseIndent()
+                .append(contextIndentation)
+                .append("}\n");
+
+
         addConstructor("Projection");
 
         //TODO specific builder for projection classes, must also be able to accept just Presence for FieldConf and ListConf, and just a Projection for DtoFieldConf and ListDtoFieldFond
@@ -349,7 +371,7 @@ public class DtoCodeGenUtils {
 
         } else if (fieldDeclarationLiteral.startsWith("DtoFieldConf")) {
 
-            stringBuilder.append("(Presence presence, " + fieldDeclarationLiteral.substring(13, fieldDeclarationLiteral.length()-1) + " projection){\n");
+            stringBuilder.append("(Presence presence, " + fieldDeclarationLiteral.substring(13, fieldDeclarationLiteral.length() - 1) + " projection){\n");
             increaseIndent();
             stringBuilder.append(contextIndentation)
                     .append(propertyData.propertyName)
@@ -357,7 +379,7 @@ public class DtoCodeGenUtils {
 
         } else if (fieldDeclarationLiteral.startsWith("DtoListFieldConf")) {
 
-            stringBuilder.append("(Presence presence, " + fieldDeclarationLiteral.substring(17, fieldDeclarationLiteral.length()-1) + " projection){\n");
+            stringBuilder.append("(Presence presence, " + fieldDeclarationLiteral.substring(17, fieldDeclarationLiteral.length() - 1) + " projection){\n");
             increaseIndent();
             stringBuilder.append(contextIndentation)
                     .append(propertyData.propertyName)

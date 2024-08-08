@@ -3,6 +3,8 @@ package solutions.sulfura.gend.dtos;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
@@ -82,6 +84,14 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
         public FieldConf stringPropertyWithSetter;
         public FieldConf stringProperty;
         public FieldConf stringPropertyWithSetterAndCustomAnnotation;
+
+        public void applyProjectionTo(SourceClassWithIncludedDto dto) throws DtoProjectionException {
+            dto.stringPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetter, this.stringPropertyWithGetter);
+            dto.stringPropertyWithCustomAnnotation = ProjectionUtils.getProjectedValue(dto.stringPropertyWithCustomAnnotation, this.stringPropertyWithCustomAnnotation);
+            dto.stringPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetter, this.stringPropertyWithSetter);
+            dto.stringProperty = ProjectionUtils.getProjectedValue(dto.stringProperty, this.stringProperty);
+            dto.stringPropertyWithSetterAndCustomAnnotation = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetterAndCustomAnnotation, this.stringPropertyWithSetterAndCustomAnnotation);
+        }
 
         public Projection(){}
 

@@ -22,4 +22,6 @@ import solutions.sulfura.gend.dtos.Dto;
  * */
 public abstract class DtoProjection<T extends Dto<?>> {
 
+    public abstract void applyProjectionTo(T dto) throws DtoProjectionException;
+
 }
