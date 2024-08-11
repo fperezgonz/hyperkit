@@ -16,13 +16,7 @@ public class ProjectionUtils {
             return getProjectedValue(value, (DtoFieldConf<?>) fieldConf);
         }
 
-        if (shouldBeIgnored(fieldConf)) {
-            return Option.none();
-        }
-
-        if (fieldConf.getPresence() == FieldConf.Presence.MANDATORY && (value == null || value.isEmpty())) {
-            throw new DtoProjectionException("Mandatory field not present in dto");
-        }
+        value = evaluatePresenceAndNullValues(value, fieldConf);
 
         return value;
 
@@ -50,14 +44,12 @@ public class ProjectionUtils {
 
     }
 
-    public static <T> Option<T> getProjectedValue(Option<T> value, DtoFieldConf fieldConf) {
+    public static <T> Option<T> getProjectedValue(Option<T> value, DtoFieldConf<?> fieldConf) {
 
-        if (shouldBeIgnored(fieldConf)) {
-            return Option.none();
-        }
+        value = evaluatePresenceAndNullValues(value, fieldConf);
 
-        if (fieldConf.getPresence() == FieldConf.Presence.MANDATORY && (value == null || value.isEmpty())) {
-            throw new DtoProjectionException("Mandatory field not present in dto");
+        if (value.isEmpty()) {
+            return null;
         }
 
         Object nestedVal = value.getOrNull();
@@ -65,7 +57,6 @@ public class ProjectionUtils {
         DtoProjection dtoProjection = fieldConf.dtoProjection;
 
         if (nestedVal instanceof Collection<?>) {
-
 
             applyProjectionToCollection((Collection<?>) nestedVal, dtoProjection);
 
@@ -83,8 +74,30 @@ public class ProjectionUtils {
 
     }
 
-    public static boolean shouldBeIgnored(FieldConf fieldConf) {
+    public static boolean fieldMustBePresent(FieldConf fieldConf) {
+        return fieldConf.getPresence() == FieldConf.Presence.MANDATORY;
+    }
+
+    public static boolean fieldShouldBeIgnored(FieldConf fieldConf) {
         return fieldConf == null || fieldConf.getPresence() == FieldConf.Presence.IGNORED;
+    }
+
+    public static <T> Option<T> evaluatePresenceAndNullValues(Option<T> value, FieldConf fieldConf) {
+
+        if (fieldShouldBeIgnored(fieldConf)) {
+            return Option.none();
+        }
+
+        if (fieldMustBePresent(fieldConf) && (value == null || value.isEmpty())) {
+            throw new DtoProjectionException("Mandatory field not present in dto");
+        }
+
+        if (value == null) {
+            return Option.none();
+        }
+
+        return value;
+
     }
 
 }
