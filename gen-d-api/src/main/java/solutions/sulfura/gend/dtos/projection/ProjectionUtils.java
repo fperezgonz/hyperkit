@@ -56,7 +56,11 @@ public class ProjectionUtils {
 
         DtoProjection dtoProjection = fieldConf.dtoProjection;
 
-        if (nestedVal instanceof Collection<?>) {
+        if (nestedVal == null){
+
+            return Option.some(null);
+
+        } else if (nestedVal instanceof Collection<?>) {
 
             applyProjectionToCollection((Collection<?>) nestedVal, dtoProjection);
 
@@ -64,7 +68,7 @@ public class ProjectionUtils {
 
             dtoProjection.applyProjectionTo((Dto) nestedVal);
 
-        } else {
+        } else{
 
             throw new DtoProjectionException("Unable to apply projection of type " + dtoProjection.getClass() + " to type " + nestedVal.getClass());
 
