@@ -24,14 +24,14 @@ import java.util.Objects;
 
 public class DtoGeneratorTest {
 
-    static final String testOutputDir = "sulfura/temp/";
+    static final String annotationProcessorOutputDir = "sulfura/temp/";
     static final String expectedOutputDir = "src/test/resources/expected_output/";
     static final String testInputResourcesPath = "/source_code/test_input_sources/";
 
     @BeforeAll
     public static void setupTempFolder() throws IOException {
-        Files.createDirectories(Paths.get(testOutputDir));
-        for (File file : new File(testOutputDir).listFiles()) {
+        Files.createDirectories(Paths.get(annotationProcessorOutputDir));
+        for (File file : Objects.requireNonNull(new File(annotationProcessorOutputDir).listFiles())) {
 
             if (Objects.equals(file.getName(), ".gitignore")) {
                 continue;
@@ -126,7 +126,7 @@ public class DtoGeneratorTest {
         List<String> args = new ArrayList<>();
         //Compiler options
         args.add("-d");
-        args.add(testOutputDir);
+        args.add(annotationProcessorOutputDir);
         args.add("-processor");
         args.add(DtoAnnotationProcessor.class.getCanonicalName());
         //Files to compile
@@ -143,7 +143,7 @@ public class DtoGeneratorTest {
     }
 
     public void assertGeneratedDtoSourceCodeMatchesExpectedOutput(String qualifiedClassName) {
-        String outputPathString = testOutputDir + "/" + qualifiedClassName.replace('.', '/') + "Dto.java";
+        String outputPathString = annotationProcessorOutputDir + "/" + qualifiedClassName.replace('.', '/') + "Dto.java";
         String expectedOutputPathString = expectedOutputDir + "/" + qualifiedClassName.replace('.', '/') + "Dto.java";
         Path expectedOutputPath = new File(expectedOutputPathString).toPath();
         Path outputPath = new File(outputPathString).toPath();
@@ -157,7 +157,7 @@ public class DtoGeneratorTest {
     }
 
     public Class<?> loadCompiledClass(String className) throws MalformedURLException, ClassNotFoundException {
-        URL[] classLoaderUrls = {new File(testOutputDir).toURI().toURL()};
+        URL[] classLoaderUrls = {new File(annotationProcessorOutputDir).toURI().toURL()};
         ClassLoader classLoader = new URLClassLoader(classLoaderUrls);
 
         return Class.forName(className, true, classLoader);

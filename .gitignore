@@ -9,3 +9,5 @@ gen-d-api/bin
 gen-d-api/build
 build
 
+# Annotation processor output directory
+gen-d-annotation-processor/sulfura/temp/
