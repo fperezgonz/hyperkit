@@ -9,11 +9,9 @@ import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ProjectionDslTest {
 
-    void testMethodInput(@DtoProjectionDef(projectionDef = """
+    void testMethodInput(@DtoProjectionSpec(projectedClass = SourceClassGetterSetterDto.class, value = """
             stringPropertyWithGetter
             stringPropertyWithSetter @Mandatory""") SourceClassGetterSetterDto testParameter) {
 
@@ -23,7 +21,7 @@ class ProjectionDslTest {
     void parseSimpleDto() throws NoSuchMethodException {
         Method method = this.getClass().getDeclaredMethod("testMethodInput", SourceClassGetterSetterDto.class);
         Parameter parameter = method.getParameters()[0];
-        DtoProjectionDef annotation = parameter.getAnnotation(DtoProjectionDef.class);
+        DtoProjectionSpec annotation = parameter.getAnnotation(DtoProjectionSpec.class);
         SourceClassGetterSetterDto.Projection result = ProjectionDsl.parse(annotation, SourceClassGetterSetterDto.Projection.class);
         Assertions.assertEquals(FieldConf.Presence.OPTIONAL, result.stringPropertyWithGetter.getPresence());
         Assertions.assertEquals(FieldConf.Presence.MANDATORY, result.stringPropertyWithSetter.getPresence());

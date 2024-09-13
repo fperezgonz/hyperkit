@@ -3,9 +3,6 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'solutions.sulfura'
-version = '0.1'
-
 repositories {
     mavenLocal()
     mavenCentral()
@@ -21,9 +18,7 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'solutions.sulfura'
             artifactId = 'gen-d-projections-dsl'
-            version = '1.1.0-SNAPSHOT'
 
             from components.java
         }

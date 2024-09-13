@@ -3,54 +3,54 @@ package solutions.sulfura.gend.dsl.projections.test_aux;
 import solutions.sulfura.gend.dsl.projections.test_aux.dto_sources.SourceClassGetterSetter;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
-
 import java.lang.String;
-
 import io.vavr.control.Option;
 
 @DtoFor(SourceClassGetterSetter.class)
-public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> {
+public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     public Option<String> stringPropertyWithGetter = Option.none();
     public Option<String> stringPropertyWithSetter = Option.none();
     public Option<String> stringPropertyWithGetterAndSetter = Option.none();
 
-    public SourceClassGetterSetterDto() {
-    }
+    public SourceClassGetterSetterDto(){}
 
     public Class<SourceClassGetterSetter> getSourceClass() {
         return SourceClassGetterSetter.class;
     }
 
-    public static class Builder {
+    public static class Builder{
 
         public Option<String> stringPropertyWithGetter = Option.none();
         public Option<String> stringPropertyWithSetter = Option.none();
         public Option<String> stringPropertyWithGetterAndSetter = Option.none();
 
-        public static Builder newInstance() {
+        public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringPropertyWithGetter(Option<String> stringPropertyWithGetter) {
+        public Builder stringPropertyWithGetter(Option<String> stringPropertyWithGetter){
             this.stringPropertyWithGetter = stringPropertyWithGetter == null ? Option.none() : stringPropertyWithGetter;
             return this;
         }
 
-        public Builder stringPropertyWithSetter(Option<String> stringPropertyWithSetter) {
+        public Builder stringPropertyWithSetter(Option<String> stringPropertyWithSetter){
             this.stringPropertyWithSetter = stringPropertyWithSetter == null ? Option.none() : stringPropertyWithSetter;
             return this;
         }
 
-        public Builder stringPropertyWithGetterAndSetter(Option<String> stringPropertyWithGetterAndSetter) {
+        public Builder stringPropertyWithGetterAndSetter(Option<String> stringPropertyWithGetterAndSetter){
             this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter == null ? Option.none() : stringPropertyWithGetterAndSetter;
             return this;
         }
 
-        public SourceClassGetterSetterDto build() {
+        public SourceClassGetterSetterDto build(){
             SourceClassGetterSetterDto instance = new SourceClassGetterSetterDto();
             instance.stringPropertyWithGetter = stringPropertyWithGetter;
             instance.stringPropertyWithSetter = stringPropertyWithSetter;
@@ -60,57 +60,63 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> 
 
     }
 
-    public static class Projection extends DtoProjection<SourceClassGetterSetterDto> {
+    @ProjectionFor(SourceClassGetterSetterDto.class)
+    public static class Projection extends DtoProjection<SourceClassGetterSetterDto>{
 
         public FieldConf stringPropertyWithGetter;
         public FieldConf stringPropertyWithSetter;
         public FieldConf stringPropertyWithGetterAndSetter;
 
-        public Projection() {
+        public void applyProjectionTo(SourceClassGetterSetterDto dto) throws DtoProjectionException {
+            dto.stringPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetter, this.stringPropertyWithGetter);
+            dto.stringPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetter, this.stringPropertyWithSetter);
+            dto.stringPropertyWithGetterAndSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetterAndSetter, this.stringPropertyWithGetterAndSetter);
         }
 
-        public static class Builder {
+        public Projection(){}
+
+        public static class Builder{
 
             public FieldConf stringPropertyWithGetter;
             public FieldConf stringPropertyWithSetter;
             public FieldConf stringPropertyWithGetterAndSetter;
 
-            public static Builder newInstance() {
+            public static  Builder newInstance(){
                 return new Builder();
             }
 
-            public Builder stringPropertyWithGetter(FieldConf stringPropertyWithGetter) {
+            public Builder stringPropertyWithGetter(FieldConf stringPropertyWithGetter){
                 this.stringPropertyWithGetter = stringPropertyWithGetter;
                 return this;
             }
 
-            public Builder stringPropertyWithGetter(Presence presence) {
+            public Builder stringPropertyWithGetter(Presence presence){
                 stringPropertyWithGetter = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder stringPropertyWithSetter(FieldConf stringPropertyWithSetter) {
+            public Builder stringPropertyWithSetter(FieldConf stringPropertyWithSetter){
                 this.stringPropertyWithSetter = stringPropertyWithSetter;
                 return this;
             }
 
-            public Builder stringPropertyWithSetter(Presence presence) {
+            public Builder stringPropertyWithSetter(Presence presence){
                 stringPropertyWithSetter = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder stringPropertyWithGetterAndSetter(FieldConf stringPropertyWithGetterAndSetter) {
+            public Builder stringPropertyWithGetterAndSetter(FieldConf stringPropertyWithGetterAndSetter){
                 this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter;
                 return this;
             }
 
-            public Builder stringPropertyWithGetterAndSetter(Presence presence) {
+            public Builder stringPropertyWithGetterAndSetter(Presence presence){
                 stringPropertyWithGetterAndSetter = FieldConf.of(presence);
                 return this;
             }
 
-            public Projection build() {
-                Projection instance = new Projection();
+            public SourceClassGetterSetterDto.Projection build(){
+                SourceClassGetterSetterDto.Projection instance = new SourceClassGetterSetterDto.Projection();
                 instance.stringPropertyWithGetter = stringPropertyWithGetter;
                 instance.stringPropertyWithSetter = stringPropertyWithSetter;
                 instance.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter;
@@ -122,7 +128,7 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> 
 
     }
 
-    public static class DtoModel {
+    public static class DtoModel{
 
         public static final String _stringPropertyWithGetter = "stringPropertyWithGetter";
         public static final String _stringPropertyWithSetter = "stringPropertyWithSetter";

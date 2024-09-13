@@ -16,10 +16,7 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'solutions.sulfura'
             artifactId = 'gen-d-api'
-            version = '1.1.0-SNAPSHOT'
-
             from components.java
         }
     }
