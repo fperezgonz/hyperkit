@@ -42,11 +42,11 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
         Map<String, String> sourceClassName_dtoClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
                         elem -> getDtoQualifiedName(elem.getAnnotation(Dto.class), elem)));
-        //Same for DtoProjectionig
+        //Same for DtoProjections
         Map<String, String> sourceClassName_dtoConfigClassName = elementsAnnotatedWithDto.stream()
                 .collect(Collectors.<TypeElement, String, String>toMap(elem -> elem.getQualifiedName().toString(),
                         elem -> getDtoProjectionQualifiedName(elem.getAnnotation(Dto.class), elem)));
-        //TODO Add mappings for preexisting Dtos
+        //TODO Add mappings for preexisting dtos
 
         //Generate Dto classes for each element Annotated with @Dto
         for (TypeElement annotatedElement : elementsAnnotatedWithDto) {
@@ -81,8 +81,10 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @param sourceType The class referenced by the Dto annotation
-     * @param element    The class whose properties are going to be collected. It can be the class referenced by the Dto annotation, or another ancestor class or interface in the Type hierarchy
+     * @param includedAnnotations Properties annotated with these annotations will be collected
+     * @param sourceType          The class referenced by the Dto annotation
+     * @param element             The class whose properties are going to be collected. It can be the class referenced by the Dto annotation, or another ancestor class or interface in the Type hierarchy
+     * @return A Map with the property name as the key and the property data as the value
      */
     public Map<String, SourceClassPropertyData> collectClassPropertiesData(DeclaredType sourceType, TypeElement element, List<TypeMirror> includedAnnotations) {
 
@@ -93,7 +95,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
 
         if (dtoAnnotation != null) {
             try {
-                dtoAnnotation.include();
+                //This is expected to always throw an exception that holds the type data
+                Class<?>[] ignored = dtoAnnotation.include();
             } catch (MirroredTypesException mte) {
                 types.addAll(mte.getTypeMirrors());
             }
@@ -198,7 +201,9 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * Returns the package name declared on the annotation instance, or the element package name if there is no package specified on the annotation
+     * @param dtoAnnotationInstance The {@link Dto} annotation on the type that will be processed by this method
+     * @param element               The {@link TypeElement} annotated for processing
+     * @return The package name declared on the annotation instance, or the element package name if there is no package specified on the annotation
      */
     public String getDestPackageName(Dto dtoAnnotationInstance, TypeElement element) {
 
@@ -216,6 +221,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
+     * @param dtoAnnotationInstance The {@link Dto} annotation on the type that will be processed by this method
+     * @param element               The {@link TypeElement} annotated for processing
      * @return the qualified name of the Dto that will be generated for the element
      */
     public String getDtoQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
@@ -223,6 +230,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
+     * @param dtoAnnotationInstance The {@link Dto} annotation on the type that will be processed by this method
+     * @param element               The {@link TypeElement} annotated for processing
      * @return the qualified name of the DtoProjection that will be generated for the element
      */
     public String getDtoProjectionQualifiedName(Dto dtoAnnotationInstance, TypeElement element) {
@@ -230,7 +239,8 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @return for a type like Map.Entry&lt; K, V&gt; , it would return a String containing &lt; K, V&gt; . It returns null if the type does not have any parameters
+     * @param genericType The type whose generic arguments will be returned by this method
+     * @return For a type like Map.Entry&lt; K, V&gt; , it would return a String containing &lt; K, V&gt; . It returns null if the type does not have any parameters
      */
     public StringBuilder typeArgumentsString(DeclaredType genericType) {
 
@@ -261,7 +271,11 @@ public class DtoAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * @param className_replacingDtoClassName a structure that maps classes to replacements. The generation process will take this into account and replace the classes declared in the dto's properties with the replacement classes
+     * @param dtoAnnotationInstance                     The {@link Dto} annotation on the type that will be processed by this method
+     * @param element                                   The {@link TypeElement} annotated for processing
+     * @param dtoProperties                             A list with the data of the properties that will be included in the resulting Dto
+     * @param className_replacingDtoProjectionClassName
+     * @param className_replacingDtoClassName           a structure that maps classes to replacements. The generation process will take this into account and replace the classes declared in the dto's properties with the replacement classes
      * @return the source code for the Dto of the element
      */
     public String generateDtoSourceCode(Dto dtoAnnotationInstance, TypeElement element,

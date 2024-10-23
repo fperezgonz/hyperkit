@@ -25,8 +25,8 @@ public class ProjectionDsl {
         return new ProjectionDslParseProcess().parseProjection(projectionDef, rootType);
     }
 
-    public static <P extends DtoProjection> P parse(DtoProjectionDef annotation, Class<P> rootType) {
-        return ProjectionDsl.parse(annotation.projectionDef(), rootType);
+    public static <P extends DtoProjection> P parse(DtoProjectionSpec annotation, Class<P> rootType) {
+        return ProjectionDsl.parse(annotation.value(), rootType);
     }
 
     public static class ProjectionDslParseProcess {
@@ -149,7 +149,7 @@ public class ProjectionDsl {
                     && characterStream.currentChar != '\n'
                     && characterStream.currentChar != '}') {
 
-                Character c = characterStream.currentChar;
+                char c = characterStream.currentChar;
                 //Perform actions for the end of the current state (if applicable) and determine new state
                 {
 
@@ -235,7 +235,7 @@ public class ProjectionDsl {
 
                 while (characterStream.currentChar != null) {
 
-                    Character c = characterStream.currentChar;
+                    char c = characterStream.currentChar;
 
                     if (Character.isLetterOrDigit(c) || c == '@') {
                         PropertyParseResult parseResult = parseProperty(characterStream);
@@ -259,7 +259,7 @@ public class ProjectionDsl {
 
                 }
 
-                ParseResult parseResult = new ParseResult();
+                ParseResult<P> parseResult = new ParseResult<>();
                 parseResult.parsedValue = result;
                 parseResult.charactersRead = charsRead;
 

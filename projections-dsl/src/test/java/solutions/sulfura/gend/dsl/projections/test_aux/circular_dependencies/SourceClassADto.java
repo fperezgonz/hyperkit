@@ -3,6 +3,9 @@ package solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies;
 import solutions.sulfura.gend.dsl.projections.test_aux.dto_sources.circular_dependencies.SourceClassA;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
@@ -70,12 +73,20 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     }
 
+    @ProjectionFor(SourceClassADto.class)
     public static class Projection extends DtoProjection<SourceClassADto>{
 
-        public DtoListFieldConf<SourceClassBDto.Projection> propertyArray;
-        public DtoFieldConf<SourceClassBDto.Projection> property;
+        public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> propertyArray;
+        public DtoFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> property;
         public ListFieldConf genericPropertyArray;
-        public DtoListFieldConf<SourceClassBDto.Projection> genericProperty;
+        public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> genericProperty;
+
+        public void applyProjectionTo(SourceClassADto dto) throws DtoProjectionException {
+            dto.propertyArray = ProjectionUtils.getProjectedValue(dto.propertyArray, this.propertyArray);
+            dto.property = ProjectionUtils.getProjectedValue(dto.property, this.property);
+            dto.genericPropertyArray = ProjectionUtils.getProjectedValue(dto.genericPropertyArray, this.genericPropertyArray);
+            dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
+        }
 
         public Projection(){}
 
@@ -88,31 +99,31 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
         public static class Builder{
 
-            public DtoListFieldConf<SourceClassBDto.Projection> propertyArray;
-            public DtoFieldConf<SourceClassBDto.Projection> property;
+            public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> propertyArray;
+            public DtoFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> property;
             public ListFieldConf genericPropertyArray;
-            public DtoListFieldConf<SourceClassBDto.Projection> genericProperty;
+            public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> genericProperty;
 
             public static  Builder newInstance(){
                 return new Builder();
             }
 
-            public Builder propertyArray(DtoListFieldConf<SourceClassBDto.Projection> propertyArray){
+            public Builder propertyArray(DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> propertyArray){
                 this.propertyArray = propertyArray;
                 return this;
             }
 
-            public Builder propertyArray(Presence presence, SourceClassBDto.Projection projection){
+            public Builder propertyArray(Presence presence, solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection projection){
                 propertyArray = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
-            public Builder property(DtoFieldConf<SourceClassBDto.Projection> property){
+            public Builder property(DtoFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> property){
                 this.property = property;
                 return this;
             }
 
-            public Builder property(Presence presence, SourceClassBDto.Projection projection){
+            public Builder property(Presence presence, solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection projection){
                 property = DtoFieldConf.of(presence, projection);
                 return this;
             }
@@ -127,18 +138,18 @@ public class SourceClassADto implements Dto<SourceClassA>{
                 return this;
             }
 
-            public Builder genericProperty(DtoListFieldConf<SourceClassBDto.Projection> genericProperty){
+            public Builder genericProperty(DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection> genericProperty){
                 this.genericProperty = genericProperty;
                 return this;
             }
 
-            public Builder genericProperty(Presence presence, SourceClassBDto.Projection projection){
+            public Builder genericProperty(Presence presence, solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassBDto.Projection projection){
                 genericProperty = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
-            public Projection build(){
-                Projection instance = new Projection();
+            public SourceClassADto.Projection build(){
+                SourceClassADto.Projection instance = new SourceClassADto.Projection();
                 instance.propertyArray = propertyArray;
                 instance.property = property;
                 instance.genericPropertyArray = genericPropertyArray;

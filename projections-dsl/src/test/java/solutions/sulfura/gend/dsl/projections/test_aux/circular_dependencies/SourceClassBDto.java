@@ -3,6 +3,9 @@ package solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies;
 import solutions.sulfura.gend.dsl.projections.test_aux.dto_sources.circular_dependencies.SourceClassB;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
@@ -70,12 +73,20 @@ public class SourceClassBDto implements Dto<SourceClassB>{
 
     }
 
+    @ProjectionFor(SourceClassBDto.class)
     public static class Projection extends DtoProjection<SourceClassBDto>{
 
         public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassADto.Projection> propertyArray;
         public DtoFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassADto.Projection> property;
         public ListFieldConf genericPropertyArray;
         public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassADto.Projection> genericProperty;
+
+        public void applyProjectionTo(SourceClassBDto dto) throws DtoProjectionException {
+            dto.propertyArray = ProjectionUtils.getProjectedValue(dto.propertyArray, this.propertyArray);
+            dto.property = ProjectionUtils.getProjectedValue(dto.property, this.property);
+            dto.genericPropertyArray = ProjectionUtils.getProjectedValue(dto.genericPropertyArray, this.genericPropertyArray);
+            dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
+        }
 
         public Projection(){}
 
@@ -137,8 +148,8 @@ public class SourceClassBDto implements Dto<SourceClassB>{
                 return this;
             }
 
-            public Projection build(){
-                Projection instance = new Projection();
+            public SourceClassBDto.Projection build(){
+                SourceClassBDto.Projection instance = new SourceClassBDto.Projection();
                 instance.propertyArray = propertyArray;
                 instance.property = property;
                 instance.genericPropertyArray = genericPropertyArray;

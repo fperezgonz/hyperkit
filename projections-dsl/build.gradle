@@ -3,9 +3,6 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'solutions.sulfura'
-version = '0.1'
-
 repositories {
     mavenLocal()
     mavenCentral()
@@ -21,16 +18,14 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.digitalizat'
             artifactId = 'gen-d-projections-dsl'
-            version = '1.1.0-SNAPSHOT'
 
             from components.java
         }
     }
     repositories {
         maven {
-            url "https://gitlab.digitalizat.com/api/v4/projects/157/packages/maven"
+            url "https://gitlab.com/api/v4/projects/46985246/packages/maven"
             credentials(HttpHeaderCredentials) {
                 name = "Job-Token"
                 value = System.getenv("CI_JOB_TOKEN")
