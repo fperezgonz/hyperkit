@@ -49,7 +49,7 @@ public class ProjectionUtils {
         value = evaluatePresenceAndNullValues(value, fieldConf);
 
         if (value.isEmpty()) {
-            return null;
+            return Option.none();
         }
 
         Object nestedVal = value.getOrNull();
