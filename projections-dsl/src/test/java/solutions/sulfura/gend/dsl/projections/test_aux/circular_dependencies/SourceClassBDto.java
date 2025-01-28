@@ -81,13 +81,6 @@ public class SourceClassBDto implements Dto<SourceClassB>{
         public ListFieldConf genericPropertyArray;
         public DtoListFieldConf<solutions.sulfura.gend.dsl.projections.test_aux.circular_dependencies.SourceClassADto.Projection> genericProperty;
 
-        public void applyProjectionTo(SourceClassBDto dto) throws DtoProjectionException {
-            dto.propertyArray = ProjectionUtils.getProjectedValue(dto.propertyArray, this.propertyArray);
-            dto.property = ProjectionUtils.getProjectedValue(dto.property, this.property);
-            dto.genericPropertyArray = ProjectionUtils.getProjectedValue(dto.genericPropertyArray, this.genericPropertyArray);
-            dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
-        }
-
         public Projection(){}
 
         public void applyProjectionTo(SourceClassBDto dto) throws DtoProjectionException {
