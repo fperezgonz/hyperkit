@@ -4,7 +4,7 @@ import solutions.sulfura.gend.dtos.Dto;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.PARAMETER, ElementType.METHOD})
+@Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DtoProjectionSpec {
