@@ -1,3 +1,20 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+    //This is necessary to resolve plugins not yet published to the gradle plugin portal
+    resolutionStrategy {
+        each {
+            eachPlugin {
+                if (requested.id.namespace == "solutions.sulfura") {
+                    useModule("solutions.sulfura:gen-d-spoon-annotation-processor:0.1.0")
+                }
+            }
+        }
+    }
+}
+
 plugins {
     // Apply the foojay-resolver plugin to allow automatic download of JDKs
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.4.0'
@@ -5,5 +22,6 @@ plugins {
 
 rootProject.name = 'gen-d'
 include 'gen-d-annotation-processor'
+include 'gen-d-spoon-annotation-processor'
 include 'gen-d-api'
 include 'projections-dsl'
