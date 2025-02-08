@@ -2,51 +2,92 @@ package solutions.sulfura
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import solutions.sulfura.gend.dtos.annotations.Dto
 import spoon.Launcher
 import spoon.SpoonAPI
 import spoon.compiler.Environment
+import spoon.reflect.CtModel
 import spoon.reflect.declaration.*
+import spoon.reflect.visitor.chain.CtQuery
 
 class GenDAnnotationProcessorPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        project.task("spoonAnnotationProcessor") {
 
-            val spoon: SpoonAPI = Launcher()
-            spoon.addInputResource(project.files("src/main/java/").asPath)
+    fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
-            val model = spoon.buildModel()
-            val newClasses = mutableSetOf<CtType<*>>()
+        val dtoAnnotationCtype = spoonApi.factory.Type().get<Annotation>(Dto::class.java).reference
 
-            model.filterChildren { el: CtElement ->
-                el is CtClass<*>
-                        && el.simpleName == "Main"
-                        && el.getAnnotation(
-                    spoon.factory.Type().get<Annotation>("solutions.sulfura.PotatoClass").reference
-                ) != null
+        val dtoAnnotatedClassesQuery = model.filterChildren { el: CtElement ->
+            el is CtClass<*> && el.getAnnotation(dtoAnnotationCtype) != null
+        }
+
+        return dtoAnnotatedClassesQuery
+
+    }
+
+    fun collectProperties(classesCtQuery: CtQuery, spoonApi: SpoonAPI): CtQuery {
+
+        val dtoPropertiesQuery = classesCtQuery.filterChildren({ el: CtElement -> el is CtField<*> })
+
+        return dtoPropertiesQuery
+
+    }
+
+    fun generateClassSourceCode(
+        ctClass: CtClass<*>,
+        collectedProperties: CtQuery,
+        class_name__ctClass: Map<String, CtClass<Any>>
+    ): CtClass<*> {
+
+        collectedProperties
+            .forEach { ctField: CtField<Any> ->
+                ctClass.factory.createField(
+                    ctClass,
+                    setOf(ModifierKind.PUBLIC),
+                    ctField.type,
+                    ctField.simpleName
+                )
             }
-                .forEach { ctClass: CtClass<*> ->
-                    spoon.factory.Class().get<Any>("solutions.sulfura.PotatoClass").position.file.delete()
 
-                    val newClass = ctClass.factory.createClass("solutions.sulfura.PotatoClass")
-                    newClasses.add(newClass)
-                    ctClass.filterChildren({ el: CtElement -> el is CtField<*> })
-                        .forEach { ctField: CtField<Any> ->
-                            ctClass.factory.createField(
-                                newClass,
-                                setOf(ModifierKind.PUBLIC),
-                                ctField.type,
-                                ctField.simpleName
-                            )
-                            println(ctField.simpleName)
+        return ctClass
 
-                        }
-                    println(ctClass.qualifiedName)
+    }
+
+    override fun apply(project: Project) {
+        project.task("genDannotationProcessor") {
+
+            group = "gen-d"
+
+            doFirst {
+                val spoon: SpoonAPI = Launcher()
+                spoon.addInputResource(project.files("src/main/java/").asPath)
+
+                val model = spoon.buildModel()
+                val newClasses = mutableSetOf<CtType<*>>()
+
+                val classesCtQuery = collectClasses(model, spoon)
+                //A map of collected classes to find out if a class will have generated code or not.
+                // This is used to know if references to origin classes have to be turned into references to classes derived from them (Dtos, for example)
+                val className__ctClass = classesCtQuery.list<CtClass<Any>>().associateBy { it.qualifiedName }
+
+                classesCtQuery.forEach { ctClass: CtClass<*> ->
+                    val collectedProperties = collectProperties(classesCtQuery, spoon)
+                    val dtoClassPackage = "solutions.sulfura.dtos"
+                    val dtoClassQualifiedName = dtoClassPackage + "." + ctClass.simpleName + "Dto"
+                    val dtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
+                    dtoClass?.position?.file?.delete()
+                    val emptyDtoClass = spoon.factory.createClass(dtoClassQualifiedName)
+                    val classSourceCode =
+                        generateClassSourceCode(emptyDtoClass, collectedProperties, className__ctClass)
+                    //TODO add class and source to the list of generated classes
+                    newClasses.add(classSourceCode)
                 }
 
-            spoon.setSourceOutputDirectory(project.files("src/main/java/").asPath)
-            spoon.setOutputFilter { el: CtElement -> el in newClasses }
-            spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
-            spoon.prettyprint()
+                //TODO create files for all generated classes
+                spoon.setSourceOutputDirectory(project.files("src/main/java/").asPath)
+                spoon.setOutputFilter { el: CtElement -> el in newClasses }
+                spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
+                spoon.prettyprint()
+            }
         }
     }
 }

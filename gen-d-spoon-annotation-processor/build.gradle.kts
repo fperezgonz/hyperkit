@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.com.intellij.util.text.VersionComparatorUtil.VersionTokenType.SNAPSHOT
-
 plugins {
     `kotlin-dsl`
     publishing
@@ -45,6 +43,7 @@ repositories {
 
 dependencies {
     implementation("fr.inria.gforge.spoon:spoon-core:11.2.0")
+    implementation(project(":gen-d-api"))
     testImplementation(kotlin("test"))
 }
 
