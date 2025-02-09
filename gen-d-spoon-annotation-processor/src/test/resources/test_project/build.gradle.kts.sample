@@ -1,0 +1,8 @@
+plugins{
+    id("solutions.sulfura.gen-d-spoon-annotation-processor")
+}
+
+genD{
+    inputPaths=setOf(<<input_paths>>)
+    rootOutputPath="src/out/java"
+}

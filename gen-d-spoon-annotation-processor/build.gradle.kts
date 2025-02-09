@@ -25,7 +25,7 @@ gradlePlugin {
                 mavenLocal()
             }
         }
-        create("gradletestPlugin") {
+        create("gen-d-spoon-annotation-processor") {
             id = "solutions.sulfura.gen-d-spoon-annotation-processor"
             displayName = "Plugin for compatibility testing of Gradle plugins"
             description = "A plugin that helps you test your plugin against a variety of Gradle versions"

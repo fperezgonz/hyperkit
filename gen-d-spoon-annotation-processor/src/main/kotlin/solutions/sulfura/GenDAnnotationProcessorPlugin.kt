@@ -12,7 +12,7 @@ import spoon.reflect.CtModel
 import spoon.reflect.declaration.*
 import spoon.reflect.visitor.chain.CtQuery
 
-interface GenDAnnotationProcessorConfigurationExtension{
+interface GenDAnnotationProcessorConfigurationExtension {
     val inputPaths: SetProperty<String>
     val rootOutputPath: Property<String>
 }
@@ -31,9 +31,9 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
     }
 
-    fun collectProperties(classesCtQuery: CtQuery, spoonApi: SpoonAPI): CtQuery {
+    fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtQuery {
 
-        val dtoPropertiesQuery = classesCtQuery.filterChildren({ el: CtElement -> el is CtField<*> })
+        val dtoPropertiesQuery = ctClass.filterChildren({ el: CtElement -> el is CtField<*> })
 
         return dtoPropertiesQuery
 
@@ -70,7 +70,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
             doFirst {
                 val spoon: SpoonAPI = Launcher()
-                for(path in extension.inputPaths.get()){
+                for (path in extension.inputPaths.get()) {
                     spoon.addInputResource(project.file(path).absolutePath)
                 }
 
@@ -83,7 +83,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 val className__ctClass = classesCtQuery.list<CtClass<Any>>().associateBy { it.qualifiedName }
 
                 classesCtQuery.forEach { ctClass: CtClass<*> ->
-                    val collectedProperties = collectProperties(classesCtQuery, spoon)
+                    val collectedProperties = collectProperties(ctClass, spoon)
                     val dtoClassPackage = "solutions.sulfura.dtos"
                     val dtoClassQualifiedName = dtoClassPackage + "." + ctClass.simpleName + "Dto"
                     val dtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
