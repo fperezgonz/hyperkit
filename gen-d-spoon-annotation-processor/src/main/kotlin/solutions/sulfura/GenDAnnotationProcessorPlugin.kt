@@ -5,12 +5,15 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import solutions.sulfura.gend.dtos.annotations.Dto
+import solutions.sulfura.gend.dtos.annotations.DtoProperty
 import spoon.Launcher
 import spoon.SpoonAPI
 import spoon.compiler.Environment
 import spoon.reflect.CtModel
 import spoon.reflect.declaration.*
 import spoon.reflect.visitor.chain.CtQuery
+import spoon.reflect.visitor.filter.CompositeFilter
+import spoon.reflect.visitor.filter.FilteringOperator
 
 interface GenDAnnotationProcessorConfigurationExtension {
     val inputPaths: SetProperty<String>
@@ -21,10 +24,10 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
     fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
-        val dtoAnnotationCtype = spoonApi.factory.Type().get<Annotation>(Dto::class.java).reference
+        val dtoAnnotationCtType = spoonApi.factory.Type().get<Annotation>(Dto::class.java).reference
 
         val dtoAnnotatedClassesQuery = model.filterChildren { el: CtElement ->
-            el is CtClass<*> && el.getAnnotation(dtoAnnotationCtype) != null
+            el is CtClass<*> && el.getAnnotation(dtoAnnotationCtType) != null
         }
 
         return dtoAnnotatedClassesQuery
@@ -33,7 +36,40 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
     fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtQuery {
 
-        val dtoPropertiesQuery = ctClass.filterChildren({ el: CtElement -> el is CtField<*> })
+        val includedAnnotations = ctClass.getAnnotation<Dto>(Dto::class.java).include
+            .map { it.java.canonicalName }
+            .toSet()
+
+        var filter: CompositeFilter<*> = CompositeFilter(
+            FilteringOperator.UNION,
+            //Collect public fields
+            { el: CtElement -> el is CtField<*> && el.modifiers.contains(ModifierKind.PUBLIC) },
+            //Collect getters and setters data
+            { el: CtElement ->
+                el is CtMethod<*> && el.modifiers.contains(ModifierKind.PUBLIC) &&
+                        (
+                            //is getter
+                            ((el.simpleName.startsWith("get") || el.simpleName.startsWith("is"))
+                                    && el.type != spoonApi.factory.Type().voidType())
+                        ||
+                            //is setter
+                            (el.simpleName.startsWith("set")
+                                    && el.type == spoonApi.factory.Type().voidType()
+                                    && el.parameters.size == 1)
+                        )
+            }
+        )
+
+        filter = CompositeFilter(
+            FilteringOperator.INTERSECTION,
+            { el: CtElement ->
+                //Collect elements with the selected annotations
+                includedAnnotations.isEmpty() || el.annotations.any({ annotation -> annotation.type.qualifiedName in includedAnnotations })
+            },
+            filter
+        )
+
+        val dtoPropertiesQuery = ctClass.filterChildren(filter)
 
         return dtoPropertiesQuery
 
