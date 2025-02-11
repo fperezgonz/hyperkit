@@ -7,12 +7,12 @@ import org.gradle.api.provider.SetProperty
 import solutions.sulfura.gend.dtos.annotations.Dto
 import spoon.Launcher
 import spoon.SpoonAPI
-import spoon.compiler.Environment
 import spoon.reflect.CtModel
 import spoon.reflect.declaration.*
 import spoon.reflect.visitor.chain.CtQuery
 import spoon.reflect.visitor.filter.CompositeFilter
 import spoon.reflect.visitor.filter.FilteringOperator
+import java.io.File
 
 interface GenDAnnotationProcessorConfigurationExtension {
     val inputPaths: SetProperty<String>
@@ -47,15 +47,15 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
             { el: CtElement ->
                 el is CtMethod<*> && el.modifiers.contains(ModifierKind.PUBLIC) &&
                         (
-                            //is getter
-                            ((el.simpleName.startsWith("get") || el.simpleName.startsWith("is"))
-                                    && el.type != spoonApi.factory.Type().voidType())
-                        ||
-                            //is setter
-                            (el.simpleName.startsWith("set")
-                                    && el.type == spoonApi.factory.Type().voidType()
-                                    && el.parameters.size == 1)
-                        )
+                                //is getter
+                                ((el.simpleName.startsWith("get") || el.simpleName.startsWith("is"))
+                                        && el.type != spoonApi.factory.Type().voidType())
+                                        ||
+                                        //is setter
+                                        (el.simpleName.startsWith("set")
+                                                && el.type == spoonApi.factory.Type().voidType()
+                                                && el.parameters.size == 1)
+                                )
             }
         )
 
@@ -78,19 +78,21 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
         ctClass: CtClass<*>,
         collectedProperties: CtQuery,
         class_name__ctClass: Map<String, CtClass<Any>>
-    ): CtClass<*> {
+    ): String {
 
-        collectedProperties
-            .forEach { ctField: CtField<Any> ->
-                ctClass.factory.createField(
-                    ctClass,
-                    setOf(ModifierKind.PUBLIC),
-                    ctField.type,
-                    ctField.simpleName
-                )
-            }
+        return SourceBuilder().buildClassSource(ctClass)
 
-        return ctClass
+//        collectedProperties
+//            .forEach { ctField: CtField<Any> ->
+//                ctClass.factory.createField(
+//                    ctClass,
+//                    setOf(ModifierKind.PUBLIC),
+//                    ctField.type,
+//                    ctField.simpleName
+//                )
+//            }
+//
+//        return ctClass
 
     }
 
@@ -120,20 +122,26 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 classesCtQuery.forEach { ctClass: CtClass<*> ->
                     val collectedProperties = collectProperties(ctClass, spoon)
                     val dtoClassPackage = "solutions.sulfura.dtos"
-                    val dtoClassQualifiedName = dtoClassPackage + "." + ctClass.simpleName + "Dto"
+                    val dtoClassSimpleName = ctClass.simpleName + "Dto"
+                    val dtoClassQualifiedName = "$dtoClassPackage.$dtoClassSimpleName"
                     val dtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
                     val emptyDtoClass = spoon.factory.createClass(dtoClassQualifiedName)
                     val classSourceCode =
                         generateClassSourceCode(emptyDtoClass, collectedProperties, className__ctClass)
+                    val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
+                    val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
+                    val outFile = File(project.file(outFilePath).absolutePath)
+                    outFile.parentFile.mkdirs()
+                    outFile.writeText(classSourceCode)
                     //TODO add class and source to the list of generated classes
-                    newClasses.add(classSourceCode)
+//                    newClasses.add(classSourceCode)
                 }
 
                 //TODO create files for all generated classes
-                spoon.setSourceOutputDirectory(project.file(extension.rootOutputPath.get()).absolutePath)
-                spoon.setOutputFilter { el: CtElement -> el in newClasses }
-                spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
-                spoon.prettyprint()
+//                spoon.setSourceOutputDirectory(project.file(extension.rootOutputPath.get()).absolutePath)
+//                spoon.setOutputFilter { el: CtElement -> el in newClasses }
+//                spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
+//                spoon.prettyprint()
             }
         }
     }
