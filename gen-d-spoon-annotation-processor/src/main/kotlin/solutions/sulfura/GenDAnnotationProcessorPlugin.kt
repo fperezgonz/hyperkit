@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import solutions.sulfura.gend.dtos.annotations.Dto
-import solutions.sulfura.gend.dtos.annotations.DtoProperty
 import spoon.Launcher
 import spoon.SpoonAPI
 import spoon.compiler.Environment

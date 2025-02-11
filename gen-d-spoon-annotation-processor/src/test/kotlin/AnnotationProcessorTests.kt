@@ -1,19 +1,16 @@
-import org.apache.commons.io.FileUtils
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URISyntaxException
 import kotlin.io.path.toPath
 
 const val testProjectPath: String = "/test_project/"
 const val testInputSourcesPath: String = "/src/test_input_sources/"
+const val outputSourcesPath: String = "/src/out/"
 const val buildFileSampleName: String = "build.gradle.kts.sample"
-const val expectedOutputDir: String = "/expected_output/"
+const val expectedOutputDir: String = "/src/expected_output/"
 
 class AnnotationProcessorTests {
 
@@ -24,7 +21,7 @@ class AnnotationProcessorTests {
 
         val gradleRunner = GradleRunner.create()
         val projectFolder = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
-        val buildFileContent = File(projectFolder,buildFileSampleName).readText()
+        val buildFileContent = File(projectFolder, buildFileSampleName).readText()
             .replace("<<input_paths>>", '"' + testInputSourcesPath + '"')
         File(projectFolder, "build.gradle.kts").writeText(buildFileContent)
         gradleRunner.withProjectDir(projectFolder)
@@ -33,13 +30,20 @@ class AnnotationProcessorTests {
         val gradleBuild = gradleRunner.build()
         val outcome = gradleBuild.task(":annotationProcessor")!!.outcome.name
 
-        if(!"SUCCESS".equals(outcome)){
+        if (!"SUCCESS".equals(outcome)) {
             println(gradleBuild.output)
             Assertions.fail<Any>()
         }
 
-        //TODO Make useful assertions
-        Assertions.fail<Any>()
+        var generatedSource =
+            File(projectFolder, outputSourcesPath + "java/solutions/sulfura/dtos/SourceClassTypesDto.java")
+                .readText();
+
+        var expectedSource =
+            File(projectFolder, expectedOutputDir + "java/solutions/sulfura/gend/dtos/SourceClassTypesDto.java")
+                .readText()
+
+        Assertions.assertEquals(expectedSource, generatedSource)
 
 //        val qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassTypes"
 //
