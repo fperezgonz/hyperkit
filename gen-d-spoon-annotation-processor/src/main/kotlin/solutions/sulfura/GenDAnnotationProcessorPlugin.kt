@@ -7,6 +7,7 @@ import org.gradle.api.provider.SetProperty
 import solutions.sulfura.gend.dtos.annotations.Dto
 import spoon.Launcher
 import spoon.SpoonAPI
+import spoon.compiler.Environment
 import spoon.reflect.CtModel
 import spoon.reflect.declaration.*
 import spoon.reflect.visitor.chain.CtQuery
@@ -74,6 +75,24 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
     }
 
+    fun buildOutputClass(dtoClassQualifiedName: String, collectedProperties: CtQuery, spoon: SpoonAPI): CtClass<*> {
+
+        val emptyCtClass = spoon.factory.createClass(dtoClassQualifiedName)
+        collectedProperties.forEach { ctField: CtField<*> ->
+
+            val newCtField = spoon.factory.createField(
+                emptyCtClass,
+                setOf(ModifierKind.PUBLIC),
+                ctField.type,
+                ctField.simpleName
+            )
+
+        }
+
+        return emptyCtClass
+
+    }
+
     fun generateClassSourceCode(
         ctClass: CtClass<*>,
         collectedProperties: CtQuery,
@@ -81,18 +100,6 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
     ): String {
 
         return SourceBuilder().buildClassSource(ctClass)
-
-//        collectedProperties
-//            .forEach { ctField: CtField<Any> ->
-//                ctClass.factory.createField(
-//                    ctClass,
-//                    setOf(ModifierKind.PUBLIC),
-//                    ctField.type,
-//                    ctField.simpleName
-//                )
-//            }
-//
-//        return ctClass
 
     }
 
@@ -107,6 +114,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
             doFirst {
                 val spoon: SpoonAPI = Launcher()
+                spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
                 for (path in extension.inputPaths.get()) {
                     spoon.addInputResource(project.file(path).absolutePath)
                 }
@@ -124,10 +132,9 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                     val dtoClassPackage = "solutions.sulfura.dtos"
                     val dtoClassSimpleName = ctClass.simpleName + "Dto"
                     val dtoClassQualifiedName = "$dtoClassPackage.$dtoClassSimpleName"
-                    val dtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
-                    val emptyDtoClass = spoon.factory.createClass(dtoClassQualifiedName)
-                    val classSourceCode =
-                        generateClassSourceCode(emptyDtoClass, collectedProperties, className__ctClass)
+                    val oldDtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
+                    val dtoClass = buildOutputClass(dtoClassQualifiedName, collectedProperties, spoon)
+                    val classSourceCode = generateClassSourceCode(dtoClass, collectedProperties, className__ctClass)
                     val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
                     val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
                     val outFile = File(project.file(outFilePath).absolutePath)
@@ -140,7 +147,6 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 //TODO create files for all generated classes
 //                spoon.setSourceOutputDirectory(project.file(extension.rootOutputPath.get()).absolutePath)
 //                spoon.setOutputFilter { el: CtElement -> el in newClasses }
-//                spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
 //                spoon.prettyprint()
             }
         }

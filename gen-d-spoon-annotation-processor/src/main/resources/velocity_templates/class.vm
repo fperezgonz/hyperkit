@@ -1,1 +1,16 @@
-This is a velocity template.
+package ${ctClass.package};
+
+#set($imports = ${ctClass.getReferencedTypes()})
+### Imports
+#foreach($import in $imports)
+    #set($importQualName = $import.qualifiedName.toString())
+    #if (${importQualName} != "long" && ${importQualName} != "int"
+        && ${importQualName} != "boolean" && ${importQualName} != "short"
+        && ${importQualName} != "float" && ${importQualName} != "double"
+        && ${importQualName} != "byte" && ${importQualName} != "char"
+        && !${importQualName.startsWith("java.lang")} )
+import ${importQualName};
+    #end
+#end
+
+### Class
