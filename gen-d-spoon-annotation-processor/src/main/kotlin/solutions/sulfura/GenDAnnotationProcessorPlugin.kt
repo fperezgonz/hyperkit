@@ -4,15 +4,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import solutions.sulfura.gend.dtos.annotations.Dto
 import spoon.Launcher
 import spoon.SpoonAPI
 import spoon.compiler.Environment
-import spoon.reflect.CtModel
-import spoon.reflect.declaration.*
-import spoon.reflect.visitor.chain.CtQuery
-import spoon.reflect.visitor.filter.CompositeFilter
-import spoon.reflect.visitor.filter.FilteringOperator
+import spoon.reflect.declaration.CtClass
+import spoon.reflect.declaration.CtType
 import java.io.File
 
 interface GenDAnnotationProcessorConfigurationExtension {
@@ -22,81 +18,8 @@ interface GenDAnnotationProcessorConfigurationExtension {
 
 class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
-    fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
-
-        val dtoAnnotationCtType = spoonApi.factory.Type().get<Annotation>(Dto::class.java).reference
-
-        val dtoAnnotatedClassesQuery = model.filterChildren { el: CtElement ->
-            el is CtClass<*> && el.getAnnotation(dtoAnnotationCtType) != null
-        }
-
-        return dtoAnnotatedClassesQuery
-
-    }
-
-    fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtQuery {
-
-        val includedAnnotations = ctClass.getAnnotation<Dto>(Dto::class.java).include
-            .map { it.java.canonicalName }
-            .toSet()
-
-        var filter: CompositeFilter<*> = CompositeFilter(
-            FilteringOperator.UNION,
-            //Collect public fields
-            { el: CtElement -> el is CtField<*> && el.modifiers.contains(ModifierKind.PUBLIC) },
-            //Collect getters and setters data
-            { el: CtElement ->
-                el is CtMethod<*> && el.modifiers.contains(ModifierKind.PUBLIC) &&
-                        (
-                                //is getter
-                                ((el.simpleName.startsWith("get") || el.simpleName.startsWith("is"))
-                                        && el.type != spoonApi.factory.Type().voidType())
-                                        ||
-                                        //is setter
-                                        (el.simpleName.startsWith("set")
-                                                && el.type == spoonApi.factory.Type().voidType()
-                                                && el.parameters.size == 1)
-                                )
-            }
-        )
-
-        filter = CompositeFilter(
-            FilteringOperator.INTERSECTION,
-            { el: CtElement ->
-                //Collect elements with the selected annotations
-                includedAnnotations.isEmpty() || el.annotations.any({ annotation -> annotation.type.qualifiedName in includedAnnotations })
-            },
-            filter
-        )
-
-        val dtoPropertiesQuery = ctClass.filterChildren(filter)
-
-        return dtoPropertiesQuery
-
-    }
-
-    fun buildOutputClass(dtoClassQualifiedName: String, collectedProperties: CtQuery, spoon: SpoonAPI): CtClass<*> {
-
-        val emptyCtClass = spoon.factory.createClass(dtoClassQualifiedName)
-        collectedProperties.forEach { ctField: CtField<*> ->
-
-            val newCtField = spoon.factory.createField(
-                emptyCtClass,
-                setOf(ModifierKind.PUBLIC),
-                ctField.type,
-                ctField.simpleName
-            )
-
-        }
-
-        return emptyCtClass
-
-    }
-
     fun generateClassSourceCode(
-        ctClass: CtClass<*>,
-        collectedProperties: CtQuery,
-        class_name__ctClass: Map<String, CtClass<Any>>
+        ctClass: CtClass<*>
     ): String {
 
         return SourceBuilder().buildClassSource(ctClass)
@@ -115,26 +38,38 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
             doFirst {
                 val spoon: SpoonAPI = Launcher()
                 spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
+
+                //Setup the input files
                 for (path in extension.inputPaths.get()) {
                     spoon.addInputResource(project.file(path).absolutePath)
                 }
 
                 val model = spoon.buildModel()
-                val newClasses = mutableSetOf<CtType<*>>()
 
-                val classesCtQuery = collectClasses(model, spoon)
+                val classesToProcess = collectClasses(model, spoon)
                 //A map of collected classes to find out if a class will have generated code or not.
                 // This is used to know if references to origin classes have to be turned into references to classes derived from them (Dtos, for example)
-                val className__ctClass = classesCtQuery.list<CtClass<Any>>().associateBy { it.qualifiedName }
+                val className__ctClass = classesToProcess.list<CtClass<Any>>().associateBy { it.qualifiedName }
 
-                classesCtQuery.forEach { ctClass: CtClass<*> ->
-                    val collectedProperties = collectProperties(ctClass, spoon)
+                /**Classes created or updated by this process*/
+                val newClasses = mutableSetOf<CtType<*>>()
+
+                classesToProcess.forEach { ctClass: CtClass<*> ->
+                    var collectedProperties = collectProperties(ctClass, spoon)
+                    val collectedAnnotations = collectAnnotations(ctClass, spoon)
                     val dtoClassPackage = "solutions.sulfura.dtos"
                     val dtoClassSimpleName = ctClass.simpleName + "Dto"
                     val dtoClassQualifiedName = "$dtoClassPackage.$dtoClassSimpleName"
                     val oldDtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
-                    val dtoClass = buildOutputClass(dtoClassQualifiedName, collectedProperties, spoon)
-                    val classSourceCode = generateClassSourceCode(dtoClass, collectedProperties, className__ctClass)
+
+                    val dtoClass = buildOutputClass(
+                        spoon,
+                        dtoClassQualifiedName,
+                        className__ctClass,
+                        collectedAnnotations,
+                        collectedProperties
+                    )
+                    val classSourceCode = generateClassSourceCode(dtoClass)
                     val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
                     val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
                     val outFile = File(project.file(outFilePath).absolutePath)
