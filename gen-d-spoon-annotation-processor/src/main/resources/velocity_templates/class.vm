@@ -18,3 +18,6 @@ import ${importQualName};
 #foreach($annotation in $annotations)
 $annotation.toString()
 #end
+### Class
+class $ctClass.simpleName implements#foreach($interface in $ctClass.superInterfaces)#if(!$foreach.first),#end $interface#end{
+}

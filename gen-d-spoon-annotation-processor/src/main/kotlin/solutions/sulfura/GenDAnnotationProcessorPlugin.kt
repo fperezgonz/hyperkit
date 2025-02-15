@@ -64,10 +64,11 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
                     val dtoClass = buildOutputClass(
                         spoon,
+                        ctClass,
                         dtoClassQualifiedName,
                         className__ctClass,
                         collectedAnnotations,
-                        collectedProperties
+                        collectedProperties,
                     )
                     val classSourceCode = generateClassSourceCode(dtoClass)
                     val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"

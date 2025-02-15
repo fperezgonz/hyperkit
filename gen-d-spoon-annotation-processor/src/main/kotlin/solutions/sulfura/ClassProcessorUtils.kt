@@ -4,12 +4,8 @@ import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
-import spoon.reflect.declaration.CtAnnotation
-import spoon.reflect.declaration.CtClass
-import spoon.reflect.declaration.CtElement
-import spoon.reflect.declaration.CtField
-import spoon.reflect.declaration.CtMethod
-import spoon.reflect.declaration.ModifierKind
+import spoon.reflect.declaration.*
+import spoon.reflect.reference.CtActualTypeContainer
 import spoon.reflect.visitor.chain.CtQuery
 import spoon.reflect.visitor.filter.CompositeFilter
 import spoon.reflect.visitor.filter.FilteringOperator
@@ -83,6 +79,7 @@ fun collectAnnotations(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<CtAnnotati
 
 fun buildOutputClass(
     spoon: SpoonAPI,
+    sourceClass: CtClass<*>,
     dtoClassQualifiedName: String,
     className__ctClass: Map<String, CtClass<Any>>,
     collectedAnnotations: List<CtAnnotation<*>>,
@@ -91,10 +88,17 @@ fun buildOutputClass(
 
     val result = spoon.factory.createClass(dtoClassQualifiedName)
 
+    //Make it implement the Dto interface
+    val dtoInterfaceReference = spoon.factory.Interface().create<Any>(Dto::class.java.canonicalName).reference
+    dtoInterfaceReference.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
+    result.addSuperInterface<Any, CtType<Any>>(dtoInterfaceReference)
+
+    //Add annotations
     collectedAnnotations.forEach { ctAnnotation: CtAnnotation<*> ->
         result.addAnnotation<CtAnnotation<*>>(ctAnnotation)
     }
 
+    //Add fields
     collectedProperties.forEach { ctField: CtField<*> ->
 
         spoon.factory.createField(
