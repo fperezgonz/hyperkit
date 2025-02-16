@@ -19,10 +19,11 @@ interface GenDAnnotationProcessorConfigurationExtension {
 class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
     fun generateClassSourceCode(
-        ctClass: CtClass<*>
+        ctClass: CtClass<*>,
+        dtoCtClass: CtClass<*>
     ): String {
 
-        return SourceBuilder().buildClassSource(ctClass)
+        return SourceBuilder().buildClassSource(ctClass, dtoCtClass)
 
     }
 
@@ -70,7 +71,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                         collectedAnnotations,
                         collectedProperties,
                     )
-                    val classSourceCode = generateClassSourceCode(dtoClass)
+                    val classSourceCode = generateClassSourceCode(dtoClass, ctClass)
                     val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
                     val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
                     val outFile = File(project.file(outFilePath).absolutePath)

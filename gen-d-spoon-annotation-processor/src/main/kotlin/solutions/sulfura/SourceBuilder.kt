@@ -6,9 +6,15 @@ import spoon.reflect.declaration.CtClass
 import java.io.StringWriter
 
 class SourceBuilder {
-    fun buildClassSource(ctClass: CtClass<*>): String {
+    /**
+     * dtoCtClass: the specifications of the dto class
+     * sourceCtClass: the specifications of the class from which the dtoCtClass is derived
+     */
+    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): String {
+
         val velocityContext = VelocityContext()
-        velocityContext.put("ctClass", ctClass)
+        velocityContext.put("sourceCtClass", sourceCtClass)
+        velocityContext.put("ctClass", dtoCtClass)
         val velocityEngine = VelocityEngine()
         velocityEngine.setProperty("resource.loaders", "file, class")
 //        velocityEngine.setProperty("resource.loader.file.path", "./src/main/resources/velocity_templates/")
@@ -22,6 +28,8 @@ class SourceBuilder {
         val stringWriter = StringWriter()
         classTemplate.merge(velocityContext, stringWriter)
         println(stringWriter.toString())
+
         return stringWriter.toString()
+
     }
 }

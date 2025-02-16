@@ -4,6 +4,9 @@ import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
+import spoon.reflect.code.CtBodyHolder
+import spoon.reflect.code.CtStatement
+import spoon.reflect.code.CtStatementList
 import spoon.reflect.declaration.*
 import spoon.reflect.reference.CtActualTypeContainer
 import spoon.reflect.visitor.chain.CtQuery
@@ -64,6 +67,15 @@ fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtQuery {
 
 }
 
+private fun createAnnotation_DtoFor(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtAnnotation<DtoFor> {
+
+    val dtoAnnotationCtType = spoonApi.factory.Annotation().get<DtoFor>(DtoFor::class.java)
+    val dtoAnnotation = spoonApi.factory.createAnnotation(dtoAnnotationCtType.reference)
+    val ctClassAccess = spoonApi.factory.createClassAccess(ctClass.reference)
+    dtoAnnotation.addValue<CtAnnotation<DtoFor>>("value", ctClassAccess)
+    return dtoAnnotation
+}
+
 fun collectAnnotations(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<CtAnnotation<*>> {
 
 
@@ -93,6 +105,27 @@ fun buildOutputClass(
     dtoInterfaceReference.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
     result.addSuperInterface<Any, CtType<Any>>(dtoInterfaceReference)
 
+    //Add the getSourceClass method
+    val javaClassReference = spoon.factory.Class().get<Any>(Class::class.java)
+    val getSourceClassMethod = spoon.factory.createMethod<Any>()
+    getSourceClassMethod.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+    getSourceClassMethod.setSimpleName<CtMethod<*>>("getSourceClass")
+    val returnType=javaClassReference.reference
+    returnType.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
+    getSourceClassMethod.setType<CtMethod<*>>(returnType)
+    val returnExpression = spoon.factory.createCtReturn(spoon.factory.createClassAccess(sourceClass.reference))
+    getSourceClassMethod.setBody<CtBodyHolder>(returnExpression)
+
+    result.addMethod<Any, CtType<*>>(getSourceClassMethod)
+
+//    public Class<SourceClassTypes> getSourceClass() {
+//        return SourceClassTypes.class;
+//    }
+
+    //Add empty constructor
+    spoon.factory.createConstructor(result, mutableSetOf(ModifierKind.PUBLIC), null, null)
+        .setBody<CtBodyHolder>(spoon.factory.createCtBlock<CtStatement>(null))
+
     //Add annotations
     collectedAnnotations.forEach { ctAnnotation: CtAnnotation<*> ->
         result.addAnnotation<CtAnnotation<*>>(ctAnnotation)
@@ -112,13 +145,4 @@ fun buildOutputClass(
 
     return result
 
-}
-
-private fun createAnnotation_DtoFor(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtAnnotation<DtoFor> {
-
-    val dtoAnnotationCtType = spoonApi.factory.Annotation().get<DtoFor>(DtoFor::class.java)
-    val dtoAnnotation = spoonApi.factory.createAnnotation(dtoAnnotationCtType.reference)
-    val ctClassAccess = spoonApi.factory.createClassAccess(ctClass.reference)
-    dtoAnnotation.addValue<CtAnnotation<DtoFor>>("value", ctClassAccess)
-    return dtoAnnotation
 }
