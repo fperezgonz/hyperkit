@@ -1,14 +1,16 @@
 package solutions.sulfura
 
+import groovyjarjarasm.asm.TypeReference
+import io.vavr.control.Option
 import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
 import spoon.reflect.code.CtBodyHolder
 import spoon.reflect.code.CtStatement
-import spoon.reflect.code.CtStatementList
 import spoon.reflect.declaration.*
 import spoon.reflect.reference.CtActualTypeContainer
+import spoon.reflect.reference.CtTypeReference
 import spoon.reflect.visitor.chain.CtQuery
 import spoon.reflect.visitor.filter.CompositeFilter
 import spoon.reflect.visitor.filter.FilteringOperator
@@ -110,7 +112,7 @@ fun buildOutputClass(
     val getSourceClassMethod = spoon.factory.createMethod<Any>()
     getSourceClassMethod.addModifier<CtModifiable>(ModifierKind.PUBLIC)
     getSourceClassMethod.setSimpleName<CtMethod<*>>("getSourceClass")
-    val returnType=javaClassReference.reference
+    val returnType = javaClassReference.reference
     returnType.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
     getSourceClassMethod.setType<CtMethod<*>>(returnType)
     val returnExpression = spoon.factory.createCtReturn(spoon.factory.createClassAccess(sourceClass.reference))
@@ -134,10 +136,13 @@ fun buildOutputClass(
     //Add fields
     collectedProperties.forEach { ctField: CtField<*> ->
 
+        var fieldType = spoon.factory.Class().createReference(Option::class.java)
+        fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(if (ctField.type.isPrimitive) ctField.type.box() else ctField.type))
+
         spoon.factory.createField(
             result,
             setOf(ModifierKind.PUBLIC),
-            ctField.type,
+            fieldType,
             ctField.simpleName
         )
 
