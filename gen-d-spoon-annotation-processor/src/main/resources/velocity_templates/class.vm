@@ -32,7 +32,7 @@ import ${importQualName};
 ${annotation}
 #end
 ### Class
-class ${ctClass.simpleName} implements#foreach($interface in ${ctClass.superInterfaces})#if(!${foreach.first}),#end $interface#end{
+class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterfaces, ", "){
 
 #foreach($field in ${ctClass.fields})
     $field
