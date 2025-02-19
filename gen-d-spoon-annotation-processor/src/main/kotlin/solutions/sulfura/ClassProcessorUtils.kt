@@ -4,6 +4,8 @@ import groovyjarjarasm.asm.TypeReference
 import io.vavr.control.Option
 import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
+import solutions.sulfura.gend.dtos.projection.DtoProjection
+import solutions.sulfura.gend.dtos.projection.ProjectionFor
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
 import spoon.reflect.code.CtBodyHolder
@@ -78,6 +80,14 @@ private fun createAnnotation_DtoFor(ctClass: CtClass<*>, spoonApi: SpoonAPI): Ct
     return dtoAnnotation
 }
 
+private fun createAnnotation_ProjectionFor(ctClass: CtClass<*>, ctSourceClass: CtClass<*>, spoonApi: SpoonAPI): CtAnnotation<ProjectionFor> {
+    val dtoAnnotationCtType = spoonApi.factory.Annotation().get<ProjectionFor>(ProjectionFor::class.java)
+    val dtoAnnotation = spoonApi.factory.createAnnotation(dtoAnnotationCtType.reference)
+    val ctSourceClassAccess = spoonApi.factory.createClassAccess(ctSourceClass.reference)
+    dtoAnnotation.addValue<CtAnnotation<ProjectionFor>>("value", ctSourceClassAccess)
+    return dtoAnnotation
+}
+
 fun collectAnnotations(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<CtAnnotation<*>> {
 
 
@@ -88,6 +98,31 @@ fun collectAnnotations(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<CtAnnotati
     val result = mutableListOf<CtAnnotation<*>>()
     result.add(createAnnotation_DtoFor(ctClass, spoonApi))
     return result
+
+}
+
+fun buildBuilderClass(dtoClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
+
+    val result = spoonApi.factory.createClass(dtoClass, "Builder")
+    result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+    result.addModifier<CtModifiable>(ModifierKind.STATIC)
+    return result;
+
+}
+
+fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
+
+    val result = spoonApi.factory.createClass(dtoClass, "Projection")
+    result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+    result.addModifier<CtModifiable>(ModifierKind.STATIC)
+
+    result.addAnnotation<CtAnnotation<ProjectionFor>>(createAnnotation_ProjectionFor(dtoClass, sourceClass, spoonApi))
+    //Make it extend the Projection superclass
+    val projectionSuperclass = spoonApi.factory.Class().createReference<DtoProjection<*>>(DtoProjection::class.java)
+    projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
+    result.setSuperclass<CtType<*>>(projectionSuperclass)
+
+    return result;
 
 }
 
@@ -103,7 +138,7 @@ fun buildOutputClass(
     val result = spoon.factory.createClass(dtoClassQualifiedName)
 
     //Make it implement the Dto interface
-    val dtoInterfaceReference = spoon.factory.Interface().create<Any>(Dto::class.java.canonicalName).reference
+    val dtoInterfaceReference = spoon.factory.Interface().createReference<Dto>(Dto::class.java)
     dtoInterfaceReference.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
     result.addSuperInterface<Any, CtType<Any>>(dtoInterfaceReference)
 
@@ -147,6 +182,9 @@ fun buildOutputClass(
         )
 
     }
+
+    buildBuilderClass(result, spoon)
+    buildProjectionClass(result, sourceClass, spoon)
 
     return result
 

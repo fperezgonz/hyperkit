@@ -1,10 +1,15 @@
+#set($lb="
+")
 #macro( indent $indentLevel $bodyContent)
-#foreach($bodyLine in $bodyContent.lines().toList())
-##Write indents
-#foreach($level in [1..$indentLevel])    #end
-##Write line
-$bodyLine
+    #foreach($bodyLine in $bodyContent.lines().toList())
+##      Write indents
+        #foreach($level in [1..$indentLevel])    #end
+##          Write line
+#*        *#$bodyLine#if(!${foreach.last})$lb#end##
+    #end
 #end
+#macro(concatCollection $collection $separator)
+    #foreach($element in $collection)#if(!${foreach.first})$separator#end$element#end
 #end
 package ${ctClass.package};
 
@@ -29,17 +34,36 @@ ${annotation}
 ### Class
 class ${ctClass.simpleName} implements#foreach($interface in ${ctClass.superInterfaces})#if(!${foreach.first}),#end $interface#end{
 
-
 #foreach($field in ${ctClass.fields})
     $field
 #end
 
 #foreach($constructor in ${ctClass.constructors})
-    #indent(1, ${constructor.toString()})
+    #indent(1, ${constructor.toString()})$lb##
 #end
 
 #foreach($method in ${ctClass.methods})
-#indent(1, ${method.toString()})
+    #indent(1, ${method.toString()})$lb##
+#end
+
+### Builder class
+#foreach($type in ${ctClass.nestedTypes})
+    #if($type.simpleName=="Builder")
+    ##
+        #concatCollection($type.modifiers, " ") class ${type.simpleName}{}
+    #end
+#end
+
+### Projection class
+#foreach($type in ${ctClass.nestedTypes})
+    #if($type.simpleName=="Projection")
+        #set($annotations = $type.annotations)
+        #foreach($annotation in $annotations)
+            #indent(1, ${annotation.toString()})$lb##
+        #end
+    ##
+        #concatCollection($type.modifiers, " ") class ${type.simpleName} extends ${type.superclass.simpleName}{}
+    #end
 #end
 
 }
