@@ -50,7 +50,13 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
 #foreach($type in ${ctClass.nestedTypes})
     #if($type.simpleName=="Builder")
     ##
-        #concatCollection($type.modifiers, " ") class ${type.simpleName}{}
+        #concatCollection($type.modifiers, " ") class ${type.simpleName}{
+
+        #foreach($field in ${ctClass.fields})
+            #indent(2, $field.toString())$lb##
+        #end
+
+    }
     #end
 #end
 
