@@ -12,9 +12,11 @@ class SourceBuilder {
      */
     fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): String {
 
+        val imports = dtoCtClass.referencedTypes.distinctBy { it.qualifiedName }.toMutableSet()
         val velocityContext = VelocityContext()
         velocityContext.put("sourceCtClass", sourceCtClass)
         velocityContext.put("ctClass", dtoCtClass)
+        velocityContext.put("imports", imports)
         val velocityEngine = VelocityEngine()
         velocityEngine.setProperty("resource.loaders", "file, class")
 //        velocityEngine.setProperty("resource.loader.file.path", "./src/main/resources/velocity_templates/")

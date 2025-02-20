@@ -14,7 +14,6 @@
 package ${ctClass.package};
 
 ### Imports
-#set($imports = ${ctClass.referencedTypes})
 #foreach($import in $imports)
     #set($importQualName = ${import.qualifiedName.toString()})
     #if ($importQualName != "long" && $importQualName != "int"
