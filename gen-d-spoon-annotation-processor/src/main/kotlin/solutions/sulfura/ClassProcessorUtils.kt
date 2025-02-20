@@ -83,7 +83,7 @@ private fun createAnnotation_DtoFor(ctClass: CtClass<*>, spoonApi: SpoonAPI): Ct
 private fun createAnnotation_ProjectionFor(ctClass: CtClass<*>, ctSourceClass: CtClass<*>, spoonApi: SpoonAPI): CtAnnotation<ProjectionFor> {
     val dtoAnnotationCtType = spoonApi.factory.Annotation().get<ProjectionFor>(ProjectionFor::class.java)
     val dtoAnnotation = spoonApi.factory.createAnnotation(dtoAnnotationCtType.reference)
-    val ctSourceClassAccess = spoonApi.factory.createClassAccess(ctSourceClass.reference)
+    val ctSourceClassAccess = spoonApi.factory.createClassAccess(ctClass.reference)
     dtoAnnotation.addValue<CtAnnotation<ProjectionFor>>("value", ctSourceClassAccess)
     return dtoAnnotation
 }
@@ -119,7 +119,7 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
     result.addAnnotation<CtAnnotation<ProjectionFor>>(createAnnotation_ProjectionFor(dtoClass, sourceClass, spoonApi))
     //Make it extend the Projection superclass
     val projectionSuperclass = spoonApi.factory.Class().createReference<DtoProjection<*>>(DtoProjection::class.java)
-    projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
+    projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(dtoClass.reference)
     result.setSuperclass<CtType<*>>(projectionSuperclass)
 
     return result;

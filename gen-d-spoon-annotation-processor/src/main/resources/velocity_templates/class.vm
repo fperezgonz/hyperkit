@@ -50,11 +50,37 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
 #foreach($type in ${ctClass.nestedTypes})
     #if($type.simpleName=="Builder")
     ##
-        #concatCollection($type.modifiers, " ") class ${type.simpleName}{
+        #concatCollection($type.modifiers, " ") class Builder{
 
         #foreach($field in ${ctClass.fields})
-            #indent(2, $field.toString())$lb##
+            #indent(2, ${field.type.toString()}) ${field.simpleName} = Option.none();$lb##
         #end
+
+        public Builder(){}
+
+        public static  Builder newInstance(){
+            return new Builder();
+        }
+
+##      Builder methods
+        #foreach($field in ${ctClass.fields})
+        public Builder ${field.simpleName}(final ${field.type} ${field.simpleName})}{
+            this.${field.simpleName} = ${field.simpleName} == null ? Option.none() : ${field.simpleName};
+            return this;
+        }
+
+        #end
+
+        public ${ctClass.simpleName} build(){
+
+            ${ctClass.simpleName} instance = new ${ctClass.simpleName}();
+        #foreach($field in ${ctClass.fields})
+            instance.${field.simpleName} = ${field.simpleName};
+        #end
+
+            return instance;
+
+        }
 
     }
     #end
@@ -68,7 +94,7 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
             #indent(1, ${annotation.toString()})$lb##
         #end
     ##
-        #concatCollection($type.modifiers, " ") class ${type.simpleName} extends ${type.superclass.simpleName}{}
+        #concatCollection($type.modifiers, " ") class ${type.simpleName} extends ${type.superclass.simpleName}<${ctClass.simpleName}>{}
     #end
 #end
 
