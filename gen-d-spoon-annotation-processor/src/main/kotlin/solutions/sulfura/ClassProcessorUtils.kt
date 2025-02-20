@@ -80,7 +80,11 @@ private fun createAnnotation_DtoFor(ctClass: CtClass<*>, spoonApi: SpoonAPI): Ct
     return dtoAnnotation
 }
 
-private fun createAnnotation_ProjectionFor(ctClass: CtClass<*>, ctSourceClass: CtClass<*>, spoonApi: SpoonAPI): CtAnnotation<ProjectionFor> {
+private fun createAnnotation_ProjectionFor(
+    ctClass: CtClass<*>,
+    ctSourceClass: CtClass<*>,
+    spoonApi: SpoonAPI
+): CtAnnotation<ProjectionFor> {
     val dtoAnnotationCtType = spoonApi.factory.Annotation().get<ProjectionFor>(ProjectionFor::class.java)
     val dtoAnnotation = spoonApi.factory.createAnnotation(dtoAnnotationCtType.reference)
     val ctSourceClassAccess = spoonApi.factory.createClassAccess(ctClass.reference)
@@ -110,6 +114,34 @@ fun buildBuilderClass(dtoClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
 
 }
 
+fun implementsList(vararg typesToTest: CtTypeReference<*>): Boolean {
+
+    for (c in typesToTest) {
+
+        if (c.qualifiedName == "java.util.List") {
+            return true;
+        }
+
+        if (c.superclass != null && implementsList(c.superclass)) {
+            return true
+        }
+
+        if (c.superInterfaces == null || c.superInterfaces.isEmpty()) {
+            continue
+        }
+
+        for (interf in c.superInterfaces) {
+            if (implementsList(interf)) {
+                return true;
+            }
+        }
+
+    }
+
+    return false
+
+}
+
 fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
 
     val result = spoonApi.factory.createClass(dtoClass, "Projection")
@@ -122,7 +154,7 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
     projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(dtoClass.reference)
     result.setSuperclass<CtType<*>>(projectionSuperclass)
 
-    return result;
+    return result
 
 }
 
