@@ -1,7 +1,7 @@
 package solutions.sulfura
 
-import groovyjarjarasm.asm.TypeReference
 import io.vavr.control.Option
+import solutions.sulfura.gend.dtos.ListOperation
 import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
 import solutions.sulfura.gend.dtos.projection.DtoProjection
@@ -114,15 +114,50 @@ fun buildBuilderClass(dtoClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
 
 }
 
-fun implementsList(vararg typesToTest: CtTypeReference<*>): Boolean {
+fun isInnerType(ctType: CtTypeReference<*>): CtTypeReference<*>? {
 
-    for (c in typesToTest) {
+    if (ctType.qualifiedName.contains("$")) {
+        return ctType;
+    }
 
-        if (c.qualifiedName == "java.util.List") {
+    var possibleBinaryName = ctType.qualifiedName
+    var lastDotIdx = possibleBinaryName.lastIndexOf('.')
+
+    while (lastDotIdx != -1) {
+
+        possibleBinaryName =
+            possibleBinaryName.substring(0, lastDotIdx) + "$" + possibleBinaryName.substring(lastDotIdx + 1)
+        val innerType = ctType.factory.Type().createReference<Any>(possibleBinaryName)
+
+        if (innerType != null) {
+            return innerType
+        }
+
+        lastDotIdx = possibleBinaryName.lastIndexOf('.')
+
+    }
+
+    return null
+
+}
+
+fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String): Boolean {
+
+    for (t in typesToTest) {
+
+        var c = t;
+
+        //If the type declaration cannot be found, the type is likely to be an inner type
+        if (c.typeDeclaration == null) {
+            c = isInnerType(c) ?: c;
+        }
+
+
+        if (c.qualifiedName == typeToImplement) {
             return true;
         }
 
-        if (c.superclass != null && implementsList(c.superclass)) {
+        if (c.superclass != null && implements(c.superclass, typeToImplement = typeToImplement)) {
             return true
         }
 
@@ -131,7 +166,7 @@ fun implementsList(vararg typesToTest: CtTypeReference<*>): Boolean {
         }
 
         for (interf in c.superInterfaces) {
-            if (implementsList(interf)) {
+            if (implements(interf, typeToImplement = typeToImplement)) {
                 return true;
             }
         }
@@ -140,6 +175,14 @@ fun implementsList(vararg typesToTest: CtTypeReference<*>): Boolean {
 
     return false
 
+}
+
+fun implementsList(vararg typesToTest: CtTypeReference<*>): Boolean {
+    return implements(typesToTest = typesToTest, typeToImplement = "java.util.List")
+}
+
+fun implementsSet(vararg typesToTest: CtTypeReference<*>): Boolean {
+    return implements(typesToTest = typesToTest, typeToImplement = "java.util.Set")
 }
 
 fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
@@ -203,8 +246,39 @@ fun buildOutputClass(
     //Add fields
     collectedProperties.forEach { ctField: CtField<*> ->
 
-        var fieldType = spoon.factory.Class().createReference(Option::class.java)
-        fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(if (ctField.type.isPrimitive) ctField.type.box() else ctField.type))
+        var fieldType: CtTypeReference<*>? = null
+
+        if (ctField.type.isArray) {
+            fieldType = spoon.factory.Class().createReference(List::class.java)
+            val listOperationTypeRef = spoon.factory.Class().createReference(ListOperation::class.java)
+            val itemType = (ctField.type as spoon.reflect.reference.CtArrayTypeReference).arrayType
+            listOperationTypeRef.addActualTypeArgument<CtActualTypeContainer>(if (itemType.isPrimitive) itemType.box() else itemType)
+            fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(listOperationTypeRef))
+        }
+
+        if (implementsList(ctField.type)) {
+            fieldType = spoon.factory.Class().createReference(List::class.java)
+            val listOperationTypeRef = spoon.factory.Class().createReference(ListOperation::class.java)
+            val itemType = ctField.type.actualTypeArguments.first()
+            listOperationTypeRef.addActualTypeArgument<CtActualTypeContainer>(if (itemType.isPrimitive) itemType.box() else itemType)
+            fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(listOperationTypeRef))
+        }
+
+        if (implementsSet(ctField.type)) {
+            fieldType = spoon.factory.Class().createReference(Set::class.java)
+            val listOperationTypeRef = spoon.factory.Class().createReference(ListOperation::class.java)
+            val itemType = ctField.type.actualTypeArguments.first()
+            listOperationTypeRef.addActualTypeArgument<CtActualTypeContainer>(if (itemType.isPrimitive) itemType.box() else itemType)
+            fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(listOperationTypeRef))
+        }
+
+        if (fieldType == null) {
+            fieldType = ctField.type!!
+        }
+
+        val optionFieldType = spoon.factory.Class().createReference(Option::class.java)
+        optionFieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(if (fieldType.isPrimitive) fieldType.box() else fieldType))
+        fieldType = optionFieldType
 
         spoon.factory.createField(
             result,
