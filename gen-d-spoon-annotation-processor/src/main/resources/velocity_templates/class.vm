@@ -93,8 +93,19 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
         #foreach($annotation in $annotations)
             #indent(1, ${annotation.toString()})$lb##
         #end
-        ##
-        #concatCollection($type.modifiers, " ") class ${type.simpleName} extends ${type.superclass.simpleName}<${ctClass.simpleName}>{}
+    ##
+        #concatCollection($type.modifiers, " ") class Projection extends ${type.superclass.simpleName}<${ctClass.simpleName}>{
+
+        #foreach($field in ${ctClass.fields})
+            #if(${field.type.actualTypeArguments.get(0).qualifiedName} == "java.util.List"
+            || ${field.type.actualTypeArguments.get(0).qualifiedName} == "java.util.Set")
+                #indent(2, "public ListFieldConf") ${field.simpleName};
+            #else
+                #indent(2, "public FieldConf") ${field.simpleName};
+            #end
+        #end
+
+        }
     #end
 #end
 
