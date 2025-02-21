@@ -93,8 +93,22 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
         #foreach($annotation in $annotations)
             #indent(1, ${annotation.toString()})$lb##
         #end
-    ##
+        ##
         #concatCollection($type.modifiers, " ") class ${type.simpleName} extends ${type.superclass.simpleName}<${ctClass.simpleName}>{}
+    #end
+#end
+
+### DtoModel class
+#foreach($type in ${ctClass.nestedTypes})
+    #if($type.simpleName=="DtoModel")
+    ##
+    #concatCollection($type.modifiers, " ") class DtoModel{
+
+    #foreach($field in ${ctClass.fields})
+        public static final String _${field.simpleName} = "${field.simpleName}";
+    #end
+
+    }
     #end
 #end
 

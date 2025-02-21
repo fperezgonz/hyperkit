@@ -201,6 +201,16 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
 
 }
 
+fun buildModelClass(dtoClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
+
+    val result = spoonApi.factory.createClass(dtoClass, "DtoModel")
+    result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+    result.addModifier<CtModifiable>(ModifierKind.STATIC)
+
+    return result
+
+}
+
 fun buildOutputClass(
     spoon: SpoonAPI,
     sourceClass: CtClass<*>,
@@ -291,6 +301,7 @@ fun buildOutputClass(
 
     buildBuilderClass(result, spoon)
     buildProjectionClass(result, sourceClass, spoon)
+    buildModelClass(result, spoon)
 
     return result
 
