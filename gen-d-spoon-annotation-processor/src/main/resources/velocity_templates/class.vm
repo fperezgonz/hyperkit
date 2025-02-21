@@ -34,7 +34,8 @@ ${annotation}
 class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterfaces, ", "){
 
 #foreach($field in ${ctClass.fields})
-    $field
+    ##
+    #concatCollection($field.modifiers, " ") ${field.type} ${field.simpleName} = Option.none();$lb##
 #end
 
 #foreach($constructor in ${ctClass.constructors})
