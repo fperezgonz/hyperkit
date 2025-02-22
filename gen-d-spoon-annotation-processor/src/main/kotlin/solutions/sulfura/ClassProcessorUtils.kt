@@ -6,6 +6,8 @@ import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
 import solutions.sulfura.gend.dtos.projection.DtoProjection
 import solutions.sulfura.gend.dtos.projection.ProjectionFor
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
 import spoon.reflect.code.CtBodyHolder
@@ -197,6 +199,29 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
     projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(dtoClass.reference)
     result.setSuperclass<CtType<*>>(projectionSuperclass)
 
+    dtoClass.fields.forEach { ctField ->
+
+        val fieldType:CtTypeReference<*>?
+
+        val optionalGenericArgType = ctField.type.actualTypeArguments.first()
+
+        if (optionalGenericArgType.qualifiedName == "java.util.List"
+            || optionalGenericArgType.qualifiedName == "java.util.Set"
+            || optionalGenericArgType.isArray
+        ) {
+            fieldType = spoonApi.factory.Class().createReference(ListFieldConf::class.java)
+        } else fieldType = spoonApi.factory.Class().createReference(FieldConf::class.java)
+
+        result.addField<Any, CtType<*>>(
+            spoonApi.factory.createField(
+                result,
+                setOf(ModifierKind.PUBLIC),
+                fieldType,
+                ctField.simpleName
+            )
+        )
+    }
+
     return result
 
 }
@@ -255,7 +280,7 @@ fun buildOutputClass(
 
     //Add fields
     collectedProperties.forEach { ctField ->
-        if(!(ctField is CtField<*>)){
+        if (!(ctField is CtField<*>)) {
             return@forEach
         }
 
