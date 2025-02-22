@@ -105,7 +105,13 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
             #end
         #end
 
+        public void applyProjectionTo(${ctClass.simpleName} dto) throws DtoProjectionException {
+        #foreach($field in ${ctClass.fields})
+            dto.${field.simpleName} = ProjectionUtils.getProjectedValue(dto.${field.simpleName}, this.${field.simpleName});
+        #end
         }
+
+    }
     #end
 #end
 
