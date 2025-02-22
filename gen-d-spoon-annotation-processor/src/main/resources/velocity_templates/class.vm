@@ -31,7 +31,7 @@ import ${importQualName};
 ${annotation}
 #end
 ### Class
-class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterfaces, ", "){
+public class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterfaces, ", "){
 
 #foreach($field in ${ctClass.fields})
     ##
@@ -64,7 +64,7 @@ class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterface
 
 ##      Builder methods
         #foreach($field in ${ctClass.fields})
-        public Builder ${field.simpleName}(final ${field.type} ${field.simpleName})}{
+        public Builder ${field.simpleName}(final ${field.type} ${field.simpleName}){
             this.${field.simpleName} = ${field.simpleName} == null ? Option.none() : ${field.simpleName};
             return this;
         }
