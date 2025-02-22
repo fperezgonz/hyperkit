@@ -21,7 +21,7 @@ package ${ctClass.package};
         && $importQualName != "float" && $importQualName != "double"
         && $importQualName != "byte" && $importQualName != "char"
         && !${importQualName.startsWith("java.lang")} )
-import ${importQualName};
+import ${importQualName.replace("$", ".")};
     #end
 #end
 
