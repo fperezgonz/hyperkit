@@ -30,7 +30,7 @@ fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
 }
 
-fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtQuery {
+fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<*> {
 
     val includedAnnotations = ctClass.getAnnotation<Dto>(Dto::class.java).include
         .map { it.java.canonicalName }
@@ -67,7 +67,7 @@ fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtQuery {
 
     val dtoPropertiesQuery = ctClass.filterChildren(filter)
 
-    return dtoPropertiesQuery
+    return dtoPropertiesQuery.list<Any>()
 
 }
 
@@ -217,7 +217,7 @@ fun buildOutputClass(
     dtoClassQualifiedName: String,
     className__ctClass: Map<String, CtClass<Any>>,
     collectedAnnotations: List<CtAnnotation<*>>,
-    collectedProperties: CtQuery
+    collectedProperties: List<*>
 ): CtClass<*> {
 
     val result = spoon.factory.createClass(dtoClassQualifiedName)
@@ -254,7 +254,10 @@ fun buildOutputClass(
     }
 
     //Add fields
-    collectedProperties.forEach { ctField: CtField<*> ->
+    collectedProperties.forEach { ctField ->
+        if(!(ctField is CtField<*>)){
+            return@forEach
+        }
 
         var fieldType: CtTypeReference<*>? = null
 
