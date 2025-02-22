@@ -37,11 +37,23 @@ class AnnotationProcessorTests {
         }
 
         var generatedSource =
-            File(projectFolder, outputSourcesPath + "java/solutions/sulfura/dtos/SourceClassTypesDto.java")
+            File(projectFolder, outputSourcesPath + "java/solutions/sulfura/gend/dtos/SourceClassTypesDto.java")
                 .readText();
 
         var expectedSource =
             File(projectFolder, expectedOutputDir + "java/solutions/sulfura/gend/dtos/SourceClassTypesDto.java")
+                .readText()
+
+        Assertions.assertEquals(expectedSource, generatedSource)
+
+
+
+        generatedSource =
+            File(projectFolder, outputSourcesPath + "java/solutions/sulfura/gend/dtos/generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
+                .readText();
+
+        expectedSource =
+            File(projectFolder, expectedOutputDir + "java/solutions/sulfura/gend/dtos/generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
                 .readText()
 
         Assertions.assertEquals(expectedSource, generatedSource)
