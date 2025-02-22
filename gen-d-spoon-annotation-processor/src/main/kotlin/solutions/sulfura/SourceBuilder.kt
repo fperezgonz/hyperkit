@@ -29,7 +29,6 @@ class SourceBuilder {
         val classTemplate = velocityEngine.getTemplate("velocity_templates/class.vm")
         val stringWriter = StringWriter()
         classTemplate.merge(velocityContext, stringWriter)
-        println(stringWriter.toString())
 
         return stringWriter.toString()
 
