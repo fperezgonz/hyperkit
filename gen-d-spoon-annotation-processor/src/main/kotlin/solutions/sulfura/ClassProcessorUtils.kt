@@ -223,7 +223,7 @@ fun buildOutputClass(
     val result = spoon.factory.createClass(dtoClassQualifiedName)
 
     //Make it implement the Dto interface
-    val dtoInterfaceReference = spoon.factory.Interface().createReference<Dto>(Dto::class.java)
+    val dtoInterfaceReference = spoon.factory.Interface().createReference<solutions.sulfura.gend.dtos.Dto<*>>(solutions.sulfura.gend.dtos.Dto::class.java)
     dtoInterfaceReference.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
     result.addSuperInterface<Any, CtType<Any>>(dtoInterfaceReference)
 
