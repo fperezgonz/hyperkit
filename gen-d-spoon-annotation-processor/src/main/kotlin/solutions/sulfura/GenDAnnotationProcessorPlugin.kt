@@ -27,6 +27,26 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
     }
 
+    fun removePrefixUntilMismatch(string:String, prefix:String):String{
+
+        var mismatchIndex = 0
+
+        // Find the first mismatching character index
+        while (mismatchIndex < string.length
+            && mismatchIndex < prefix.length
+            && string[mismatchIndex] == prefix[mismatchIndex]
+        ) {
+
+            mismatchIndex++
+
+        }
+
+        // Remove all characters up to the mismatch index
+        return string.substring(mismatchIndex)
+
+
+    }
+
     override fun apply(project: Project) {
 
         val extension = project.extensions.create("genD", GenDAnnotationProcessorConfigurationExtension::class.java)
@@ -58,7 +78,10 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 classesToProcess.forEach { ctClass: CtClass<*> ->
                     var collectedProperties = collectProperties(ctClass, spoon)
                     val collectedAnnotations = collectAnnotations(ctClass, spoon)
-                    val dtoClassPackage = "solutions.sulfura.dtos"
+                    var dtoClassPackage = "solutions.sulfura.gend.dtos." + removePrefixUntilMismatch(
+                        ctClass.`package`.qualifiedName,
+                        "solutions.sulfura.gend.dtos"
+                    )
                     val dtoClassSimpleName = ctClass.simpleName + "Dto"
                     val dtoClassQualifiedName = "$dtoClassPackage.$dtoClassSimpleName"
                     val oldDtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
