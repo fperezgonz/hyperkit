@@ -2,6 +2,7 @@ package solutions.sulfura
 
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils
 import spoon.reflect.declaration.CtClass
 import java.io.StringWriter
 
@@ -12,7 +13,23 @@ class SourceBuilder {
      */
     fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): String {
 
+//        This does not include ProjectionUtils in the imports
+//        val cu:CtCompilationUnit = dtoCtClass.getFactory().createCompilationUnit();
+//        cu.addDeclaredType(dtoCtClass);
+//        ForceFullyQualifiedProcessor().process(cu)
+//        ForceImportProcessor().process(cu)
+//        ImportCleaner().process(cu)
+//        ImportConflictDetector().process(cu)
+//        val imports = cu.imports
+//        println(imports)
+
+
         val imports = dtoCtClass.referencedTypes.distinctBy { it.qualifiedName }.toMutableSet()
+        for (type in dtoCtClass.nestedTypes) {
+            if (type.simpleName == "Projection") {
+                imports.add(dtoCtClass.factory.Class().createReference(ProjectionUtils::class.java))
+            }
+        }
         val velocityContext = VelocityContext()
         velocityContext.put("sourceCtClass", sourceCtClass)
         velocityContext.put("ctClass", dtoCtClass)

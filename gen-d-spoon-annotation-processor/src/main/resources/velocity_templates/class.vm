@@ -20,6 +20,7 @@ package ${ctClass.package};
         && $importQualName != "boolean" && $importQualName != "short"
         && $importQualName != "float" && $importQualName != "double"
         && $importQualName != "byte" && $importQualName != "char"
+        && $importQualName != "void"
         && !${importQualName.startsWith("java.lang")} )
 import ${importQualName.replace("$", ".")};
     #end
@@ -104,6 +105,15 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
                 #indent(2, "public FieldConf") ${field.simpleName};
             #end
         #end
+
+        #foreach($constructor in ${type.constructors})
+            #indent(2, ${constructor.toString()})$lb##
+        #end
+
+##        This writes the methods directly using the spoon printer. Formatting is very limited
+##        #foreach($method in ${type.methods})
+##            #indent(2, ${method.toString()})$lb##
+##        #end
 
         public void applyProjectionTo(${ctClass.simpleName} dto) throws DtoProjectionException {
         #foreach($field in ${ctClass.fields})

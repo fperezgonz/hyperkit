@@ -5,16 +5,18 @@ import solutions.sulfura.gend.dtos.ListOperation
 import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
 import solutions.sulfura.gend.dtos.projection.DtoProjection
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException
 import solutions.sulfura.gend.dtos.projection.ProjectionFor
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
-import spoon.reflect.code.CtBodyHolder
-import spoon.reflect.code.CtStatement
+import spoon.reflect.code.*
 import spoon.reflect.declaration.*
 import spoon.reflect.reference.CtActualTypeContainer
 import spoon.reflect.reference.CtTypeReference
+import spoon.reflect.reference.CtVariableReference
 import spoon.reflect.visitor.chain.CtQuery
 import spoon.reflect.visitor.filter.CompositeFilter
 import spoon.reflect.visitor.filter.FilteringOperator
@@ -190,6 +192,9 @@ fun implementsSet(vararg typesToTest: CtTypeReference<*>): Boolean {
 fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi: SpoonAPI): CtClass<*>? {
 
     val result = spoonApi.factory.createClass(dtoClass, "Projection")
+    val fieldConf = spoonApi.factory.Class().createReference(FieldConf::class.java)
+    val listFieldConf = spoonApi.factory.Class().createReference(ListFieldConf::class.java)
+
     result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
     result.addModifier<CtModifiable>(ModifierKind.STATIC)
 
@@ -199,18 +204,17 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
     projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(dtoClass.reference)
     result.setSuperclass<CtType<*>>(projectionSuperclass)
 
+    //Build Projection fields
     dtoClass.fields.forEach { ctField ->
-
-        val fieldType:CtTypeReference<*>?
 
         val optionalGenericArgType = ctField.type.actualTypeArguments.first()
 
-        if (optionalGenericArgType.qualifiedName == "java.util.List"
-            || optionalGenericArgType.qualifiedName == "java.util.Set"
-            || optionalGenericArgType.isArray
-        ) {
-            fieldType = spoonApi.factory.Class().createReference(ListFieldConf::class.java)
-        } else fieldType = spoonApi.factory.Class().createReference(FieldConf::class.java)
+
+        val isCollection = optionalGenericArgType.qualifiedName == "java.util.List"
+                || optionalGenericArgType.qualifiedName == "java.util.Set"
+                || optionalGenericArgType.isArray
+
+        val fieldType: CtTypeReference<*> = if (isCollection) listFieldConf else fieldConf
 
         result.addField<Any, CtType<*>>(
             spoonApi.factory.createField(
@@ -220,7 +224,84 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
                 ctField.simpleName
             )
         )
+
     }
+
+    //Add empty constructor
+    spoonApi.factory.createConstructor(result, mutableSetOf(ModifierKind.PUBLIC), null, null)
+        .setBody<CtBodyHolder>(spoonApi.factory.createCtBlock<CtStatement>(null))
+
+    //Method "public void applyProjectionTo(SourceClassTypesDto dto) throws DtoProjectionException"
+    val method_applyProjectionTo = spoonApi.factory.createMethod<Any>()
+    method_applyProjectionTo.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+    method_applyProjectionTo.setSimpleName<CtMethod<*>>("applyProjectionTo")
+    method_applyProjectionTo.setType<CtMethod<*>>(spoonApi.factory.Type().voidPrimitiveType())
+
+    val parameter = spoonApi.factory.createParameter<Any>()
+    parameter.setSimpleName<CtNamedElement>("dto")
+    parameter.setType<CtTypedElement<*>>(dtoClass.reference)
+    method_applyProjectionTo.addParameter<CtExecutable<Any>>(parameter)
+
+    val exception = spoonApi.factory.Type().get<DtoProjectionException>(DtoProjectionException::class.java).reference
+    method_applyProjectionTo.addThrownType<CtExecutable<Any>>(exception)
+
+    val methodBody: CtBlock<Int?> = spoonApi.factory.Core().createBlock()
+
+    //Add statements "dto.field = ProjectionUtils.getProjectedValue(dto.field, this.field);" to method body
+    result.fields.forEach { ctField ->
+        @Suppress("UNCHECKED_CAST")
+        ctField as CtField<Option<Any>>
+
+        val projectionUtilsCtClass = spoonApi.factory.Class().createReference(ProjectionUtils::class.java)
+
+        @Suppress("UNCHECKED_CAST")
+        val optionCtClass = spoonApi.factory.Class().createReference(Option::class.java) as CtTypeReference<Option<Any>>
+        val getProjectedValueMethod = spoonApi.factory.Method().createReference(
+            projectionUtilsCtClass,
+            true,
+            optionCtClass,
+            "getProjectedValue",
+            mutableListOf<CtTypeReference<*>>(optionCtClass, ctField.type)
+        )
+
+        //Field read: "this.field" in "ProjectionUtils.getProjectedValue(dto.field, this.field)"
+        val projectionFieldRead = spoonApi.factory.createFieldRead<Option<Any>>()
+        val thisAccess = spoonApi.factory.createThisAccess<Any>(result.reference)
+        projectionFieldRead.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(thisAccess)
+        projectionFieldRead.setVariable<CtVariableAccess<Option<Any>>>(ctField.reference)
+
+        //Parameter field read: "dto.field" in "ProjectionUtils.getProjectedValue(dto.field, this.field)"
+        @Suppress("UNCHECKED_CAST")
+        val parameterField = parameter.type.getDeclaredOrInheritedField(ctField.simpleName) as CtVariableReference<Option<Any>>
+        val parameterAccess = spoonApi.factory.Code().createVariableRead(parameter.reference, false)
+        val parameterFieldRead = spoonApi.factory.createFieldRead<Option<Any>>()
+        parameterFieldRead.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(parameterAccess)
+        parameterFieldRead.setVariable<CtVariableAccess<Option<Any>>>(parameterField)
+
+        //Static method invocation: "ProjectionUtils.getProjectedValue(dto.field, this.field)"
+        val projectionUtilsTypeAccess = spoonApi.factory.createTypeAccess(projectionUtilsCtClass)
+        val getProjectedValueInvocation = spoonApi.factory.Code().createInvocation(
+            projectionUtilsTypeAccess,
+            getProjectedValueMethod,
+            mutableListOf<CtExpression<*>>(parameterFieldRead, projectionFieldRead)
+        )
+
+
+        //Parameter field write: "dto.field" in "dto.field = ..."
+        val parameterFieldWrite = spoonApi.factory.createFieldWrite<Option<Any>>()
+        parameterFieldWrite.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(parameterAccess)
+        parameterFieldWrite.setVariable<CtVariableAccess<Option<Any>>>(parameterField)
+
+        //Assignment: "dto.field = ProjectionUtils.getProjectedValue(dto.field, this.field)"
+        val assignmentStatement = spoonApi.factory.Core().createAssignment<Option<Any>, Option<Any>>()
+        assignmentStatement.setAssignment<CtRHSReceiver<Option<Any>>>(getProjectedValueInvocation)
+        assignmentStatement.setAssigned<CtAssignment<Option<Any>, Option<Any>>>(parameterFieldWrite)
+
+        methodBody.addStatement<CtStatementList>(assignmentStatement)
+
+    }
+
+    result.addMethod<Any, CtType<*>>(method_applyProjectionTo)
 
     return result
 
