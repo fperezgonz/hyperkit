@@ -18,9 +18,15 @@ import spoon.reflect.reference.CtActualTypeContainer
 import spoon.reflect.reference.CtTypeReference
 import spoon.reflect.reference.CtVariableReference
 import spoon.reflect.visitor.chain.CtQuery
-import spoon.reflect.visitor.filter.CompositeFilter
-import spoon.reflect.visitor.filter.FilteringOperator
+import java.util.Locale
 
+fun capitalize(s: String): String {
+    return s.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+}
+
+fun uncapitalize(s: String): String {
+    return s.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+}
 
 fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
@@ -34,44 +40,61 @@ fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
 }
 
-fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<*> {
+fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<PropertyData> {
+
+    val result = mutableListOf<PropertyData>()
 
     val includedAnnotations = ctClass.getAnnotation<Dto>(Dto::class.java).include
         .map { it.java.canonicalName }
         .toSet()
 
-    var filter: CompositeFilter<*> = CompositeFilter(
-        FilteringOperator.UNION,
-        //Collect public fields
-        { el: CtElement -> el is CtField<*> && el.modifiers.contains(ModifierKind.PUBLIC) },
-        //Collect getters and setters data
-        { el: CtElement ->
-            el is CtMethod<*> && el.modifiers.contains(ModifierKind.PUBLIC) &&
-                    (
-                            //is getter
-                            ((el.simpleName.startsWith("get") || el.simpleName.startsWith("is"))
-                                    && el.type != spoonApi.factory.Type().voidType())
-                                    ||
-                                    //is setter
-                                    (el.simpleName.startsWith("set")
-                                            && el.type == spoonApi.factory.Type().voidType()
-                                            && el.parameters.size == 1)
-                            )
+    ctClass.directChildren.map filter@{ el: CtElement ->
+
+        //If it does not contain any of the annotations used to mark inclusion
+        if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
+            return@filter
         }
-    )
 
-    filter = CompositeFilter(
-        FilteringOperator.INTERSECTION,
-        { el: CtElement ->
-            //Collect elements with the selected annotations
-            includedAnnotations.isEmpty() || el.annotations.any({ annotation -> annotation.type.qualifiedName in includedAnnotations })
-        },
-        filter
-    )
+        //Is a public field
+        if (el is CtField<*> && el.modifiers.contains(ModifierKind.PUBLIC)) {
+            result.add(PropertyData(el.simpleName, el.type))
+            return@filter
+        }
 
-    val dtoPropertiesQuery = ctClass.filterChildren(filter)
+        //Is not a public method
+        if (el !is CtMethod<*> || !el.modifiers.contains(ModifierKind.PUBLIC)) {
+            return@filter
+        }
 
-    return dtoPropertiesQuery.list<Any>()
+        //Is a getter
+        if (el.simpleName.startsWith("get") && el.type != spoonApi.factory.Type().voidPrimitiveType()) {
+            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), el.type))
+        }
+
+        //Is a getter
+        if (el.simpleName.startsWith("is") && el.type != spoonApi.factory.Type().voidPrimitiveType()) {
+            result.add(PropertyData(uncapitalize(el.simpleName.substring(2)), el.type))
+        }
+
+        //Is a setter
+        if (el.simpleName.startsWith("set") && el.type == spoonApi.factory.Type()
+                .voidPrimitiveType() && el.parameters.size == 1
+        ) {
+            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), el.parameters[0].type))
+        }
+
+        return@filter
+
+    }
+
+    val superClassTypeReference = ctClass.superclass
+    val ctSuperClass: CtClass<*>
+    if (superClassTypeReference != null) {
+        ctSuperClass = spoonApi.factory.Class().get<CtClass<*>>(superClassTypeReference.qualifiedName)
+        result.addAll(collectProperties(ctSuperClass, spoonApi))
+    }
+
+    return return result
 
 }
 
@@ -323,13 +346,14 @@ fun buildOutputClass(
     dtoClassQualifiedName: String,
     className__ctClass: Map<String, CtClass<Any>>,
     collectedAnnotations: List<CtAnnotation<*>>,
-    collectedProperties: List<*>
+    collectedProperties: List<PropertyData>
 ): CtClass<*> {
 
     val result = spoon.factory.createClass(dtoClassQualifiedName)
 
     //Make it implement the Dto interface
-    val dtoInterfaceReference = spoon.factory.Interface().createReference<solutions.sulfura.gend.dtos.Dto<*>>(solutions.sulfura.gend.dtos.Dto::class.java)
+    val dtoInterfaceReference = spoon.factory.Interface()
+        .createReference<solutions.sulfura.gend.dtos.Dto<*>>(solutions.sulfura.gend.dtos.Dto::class.java)
     dtoInterfaceReference.addActualTypeArgument<CtActualTypeContainer>(sourceClass.reference)
     result.addSuperInterface<Any, CtType<Any>>(dtoInterfaceReference)
 
@@ -360,39 +384,36 @@ fun buildOutputClass(
     }
 
     //Add fields
-    collectedProperties.forEach { ctField ->
-        if (!(ctField is CtField<*>)) {
-            return@forEach
-        }
+    collectedProperties.forEach { propData ->
 
         var fieldType: CtTypeReference<*>? = null
 
-        if (ctField.type.isArray) {
+        if (propData.type.isArray) {
             fieldType = spoon.factory.Class().createReference(List::class.java)
             val listOperationTypeRef = spoon.factory.Class().createReference(ListOperation::class.java)
-            val itemType = (ctField.type as spoon.reflect.reference.CtArrayTypeReference).arrayType
+            val itemType = (propData.type as spoon.reflect.reference.CtArrayTypeReference).arrayType
             listOperationTypeRef.addActualTypeArgument<CtActualTypeContainer>(if (itemType.isPrimitive) itemType.box() else itemType)
             fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(listOperationTypeRef))
         }
 
-        if (implementsList(ctField.type)) {
+        if (implementsList(propData.type)) {
             fieldType = spoon.factory.Class().createReference(List::class.java)
             val listOperationTypeRef = spoon.factory.Class().createReference(ListOperation::class.java)
-            val itemType = ctField.type.actualTypeArguments.first()
+            val itemType = propData.type.actualTypeArguments.first()
             listOperationTypeRef.addActualTypeArgument<CtActualTypeContainer>(if (itemType.isPrimitive) itemType.box() else itemType)
             fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(listOperationTypeRef))
         }
 
-        if (implementsSet(ctField.type)) {
+        if (implementsSet(propData.type)) {
             fieldType = spoon.factory.Class().createReference(Set::class.java)
             val listOperationTypeRef = spoon.factory.Class().createReference(ListOperation::class.java)
-            val itemType = ctField.type.actualTypeArguments.first()
+            val itemType = propData.type.actualTypeArguments.first()
             listOperationTypeRef.addActualTypeArgument<CtActualTypeContainer>(if (itemType.isPrimitive) itemType.box() else itemType)
             fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(listOperationTypeRef))
         }
 
         if (fieldType == null) {
-            fieldType = ctField.type!!
+            fieldType = propData.type
         }
 
         val optionFieldType = spoon.factory.Class().createReference(Option::class.java)
@@ -403,7 +424,7 @@ fun buildOutputClass(
             result,
             setOf(ModifierKind.PUBLIC),
             fieldType,
-            ctField.simpleName
+            propData.name
         )
 
     }
@@ -415,3 +436,5 @@ fun buildOutputClass(
     return result
 
 }
+
+class PropertyData(val name: String, val type: CtTypeReference<*>)
