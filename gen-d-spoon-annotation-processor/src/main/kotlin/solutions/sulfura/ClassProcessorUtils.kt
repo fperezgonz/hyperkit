@@ -15,6 +15,8 @@ import spoon.reflect.CtModel
 import spoon.reflect.code.*
 import spoon.reflect.declaration.*
 import spoon.reflect.reference.CtActualTypeContainer
+import spoon.reflect.reference.CtFieldReference
+import spoon.reflect.reference.CtTypeParameterReference
 import spoon.reflect.reference.CtTypeReference
 import spoon.reflect.reference.CtVariableReference
 import spoon.reflect.visitor.chain.CtQuery
@@ -40,24 +42,78 @@ fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
 }
 
-fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<PropertyData> {
+fun collectProperties(ctClass: CtTypeReference<*>, spoonApi: SpoonAPI): List<PropertyData> {
 
     val result = mutableListOf<PropertyData>()
 
-    val includedAnnotations = ctClass.getAnnotation<Dto>(Dto::class.java).include
-        .map { it.java.canonicalName }
-        .toSet()
+    val dtoAnnotation = ctClass.getAnnotation<Dto>(Dto::class.java)
 
-    ctClass.directChildren.map filter@{ el: CtElement ->
+    val includedAnnotations =
+        if (dtoAnnotation == null) {
+            mutableSetOf<Any>()
+        } else {
+            dtoAnnotation.include
+                .map { it.java.canonicalName }
+                .toSet()
+        }
+
+    val typeParamMap = mutableMapOf<String, CtTypeReference<*>>()
+
+    //Map type parameters to actual types
+    if (ctClass.isParameterized && ctClass.actualTypeArguments != null) {
+
+        for (i in 0..ctClass.typeDeclaration.formalCtTypeParameters.size - 1) {
+            val ctTypeParam = ctClass.typeDeclaration.formalCtTypeParameters[i]
+            val actualTypeArgument = ctClass.actualTypeArguments[i]
+            typeParamMap[ctTypeParam.qualifiedName] = actualTypeArgument
+        }
+
+    }
+
+    val hasTypeParameters = typeParamMap.isNotEmpty()
+
+    ctClass.declaredFields.forEach filter@{ el: CtElement ->
 
         //If it does not contain any of the annotations used to mark inclusion
         if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
             return@filter
         }
 
-        //Is a public field
-        if (el is CtField<*> && el.modifiers.contains(ModifierKind.PUBLIC)) {
-            result.add(PropertyData(el.simpleName, el.type))
+        //Is not a public field
+        if (el !is CtFieldReference<*> || !el.modifiers.contains(ModifierKind.PUBLIC)) {
+            return@filter
+        }
+
+        var propertyTypeReference: CtTypeReference<*> = el.type
+
+        if (hasTypeParameters && el.type.isParameterized) {
+
+            val propertyType = el.type.typeDeclaration
+            propertyTypeReference = spoonApi.factory.Type().createReference(propertyType, true)
+
+            //Replace parameters with the actual types
+            for (i in 0..el.type.actualTypeArguments.size - 1) {
+                val sourceFieldTypeArg = el.type.actualTypeArguments[i]
+                val mappedTypeArg = typeParamMap[sourceFieldTypeArg.qualifiedName]
+                propertyTypeReference.actualTypeArguments[i] = mappedTypeArg ?: sourceFieldTypeArg
+            }
+
+        }
+
+        if (hasTypeParameters && el.type is CtTypeParameterReference) {
+            //Replace generic type with the actual type
+            propertyTypeReference = typeParamMap[el.type.qualifiedName] ?: el.type
+        }
+
+        result.add(PropertyData(el.simpleName, propertyTypeReference))
+
+    }
+
+    ctClass.typeDeclaration.directChildren.forEach filter@{ el: CtElement ->
+
+
+        //If it does not contain any of the annotations used to mark inclusion
+        if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
             return@filter
         }
 
@@ -87,11 +143,8 @@ fun collectProperties(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<PropertyDat
 
     }
 
-    val superClassTypeReference = ctClass.superclass
-    val ctSuperClass: CtClass<*>
-    if (superClassTypeReference != null) {
-        ctSuperClass = spoonApi.factory.Class().get<CtClass<*>>(superClassTypeReference.qualifiedName)
-        result.addAll(collectProperties(ctSuperClass, spoonApi))
+    if (ctClass.superclass != null) {
+        result.addAll(collectProperties(ctClass.superclass, spoonApi))
     }
 
     return return result

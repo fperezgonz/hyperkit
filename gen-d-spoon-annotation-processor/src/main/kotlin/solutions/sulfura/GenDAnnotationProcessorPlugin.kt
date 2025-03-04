@@ -76,7 +76,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 val newClasses = mutableSetOf<CtType<*>>()
 
                 classesToProcess.forEach { ctClass: CtClass<*> ->
-                    var collectedProperties = collectProperties(ctClass, spoon)
+                    var collectedProperties = collectProperties(ctClass.reference, spoon)
                     val collectedAnnotations = collectAnnotations(ctClass, spoon)
                     var dtoClassPackage = "solutions.sulfura.gend.dtos." + removePrefixUntilMismatch(
                         ctClass.`package`.qualifiedName,
