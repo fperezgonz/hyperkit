@@ -42,11 +42,11 @@ fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
 
 }
 
-fun collectProperties(ctClass: CtTypeReference<*>, spoonApi: SpoonAPI): List<PropertyData> {
+fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): List<PropertyData> {
 
     val result = mutableListOf<PropertyData>()
 
-    val dtoAnnotation = ctClass.getAnnotation<Dto>(Dto::class.java)
+    val dtoAnnotation = typeReference.getAnnotation<Dto>(Dto::class.java)
 
     val includedAnnotations =
         if (dtoAnnotation == null) {
@@ -60,11 +60,11 @@ fun collectProperties(ctClass: CtTypeReference<*>, spoonApi: SpoonAPI): List<Pro
     val typeParamMap = mutableMapOf<String, CtTypeReference<*>>()
 
     //Map type parameters to actual types
-    if (ctClass.isParameterized && ctClass.actualTypeArguments != null) {
+    if (typeReference.isParameterized && typeReference.actualTypeArguments != null) {
 
-        for (i in 0..ctClass.typeDeclaration.formalCtTypeParameters.size - 1) {
-            val ctTypeParam = ctClass.typeDeclaration.formalCtTypeParameters[i]
-            val actualTypeArgument = ctClass.actualTypeArguments[i]
+        for (i in 0..typeReference.typeDeclaration.formalCtTypeParameters.size - 1) {
+            val ctTypeParam = typeReference.typeDeclaration.formalCtTypeParameters[i]
+            val actualTypeArgument = typeReference.actualTypeArguments[i]
             typeParamMap[ctTypeParam.qualifiedName] = actualTypeArgument
         }
 
@@ -72,7 +72,7 @@ fun collectProperties(ctClass: CtTypeReference<*>, spoonApi: SpoonAPI): List<Pro
 
     val hasTypeParameters = typeParamMap.isNotEmpty()
 
-    ctClass.declaredFields.forEach filter@{ el: CtElement ->
+    typeReference.declaredFields.forEach filter@{ el: CtElement ->
 
         //If it does not contain any of the annotations used to mark inclusion
         if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
@@ -109,7 +109,7 @@ fun collectProperties(ctClass: CtTypeReference<*>, spoonApi: SpoonAPI): List<Pro
 
     }
 
-    ctClass.typeDeclaration.directChildren.forEach filter@{ el: CtElement ->
+    typeReference.typeDeclaration.directChildren.forEach filter@{ el: CtElement ->
 
 
         //If it does not contain any of the annotations used to mark inclusion
@@ -143,8 +143,8 @@ fun collectProperties(ctClass: CtTypeReference<*>, spoonApi: SpoonAPI): List<Pro
 
     }
 
-    if (ctClass.superclass != null) {
-        result.addAll(collectProperties(ctClass.superclass, spoonApi))
+    if (typeReference.superclass != null) {
+        result.addAll(collectProperties(typeReference.superclass, spoonApi))
     }
 
     return return result
