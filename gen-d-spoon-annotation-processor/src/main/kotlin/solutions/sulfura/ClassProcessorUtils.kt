@@ -31,9 +31,9 @@ fun uncapitalize(s: String): String {
     return s.replaceFirstChar { it.lowercase(Locale.getDefault()) }
 }
 
-fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
+fun collectClasses(model: CtModel, factory: Factory): CtQuery {
 
-    val dtoAnnotationCtType = spoonApi.factory.Type().get<Annotation>(Dto::class.java).reference
+    val dtoAnnotationCtType = factory.Type().get<Annotation>(Dto::class.java).reference
 
     val dtoAnnotatedClassesQuery = model.filterChildren { el: CtElement ->
         el is CtClass<*> && el.getAnnotation(dtoAnnotationCtType) != null
@@ -70,7 +70,7 @@ fun buildTypeReferenceWithActualParameters(elementType: CtTypeReference<*>, type
 
 }
 
-fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): List<PropertyData> {
+fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List<PropertyData> {
 
     val result = mutableListOf<PropertyData>()
 
@@ -116,7 +116,7 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
 
         if (hasTypeParameters){
 
-            val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+            val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
 
             if (parameterizedTypeReference != null) {
                 propertyTypeReference = parameterizedTypeReference
@@ -142,13 +142,13 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
         }
 
         //Is a getter
-        if (el.simpleName.startsWith("get") && el.type != spoonApi.factory.Type().voidPrimitiveType()) {
+        if (el.simpleName.startsWith("get") && el.type != factory.Type().voidPrimitiveType()) {
 
             var propertyTypeReference: CtTypeReference<*> = el.type
 
             if (hasTypeParameters){
 
-                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
 
                 if (parameterizedTypeReference != null) {
                     propertyTypeReference = parameterizedTypeReference
@@ -161,13 +161,13 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
         }
 
         //Is a getter
-        if (el.simpleName.startsWith("is") && el.type != spoonApi.factory.Type().voidPrimitiveType()) {
+        if (el.simpleName.startsWith("is") && el.type != factory.Type().voidPrimitiveType()) {
 
             var propertyTypeReference: CtTypeReference<*> = el.type
 
             if (hasTypeParameters){
 
-                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
 
                 if (parameterizedTypeReference != null) {
                     propertyTypeReference = parameterizedTypeReference
@@ -180,7 +180,7 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
         }
 
         //Is a setter
-        if (el.simpleName.startsWith("set") && el.type == spoonApi.factory.Type()
+        if (el.simpleName.startsWith("set") && el.type == factory.Type()
                 .voidPrimitiveType() && el.parameters.size == 1
         ) {
 
@@ -188,7 +188,7 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
 
             if (hasTypeParameters){
 
-                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
 
                 if (parameterizedTypeReference != null) {
                     propertyTypeReference = parameterizedTypeReference
@@ -205,7 +205,7 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
     }
 
     if (typeReference.superclass != null) {
-        result.addAll(collectProperties(typeReference.superclass, spoonApi))
+        result.addAll(collectProperties(typeReference.superclass, factory))
     }
 
     return return result

@@ -67,7 +67,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
                 val model = spoon.buildModel()
 
-                val classesToProcess = collectClasses(model, spoon)
+                val classesToProcess = collectClasses(model, spoon.factory)
                 //A map of collected classes to find out if a class will have generated code or not.
                 // This is used to know if references to origin classes have to be turned into references to classes derived from them (Dtos, for example)
                 val className__ctClass = classesToProcess.list<CtClass<Any>>().associateBy { it.qualifiedName }
@@ -76,7 +76,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 val newClasses = mutableSetOf<CtType<*>>()
 
                 classesToProcess.forEach { ctClass: CtClass<*> ->
-                    var collectedProperties = collectProperties(ctClass.reference, spoon)
+                    var collectedProperties = collectProperties(ctClass.reference, spoon.factory)
                     val collectedAnnotations = collectAnnotations(ctClass, spoon)
                     var dtoClassPackage = "solutions.sulfura.gend.dtos." + removePrefixUntilMismatch(
                         ctClass.`package`.qualifiedName,
