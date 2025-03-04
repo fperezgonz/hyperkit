@@ -156,8 +156,9 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         //Is a setter
         if (methodName.startsWith("set") && el.type == factory.Type().voidPrimitiveType() && el.parameters.size == 1) {
 
-            var typeWithInferredParameters: CtTypeReference<*> =
-                buildTypeReferenceWithInferredParameters(el.parameters.first().type, typeParamMap, factory)
+            val setterParamType = el.parameters.first().type
+            val typeWithInferredParameters =
+                buildTypeReferenceWithInferredParameters(setterParamType, typeParamMap, factory)
             result.add(PropertyData(uncapitalize(methodName.substring(3)), typeWithInferredParameters))
 
         }
@@ -188,20 +189,17 @@ private fun createAnnotation_ProjectionFor(
     ctSourceClass: CtClass<*>,
     spoonApi: SpoonAPI
 ): CtAnnotation<ProjectionFor> {
+
     val dtoAnnotationCtType = spoonApi.factory.Annotation().get<ProjectionFor>(ProjectionFor::class.java)
     val dtoAnnotation = spoonApi.factory.createAnnotation(dtoAnnotationCtType.reference)
     val ctSourceClassAccess = spoonApi.factory.createClassAccess(ctClass.reference)
     dtoAnnotation.addValue<CtAnnotation<ProjectionFor>>("value", ctSourceClassAccess)
     return dtoAnnotation
+
 }
 
 fun collectAnnotations(ctClass: CtClass<*>, spoonApi: SpoonAPI): List<CtAnnotation<*>> {
 
-
-//        dtoAnnotation.values.forEach {
-//            it.value as CtFieldRead<*>
-//            println(((it.value as CtFieldRead<*>).target as CtTypeAccess<*>).accessedType.qualifiedName )
-//        }
     val result = mutableListOf<CtAnnotation<*>>()
     result.add(createAnnotation_DtoFor(ctClass, spoonApi))
     return result
