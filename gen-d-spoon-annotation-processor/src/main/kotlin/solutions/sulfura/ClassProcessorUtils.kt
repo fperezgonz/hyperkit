@@ -14,6 +14,7 @@ import spoon.SpoonAPI
 import spoon.reflect.CtModel
 import spoon.reflect.code.*
 import spoon.reflect.declaration.*
+import spoon.reflect.factory.Factory
 import spoon.reflect.reference.CtActualTypeContainer
 import spoon.reflect.reference.CtFieldReference
 import spoon.reflect.reference.CtTypeParameterReference
@@ -39,6 +40,33 @@ fun collectClasses(model: CtModel, spoonApi: SpoonAPI): CtQuery {
     }
 
     return dtoAnnotatedClassesQuery
+
+}
+
+fun buildTypeReferenceWithActualParameters(elementType: CtTypeReference<*>, typeParamMap:Map<String, CtTypeReference<*>>, factory: Factory): CtTypeReference<*>? {
+
+    var result: CtTypeReference<*>? = null
+
+    if (elementType is CtTypeParameterReference) {
+        //Replace generic type with the actual type
+        result = typeParamMap[elementType.qualifiedName] ?: elementType
+    }
+
+    if (elementType.isParameterized) {
+
+        val propertyType = elementType.typeDeclaration
+        result = factory.Type().createReference(propertyType, true)
+
+        //Replace parameters with the actual types
+        for (i in 0..elementType.actualTypeArguments.size - 1) {
+            val sourceFieldTypeArg = elementType.actualTypeArguments[i]
+            val mappedTypeArg = typeParamMap[sourceFieldTypeArg.qualifiedName]
+            result.actualTypeArguments[i] = mappedTypeArg ?: sourceFieldTypeArg
+        }
+
+    }
+
+    return result
 
 }
 
@@ -86,23 +114,14 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
 
         var propertyTypeReference: CtTypeReference<*> = el.type
 
-        if (hasTypeParameters && el.type.isParameterized) {
+        if (hasTypeParameters){
 
-            val propertyType = el.type.typeDeclaration
-            propertyTypeReference = spoonApi.factory.Type().createReference(propertyType, true)
+            val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
 
-            //Replace parameters with the actual types
-            for (i in 0..el.type.actualTypeArguments.size - 1) {
-                val sourceFieldTypeArg = el.type.actualTypeArguments[i]
-                val mappedTypeArg = typeParamMap[sourceFieldTypeArg.qualifiedName]
-                propertyTypeReference.actualTypeArguments[i] = mappedTypeArg ?: sourceFieldTypeArg
+            if (parameterizedTypeReference != null) {
+                propertyTypeReference = parameterizedTypeReference
             }
 
-        }
-
-        if (hasTypeParameters && el.type is CtTypeParameterReference) {
-            //Replace generic type with the actual type
-            propertyTypeReference = typeParamMap[el.type.qualifiedName] ?: el.type
         }
 
         result.add(PropertyData(el.simpleName, propertyTypeReference))
@@ -124,19 +143,61 @@ fun collectProperties(typeReference: CtTypeReference<*>, spoonApi: SpoonAPI): Li
 
         //Is a getter
         if (el.simpleName.startsWith("get") && el.type != spoonApi.factory.Type().voidPrimitiveType()) {
-            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), el.type))
+
+            var propertyTypeReference: CtTypeReference<*> = el.type
+
+            if (hasTypeParameters){
+
+                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+
+                if (parameterizedTypeReference != null) {
+                    propertyTypeReference = parameterizedTypeReference
+                }
+
+            }
+
+            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), propertyTypeReference))
+
         }
 
         //Is a getter
         if (el.simpleName.startsWith("is") && el.type != spoonApi.factory.Type().voidPrimitiveType()) {
-            result.add(PropertyData(uncapitalize(el.simpleName.substring(2)), el.type))
+
+            var propertyTypeReference: CtTypeReference<*> = el.type
+
+            if (hasTypeParameters){
+
+                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+
+                if (parameterizedTypeReference != null) {
+                    propertyTypeReference = parameterizedTypeReference
+                }
+
+            }
+
+            result.add(PropertyData(uncapitalize(el.simpleName.substring(2)), propertyTypeReference))
+
         }
 
         //Is a setter
         if (el.simpleName.startsWith("set") && el.type == spoonApi.factory.Type()
                 .voidPrimitiveType() && el.parameters.size == 1
         ) {
-            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), el.parameters[0].type))
+
+            var propertyTypeReference: CtTypeReference<*> = el.parameters.first().type
+
+            if (hasTypeParameters){
+
+                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, spoonApi.factory)
+
+                if (parameterizedTypeReference != null) {
+                    propertyTypeReference = parameterizedTypeReference
+                }
+
+            }
+
+            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), propertyTypeReference))
+
         }
 
         return@filter
