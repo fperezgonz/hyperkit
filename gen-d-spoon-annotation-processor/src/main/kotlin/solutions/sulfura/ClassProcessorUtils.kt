@@ -43,9 +43,17 @@ fun collectClasses(model: CtModel, factory: Factory): CtQuery {
 
 }
 
-fun buildTypeReferenceWithActualParameters(elementType: CtTypeReference<*>, typeParamMap:Map<String, CtTypeReference<*>>, factory: Factory): CtTypeReference<*>? {
+fun buildTypeReferenceWithInferredParameters(
+    elementType: CtTypeReference<*>,
+    typeParamMap: Map<String, CtTypeReference<*>>,
+    factory: Factory
+): CtTypeReference<*> {
 
-    var result: CtTypeReference<*>? = null
+    var result: CtTypeReference<*> = elementType
+
+    if (typeParamMap.isEmpty()) {
+        return result
+    }
 
     if (elementType is CtTypeParameterReference) {
         //Replace generic type with the actual type
@@ -98,8 +106,6 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
 
     }
 
-    val hasTypeParameters = typeParamMap.isNotEmpty()
-
     typeReference.declaredFields.forEach filter@{ el: CtElement ->
 
         //If it does not contain any of the annotations used to mark inclusion
@@ -112,24 +118,12 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
             return@filter
         }
 
-        var propertyTypeReference: CtTypeReference<*> = el.type
-
-        if (hasTypeParameters){
-
-            val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
-
-            if (parameterizedTypeReference != null) {
-                propertyTypeReference = parameterizedTypeReference
-            }
-
-        }
-
-        result.add(PropertyData(el.simpleName, propertyTypeReference))
+        val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
+        result.add(PropertyData(el.simpleName, typeWithInferredParameters))
 
     }
 
     typeReference.typeDeclaration.directChildren.forEach filter@{ el: CtElement ->
-
 
         //If it does not contain any of the annotations used to mark inclusion
         if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
@@ -141,62 +135,30 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
             return@filter
         }
 
+        val methodName = el.simpleName
+
         //Is a getter
-        if (el.simpleName.startsWith("get") && el.type != factory.Type().voidPrimitiveType()) {
+        if (methodName.startsWith("get") && el.type != factory.Type().voidPrimitiveType()) {
 
-            var propertyTypeReference: CtTypeReference<*> = el.type
-
-            if (hasTypeParameters){
-
-                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
-
-                if (parameterizedTypeReference != null) {
-                    propertyTypeReference = parameterizedTypeReference
-                }
-
-            }
-
-            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), propertyTypeReference))
+            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
+            result.add(PropertyData(uncapitalize(methodName.substring(3)), typeWithInferredParameters))
 
         }
 
         //Is a getter
-        if (el.simpleName.startsWith("is") && el.type != factory.Type().voidPrimitiveType()) {
+        if (methodName.startsWith("is") && el.type != factory.Type().voidPrimitiveType()) {
 
-            var propertyTypeReference: CtTypeReference<*> = el.type
-
-            if (hasTypeParameters){
-
-                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
-
-                if (parameterizedTypeReference != null) {
-                    propertyTypeReference = parameterizedTypeReference
-                }
-
-            }
-
-            result.add(PropertyData(uncapitalize(el.simpleName.substring(2)), propertyTypeReference))
+            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
+            result.add(PropertyData(uncapitalize(methodName.substring(2)), typeWithInferredParameters))
 
         }
 
         //Is a setter
-        if (el.simpleName.startsWith("set") && el.type == factory.Type()
-                .voidPrimitiveType() && el.parameters.size == 1
-        ) {
+        if (methodName.startsWith("set") && el.type == factory.Type().voidPrimitiveType() && el.parameters.size == 1) {
 
-            var propertyTypeReference: CtTypeReference<*> = el.parameters.first().type
-
-            if (hasTypeParameters){
-
-                val parameterizedTypeReference = buildTypeReferenceWithActualParameters(propertyTypeReference, typeParamMap, factory)
-
-                if (parameterizedTypeReference != null) {
-                    propertyTypeReference = parameterizedTypeReference
-                }
-
-            }
-
-            result.add(PropertyData(uncapitalize(el.simpleName.substring(3)), propertyTypeReference))
+            var typeWithInferredParameters: CtTypeReference<*> =
+                buildTypeReferenceWithInferredParameters(el.parameters.first().type, typeParamMap, factory)
+            result.add(PropertyData(uncapitalize(methodName.substring(3)), typeWithInferredParameters))
 
         }
 
@@ -409,7 +371,8 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, spoonApi
 
         //Parameter field read: "dto.field" in "ProjectionUtils.getProjectedValue(dto.field, this.field)"
         @Suppress("UNCHECKED_CAST")
-        val parameterField = parameter.type.getDeclaredOrInheritedField(ctField.simpleName) as CtVariableReference<Option<Any>>
+        val parameterField =
+            parameter.type.getDeclaredOrInheritedField(ctField.simpleName) as CtVariableReference<Option<Any>>
         val parameterAccess = spoonApi.factory.Code().createVariableRead(parameter.reference, false)
         val parameterFieldRead = spoonApi.factory.createFieldRead<Option<Any>>()
         parameterFieldRead.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(parameterAccess)
