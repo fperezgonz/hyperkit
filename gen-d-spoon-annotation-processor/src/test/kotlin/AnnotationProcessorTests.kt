@@ -8,10 +8,10 @@ import java.io.File
 import kotlin.io.path.toPath
 
 const val testProjectPath: String = "/test_project/"
-const val testInputSourcesPath: String = "/src/test_input_sources/"
-const val outputSourcesPath: String = "/src/out/"
+const val testInputSourcesPath: String = "src/test_input_sources/"
+const val outputSourcesPath: String = "src/out/"
 const val buildFileSampleName: String = "build.gradle.kts.sample"
-const val expectedOutputDir: String = "/src/expected_output/"
+const val expectedOutputDir: String = "src/expected_output/"
 const val testDtoPackagePath: String = "solutions/sulfura/gend/dtos/"
 
 @TestInstance(PER_CLASS)
