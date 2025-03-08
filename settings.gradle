@@ -3,16 +3,6 @@ pluginManagement {
         mavenLocal()
         gradlePluginPortal()
     }
-    //This is necessary to resolve plugins not yet published to the gradle plugin portal
-    resolutionStrategy {
-        each {
-            eachPlugin {
-                if (requested.id.namespace == "solutions.sulfura") {
-                    useModule("solutions.sulfura:gen-d-spoon-annotation-processor:0.1.0")
-                }
-            }
-        }
-    }
 }
 
 plugins {
