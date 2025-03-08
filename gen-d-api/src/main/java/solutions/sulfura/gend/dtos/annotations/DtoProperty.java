@@ -11,4 +11,5 @@ public @interface DtoProperty {
     String propertyName() default "";
     boolean createGetter() default false;
     boolean createSetter() default false;
+    boolean preserveCase() default false;
 }

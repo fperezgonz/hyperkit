@@ -116,18 +116,14 @@ class AnnotationProcessorTests {
 
     }
 
-//
-//    @Test
-//    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
-//    fun generateDtoWithUppercasePropertiesTest() {
-//        val qualifiedClassName = "solutions.sulfura.gend.dtos.SourceUpperCaseProperties"
-//
-//        val compiledClass = compileClassWithProcessor(
-//            Paths.get(this.javaClass.getResource(testInputResourcesPath + "SourceUpperCaseProperties.java").toURI())
-//                .toString(),
-//            qualifiedClassName
-//        )
-//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName)
-//    }
+    @Test
+    fun upperCasePropertiesTest() {
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}SourceUpperCasePropertiesDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}SourceUpperCasePropertiesDto.java"
+        )
+
+    }
 
 }

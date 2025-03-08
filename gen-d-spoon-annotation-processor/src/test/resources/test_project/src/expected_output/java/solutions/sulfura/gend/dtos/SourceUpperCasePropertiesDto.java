@@ -1,24 +1,28 @@
 package solutions.sulfura.gend.dtos;
 
-import solutions.sulfura.gend.dtos.annotations.DtoFor;
+import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto.Builder;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.projection.ProjectionFor;
-import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
-import java.lang.String;
-import io.vavr.control.Option;
+import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.SourceUpperCaseProperties;
+import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto.Projection;
+import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto.DtoModel;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import io.vavr.control.Option;
+import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
 
 @DtoFor(SourceUpperCaseProperties.class)
 public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperties>{
 
     public Option<String> UPPERCASE_FIELD_PROPERTY = Option.none();
-    public Option<String> UPPERCASE_GETTER_PROPERTY = Option.none();
+    public Option<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = Option.none();
+    public Option<String> uPPERCASE_GETTER_PROPERTY = Option.none();
 
-    public SourceUpperCasePropertiesDto(){}
+    public SourceUpperCasePropertiesDto() {
+    }
 
     public Class<SourceUpperCaseProperties> getSourceClass() {
         return SourceUpperCaseProperties.class;
@@ -26,90 +30,119 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
     public static class Builder{
 
-        public Option<String> UPPERCASE_FIELD_PROPERTY = Option.none();
-        public Option<String> UPPERCASE_GETTER_PROPERTY = Option.none();
+        Option<String> UPPERCASE_FIELD_PROPERTY = Option.none();
+        Option<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = Option.none();
+        Option<String> uPPERCASE_GETTER_PROPERTY = Option.none();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder UPPERCASE_FIELD_PROPERTY(Option<String> UPPERCASE_FIELD_PROPERTY){
+        public Builder UPPERCASE_FIELD_PROPERTY(final Option<String> UPPERCASE_FIELD_PROPERTY){
             this.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY == null ? Option.none() : UPPERCASE_FIELD_PROPERTY;
             return this;
         }
 
-        public Builder UPPERCASE_GETTER_PROPERTY(Option<String> UPPERCASE_GETTER_PROPERTY){
-            this.UPPERCASE_GETTER_PROPERTY = UPPERCASE_GETTER_PROPERTY == null ? Option.none() : UPPERCASE_GETTER_PROPERTY;
+        public Builder PRESERVE_UPPERCASE_GETTER_PROPERTY(final Option<String> PRESERVE_UPPERCASE_GETTER_PROPERTY){
+            this.PRESERVE_UPPERCASE_GETTER_PROPERTY = PRESERVE_UPPERCASE_GETTER_PROPERTY == null ? Option.none() : PRESERVE_UPPERCASE_GETTER_PROPERTY;
             return this;
         }
 
+        public Builder uPPERCASE_GETTER_PROPERTY(final Option<String> uPPERCASE_GETTER_PROPERTY){
+            this.uPPERCASE_GETTER_PROPERTY = uPPERCASE_GETTER_PROPERTY == null ? Option.none() : uPPERCASE_GETTER_PROPERTY;
+            return this;
+        }
+
+
         public SourceUpperCasePropertiesDto build(){
+
             SourceUpperCasePropertiesDto instance = new SourceUpperCasePropertiesDto();
             instance.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY;
-            instance.UPPERCASE_GETTER_PROPERTY = UPPERCASE_GETTER_PROPERTY;
+            instance.PRESERVE_UPPERCASE_GETTER_PROPERTY = PRESERVE_UPPERCASE_GETTER_PROPERTY;
+            instance.uPPERCASE_GETTER_PROPERTY = uPPERCASE_GETTER_PROPERTY;
+
             return instance;
+
         }
 
     }
 
     @ProjectionFor(SourceUpperCasePropertiesDto.class)
-    public static class Projection extends DtoProjection<SourceUpperCasePropertiesDto>{
+    public static class Projection extends DtoProjection<SourceUpperCasePropertiesDto> {
 
         public FieldConf UPPERCASE_FIELD_PROPERTY;
-        public FieldConf UPPERCASE_GETTER_PROPERTY;
+        public FieldConf PRESERVE_UPPERCASE_GETTER_PROPERTY;
+        public FieldConf uPPERCASE_GETTER_PROPERTY;
+
+        public Projection() {
+        }
 
         public void applyProjectionTo(SourceUpperCasePropertiesDto dto) throws DtoProjectionException {
             dto.UPPERCASE_FIELD_PROPERTY = ProjectionUtils.getProjectedValue(dto.UPPERCASE_FIELD_PROPERTY, this.UPPERCASE_FIELD_PROPERTY);
-            dto.UPPERCASE_GETTER_PROPERTY = ProjectionUtils.getProjectedValue(dto.UPPERCASE_GETTER_PROPERTY, this.UPPERCASE_GETTER_PROPERTY);
+            dto.PRESERVE_UPPERCASE_GETTER_PROPERTY = ProjectionUtils.getProjectedValue(dto.PRESERVE_UPPERCASE_GETTER_PROPERTY, this.PRESERVE_UPPERCASE_GETTER_PROPERTY);
+            dto.uPPERCASE_GETTER_PROPERTY = ProjectionUtils.getProjectedValue(dto.uPPERCASE_GETTER_PROPERTY, this.uPPERCASE_GETTER_PROPERTY);
         }
-
-        public Projection(){}
 
         public static class Builder{
 
-            public FieldConf UPPERCASE_FIELD_PROPERTY;
-            public FieldConf UPPERCASE_GETTER_PROPERTY;
+            FieldConf UPPERCASE_FIELD_PROPERTY;
+            FieldConf PRESERVE_UPPERCASE_GETTER_PROPERTY;
+            FieldConf uPPERCASE_GETTER_PROPERTY;
 
             public static  Builder newInstance(){
                 return new Builder();
             }
 
-            public Builder UPPERCASE_FIELD_PROPERTY(FieldConf UPPERCASE_FIELD_PROPERTY){
+            public Builder UPPERCASE_FIELD_PROPERTY(final FieldConf UPPERCASE_FIELD_PROPERTY){
                 this.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY;
                 return this;
             }
 
-            public Builder UPPERCASE_FIELD_PROPERTY(Presence presence){
+            public Builder UPPERCASE_FIELD_PROPERTY(final Presence presence){
                 UPPERCASE_FIELD_PROPERTY = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder UPPERCASE_GETTER_PROPERTY(FieldConf UPPERCASE_GETTER_PROPERTY){
-                this.UPPERCASE_GETTER_PROPERTY = UPPERCASE_GETTER_PROPERTY;
+            public Builder PRESERVE_UPPERCASE_GETTER_PROPERTY(final FieldConf PRESERVE_UPPERCASE_GETTER_PROPERTY){
+                this.PRESERVE_UPPERCASE_GETTER_PROPERTY = PRESERVE_UPPERCASE_GETTER_PROPERTY;
                 return this;
             }
 
-            public Builder UPPERCASE_GETTER_PROPERTY(Presence presence){
-                UPPERCASE_GETTER_PROPERTY = FieldConf.of(presence);
+            public Builder PRESERVE_UPPERCASE_GETTER_PROPERTY(final Presence presence){
+                PRESERVE_UPPERCASE_GETTER_PROPERTY = FieldConf.of(presence);
+                return this;
+            }
+
+            public Builder uPPERCASE_GETTER_PROPERTY(final FieldConf uPPERCASE_GETTER_PROPERTY){
+                this.uPPERCASE_GETTER_PROPERTY = uPPERCASE_GETTER_PROPERTY;
+                return this;
+            }
+
+            public Builder uPPERCASE_GETTER_PROPERTY(final Presence presence){
+                uPPERCASE_GETTER_PROPERTY = FieldConf.of(presence);
                 return this;
             }
 
             public SourceUpperCasePropertiesDto.Projection build(){
+
                 SourceUpperCasePropertiesDto.Projection instance = new SourceUpperCasePropertiesDto.Projection();
                 instance.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY;
-                instance.UPPERCASE_GETTER_PROPERTY = UPPERCASE_GETTER_PROPERTY;
+                instance.PRESERVE_UPPERCASE_GETTER_PROPERTY = PRESERVE_UPPERCASE_GETTER_PROPERTY;
+                instance.uPPERCASE_GETTER_PROPERTY = uPPERCASE_GETTER_PROPERTY;
+
                 return instance;
+
             }
 
         }
-
 
     }
 
     public static class DtoModel{
 
         public static final String _UPPERCASE_FIELD_PROPERTY = "UPPERCASE_FIELD_PROPERTY";
-        public static final String _UPPERCASE_GETTER_PROPERTY = "UPPERCASE_GETTER_PROPERTY";
+        public static final String _PRESERVE_UPPERCASE_GETTER_PROPERTY = "PRESERVE_UPPERCASE_GETTER_PROPERTY";
+        public static final String _uPPERCASE_GETTER_PROPERTY = "uPPERCASE_GETTER_PROPERTY";
 
     }
 

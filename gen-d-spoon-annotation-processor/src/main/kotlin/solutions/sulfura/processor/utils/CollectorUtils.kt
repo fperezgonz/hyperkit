@@ -2,6 +2,7 @@ package solutions.sulfura.processor.utils
 
 import solutions.sulfura.gend.dtos.annotations.Dto
 import solutions.sulfura.gend.dtos.annotations.DtoFor
+import solutions.sulfura.gend.dtos.annotations.DtoProperty
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
 import spoon.reflect.declaration.CtAnnotation
@@ -128,7 +129,8 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
             return@filter
         }
 
-        val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(ctFieldRef.type, typeParamMap, factory)
+        val typeWithInferredParameters =
+            buildTypeReferenceWithInferredParameters(ctFieldRef.type, typeParamMap, factory)
         result.put(ctFieldRef.simpleName, PropertyData(ctFieldRef.simpleName, typeWithInferredParameters))
 
     }
@@ -152,8 +154,13 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         //Is a getter
         if (methodName.startsWith("get") && ctMethod.type != factory.Type().voidPrimitiveType()) {
 
-            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
-            val propertyName = uncapitalize(methodName.substring(3))
+            val typeWithInferredParameters =
+                buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
+            var propertyName = methodName.substring(3)
+            val dtoPropertyAnnotation = ctMethod.getAnnotation<DtoProperty>(DtoProperty::class.java)
+            if (dtoPropertyAnnotation == null || !dtoPropertyAnnotation.preserveCase) {
+                propertyName = uncapitalize(propertyName)
+            }
             result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
@@ -161,19 +168,31 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         //Is a getter
         if (methodName.startsWith("is") && ctMethod.type != factory.Type().voidPrimitiveType()) {
 
-            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
-            val propertyName = uncapitalize(methodName.substring(2))
+            val typeWithInferredParameters =
+                buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
+            var propertyName = methodName.substring(2)
+            val dtoPropertyAnnotation = ctMethod.getAnnotation<DtoProperty>(DtoProperty::class.java)
+            if (dtoPropertyAnnotation == null || !dtoPropertyAnnotation.preserveCase) {
+                propertyName = uncapitalize(propertyName)
+            }
             result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
 
         //Is a setter
-        if (methodName.startsWith("set") && ctMethod.type == factory.Type().voidPrimitiveType() && ctMethod.parameters.size == 1) {
+        if (methodName.startsWith("set")
+            && ctMethod.type == factory.Type().voidPrimitiveType()
+            && ctMethod.parameters.size == 1
+        ) {
 
             val setterParamType = ctMethod.parameters.first().type
             val typeWithInferredParameters =
                 buildTypeReferenceWithInferredParameters(setterParamType, typeParamMap, factory)
-            val propertyName = uncapitalize(methodName.substring(3))
+            var propertyName = methodName.substring(3)
+            val dtoPropertyAnnotation = ctMethod.getAnnotation<DtoProperty>(DtoProperty::class.java)
+            if (dtoPropertyAnnotation == null || !dtoPropertyAnnotation.preserveCase) {
+                propertyName = uncapitalize(propertyName)
+            }
             result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
