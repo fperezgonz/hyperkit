@@ -10,6 +10,19 @@ version = "0.1.0"
 gradlePlugin {
     website = "https://sulfura.cloud"
     vcsUrl = "https://sulfura.cloud"
+    repositories {
+        maven {
+            url = uri("https://gitlab.com/api/v4/projects/46985246/packages/maven")
+            name = "GitLab"
+            credentials(HttpHeaderCredentials::class) {
+                name = "Job-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
+    }
     plugins {
         create("gen-d-spoon-annotation-processor") {
             id = "solutions.sulfura.gen-d-spoon-annotation-processor"
