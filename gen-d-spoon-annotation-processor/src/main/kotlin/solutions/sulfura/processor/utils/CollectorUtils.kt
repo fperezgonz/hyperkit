@@ -90,7 +90,7 @@ fun buildTypeReferenceWithInferredParameters(
 
 fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List<PropertyData> {
 
-    val result = mutableListOf<PropertyData>()
+    val result = mutableMapOf<String, PropertyData>()
 
     val dtoAnnotation = typeReference.getAnnotation<Dto>(Dto::class.java)
 
@@ -129,7 +129,7 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         }
 
         val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
-        result.add(PropertyData(el.simpleName, typeWithInferredParameters))
+        result.put(el.simpleName, PropertyData(el.simpleName, typeWithInferredParameters))
 
     }
 
@@ -151,7 +151,8 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         if (methodName.startsWith("get") && el.type != factory.Type().voidPrimitiveType()) {
 
             val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
-            result.add(PropertyData(uncapitalize(methodName.substring(3)), typeWithInferredParameters))
+            val propertyName = uncapitalize(methodName.substring(3))
+            result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
 
@@ -159,7 +160,8 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         if (methodName.startsWith("is") && el.type != factory.Type().voidPrimitiveType()) {
 
             val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
-            result.add(PropertyData(uncapitalize(methodName.substring(2)), typeWithInferredParameters))
+            val propertyName = uncapitalize(methodName.substring(2))
+            result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
 
@@ -169,7 +171,8 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
             val setterParamType = el.parameters.first().type
             val typeWithInferredParameters =
                 buildTypeReferenceWithInferredParameters(setterParamType, typeParamMap, factory)
-            result.add(PropertyData(uncapitalize(methodName.substring(3)), typeWithInferredParameters))
+            val propertyName = uncapitalize(methodName.substring(3))
+            result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
 
@@ -178,9 +181,9 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
     }
 
     if (typeReference.superclass != null) {
-        result.addAll(collectProperties(typeReference.superclass, factory))
+        result.putAll(collectProperties(typeReference.superclass, factory).associateBy { it.name })
     }
 
-    return return result
+    return return result.values.toList()
 
 }

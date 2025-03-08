@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import java.io.File
-import java.net.MalformedURLException
-import java.net.URISyntaxException
 import kotlin.io.path.toPath
 
 const val testProjectPath: String = "/test_project/"
@@ -43,58 +41,45 @@ class AnnotationProcessorTests {
 
     }
 
+    fun assertGeneratedCodeMatchesExpectedOutput(expectedSourcePath: String, generatedSourcePath: String){
+
+        val expectedSource = File(testProjectFolder, expectedSourcePath).readText()
+        val generatedSource = File(testProjectFolder, generatedSourcePath).readText();
+
+        Assertions.assertEquals(expectedSource, generatedSource)
+
+    }
+
     @Test
     fun basicTypesDtoTest(){
 
-        var generatedSource =
-            File(testProjectFolder, outputSourcesPath + "java/${testDtoPackagePath}SourceClassTypesDto.java")
-                .readText();
-
-        var expectedSource =
-            File(testProjectFolder, expectedOutputDir + "java/${testDtoPackagePath}SourceClassTypesDto.java")
-                .readText()
-
-        Assertions.assertEquals(expectedSource, generatedSource)
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}SourceClassTypesDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}SourceClassTypesDto.java"
+        )
 
     }
 
     @Test
-    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
     fun genericHierarchyDtoTest() {
 
-        val generatedSource =
-            File(testProjectFolder, outputSourcesPath + "java/${testDtoPackagePath}generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
-                .readText();
 
-        val expectedSource =
-            File(testProjectFolder, expectedOutputDir + "java/${testDtoPackagePath}generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
-                .readText()
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}generics/inheritance/GenericChildClassWithParameterizedTypeDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}generics/inheritance/GenericChildClassWithParameterizedTypeDto.java"
+        )
 
-        Assertions.assertEquals(expectedSource, generatedSource)
-
-//        val qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassTypes"
-//
-//        val compiledClass = compileClassWithProcessor(
-//            Paths.get(this.javaClass.getResource(testInputResourcesPath + "SourceClassTypes.java").toURI()).toString(),
-//            qualifiedClassName
-//        )
-//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName)
     }
 
+    @Test
+    fun getterSetterDtoTest() {
 
-//    @Test
-//    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
-//    fun generateDtoTest() {
-//        val qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassTypes"
-//
-//        val compiledClass: Class<*>? = compileClassWithProcessor(
-//            Paths.get(
-//                this.javaClass.getResource(DtoGeneratorTest.testInputResourcesPath + "SourceClassTypes.java").toURI()
-//            ).toString(),
-//            qualifiedClassName
-//        )
-//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName)
-//    }
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}SourceClassGetterSetterDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}SourceClassGetterSetterDto.java"
+        )
+
+    }
 
 //
 //    @Test
@@ -117,19 +102,6 @@ class AnnotationProcessorTests {
 //
 //        val compiledClass = compileClassWithProcessor(
 //            Paths.get(this.javaClass.getResource(testInputResourcesPath + "SourceClassWithIncluded.java").toURI())
-//                .toString(),
-//            qualifiedClassName
-//        )
-//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName)
-//    }
-//
-//    @Test
-//    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
-//    fun generateDtoWithGetterSetter() {
-//        val qualifiedClassName = "solutions.sulfura.gend.dtos.SourceClassGetterSetter"
-//
-//        val compiledClass = compileClassWithProcessor(
-//            Paths.get(this.javaClass.getResource(testInputResourcesPath + "SourceClassGetterSetter.java").toURI())
 //                .toString(),
 //            qualifiedClassName
 //        )
