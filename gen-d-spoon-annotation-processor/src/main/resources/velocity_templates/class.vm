@@ -94,13 +94,8 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
         #indent(1, "public static class Projection extends ${projectionType.superclass.simpleName}<${ctClass.simpleName}> {")$lb##
 ##      Projection fields
 
-        #foreach($field in ${ctClass.fields})
-            #if(${field.type.actualTypeArguments.get(0).qualifiedName} == "java.util.List"
-            || ${field.type.actualTypeArguments.get(0).qualifiedName} == "java.util.Set")
-                #indent(2, "public ListFieldConf") ${field.simpleName};
-            #else
-                #indent(2, "public FieldConf") ${field.simpleName};
-            #end
+        #foreach($field in ${projectionType.fields})
+            #indent(2, ${field.toString()})$lb##
         #end
 
         public Projection() {
