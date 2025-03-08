@@ -50,14 +50,11 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 ### Builder class
 #foreach($type in ${ctClass.nestedTypes})
     #if($type.simpleName=="Builder")
-    ##
-        #concatCollection($type.modifiers, " ") class Builder{
+    public static class Builder{
 
         #foreach($field in ${ctClass.fields})
             #indent(2, ${field.type.toString()}) ${field.simpleName} = Option.none();$lb##
         #end
-
-        public Builder(){}
 
         public static  Builder newInstance(){
             return new Builder();
@@ -88,14 +85,14 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 #end
 
 ### Projection class
-#foreach($type in ${ctClass.nestedTypes})
-    #if($type.simpleName=="Projection")
-        #set($annotations = $type.annotations)
+#foreach($projectionType in ${ctClass.nestedTypes})
+    #if($projectionType.simpleName=="Projection")
+        #set($annotations = $projectionType.annotations)
         #foreach($annotation in $annotations)
             #indent(1, ${annotation.toString()})$lb##
         #end
-    ##
-        #concatCollection($type.modifiers, " ") class Projection extends ${type.superclass.simpleName}<${ctClass.simpleName}>{
+        #indent(1, "public static class Projection extends ${projectionType.superclass.simpleName}<${ctClass.simpleName}> {")$lb##
+##      Projection fields
 
         #foreach($field in ${ctClass.fields})
             #if(${field.type.actualTypeArguments.get(0).qualifiedName} == "java.util.List"
@@ -106,9 +103,8 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
             #end
         #end
 
-        #foreach($constructor in ${type.constructors})
-            #indent(2, ${constructor.toString()})$lb##
-        #end
+        public Projection() {
+        }
 
 ##        This writes the methods directly using the spoon printer. Formatting is very limited
 ##        #foreach($method in ${type.methods})
@@ -121,6 +117,45 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
         #end
         }
 
+        public Projection(){}
+
+###     Projection Builder class
+        public static class Builder{
+
+        #foreach($field in ${projectionType.fields})
+            #indent(3, ${field.type.toString()}) ${field.simpleName};$lb##
+        #end
+
+            public static  Builder newInstance(){
+                return new Builder();
+            }
+
+##      Builder methods
+        #foreach($field in ${projectionType.fields})
+            public Builder ${field.simpleName}(final ${field.type} ${field.simpleName}){
+                this.${field.simpleName} = ${field.simpleName};
+                return this;
+            }
+
+            public Builder ${field.simpleName}(final Presence presence){
+                ${field.simpleName} = ${field.type}.of(presence);
+                return this;
+            }
+
+        #end
+            public ${ctClass.simpleName}.${projectionType.simpleName} build(){
+
+                ${ctClass.simpleName}.${projectionType.simpleName} instance = new ${ctClass.simpleName}.${projectionType.simpleName}();
+                #foreach($field in ${projectionType.fields})
+                instance.${field.simpleName} = ${field.simpleName};
+                #end
+
+                return instance;
+
+            }
+
+        }
+
     }
     #end
 #end
@@ -128,8 +163,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 ### DtoModel class
 #foreach($type in ${ctClass.nestedTypes})
     #if($type.simpleName=="DtoModel")
-    ##
-    #concatCollection($type.modifiers, " ") class DtoModel{
+    public static class DtoModel{
 
     #foreach($field in ${ctClass.fields})
         public static final String _${field.simpleName} = "${field.simpleName}";

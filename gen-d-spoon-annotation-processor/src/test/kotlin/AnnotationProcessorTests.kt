@@ -1,6 +1,9 @@
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URISyntaxException
@@ -11,24 +14,26 @@ const val testInputSourcesPath: String = "/src/test_input_sources/"
 const val outputSourcesPath: String = "/src/out/"
 const val buildFileSampleName: String = "build.gradle.kts.sample"
 const val expectedOutputDir: String = "/src/expected_output/"
+const val testDtoPackagePath: String = "solutions/sulfura/gend/dtos/"
 
+@TestInstance(PER_CLASS)
 class AnnotationProcessorTests {
 
+    val testProjectFolder = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
 
-    @Test
-    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
-    fun generateDtoTest() {
+    @BeforeAll
+    fun generateDtosForTestProject() {
+
+        val buildFileContent = File(testProjectFolder, buildFileSampleName).readText()
+            .replace("<<input_paths>>", '"' + testInputSourcesPath + '"')
+        File(testProjectFolder, "build.gradle.kts").writeText(buildFileContent)
 
         val gradleRunner = GradleRunner.create()
-        val projectFolder = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
-        val buildFileContent = File(projectFolder, buildFileSampleName).readText()
-            .replace("<<input_paths>>", '"' + testInputSourcesPath + '"')
-        File(projectFolder, "build.gradle.kts").writeText(buildFileContent)
-        gradleRunner.withProjectDir(projectFolder)
+        gradleRunner.withProjectDir(testProjectFolder)
             .withArguments(":annotationProcessor")
             .withPluginClasspath()
         val gradleBuild = gradleRunner.build()
-        println(gradleBuild.output)
+//        println(gradleBuild.output)
         val outcome = gradleBuild.task(":annotationProcessor")!!.outcome.name
 
         if (!"SUCCESS".equals(outcome)) {
@@ -36,24 +41,33 @@ class AnnotationProcessorTests {
             Assertions.fail<Any>()
         }
 
+    }
+
+    @Test
+    fun basicTypesDtoTest(){
+
         var generatedSource =
-            File(projectFolder, outputSourcesPath + "java/solutions/sulfura/gend/dtos/SourceClassTypesDto.java")
+            File(testProjectFolder, outputSourcesPath + "java/${testDtoPackagePath}SourceClassTypesDto.java")
                 .readText();
 
         var expectedSource =
-            File(projectFolder, expectedOutputDir + "java/solutions/sulfura/gend/dtos/SourceClassTypesDto.java")
+            File(testProjectFolder, expectedOutputDir + "java/${testDtoPackagePath}SourceClassTypesDto.java")
                 .readText()
 
         Assertions.assertEquals(expectedSource, generatedSource)
 
+    }
 
+    @Test
+    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
+    fun genericHierarchyDtoTest() {
 
-        generatedSource =
-            File(projectFolder, outputSourcesPath + "java/solutions/sulfura/gend/dtos/generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
+        val generatedSource =
+            File(testProjectFolder, outputSourcesPath + "java/${testDtoPackagePath}generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
                 .readText();
 
-        expectedSource =
-            File(projectFolder, expectedOutputDir + "java/solutions/sulfura/gend/dtos/generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
+        val expectedSource =
+            File(testProjectFolder, expectedOutputDir + "java/${testDtoPackagePath}generics/inheritance/GenericChildClassWithParameterizedTypeDto.java")
                 .readText()
 
         Assertions.assertEquals(expectedSource, generatedSource)

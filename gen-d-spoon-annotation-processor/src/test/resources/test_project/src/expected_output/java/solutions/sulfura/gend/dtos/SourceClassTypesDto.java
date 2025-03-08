@@ -1,31 +1,34 @@
 package solutions.sulfura.gend.dtos;
 
-import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.projection.ProjectionFor;
-import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
-import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
-import solutions.sulfura.gend.dtos.projection.DtoProjection;
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
-import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
-import java.lang.String;
-import java.util.List;
-import solutions.sulfura.gend.dtos.ListOperation;
-import io.vavr.control.Option;
+import solutions.sulfura.gend.dtos.SourceClassTypesDto.Builder;
 import solutions.sulfura.gend.dtos.SourceClassTypes;
+import solutions.sulfura.gend.dtos.Dto;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
+import solutions.sulfura.gend.dtos.annotations.DtoFor;
+import solutions.sulfura.gend.dtos.SourceClassTypesDto.Projection;
+import solutions.sulfura.gend.dtos.SourceClassTypesDto.DtoModel;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
+import solutions.sulfura.gend.dtos.ListOperation;
+import java.util.List;
+import solutions.sulfura.gend.dtos.SourceClassTypesDto;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import io.vavr.control.Option;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
 
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
-    public Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
+    public Option<String> stringProperty = Option.none();
+    public Option<Long> longProperty = Option.none();
     public Option<Boolean> booleanProperty = Option.none();
     public Option<Double> doubleProperty = Option.none();
-    public Option<Long> longProperty = Option.none();
+    public Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
     public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
-    public Option<String> stringProperty = Option.none();
 
-    public SourceClassTypesDto(){}
+    public SourceClassTypesDto() {
+    }
 
     public Class<SourceClassTypes> getSourceClass() {
         return SourceClassTypes.class;
@@ -33,178 +36,188 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public static class Builder{
 
-        public Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
-        public Option<Boolean> booleanProperty = Option.none();
-        public Option<Double> doubleProperty = Option.none();
-        public Option<Long> longProperty = Option.none();
-        public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
-        public Option<String> stringProperty = Option.none();
+        Option<String> stringProperty = Option.none();
+        Option<Long> longProperty = Option.none();
+        Option<Boolean> booleanProperty = Option.none();
+        Option<Double> doubleProperty = Option.none();
+        Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
+        Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringArrayProperty(Option<List<ListOperation<String>>> stringArrayProperty){
-            this.stringArrayProperty = stringArrayProperty == null ? Option.none() : stringArrayProperty;
-            return this;
-        }
-
-        public Builder booleanProperty(Option<Boolean> booleanProperty){
-            this.booleanProperty = booleanProperty == null ? Option.none() : booleanProperty;
-            return this;
-        }
-
-        public Builder doubleProperty(Option<Double> doubleProperty){
-            this.doubleProperty = doubleProperty == null ? Option.none() : doubleProperty;
-            return this;
-        }
-
-        public Builder longProperty(Option<Long> longProperty){
-            this.longProperty = longProperty == null ? Option.none() : longProperty;
-            return this;
-        }
-
-        public Builder booleanArrayProperty(Option<List<ListOperation<Boolean>>> booleanArrayProperty){
-            this.booleanArrayProperty = booleanArrayProperty == null ? Option.none() : booleanArrayProperty;
-            return this;
-        }
-
-        public Builder stringProperty(Option<String> stringProperty){
+        public Builder stringProperty(final Option<String> stringProperty){
             this.stringProperty = stringProperty == null ? Option.none() : stringProperty;
             return this;
         }
 
+        public Builder longProperty(final Option<Long> longProperty){
+            this.longProperty = longProperty == null ? Option.none() : longProperty;
+            return this;
+        }
+
+        public Builder booleanProperty(final Option<Boolean> booleanProperty){
+            this.booleanProperty = booleanProperty == null ? Option.none() : booleanProperty;
+            return this;
+        }
+
+        public Builder doubleProperty(final Option<Double> doubleProperty){
+            this.doubleProperty = doubleProperty == null ? Option.none() : doubleProperty;
+            return this;
+        }
+
+        public Builder stringArrayProperty(final Option<List<ListOperation<String>>> stringArrayProperty){
+            this.stringArrayProperty = stringArrayProperty == null ? Option.none() : stringArrayProperty;
+            return this;
+        }
+
+        public Builder booleanArrayProperty(final Option<List<ListOperation<Boolean>>> booleanArrayProperty){
+            this.booleanArrayProperty = booleanArrayProperty == null ? Option.none() : booleanArrayProperty;
+            return this;
+        }
+
+
         public SourceClassTypesDto build(){
+
             SourceClassTypesDto instance = new SourceClassTypesDto();
-            instance.stringArrayProperty = stringArrayProperty;
+            instance.stringProperty = stringProperty;
+            instance.longProperty = longProperty;
             instance.booleanProperty = booleanProperty;
             instance.doubleProperty = doubleProperty;
-            instance.longProperty = longProperty;
+            instance.stringArrayProperty = stringArrayProperty;
             instance.booleanArrayProperty = booleanArrayProperty;
-            instance.stringProperty = stringProperty;
+
             return instance;
+
         }
 
     }
 
     @ProjectionFor(SourceClassTypesDto.class)
-    public static class Projection extends DtoProjection<SourceClassTypesDto>{
+    public static class Projection extends DtoProjection<SourceClassTypesDto> {
 
-        public ListFieldConf stringArrayProperty;
+        public FieldConf stringProperty;
+        public FieldConf longProperty;
         public FieldConf booleanProperty;
         public FieldConf doubleProperty;
-        public FieldConf longProperty;
+        public ListFieldConf stringArrayProperty;
         public ListFieldConf booleanArrayProperty;
-        public FieldConf stringProperty;
+
+        public Projection() {
+        }
+
 
         public void applyProjectionTo(SourceClassTypesDto dto) throws DtoProjectionException {
-            dto.stringArrayProperty = ProjectionUtils.getProjectedValue(dto.stringArrayProperty, this.stringArrayProperty);
+            dto.stringProperty = ProjectionUtils.getProjectedValue(dto.stringProperty, this.stringProperty);
+            dto.longProperty = ProjectionUtils.getProjectedValue(dto.longProperty, this.longProperty);
             dto.booleanProperty = ProjectionUtils.getProjectedValue(dto.booleanProperty, this.booleanProperty);
             dto.doubleProperty = ProjectionUtils.getProjectedValue(dto.doubleProperty, this.doubleProperty);
-            dto.longProperty = ProjectionUtils.getProjectedValue(dto.longProperty, this.longProperty);
+            dto.stringArrayProperty = ProjectionUtils.getProjectedValue(dto.stringArrayProperty, this.stringArrayProperty);
             dto.booleanArrayProperty = ProjectionUtils.getProjectedValue(dto.booleanArrayProperty, this.booleanArrayProperty);
-            dto.stringProperty = ProjectionUtils.getProjectedValue(dto.stringProperty, this.stringProperty);
         }
 
         public Projection(){}
 
         public static class Builder{
 
-            public ListFieldConf stringArrayProperty;
-            public FieldConf booleanProperty;
-            public FieldConf doubleProperty;
-            public FieldConf longProperty;
-            public ListFieldConf booleanArrayProperty;
-            public FieldConf stringProperty;
+            FieldConf stringProperty;
+            FieldConf longProperty;
+            FieldConf booleanProperty;
+            FieldConf doubleProperty;
+            ListFieldConf stringArrayProperty;
+            ListFieldConf booleanArrayProperty;
 
             public static  Builder newInstance(){
                 return new Builder();
             }
 
-            public Builder stringArrayProperty(ListFieldConf stringArrayProperty){
-                this.stringArrayProperty = stringArrayProperty;
-                return this;
-            }
-
-            public Builder stringArrayProperty(Presence presence){
-                stringArrayProperty = ListFieldConf.of(presence);
-                return this;
-            }
-
-            public Builder booleanProperty(FieldConf booleanProperty){
-                this.booleanProperty = booleanProperty;
-                return this;
-            }
-
-            public Builder booleanProperty(Presence presence){
-                booleanProperty = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder doubleProperty(FieldConf doubleProperty){
-                this.doubleProperty = doubleProperty;
-                return this;
-            }
-
-            public Builder doubleProperty(Presence presence){
-                doubleProperty = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder longProperty(FieldConf longProperty){
-                this.longProperty = longProperty;
-                return this;
-            }
-
-            public Builder longProperty(Presence presence){
-                longProperty = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder booleanArrayProperty(ListFieldConf booleanArrayProperty){
-                this.booleanArrayProperty = booleanArrayProperty;
-                return this;
-            }
-
-            public Builder booleanArrayProperty(Presence presence){
-                booleanArrayProperty = ListFieldConf.of(presence);
-                return this;
-            }
-
-            public Builder stringProperty(FieldConf stringProperty){
+            public Builder stringProperty(final FieldConf stringProperty){
                 this.stringProperty = stringProperty;
                 return this;
             }
 
-            public Builder stringProperty(Presence presence){
+            public Builder stringProperty(final Presence presence){
                 stringProperty = FieldConf.of(presence);
                 return this;
             }
 
+            public Builder longProperty(final FieldConf longProperty){
+                this.longProperty = longProperty;
+                return this;
+            }
+
+            public Builder longProperty(final Presence presence){
+                longProperty = FieldConf.of(presence);
+                return this;
+            }
+
+            public Builder booleanProperty(final FieldConf booleanProperty){
+                this.booleanProperty = booleanProperty;
+                return this;
+            }
+
+            public Builder booleanProperty(final Presence presence){
+                booleanProperty = FieldConf.of(presence);
+                return this;
+            }
+
+            public Builder doubleProperty(final FieldConf doubleProperty){
+                this.doubleProperty = doubleProperty;
+                return this;
+            }
+
+            public Builder doubleProperty(final Presence presence){
+                doubleProperty = FieldConf.of(presence);
+                return this;
+            }
+
+            public Builder stringArrayProperty(final ListFieldConf stringArrayProperty){
+                this.stringArrayProperty = stringArrayProperty;
+                return this;
+            }
+
+            public Builder stringArrayProperty(final Presence presence){
+                stringArrayProperty = ListFieldConf.of(presence);
+                return this;
+            }
+
+            public Builder booleanArrayProperty(final ListFieldConf booleanArrayProperty){
+                this.booleanArrayProperty = booleanArrayProperty;
+                return this;
+            }
+
+            public Builder booleanArrayProperty(final Presence presence){
+                booleanArrayProperty = ListFieldConf.of(presence);
+                return this;
+            }
+
             public SourceClassTypesDto.Projection build(){
+
                 SourceClassTypesDto.Projection instance = new SourceClassTypesDto.Projection();
-                instance.stringArrayProperty = stringArrayProperty;
+                instance.stringProperty = stringProperty;
+                instance.longProperty = longProperty;
                 instance.booleanProperty = booleanProperty;
                 instance.doubleProperty = doubleProperty;
-                instance.longProperty = longProperty;
+                instance.stringArrayProperty = stringArrayProperty;
                 instance.booleanArrayProperty = booleanArrayProperty;
-                instance.stringProperty = stringProperty;
+
                 return instance;
+
             }
 
         }
-
 
     }
 
     public static class DtoModel{
 
-        public static final String _stringArrayProperty = "stringArrayProperty";
+        public static final String _stringProperty = "stringProperty";
+        public static final String _longProperty = "longProperty";
         public static final String _booleanProperty = "booleanProperty";
         public static final String _doubleProperty = "doubleProperty";
-        public static final String _longProperty = "longProperty";
+        public static final String _stringArrayProperty = "stringArrayProperty";
         public static final String _booleanArrayProperty = "booleanArrayProperty";
-        public static final String _stringProperty = "stringProperty";
 
     }
 
