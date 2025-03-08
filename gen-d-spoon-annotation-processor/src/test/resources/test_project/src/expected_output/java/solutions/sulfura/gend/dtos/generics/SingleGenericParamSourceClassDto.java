@@ -1,164 +1,174 @@
 package solutions.sulfura.gend.dtos.generics;
 
-import solutions.sulfura.gend.dtos.annotations.DtoFor;
+import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto.Builder;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.projection.ProjectionFor;
-import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
-import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
-import solutions.sulfura.gend.dtos.projection.DtoProjection;
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
-import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
-import io.vavr.control.Option;
 import java.util.Set;
-import solutions.sulfura.gend.dtos.ListOperation;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
+import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
+import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto;
+import solutions.sulfura.gend.dtos.projection.DtoProjection;
+import solutions.sulfura.gend.dtos.annotations.DtoFor;
+import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto.Projection;
+import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto.DtoModel;
+import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
+import io.vavr.control.Option;
+import solutions.sulfura.gend.dtos.ListOperation;
+import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
+import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
 
 @DtoFor(SingleGenericParamSourceClass.class)
-public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericParamSourceClass<T>>{
+public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamSourceClass>{
 
-    public Option<T> genericPropertyWithSetter = Option.none();
     public Option<T> genericProperty = Option.none();
-    public Option<T> genericPropertyWithGetter = Option.none();
     public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.none();
+    public Option<T> genericPropertyWithGetter = Option.none();
+    public Option<T> genericPropertyWithSetter = Option.none();
 
-    public SingleGenericParamSourceClassDto(){}
+    public SingleGenericParamSourceClassDto() {
+    }
 
     public Class<SingleGenericParamSourceClass> getSourceClass() {
         return SingleGenericParamSourceClass.class;
     }
 
-    public static class Builder<T>{
+    public static class Builder{
 
-        public Option<T> genericPropertyWithSetter = Option.none();
-        public Option<T> genericProperty = Option.none();
-        public Option<T> genericPropertyWithGetter = Option.none();
-        public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.none();
+        Option<T> genericProperty = Option.none();
+        Option<Set<ListOperation<T>>> nestedGenericProperty = Option.none();
+        Option<T> genericPropertyWithGetter = Option.none();
+        Option<T> genericPropertyWithSetter = Option.none();
 
-        public static <T> Builder<T> newInstance(){
-            return new Builder<>();
+        public static  Builder newInstance(){
+            return new Builder();
         }
 
-        public Builder<T> genericPropertyWithSetter(Option<T> genericPropertyWithSetter){
-            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.none() : genericPropertyWithSetter;
-            return this;
-        }
-
-        public Builder<T> genericProperty(Option<T> genericProperty){
+        public Builder genericProperty(final Option<T> genericProperty){
             this.genericProperty = genericProperty == null ? Option.none() : genericProperty;
             return this;
         }
 
-        public Builder<T> genericPropertyWithGetter(Option<T> genericPropertyWithGetter){
-            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.none() : genericPropertyWithGetter;
-            return this;
-        }
-
-        public Builder<T> nestedGenericProperty(Option<Set<ListOperation<T>>> nestedGenericProperty){
+        public Builder nestedGenericProperty(final Option<Set<ListOperation<T>>> nestedGenericProperty){
             this.nestedGenericProperty = nestedGenericProperty == null ? Option.none() : nestedGenericProperty;
             return this;
         }
 
-        public SingleGenericParamSourceClassDto<T> build(){
-            SingleGenericParamSourceClassDto<T> instance = new SingleGenericParamSourceClassDto<>();
-            instance.genericPropertyWithSetter = genericPropertyWithSetter;
+        public Builder genericPropertyWithGetter(final Option<T> genericPropertyWithGetter){
+            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.none() : genericPropertyWithGetter;
+            return this;
+        }
+
+        public Builder genericPropertyWithSetter(final Option<T> genericPropertyWithSetter){
+            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.none() : genericPropertyWithSetter;
+            return this;
+        }
+
+
+        public SingleGenericParamSourceClassDto build(){
+
+            SingleGenericParamSourceClassDto instance = new SingleGenericParamSourceClassDto();
             instance.genericProperty = genericProperty;
-            instance.genericPropertyWithGetter = genericPropertyWithGetter;
             instance.nestedGenericProperty = nestedGenericProperty;
+            instance.genericPropertyWithGetter = genericPropertyWithGetter;
+            instance.genericPropertyWithSetter = genericPropertyWithSetter;
+
             return instance;
+
         }
 
     }
 
     @ProjectionFor(SingleGenericParamSourceClassDto.class)
-    public static class Projection<T> extends DtoProjection<SingleGenericParamSourceClassDto<T>>{
+    public static class Projection extends DtoProjection<SingleGenericParamSourceClassDto> {
 
-        public FieldConf genericPropertyWithSetter;
         public FieldConf genericProperty;
-        public FieldConf genericPropertyWithGetter;
         public ListFieldConf nestedGenericProperty;
+        public FieldConf genericPropertyWithGetter;
+        public FieldConf genericPropertyWithSetter;
 
         public Projection() {
         }
 
         public void applyProjectionTo(SingleGenericParamSourceClassDto dto) throws DtoProjectionException {
-            dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
             dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
-            dto.genericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithGetter, this.genericPropertyWithGetter);
             dto.nestedGenericProperty = ProjectionUtils.getProjectedValue(dto.nestedGenericProperty, this.nestedGenericProperty);
+            dto.genericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithGetter, this.genericPropertyWithGetter);
+            dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
         }
 
-        public static class Builder<T>{
+        public static class Builder{
 
-            public FieldConf genericPropertyWithSetter;
-            public FieldConf genericProperty;
-            public FieldConf genericPropertyWithGetter;
-            public ListFieldConf nestedGenericProperty;
+            FieldConf genericProperty;
+            ListFieldConf nestedGenericProperty;
+            FieldConf genericPropertyWithGetter;
+            FieldConf genericPropertyWithSetter;
 
-            public static <T> Builder<T> newInstance(){
-                return new Builder<>();
+            public static  Builder newInstance(){
+                return new Builder();
             }
 
-            public Builder<T> genericPropertyWithSetter(FieldConf genericPropertyWithSetter){
-                this.genericPropertyWithSetter = genericPropertyWithSetter;
-                return this;
-            }
-
-            public Builder<T> genericPropertyWithSetter(Presence presence){
-                genericPropertyWithSetter = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder<T> genericProperty(FieldConf genericProperty){
+            public Builder genericProperty(final FieldConf genericProperty){
                 this.genericProperty = genericProperty;
                 return this;
             }
 
-            public Builder<T> genericProperty(Presence presence){
+            public Builder genericProperty(final Presence presence){
                 genericProperty = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder<T> genericPropertyWithGetter(FieldConf genericPropertyWithGetter){
-                this.genericPropertyWithGetter = genericPropertyWithGetter;
-                return this;
-            }
-
-            public Builder<T> genericPropertyWithGetter(Presence presence){
-                genericPropertyWithGetter = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder<T> nestedGenericProperty(ListFieldConf nestedGenericProperty){
+            public Builder nestedGenericProperty(final ListFieldConf nestedGenericProperty){
                 this.nestedGenericProperty = nestedGenericProperty;
                 return this;
             }
 
-            public Builder<T> nestedGenericProperty(Presence presence){
+            public Builder nestedGenericProperty(final Presence presence){
                 nestedGenericProperty = ListFieldConf.of(presence);
                 return this;
             }
 
-            public SingleGenericParamSourceClassDto.Projection<T> build(){
-                SingleGenericParamSourceClassDto.Projection<T> instance = new SingleGenericParamSourceClassDto.Projection<>();
-                instance.genericPropertyWithSetter = genericPropertyWithSetter;
+            public Builder genericPropertyWithGetter(final FieldConf genericPropertyWithGetter){
+                this.genericPropertyWithGetter = genericPropertyWithGetter;
+                return this;
+            }
+
+            public Builder genericPropertyWithGetter(final Presence presence){
+                genericPropertyWithGetter = FieldConf.of(presence);
+                return this;
+            }
+
+            public Builder genericPropertyWithSetter(final FieldConf genericPropertyWithSetter){
+                this.genericPropertyWithSetter = genericPropertyWithSetter;
+                return this;
+            }
+
+            public Builder genericPropertyWithSetter(final Presence presence){
+                genericPropertyWithSetter = FieldConf.of(presence);
+                return this;
+            }
+
+            public SingleGenericParamSourceClassDto.Projection build(){
+
+                SingleGenericParamSourceClassDto.Projection instance = new SingleGenericParamSourceClassDto.Projection();
                 instance.genericProperty = genericProperty;
-                instance.genericPropertyWithGetter = genericPropertyWithGetter;
                 instance.nestedGenericProperty = nestedGenericProperty;
+                instance.genericPropertyWithGetter = genericPropertyWithGetter;
+                instance.genericPropertyWithSetter = genericPropertyWithSetter;
+
                 return instance;
+
             }
 
         }
-
 
     }
 
     public static class DtoModel{
 
-        public static final String _genericPropertyWithSetter = "genericPropertyWithSetter";
         public static final String _genericProperty = "genericProperty";
-        public static final String _genericPropertyWithGetter = "genericPropertyWithGetter";
         public static final String _nestedGenericProperty = "nestedGenericProperty";
+        public static final String _genericPropertyWithGetter = "genericPropertyWithGetter";
+        public static final String _genericPropertyWithSetter = "genericPropertyWithSetter";
 
     }
 

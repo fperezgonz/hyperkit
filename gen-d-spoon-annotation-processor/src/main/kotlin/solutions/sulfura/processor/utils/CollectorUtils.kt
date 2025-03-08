@@ -92,15 +92,13 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
 
     val result = mutableMapOf<String, PropertyData>()
 
-    val dtoAnnotation = typeReference.getAnnotation<Dto>(Dto::class.java)
+    val dtoAnnotation = typeReference.typeDeclaration.getAnnotation<Dto>(Dto::class.java)
 
     val includedAnnotations =
         if (dtoAnnotation == null) {
             mutableSetOf<Any>()
         } else {
-            dtoAnnotation.include
-                .map { it.java.canonicalName }
-                .toSet()
+            dtoAnnotation.include.map { it.java.canonicalName }.toSet()
         }
 
     val typeParamMap = mutableMapOf<String, CtTypeReference<*>>()
@@ -116,59 +114,63 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
 
     }
 
-    typeReference.declaredFields.forEach filter@{ el: CtElement ->
+    typeReference.declaredFields.forEach filter@{ ctFieldRef: CtFieldReference<*> ->
 
         //If it does not contain any of the annotations used to mark inclusion
-        if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
+        if (!includedAnnotations.isEmpty()
+            && !ctFieldRef.fieldDeclaration.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }
+        ) {
             return@filter
         }
 
         //Is not a public field
-        if (el !is CtFieldReference<*> || !el.modifiers.contains(ModifierKind.PUBLIC)) {
+        if (!ctFieldRef.modifiers.contains(ModifierKind.PUBLIC)) {
             return@filter
         }
 
-        val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
-        result.put(el.simpleName, PropertyData(el.simpleName, typeWithInferredParameters))
+        val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(ctFieldRef.type, typeParamMap, factory)
+        result.put(ctFieldRef.simpleName, PropertyData(ctFieldRef.simpleName, typeWithInferredParameters))
 
     }
 
-    typeReference.typeDeclaration.directChildren.forEach filter@{ el: CtElement ->
+    typeReference.typeDeclaration.methods.forEach filter@{ ctMethod: CtMethod<*> ->
 
         //If it does not contain any of the annotations used to mark inclusion
-        if (!includedAnnotations.isEmpty() && !el.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }) {
+        if (!includedAnnotations.isEmpty()
+            && !ctMethod.annotations.any { annotation -> annotation.type.qualifiedName in includedAnnotations }
+        ) {
             return@filter
         }
 
         //Is not a public method
-        if (el !is CtMethod<*> || !el.modifiers.contains(ModifierKind.PUBLIC)) {
+        if (!ctMethod.modifiers.contains(ModifierKind.PUBLIC)) {
             return@filter
         }
 
-        val methodName = el.simpleName
+        val methodName = ctMethod.simpleName
 
         //Is a getter
-        if (methodName.startsWith("get") && el.type != factory.Type().voidPrimitiveType()) {
+        if (methodName.startsWith("get") && ctMethod.type != factory.Type().voidPrimitiveType()) {
 
-            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
+            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
             val propertyName = uncapitalize(methodName.substring(3))
             result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
 
         //Is a getter
-        if (methodName.startsWith("is") && el.type != factory.Type().voidPrimitiveType()) {
+        if (methodName.startsWith("is") && ctMethod.type != factory.Type().voidPrimitiveType()) {
 
-            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(el.type, typeParamMap, factory)
+            val typeWithInferredParameters = buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
             val propertyName = uncapitalize(methodName.substring(2))
             result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
 
         }
 
         //Is a setter
-        if (methodName.startsWith("set") && el.type == factory.Type().voidPrimitiveType() && el.parameters.size == 1) {
+        if (methodName.startsWith("set") && ctMethod.type == factory.Type().voidPrimitiveType() && ctMethod.parameters.size == 1) {
 
-            val setterParamType = el.parameters.first().type
+            val setterParamType = ctMethod.parameters.first().type
             val typeWithInferredParameters =
                 buildTypeReferenceWithInferredParameters(setterParamType, typeParamMap, factory)
             val propertyName = uncapitalize(methodName.substring(3))
