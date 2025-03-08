@@ -21,7 +21,6 @@ import spoon.reflect.reference.CtVariableReference
 
 private fun createAnnotation_ProjectionFor(
     ctClass: CtClass<*>,
-    ctSourceClass: CtClass<*>,
     factory: Factory
 ): CtAnnotation<ProjectionFor> {
 
@@ -113,7 +112,7 @@ fun implementsSet(vararg typesToTest: CtTypeReference<*>): Boolean {
     return implements(typesToTest = typesToTest, typeToImplement = "java.util.Set")
 }
 
-fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, factory: Factory): CtClass<*>? {
+fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
 
     val result = factory.createClass(dtoClass, "Projection")
     val fieldConf = factory.Class().createReference(FieldConf::class.java)
@@ -124,7 +123,7 @@ fun buildProjectionClass(dtoClass: CtClass<*>, sourceClass: CtClass<*>, factory:
     result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
     result.addModifier<CtModifiable>(ModifierKind.STATIC)
 
-    result.addAnnotation<CtAnnotation<ProjectionFor>>(createAnnotation_ProjectionFor(dtoClass, sourceClass, factory))
+    result.addAnnotation<CtAnnotation<ProjectionFor>>(createAnnotation_ProjectionFor(dtoClass, factory))
     //Make it extend the Projection superclass
     val projectionSuperclass = factory.Class().createReference<DtoProjection<*>>(DtoProjection::class.java)
     projectionSuperclass.addActualTypeArgument<CtActualTypeContainer>(dtoClass.reference)
@@ -497,7 +496,7 @@ fun buildOutputClass(
     }
 
     buildBuilderClass(result, factory)
-    buildProjectionClass(result, sourceClass, factory)
+    buildProjectionClass(result, factory)
     buildModelClass(result, factory)
 
     return result
