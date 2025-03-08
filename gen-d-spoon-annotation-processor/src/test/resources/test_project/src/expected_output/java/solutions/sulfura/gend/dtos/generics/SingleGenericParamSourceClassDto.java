@@ -78,14 +78,15 @@ public class SingleGenericParamSourceClassDto<T> implements Dto<SingleGenericPar
         public FieldConf genericPropertyWithGetter;
         public ListFieldConf nestedGenericProperty;
 
+        public Projection() {
+        }
+
         public void applyProjectionTo(SingleGenericParamSourceClassDto dto) throws DtoProjectionException {
             dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
             dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
             dto.genericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithGetter, this.genericPropertyWithGetter);
             dto.nestedGenericProperty = ProjectionUtils.getProjectedValue(dto.nestedGenericProperty, this.nestedGenericProperty);
         }
-
-        public Projection(){}
 
         public static class Builder<T>{
 

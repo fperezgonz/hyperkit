@@ -100,7 +100,6 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 
         public Projection() {
         }
-
 ##        This writes the methods directly using the spoon printer. Formatting is very limited
 ##        #foreach($method in ${type.methods})
 ##            #indent(2, ${method.toString()})$lb##
@@ -111,8 +110,6 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
             dto.${field.simpleName} = ProjectionUtils.getProjectedValue(dto.${field.simpleName}, this.${field.simpleName});
         #end
         }
-
-        public Projection(){}
 
 ###     Projection Builder class
         public static class Builder{

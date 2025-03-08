@@ -143,7 +143,6 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         public Projection() {
         }
 
-
         public void applyProjectionTo(GenericChildClassWithParameterizedTypeDto dto) throws DtoProjectionException {
             dto.genericProperty = ProjectionUtils.getProjectedValue(dto.genericProperty, this.genericProperty);
             dto.nestedGenericProperty = ProjectionUtils.getProjectedValue(dto.nestedGenericProperty, this.nestedGenericProperty);
@@ -156,8 +155,6 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
             dto.inheritedGenericPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.inheritedGenericPropertyWithGetter, this.inheritedGenericPropertyWithGetter);
             dto.inheritedGenericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.inheritedGenericPropertyWithSetter, this.inheritedGenericPropertyWithSetter);
         }
-
-        public Projection(){}
 
         public static class Builder{
 

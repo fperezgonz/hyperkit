@@ -107,7 +107,6 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         public Projection() {
         }
 
-
         public void applyProjectionTo(SourceClassTypesDto dto) throws DtoProjectionException {
             dto.stringProperty = ProjectionUtils.getProjectedValue(dto.stringProperty, this.stringProperty);
             dto.longProperty = ProjectionUtils.getProjectedValue(dto.longProperty, this.longProperty);
@@ -116,8 +115,6 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
             dto.stringArrayProperty = ProjectionUtils.getProjectedValue(dto.stringArrayProperty, this.stringArrayProperty);
             dto.booleanArrayProperty = ProjectionUtils.getProjectedValue(dto.booleanArrayProperty, this.booleanArrayProperty);
         }
-
-        public Projection(){}
 
         public static class Builder{
 

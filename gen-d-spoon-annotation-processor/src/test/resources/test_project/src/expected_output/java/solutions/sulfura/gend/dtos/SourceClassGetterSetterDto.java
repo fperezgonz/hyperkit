@@ -77,14 +77,11 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
         public Projection() {
         }
 
-
         public void applyProjectionTo(SourceClassGetterSetterDto dto) throws DtoProjectionException {
             dto.stringPropertyWithGetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetter, this.stringPropertyWithGetter);
             dto.stringPropertyWithGetterAndSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithGetterAndSetter, this.stringPropertyWithGetterAndSetter);
             dto.stringPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetter, this.stringPropertyWithSetter);
         }
-
-        public Projection(){}
 
         public static class Builder{
 

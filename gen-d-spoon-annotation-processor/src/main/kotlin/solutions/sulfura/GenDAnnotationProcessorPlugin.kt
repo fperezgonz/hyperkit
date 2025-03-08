@@ -8,6 +8,7 @@ import solutions.sulfura.processor.utils.buildOutputClass
 import solutions.sulfura.processor.utils.collectAnnotations
 import solutions.sulfura.processor.utils.collectClasses
 import solutions.sulfura.processor.utils.collectProperties
+import solutions.sulfura.processor.utils.sourceClassToDtoClassReference
 import spoon.Launcher
 import spoon.SpoonAPI
 import spoon.compiler.Environment
@@ -22,33 +23,8 @@ interface GenDAnnotationProcessorConfigurationExtension {
 
 class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
-    fun generateClassSourceCode(
-        ctClass: CtClass<*>,
-        dtoCtClass: CtClass<*>
-    ): String {
-
+    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>): String {
         return SourceBuilder().buildClassSource(ctClass, dtoCtClass)
-
-    }
-
-    fun removePrefixUntilMismatch(string:String, prefix:String):String{
-
-        var mismatchIndex = 0
-
-        // Find the first mismatching character index
-        while (mismatchIndex < string.length
-            && mismatchIndex < prefix.length
-            && string[mismatchIndex] == prefix[mismatchIndex]
-        ) {
-
-            mismatchIndex++
-
-        }
-
-        // Remove all characters up to the mismatch index
-        return string.substring(mismatchIndex)
-
-
     }
 
     override fun apply(project: Project) {
@@ -72,31 +48,33 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 val model = spoon.buildModel()
 
                 val classesToProcess = collectClasses(model, spoon.factory)
-                //A map of collected classes to find out if a class will have generated code or not.
-                // This is used to know if references to origin classes have to be turned into references to classes derived from them (Dtos, for example)
-                val className__ctClass = classesToProcess.list<CtClass<Any>>().associateBy { it.qualifiedName }
+                //A map of references from the source class name to the dto class
+                //Used on dto properties to replace the source class references with references to the dto classes
+                val className__ctClass = mutableMapOf<String, CtClass<*>>()
 
+                classesToProcess.list<CtClass<*>>().associateTo(className__ctClass) { el ->
+                    el.qualifiedName to sourceClassToDtoClassReference(el, spoon.factory)
+                }
+
+                logger.info("Classes to process: ${classesToProcess.list<CtClass<*>>().map { it.qualifiedName }}")
                 /**Classes created or updated by this process*/
                 val newClasses = mutableSetOf<CtType<*>>()
 
                 classesToProcess.forEach { ctClass: CtClass<*> ->
                     var collectedProperties = collectProperties(ctClass.reference, spoon.factory)
                     val collectedAnnotations = collectAnnotations(ctClass, spoon)
-                    var dtoClassPackage = "solutions.sulfura.gend.dtos." + removePrefixUntilMismatch(
-                        ctClass.`package`.qualifiedName,
-                        "solutions.sulfura.gend.dtos"
-                    )
-                    val dtoClassSimpleName = ctClass.simpleName + "Dto"
-                    val dtoClassQualifiedName = "$dtoClassPackage.$dtoClassSimpleName"
-                    val oldDtoClass = spoon.factory.Class().get<CtClass<*>>(dtoClassQualifiedName)
+                    val oldDtoClass = sourceClassToDtoClassReference(ctClass, spoon.factory)
+                    var dtoClassPackage = oldDtoClass.`package`.qualifiedName
+                    val dtoClassSimpleName = oldDtoClass.simpleName
+                    val dtoClassQualifiedName = oldDtoClass.qualifiedName
 
                     val dtoClass = buildOutputClass(
-                        spoon,
                         ctClass,
                         dtoClassQualifiedName,
                         className__ctClass,
                         collectedAnnotations,
                         collectedProperties,
+                        spoon.factory
                     )
                     val classSourceCode = generateClassSourceCode(dtoClass, ctClass)
                     val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
