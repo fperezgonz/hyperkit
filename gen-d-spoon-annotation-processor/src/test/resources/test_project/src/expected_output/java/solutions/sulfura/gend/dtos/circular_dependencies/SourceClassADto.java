@@ -19,12 +19,13 @@ import solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA;
 @DtoFor(SourceClassA.class)
 public class SourceClassADto implements Dto<SourceClassA>{
 
-    public Option<List<ListOperation<SourceClassBDto>>> propertyArray = Option.none();
     public Option<SourceClassBDto> property = Option.none();
-    public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray = Option.none();
+    public Option<List<ListOperation<SourceClassBDto>>> propertyArray = Option.none();
     public Option<List<ListOperation<SourceClassBDto>>> genericProperty = Option.none();
+    public Option<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray = Option.none();
 
-    public SourceClassADto(){}
+    public SourceClassADto() {
+    }
 
     public Class<SourceClassA> getSourceClass() {
         return SourceClassA.class;

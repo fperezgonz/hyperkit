@@ -24,7 +24,8 @@ public class SourceClassBDto implements Dto<SourceClassB>{
     public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = Option.none();
     public Option<List<ListOperation<SourceClassADto>>> genericProperty = Option.none();
 
-    public SourceClassBDto(){}
+    public SourceClassBDto() {
+    }
 
     public Class<SourceClassB> getSourceClass() {
         return SourceClassB.class;

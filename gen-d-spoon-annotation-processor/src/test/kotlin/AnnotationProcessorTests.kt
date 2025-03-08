@@ -81,6 +81,38 @@ class AnnotationProcessorTests {
 
     }
 
+    @Test
+    fun circularDependenciesDtoTest() {
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}circular_dependencies/SourceClassADto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}circular_dependencies/SourceClassADto.java"
+        )
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}circular_dependencies/SourceClassBDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}circular_dependencies/SourceClassBDto.java"
+        )
+
+    }
+//
+//    @Test
+//    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
+//    fun generateDtosWithCircularDependencies() {
+//        val qualifiedClassNameA = "solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA"
+//        val qualifiedClassNameB = "solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB"
+//        compileClassesWithProcessor(
+//            Paths.get(
+//                this.javaClass.getResource(testInputResourcesPath + "circular_dependencies/SourceClassA.java").toURI()
+//            ).toString(),
+//            Paths.get(
+//                this.javaClass.getResource(testInputResourcesPath + "circular_dependencies/SourceClassB.java").toURI()
+//            ).toString()
+//        )
+//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassNameA)
+//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassNameB)
+//    }
+
 //
 //    @Test
 //    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
@@ -137,23 +169,6 @@ class AnnotationProcessorTests {
 //            qualifiedClassName
 //        )
 //        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassName)
-//    }
-//
-//    @Test
-//    @Throws(MalformedURLException::class, ClassNotFoundException::class, URISyntaxException::class)
-//    fun generateDtosWithCircularDependencies() {
-//        val qualifiedClassNameA = "solutions.sulfura.gend.dtos.circular_dependencies.SourceClassA"
-//        val qualifiedClassNameB = "solutions.sulfura.gend.dtos.circular_dependencies.SourceClassB"
-//        compileClassesWithProcessor(
-//            Paths.get(
-//                this.javaClass.getResource(testInputResourcesPath + "circular_dependencies/SourceClassA.java").toURI()
-//            ).toString(),
-//            Paths.get(
-//                this.javaClass.getResource(testInputResourcesPath + "circular_dependencies/SourceClassB.java").toURI()
-//            ).toString()
-//        )
-//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassNameA)
-//        assertGeneratedDtoSourceCodeMatchesExpectedOutput(qualifiedClassNameB)
 //    }
 //
 //    @Throws(MalformedURLException::class, ClassNotFoundException::class)
