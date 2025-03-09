@@ -9,7 +9,7 @@ version = "0.1.0"
 publishing {
     repositories{
         maven {
-            url = uri("https://gitlab.com/api/v4/projects/46985246/packages/maven")
+            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
             name = "GitLab"
 
             credentials(HttpHeaderCredentials::class) {
