@@ -10,7 +10,7 @@ publishing {
     repositories{
         maven {
 
-            name = "public-gitlab"
+            name = "Public Gitlab"
             url = uri("public-package-registry.sulfura.solutions")
 
             credentials(HttpHeaderCredentials::class) {
