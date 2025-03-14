@@ -11,7 +11,7 @@ publishing {
         maven {
 
             name = "public-gitlab"
-            url = uri("https://public-package-registry.sulfura.solutions")
+            url = uri("public-package-registry.sulfura.solutions")
 
             credentials(HttpHeaderCredentials::class) {
                 name = "Job-Token"

@@ -28,7 +28,7 @@ publishing {
         maven {
 
             name "public-gitlab"
-            url "https://public-package-registry.sulfura.solutions"
+            url "public-package-registry.sulfura.solutions"
             credentials(HttpHeaderCredentials) {
                 name = "Job-Token"
                 value = System.getenv("CI_JOB_TOKEN")
