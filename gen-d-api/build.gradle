@@ -22,7 +22,7 @@ publishing {
     }
     repositories {
         maven {
-            name "Public Gitlab"
+            name "public-gitlab"
             url "public-package-registry.sulfura.solutions"
             credentials(HttpHeaderCredentials) {
                 name = "Job-Token"
