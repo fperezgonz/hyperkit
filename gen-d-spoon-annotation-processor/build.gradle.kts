@@ -9,9 +9,8 @@ version = "0.2.0-SNAPSHOT"
 publishing {
     repositories{
         maven {
-
-            name = "Public Gitlab"
-            url = uri("public-package-registry.sulfura.solutions")
+            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
+            name = "GitLab"
 
             credentials(HttpHeaderCredentials::class) {
                 name = "Job-Token"
