@@ -19,6 +19,7 @@ import java.util.List;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassB.class)
 public class SourceClassBDto implements Dto<SourceClassB>{

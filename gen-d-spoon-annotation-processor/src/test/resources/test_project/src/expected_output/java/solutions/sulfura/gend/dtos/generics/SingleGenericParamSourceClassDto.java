@@ -16,6 +16,7 @@ import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SingleGenericParamSourceClass.class)
 public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamSourceClass>{

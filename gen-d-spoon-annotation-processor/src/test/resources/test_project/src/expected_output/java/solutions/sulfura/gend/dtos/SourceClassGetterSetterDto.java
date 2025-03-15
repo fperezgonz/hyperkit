@@ -13,6 +13,7 @@ import solutions.sulfura.gend.dtos.SourceClassGetterSetterDto.DtoModel;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassGetterSetter.class)
 public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{

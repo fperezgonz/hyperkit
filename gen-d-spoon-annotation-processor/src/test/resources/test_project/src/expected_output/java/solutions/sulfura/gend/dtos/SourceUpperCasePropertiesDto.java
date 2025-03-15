@@ -13,6 +13,7 @@ import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceUpperCaseProperties.class)
 public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperties>{

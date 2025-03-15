@@ -3,6 +3,7 @@ package solutions.sulfura
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils
+import solutions.sulfura.gend.dtos.projection.fields.FieldConf
 import spoon.reflect.declaration.CtClass
 import java.io.StringWriter
 
@@ -28,6 +29,7 @@ class SourceBuilder {
         for (type in dtoCtClass.nestedTypes) {
             if (type.simpleName == "Projection") {
                 imports.add(dtoCtClass.factory.Class().createReference(ProjectionUtils::class.java))
+                imports.add(dtoCtClass.factory.Class().createReference(FieldConf.Presence::class.java))
             }
         }
         val velocityContext = VelocityContext()
