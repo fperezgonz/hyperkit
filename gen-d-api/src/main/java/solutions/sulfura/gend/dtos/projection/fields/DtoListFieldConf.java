@@ -27,7 +27,6 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
         private boolean allowInsert;
         private boolean allowDelete;
         private Presence presence = Presence.IGNORED;
-        private boolean readonly;
 
         private DtoListConfBuilder() {
         }
@@ -70,11 +69,6 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             return this;
         }
 
-        public DtoListConfBuilder<T> readonly(boolean readonly) {
-            this.readonly = readonly;
-            return this;
-        }
-
         public DtoListConfBuilder<T> but() {
             return DtoListConfBuilder.<T>newInstance().dtoProjection(dtoProjection)
                     .allowInsert(allowInsert)
@@ -86,7 +80,6 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             DtoListFieldConf<T> dtoListFieldConf = new DtoListFieldConf<>();
             dtoListFieldConf.dtoProjection = this.dtoProjection;
             dtoListFieldConf.presence = this.presence;
-            dtoListFieldConf.readonly = this.readonly;
             dtoListFieldConf.allowInsert = this.allowInsert;
             dtoListFieldConf.allowDelete = this.allowDelete;
             return dtoListFieldConf;

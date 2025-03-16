@@ -46,7 +46,7 @@ public class ProjectionDsl {
                     || c == Character.MIN_VALUE;
         }
 
-        protected FieldConf createFieldConfForProperty(String propertyName, FieldConf.Presence presence, boolean readonly, boolean allowInsert, boolean allowDelete, DtoProjection nestedProjection) {
+        protected FieldConf createFieldConfForProperty(String propertyName, FieldConf.Presence presence, boolean allowInsert, boolean allowDelete, DtoProjection nestedProjection) {
 
             FieldConf result = null;
             Field f = null;
@@ -63,7 +63,6 @@ public class ProjectionDsl {
                     throw new RuntimeException("Illegal declaration of projection on property " + propertyName + " in Type " + rootType);
                 }
                 result = FieldConf.FieldConfBuilder.of(presence)
-                        .readonly(readonly)
                         .build();
             } else if (fConfType == DtoFieldConf.class) {
                 if (nestedProjection == null) {
@@ -71,7 +70,6 @@ public class ProjectionDsl {
                 }
                 result = DtoFieldConf.DtoFieldConfBuilder.newInstance()
                         .presence(presence)
-                        .readonly(readonly)
                         .dtoProjection(nestedProjection)
                         .build();
             } else if (fConfType == ListFieldConf.class) {
@@ -80,7 +78,6 @@ public class ProjectionDsl {
                 }
                 result = ListFieldConf.ListConfBuilder.newInstance()
                         .presence(presence)
-                        .readonly(readonly)
                         .allowInsert(allowInsert)
                         .allowDelete(allowDelete)
                         .build();
@@ -90,7 +87,6 @@ public class ProjectionDsl {
                 }
                 result = DtoListFieldConf.DtoListConfBuilder.newInstance()
                         .presence(presence)
-                        .readonly(readonly)
                         .allowInsert(allowInsert)
                         .allowDelete(allowDelete)
                         .dtoProjection(nestedProjection)
@@ -139,7 +135,6 @@ public class ProjectionDsl {
             long charsRead = 0;
             boolean allowInsert = false;
             boolean allowDelete = false;
-            boolean readonly = false;
             String propertyName = null;
             FieldConf.Presence presence = FieldConf.Presence.OPTIONAL;
             DtoProjection<?> nestedDtoProjection = null;
@@ -167,8 +162,6 @@ public class ProjectionDsl {
                             allowInsert = true;
                         } else if (modifier.equals(ProjectionDsl.ALLOW_DELETE)) {
                             allowDelete = true;
-                        } else if (modifier.equals(ProjectionDsl.READONLY)) {
-                            readonly = true;
                         }
 
                     } else if (Character.isLetterOrDigit(c)) {
@@ -216,7 +209,7 @@ public class ProjectionDsl {
 
             PropertyParseResult result = new PropertyParseResult();
             result.propertyName = propertyName;
-            result.parsedValue = createFieldConfForProperty(propertyName, presence, readonly, allowInsert, allowDelete, nestedDtoProjection);
+            result.parsedValue = createFieldConfForProperty(propertyName, presence, allowInsert, allowDelete, nestedDtoProjection);
             result.charactersRead = charsRead;
 
             return result;

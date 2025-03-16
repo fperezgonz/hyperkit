@@ -6,7 +6,7 @@ public class ListOperation<T> {
         /**
          * Don't perform automatic data modification with this item
          */
-        READONLY,
+        NONE,
         /**
          * Add to the list
          */
@@ -21,7 +21,7 @@ public class ListOperation<T> {
         /**
          * Don't perform automatic data modification with this item
          */
-        READONLY,
+        NONE,
         /**
          * Create entity if it is going to be added to the list
          */
@@ -74,7 +74,7 @@ public class ListOperation<T> {
     }
 
     public static <T> ListOperation<T> valueOf(T value) {
-        return valueOf(value, ListOperationType.READONLY, ItemOperationType.READONLY);
+        return valueOf(value, ListOperationType.NONE, ItemOperationType.NONE);
     }
 
 }
