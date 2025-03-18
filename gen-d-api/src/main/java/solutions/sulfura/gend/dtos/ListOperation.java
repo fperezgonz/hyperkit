@@ -12,9 +12,9 @@ public class ListOperation<T> {
          */
         ADD,
         /**
-         * Remove the entity from the list. If this list represents an aggregate, the process might delete the entity from the database upon removal from the list
+         * Remove the entity from the list. If this list is part of an aggregate, the process might delete the entity from the database upon removal from the list
          */
-        DELETE
+        REMOVE
     }
 
     public enum ItemOperationType {

@@ -18,7 +18,7 @@ public class ProjectionDsl {
     final static String MANDATORY = "@Mandatory";
     final static String READONLY = "@Readonly";
     final static String ALLOW_INSERT = "@Insert";
-    final static String ALLOW_DELETE = "@Delete";
+    final static String ALLOW_REMOVE = "@Remove";
     //final static String ALLOW_UPDATE = "@Update";
 
     public static <P extends DtoProjection> P parse(String projectionDef, Class<P> rootType) {
@@ -160,7 +160,7 @@ public class ProjectionDsl {
                             presence = FieldConf.Presence.OPTIONAL;
                         } else if (modifier.equals(ProjectionDsl.ALLOW_INSERT)) {
                             allowInsert = true;
-                        } else if (modifier.equals(ProjectionDsl.ALLOW_DELETE)) {
+                        } else if (modifier.equals(ProjectionDsl.ALLOW_REMOVE)) {
                             allowDelete = true;
                         }
 
