@@ -422,6 +422,7 @@ fun sourceClassToDtoClassReference(ctClass: CtClass<*>, factory: Factory): CtCla
     }
 
     result = factory.Class().create(dtoClassQualifiedName)
+    result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
     val superInterfaces = result.superInterfaces.toMutableSet()
     val dtoInterfaceReference = factory.Type().createReference(Dto::class.java)
     superInterfaces.add(dtoInterfaceReference)
@@ -443,6 +444,7 @@ fun buildOutputClass(
 ): CtClass<*> {
 
     val result = factory.createClass(dtoClassQualifiedName)
+    result.addModifier<CtModifiable>(ModifierKind.PUBLIC)
 
     //Make it implement the Dto interface
     val dtoInterfaceReference = factory.Interface()

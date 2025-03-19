@@ -79,13 +79,13 @@ class AnnotationProcessorTests {
     fun circularDependenciesDtoTest() {
 
         assertGeneratedCodeMatchesExpectedOutput(
-            "${expectedOutputDir}java/${testDtoPackagePath}circular_dependencies/SourceClassADto.java",
-            "${outputSourcesPath}java/${testDtoPackagePath}circular_dependencies/SourceClassADto.java"
+            "${expectedOutputDir}java/${testDtoPackagePath}circular_dependencies/class_a/SourceClassADto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}circular_dependencies/class_a/SourceClassADto.java"
         )
 
         assertGeneratedCodeMatchesExpectedOutput(
-            "${expectedOutputDir}java/${testDtoPackagePath}circular_dependencies/SourceClassBDto.java",
-            "${outputSourcesPath}java/${testDtoPackagePath}circular_dependencies/SourceClassBDto.java"
+            "${expectedOutputDir}java/${testDtoPackagePath}circular_dependencies/class_b/SourceClassBDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}circular_dependencies/class_b/SourceClassBDto.java"
         )
 
     }

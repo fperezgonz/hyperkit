@@ -1,5 +1,6 @@
-package solutions.sulfura.gend.dtos.circular_dependencies;
+package solutions.sulfura.gend.dtos.circular_dependencies.class_b;
 
+import solutions.sulfura.gend.dtos.circular_dependencies.class_a.SourceClassA;
 import solutions.sulfura.gend.dtos.annotations.Dto;
 import java.util.List;
 
