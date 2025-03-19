@@ -129,10 +129,17 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
                 return this;
             }
 
+            #if($field.type.simpleName.contains("Dto"))
+            public Builder ${field.simpleName}(final Presence presence, final ${field.type.getActualTypeArguments[0]} projection){
+                ${field.simpleName} = ${field.type.simpleName}.of(presence, projection);
+                return this;
+            }
+            #else
             public Builder ${field.simpleName}(final Presence presence){
                 ${field.simpleName} = ${field.type}.of(presence);
                 return this;
             }
+            #end
 
         #end
             public ${ctClass.simpleName}.${projectionType.simpleName} build(){

@@ -1,18 +1,14 @@
 package solutions.sulfura.gend.dtos;
 
-import solutions.sulfura.gend.dtos.SourceClassTypesDto.Builder;
 import solutions.sulfura.gend.dtos.SourceClassTypes;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.SourceClassTypesDto.Projection;
-import solutions.sulfura.gend.dtos.SourceClassTypesDto.DtoModel;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.ListOperation;
 import java.util.List;
 import java.util.Optional;
-import solutions.sulfura.gend.dtos.SourceClassTypesDto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;

@@ -1,15 +1,11 @@
 package solutions.sulfura.gend.dtos.generics;
 
-import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto.Builder;
 import solutions.sulfura.gend.dtos.Dto;
 import java.util.Set;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
-import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto.Projection;
-import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClassDto.DtoModel;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import solutions.sulfura.gend.dtos.generics.SingleGenericParamSourceClass;
 import io.vavr.control.Option;

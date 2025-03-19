@@ -1,15 +1,11 @@
 package solutions.sulfura.gend.dtos;
 
-import solutions.sulfura.gend.dtos.SourceClassGetterSetterDto.Builder;
 import solutions.sulfura.gend.dtos.SourceClassGetterSetter;
 import solutions.sulfura.gend.dtos.Dto;
-import solutions.sulfura.gend.dtos.SourceClassGetterSetterDto;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.SourceClassGetterSetterDto.Projection;
-import solutions.sulfura.gend.dtos.SourceClassGetterSetterDto.DtoModel;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;

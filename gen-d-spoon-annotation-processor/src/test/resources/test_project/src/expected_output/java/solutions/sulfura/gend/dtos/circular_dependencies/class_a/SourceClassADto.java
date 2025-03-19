@@ -1,6 +1,5 @@
 package solutions.sulfura.gend.dtos.circular_dependencies.class_a;
 
-import solutions.sulfura.gend.dtos.circular_dependencies.class_a.SourceClassADto.Builder;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf;
@@ -8,10 +7,7 @@ import solutions.sulfura.gend.dtos.circular_dependencies.class_a.SourceClassA;
 import solutions.sulfura.gend.dtos.circular_dependencies.class_b.SourceClassBDto;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.circular_dependencies.class_a.SourceClassADto.Projection;
-import solutions.sulfura.gend.dtos.circular_dependencies.class_a.SourceClassADto.DtoModel;
 import solutions.sulfura.gend.dtos.circular_dependencies.class_b.SourceClassBDto.Projection;
-import solutions.sulfura.gend.dtos.circular_dependencies.class_a.SourceClassADto;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;
@@ -116,8 +112,8 @@ public class SourceClassADto implements Dto<SourceClassA>{
                 return this;
             }
 
-            public Builder property(final Presence presence){
-                property = DtoFieldConf<SourceClassBDto.Projection>.of(presence);
+            public Builder property(final Presence presence, final SourceClassBDto.Projection projection){
+                property = DtoFieldConf.of(presence, projection);
                 return this;
             }
 
@@ -126,8 +122,8 @@ public class SourceClassADto implements Dto<SourceClassA>{
                 return this;
             }
 
-            public Builder propertyArray(final Presence presence){
-                propertyArray = DtoListFieldConf<SourceClassBDto.Projection>.of(presence);
+            public Builder propertyArray(final Presence presence, final SourceClassBDto.Projection projection){
+                propertyArray = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
@@ -136,8 +132,8 @@ public class SourceClassADto implements Dto<SourceClassA>{
                 return this;
             }
 
-            public Builder genericProperty(final Presence presence){
-                genericProperty = DtoListFieldConf<SourceClassBDto.Projection>.of(presence);
+            public Builder genericProperty(final Presence presence, final SourceClassBDto.Projection projection){
+                genericProperty = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 

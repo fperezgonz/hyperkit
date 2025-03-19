@@ -1,16 +1,12 @@
 package solutions.sulfura.gend.dtos.generics.inheritance;
 
-import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedTypeDto.Builder;
 import solutions.sulfura.gend.dtos.Dto;
 import java.util.Set;
 import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedType;
-import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedTypeDto;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
-import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedTypeDto.Projection;
-import solutions.sulfura.gend.dtos.generics.inheritance.GenericChildClassWithParameterizedTypeDto.DtoModel;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import io.vavr.control.Option;
 import solutions.sulfura.gend.dtos.ListOperation;

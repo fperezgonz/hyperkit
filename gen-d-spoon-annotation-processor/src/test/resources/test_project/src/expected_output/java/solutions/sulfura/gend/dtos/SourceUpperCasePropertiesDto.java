@@ -1,17 +1,13 @@
 package solutions.sulfura.gend.dtos;
 
-import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto.Builder;
 import solutions.sulfura.gend.dtos.Dto;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf;
 import solutions.sulfura.gend.dtos.projection.DtoProjectionException;
 import solutions.sulfura.gend.dtos.projection.DtoProjection;
 import solutions.sulfura.gend.dtos.annotations.DtoFor;
 import solutions.sulfura.gend.dtos.SourceUpperCaseProperties;
-import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto.Projection;
-import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto.DtoModel;
 import solutions.sulfura.gend.dtos.projection.ProjectionFor;
 import io.vavr.control.Option;
-import solutions.sulfura.gend.dtos.SourceUpperCasePropertiesDto;
 import solutions.sulfura.gend.dtos.projection.ProjectionUtils;
 import solutions.sulfura.gend.dtos.projection.fields.FieldConf.Presence;
 
