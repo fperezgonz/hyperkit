@@ -6,7 +6,7 @@ import solutions.sulfura.gend.dtos.aux_classes.GenericSuperClassSource;
 import java.util.Set;
 
 /**This class is used as input for the DTO generator test */
-@Dto
+@Dto(destPackageName = "solutions.sulfura.gend.dtos.generics.inheritance")
 public class GenericChildClassWithParameterizedType extends GenericSuperClassSource<String> {
 
     public String genericProperty;

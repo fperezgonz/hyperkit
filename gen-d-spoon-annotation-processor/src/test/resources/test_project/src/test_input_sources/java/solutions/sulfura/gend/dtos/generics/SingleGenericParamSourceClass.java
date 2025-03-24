@@ -4,7 +4,7 @@ import java.util.Set;
 import solutions.sulfura.gend.dtos.annotations.Dto;
 
 /**This class is used as input for the DTO generator test */
-@Dto
+@Dto(destPackageName = "solutions.sulfura.gend.dtos.generics")
 public class SingleGenericParamSourceClass<T> {
 
     public T genericProperty;
