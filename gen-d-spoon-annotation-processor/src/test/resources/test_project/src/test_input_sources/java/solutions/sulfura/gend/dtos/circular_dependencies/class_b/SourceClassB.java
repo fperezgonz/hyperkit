@@ -5,7 +5,7 @@ import solutions.sulfura.gend.dtos.annotations.Dto;
 import java.util.List;
 
 /**This class is used as input for the DTO generator test */
-@Dto
+@Dto(destPackageName = "solutions.sulfura.gend.dtos.circular_dependencies.class_b")
 public class SourceClassB {
 
     public SourceClassA property;

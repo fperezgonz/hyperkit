@@ -29,11 +29,16 @@ interface GenDAnnotationProcessorConfigurationExtension {
 
     /**The default value for fields that use the value wrapper. Default: Option.none()*/
     val valueWrapperDefaultValue: Property<String?>
+
+    /**Default package where the generated DTOs will be placed. Default: solutions.sulfura.gend.dtos*/
+    val defaultOutputPackage: Property<String?>
+
 }
 
+@Suppress("unused")
 class GenDAnnotationProcessorPlugin : Plugin<Project> {
 
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, valueWrapperDefaultvalue:String): String {
+    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, valueWrapperDefaultvalue: String): String {
         return SourceBuilder().buildClassSource(ctClass, dtoCtClass, valueWrapperDefaultvalue)
     }
 
@@ -44,6 +49,7 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
         extension.rootOutputPath.convention("src/main/java/")
         extension.valueWrapperType.convention(Option::class.java.canonicalName)
         extension.valueWrapperDefaultValue.convention("Option.none()")
+        extension.defaultOutputPackage.convention("solutions.sulfura.gend.dtos")
         project.task("annotationProcessor") {
 
             group = "gen-d"
@@ -65,16 +71,19 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 val className__ctClass = mutableMapOf<String, CtClass<*>>()
 
                 classesToProcess.list<CtClass<*>>().associateTo(className__ctClass) { el ->
-                    el.qualifiedName to sourceClassToDtoClassReference(el, spoon.factory)
+                    el.qualifiedName to sourceClassToDtoClassReference(
+                        el,
+                        spoon.factory,
+                        extension.defaultOutputPackage.get()
+                    )
                 }
 
                 logger.info("Classes to process: ${classesToProcess.list<CtClass<*>>().map { it.qualifiedName }}")
                 /**Classes created or updated by this process*/
                 val newClasses = mutableSetOf<CtType<*>>()
                 val valueWrapperTypeCanonicalName = extension.valueWrapperType.get()
-                println("valueWrapperTypeCanonicalName: $valueWrapperTypeCanonicalName")
                 var valueWrapperType = spoon.factory.Type().get<Any>(valueWrapperTypeCanonicalName)
-                if(valueWrapperType == null){
+                if (valueWrapperType == null) {
                     valueWrapperType = spoon.factory.Class().create<Any>(valueWrapperTypeCanonicalName)
                 }
                 var valueWrapperDefaultValue = extension.valueWrapperDefaultValue.get()
@@ -82,7 +91,8 @@ class GenDAnnotationProcessorPlugin : Plugin<Project> {
                 classesToProcess.forEach { ctClass: CtClass<*> ->
                     var collectedProperties = collectProperties(ctClass.reference, spoon.factory)
                     val collectedAnnotations = collectAnnotations(ctClass, spoon)
-                    val oldDtoClass = sourceClassToDtoClassReference(ctClass, spoon.factory)
+                    val oldDtoClass =
+                        sourceClassToDtoClassReference(ctClass, spoon.factory, extension.defaultOutputPackage.get())
                     var dtoClassPackage = oldDtoClass.`package`.qualifiedName
                     val dtoClassSimpleName = oldDtoClass.simpleName
                     val dtoClassQualifiedName = oldDtoClass.qualifiedName

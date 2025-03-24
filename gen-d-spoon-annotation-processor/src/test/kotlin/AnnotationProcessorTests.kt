@@ -25,7 +25,6 @@ class AnnotationProcessorTests {
             .withArguments(":annotationProcessor")
             .withPluginClasspath()
         val gradleBuild = gradleRunner.build()
-//        println(gradleBuild.output)
         val outcome = gradleBuild.task(":annotationProcessor")!!.outcome.name
 
         if (!"SUCCESS".equals(outcome)) {

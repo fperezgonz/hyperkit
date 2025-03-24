@@ -387,33 +387,19 @@ fun wrapCollection(
 
 }
 
-fun removePrefixUntilMismatch(string: String, prefix: String): String {
+fun sourceClassToDtoClassReference(ctClass: CtClass<*>, factory: Factory, defaultBasePackage:String): CtClass<*> {
 
-    var mismatchIndex = 0
+    val dtoAnnotationCtType = factory.Type().get<Annotation>(solutions.sulfura.gend.dtos.annotations.Dto::class.java).reference
 
-    // Find the first mismatching character index
-    while (mismatchIndex < string.length
-        && mismatchIndex < prefix.length
-        && string[mismatchIndex] == prefix[mismatchIndex]
-    ) {
-        mismatchIndex++
+    val dtoAnnotation = ctClass.getAnnotation(dtoAnnotationCtType)!!
+    var destPackageName = dtoAnnotation.getValueAsString("destPackageName")
+
+    if(destPackageName.isNullOrEmpty()) {
+        destPackageName = defaultBasePackage
     }
 
-    // Remove all characters up to the mismatch index
-    return string.substring(mismatchIndex)
-
-
-}
-
-fun sourceClassToDtoClassReference(ctClass: CtClass<*>, factory: Factory): CtClass<*> {
-
-    var dtoClassPackage = "solutions.sulfura.gend.dtos." + removePrefixUntilMismatch(
-        ctClass.`package`.qualifiedName,
-        "solutions.sulfura.gend.dtos"
-    )
-
     val dtoClassSimpleName = ctClass.simpleName + "Dto"
-    val dtoClassQualifiedName = "$dtoClassPackage.$dtoClassSimpleName"
+    val dtoClassQualifiedName = "$destPackageName.$dtoClassSimpleName"
 
     var result = factory.Class().get<Any>(dtoClassQualifiedName)
 
