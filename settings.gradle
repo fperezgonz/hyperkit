@@ -10,8 +10,7 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.4.0'
 }
 
-rootProject.name = 'gen-d'
-include 'gen-d-annotation-processor'
-include 'gen-d-spoon-annotation-processor'
-include 'gen-d-api'
-include 'projections-dsl'
+rootProject.name = 'hyper-kit'
+include 'hyper-kit-dto-generator-plugin'
+include 'hyper-kit-dtos-api'
+include 'hyper-kit-projections-dsl'

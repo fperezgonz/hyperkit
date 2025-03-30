@@ -3,11 +3,6 @@
 .idea
 .vscode
 
-gen-d-annotation-processor/bin
-gen-d-annotation-processor/build
-gen-d-api/bin
-gen-d-api/build
+hyper-kit-dtos-api/bin
+hyper-kit-dtos-api/build
 build
-
-# Annotation processor output directory
-gen-d-annotation-processor/sulfura/temp/
