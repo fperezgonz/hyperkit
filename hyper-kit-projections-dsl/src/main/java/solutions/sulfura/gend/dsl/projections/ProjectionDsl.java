@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+@SuppressWarnings("rawtypes")
 public class ProjectionDsl {
 
     final static String OPTIONAL = "@Optional";
@@ -29,6 +30,7 @@ public class ProjectionDsl {
         return ProjectionDsl.parse(annotation.value(), rootType);
     }
 
+    @SuppressWarnings("unchecked")
     public static class ProjectionDslParseProcess {
 
 
@@ -36,6 +38,7 @@ public class ProjectionDsl {
         //Context tracking variables
         Class<DtoProjection> rootType;
 
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         protected boolean isTokenTerminator(char c) {
             return Character.isWhitespace(c)
                     || c == ','
@@ -154,14 +157,11 @@ public class ProjectionDsl {
                         ParseResult<String> parseResult = parseModifier(characterStream);
                         charsRead += parseResult.charactersRead;
                         String modifier = parseResult.parsedValue;
-                        if (modifier.equals(ProjectionDsl.MANDATORY)) {
-                            presence = FieldConf.Presence.MANDATORY;
-                        } else if (modifier.equals(ProjectionDsl.OPTIONAL)) {
-                            presence = FieldConf.Presence.OPTIONAL;
-                        } else if (modifier.equals(ProjectionDsl.ALLOW_INSERT)) {
-                            allowInsert = true;
-                        } else if (modifier.equals(ProjectionDsl.ALLOW_REMOVE)) {
-                            allowDelete = true;
+                        switch (modifier) {
+                            case ProjectionDsl.MANDATORY -> presence = FieldConf.Presence.MANDATORY;
+                            case ProjectionDsl.OPTIONAL -> presence = FieldConf.Presence.OPTIONAL;
+                            case ProjectionDsl.ALLOW_INSERT -> allowInsert = true;
+                            case ProjectionDsl.ALLOW_REMOVE -> allowDelete = true;
                         }
 
                     } else if (Character.isLetterOrDigit(c)) {
@@ -270,8 +270,9 @@ public class ProjectionDsl {
             CharacterStream characterStream = new CharacterStream(projectionDef.toCharArray());
 
             try {
-                P parsedValue = parseProjection(characterStream, rootType).parsedValue;
-                return parsedValue;
+
+                return parseProjection(characterStream, rootType).parsedValue;
+
             } catch (RuntimeException ex) {
 
                 if (characterStream.pos < characterStream.streamData.length) {
