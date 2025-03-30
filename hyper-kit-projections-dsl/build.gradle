@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     api "io.vavr:vavr:0.10.4"
-    implementation project(':hyper-kit-dtos-api')
+    implementation project(':hyper-kit-dto-api')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

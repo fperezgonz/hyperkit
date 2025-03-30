@@ -16,7 +16,7 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            artifactId = 'hyper-kit-dtos-api'
+            artifactId = 'hyper-kit-dto-api'
             from components.java
         }
     }

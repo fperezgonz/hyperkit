@@ -12,5 +12,5 @@ plugins {
 
 rootProject.name = 'hyper-kit'
 include 'hyper-kit-dto-generator-plugin'
-include 'hyper-kit-dtos-api'
+include 'hyper-kit-dto-api'
 include 'hyper-kit-projections-dsl'
