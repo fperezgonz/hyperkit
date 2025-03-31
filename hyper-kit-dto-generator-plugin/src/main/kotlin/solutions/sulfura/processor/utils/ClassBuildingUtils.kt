@@ -1,16 +1,16 @@
 package solutions.sulfura.processor.utils
 
 import io.vavr.control.Option
-import solutions.sulfura.gend.dtos.Dto
-import solutions.sulfura.gend.dtos.ListOperation
-import solutions.sulfura.gend.dtos.projection.DtoProjection
-import solutions.sulfura.gend.dtos.projection.DtoProjectionException
-import solutions.sulfura.gend.dtos.projection.ProjectionFor
-import solutions.sulfura.gend.dtos.projection.ProjectionUtils
-import solutions.sulfura.gend.dtos.projection.fields.DtoFieldConf
-import solutions.sulfura.gend.dtos.projection.fields.DtoListFieldConf
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf
-import solutions.sulfura.gend.dtos.projection.fields.ListFieldConf
+import solutions.sulfura.hyperkit.dtos.Dto
+import solutions.sulfura.hyperkit.dtos.ListOperation
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf
+import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf
+import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf
 import spoon.reflect.code.*
 import spoon.reflect.declaration.*
 import spoon.reflect.factory.Factory
@@ -389,7 +389,7 @@ fun wrapCollection(
 
 fun sourceClassToDtoClassReference(ctClass: CtClass<*>, factory: Factory, defaultBasePackage:String): CtClass<*> {
 
-    val dtoAnnotationCtType = factory.Type().get<Annotation>(solutions.sulfura.gend.dtos.annotations.Dto::class.java).reference
+    val dtoAnnotationCtType = factory.Type().get<Annotation>(solutions.sulfura.hyperkit.dtos.annotations.Dto::class.java).reference
 
     val dtoAnnotation = ctClass.getAnnotation(dtoAnnotationCtType)!!
     var destPackageName = dtoAnnotation.getValueAsString("destPackageName")

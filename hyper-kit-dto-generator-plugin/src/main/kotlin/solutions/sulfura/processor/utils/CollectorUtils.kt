@@ -1,8 +1,8 @@
 package solutions.sulfura.processor.utils
 
-import solutions.sulfura.gend.dtos.annotations.Dto
-import solutions.sulfura.gend.dtos.annotations.DtoFor
-import solutions.sulfura.gend.dtos.annotations.DtoProperty
+import solutions.sulfura.hyperkit.dtos.annotations.Dto
+import solutions.sulfura.hyperkit.dtos.annotations.DtoFor
+import solutions.sulfura.hyperkit.dtos.annotations.DtoProperty
 import spoon.SpoonAPI
 import spoon.reflect.CtModel
 import spoon.reflect.declaration.CtAnnotation

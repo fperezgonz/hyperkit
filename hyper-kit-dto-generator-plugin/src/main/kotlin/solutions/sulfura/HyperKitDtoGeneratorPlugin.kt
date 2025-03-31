@@ -30,7 +30,7 @@ interface HyperKitDtoGeneratorConfigurationExtension {
     /**The default value for fields that use the value wrapper. Default: Option.none()*/
     val valueWrapperDefaultValue: Property<String?>
 
-    /**Default package where the generated DTOs will be placed. Default: solutions.sulfura.gend.dtos*/
+    /**Default package where the generated DTOs will be placed. Default: solutions.sulfura.hyperkit.dtos*/
     val defaultOutputPackage: Property<String?>
 
 }
@@ -49,7 +49,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         extension.rootOutputPath.convention("src/main/java/")
         extension.valueWrapperType.convention(Option::class.java.canonicalName)
         extension.valueWrapperDefaultValue.convention("Option.none()")
-        extension.defaultOutputPackage.convention("solutions.sulfura.gend.dtos")
+        extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
         project.task("annotationProcessor") {
 
             group = "hyper-kit"

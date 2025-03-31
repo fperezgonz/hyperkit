@@ -2,8 +2,8 @@ package solutions.sulfura
 
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
-import solutions.sulfura.gend.dtos.projection.ProjectionUtils
-import solutions.sulfura.gend.dtos.projection.fields.FieldConf
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils
+import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf
 import spoon.reflect.declaration.CtClass
 import java.io.StringWriter
 

@@ -10,7 +10,7 @@ import kotlin.io.path.toPath
 const val testProjectPath: String = "/test_project/"
 const val outputSourcesPath: String = "src/out/"
 const val expectedOutputDir: String = "src/expected_output/"
-const val testDtoPackagePath: String = "solutions/sulfura/gend/dtos/"
+const val testDtoPackagePath: String = "solutions/sulfura/hyperkit/dtos/"
 
 @TestInstance(PER_CLASS)
 class AnnotationProcessorTests {
