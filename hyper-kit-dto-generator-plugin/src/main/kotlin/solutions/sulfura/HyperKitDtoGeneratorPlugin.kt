@@ -44,7 +44,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
 
-        val extension = project.extensions.create("genD", HyperKitDtoGeneratorConfigurationExtension::class.java)
+        val extension = project.extensions.create("hyperKit", HyperKitDtoGeneratorConfigurationExtension::class.java)
         extension.inputPaths.convention(mutableSetOf("src/main/java/"))
         extension.rootOutputPath.convention("src/main/java/")
         extension.valueWrapperType.convention(Option::class.java.canonicalName)
