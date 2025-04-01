@@ -1,5 +1,6 @@
 plugins {
-    java
+    `java-library`
+    `maven-publish`
     id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.6"
 }
@@ -15,6 +16,28 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "hyperkit-utils-spring"
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            name = "Gitlab"
+            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
+            credentials(HttpHeaderCredentials::class) {
+                name = "Job-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
+    }
 }
 
 dependencies {

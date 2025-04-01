@@ -1,26 +1,21 @@
 plugins {
-    java
     `java-library`
     `maven-publish`
 }
 
-group = "solutions.sulfura"
-version = "1.3.0-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
+repositories {
+    mavenLocal()
+    mavenCentral()
 }
 
-repositories {
-    mavenCentral()
+dependencies {
+    api("io.vavr:vavr:0.10.4")
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "hyperkit-utils-serialization"
+            artifactId = "hyperkit-dto-api"
             from(components["java"])
         }
     }
@@ -39,15 +34,10 @@ publishing {
     }
 }
 
-dependencies {
-    implementation(project(":hyperkit-dto-api"))
-    implementation(project(":hyperkit-projections-dsl"))
-    implementation("org.jspecify:jspecify:1.0.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
-
-tasks.test {
-    useJUnitPlatform()
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+    withJavadocJar()
+    withSourcesJar()
 }
