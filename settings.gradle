@@ -15,4 +15,5 @@ include 'hyperkit-dto-generator-plugin'
 include 'hyperkit-dto-api'
 include 'hyperkit-projections-dsl'
 include 'hyperkit-utils-spring'
+include 'hyperkit-utils-serialization'
 

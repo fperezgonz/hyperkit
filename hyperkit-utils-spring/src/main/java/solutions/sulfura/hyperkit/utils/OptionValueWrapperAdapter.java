@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.utils;
 
 import io.vavr.control.Option;
+import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
 
 public class OptionValueWrapperAdapter implements ValueWrapperAdapter<Option<?>> {
 
