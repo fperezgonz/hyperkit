@@ -1,8 +1,6 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("org.springframework.boot") version "3.2.1"
-    id("io.spring.dependency-management") version "1.1.6"
 }
 
 group = "solutions.sulfura"
@@ -45,10 +43,10 @@ dependencies {
     implementation(project(":hyperkit-projections-dsl"))
     implementation("org.jspecify:jspecify:1.0.0")
     implementation("org.hsqldb:hsqldb:2.7.1")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.4.4")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.4")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
