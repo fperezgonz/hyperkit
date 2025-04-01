@@ -3,6 +3,6 @@
 .idea
 .vscode
 
-hyper-kit-dto-api/bin
-hyper-kit-dto-api/build
+hyperkit-dto-api/bin
+hyperkit-dto-api/build
 build

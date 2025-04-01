@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     api "io.vavr:vavr:0.10.4"
-    implementation project(':hyper-kit-dto-api')
+    implementation project(':hyperkit-dto-api')
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -18,7 +18,7 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            artifactId = 'hyper-kit-projections-dsl'
+            artifactId = 'hyperkit-projections-dsl'
 
             from components.java
         }

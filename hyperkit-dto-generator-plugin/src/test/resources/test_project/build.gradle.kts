@@ -1,5 +1,5 @@
 plugins{
-    id("solutions.sulfura.hyper-kit-dto-generator-plugin")
+    id("solutions.sulfura.hyperkit-dto-generator-plugin")
 }
 
 hyperKit{

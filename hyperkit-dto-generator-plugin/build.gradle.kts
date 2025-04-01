@@ -27,8 +27,8 @@ gradlePlugin {
     website = "https://sulfura.cloud"
     vcsUrl = "https://sulfura.cloud"
     plugins {
-        create("hyper-kit-dto-generator-plugin") {
-            id = "solutions.sulfura.hyper-kit-dto-generator-plugin"
+        create("hyperkit-dto-generator-plugin") {
+            id = "solutions.sulfura.hyperkit-dto-generator-plugin"
             displayName = "HyperKit Dto Generator Plugin"
             description = "A plugin that generates DTO classes based on annotations"
             tags = listOf("testing", "integrationTesting", "compatibility")
@@ -46,7 +46,7 @@ repositories {
 dependencies {
     implementation("fr.inria.gforge.spoon:spoon-core:11.2.0")
     implementation("org.apache.velocity:velocity-engine-core:2.4.1")
-    implementation(project(":hyper-kit-dto-api"))
+    implementation(project(":hyperkit-dto-api"))
     testImplementation(kotlin("test"))
 }
 

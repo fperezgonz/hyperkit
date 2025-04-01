@@ -52,7 +52,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
         project.task("annotationProcessor") {
 
-            group = "hyper-kit"
+            group = "hyperkit"
 
             doFirst {
                 val spoon: SpoonAPI = Launcher()
