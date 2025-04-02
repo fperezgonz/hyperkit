@@ -8,10 +8,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    api("io.vavr:vavr:0.10.4")
-}
-
 publishing {
     publications {
         create<MavenPublication>("maven") {

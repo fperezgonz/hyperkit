@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassB;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
@@ -9,7 +10,6 @@ import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_a.SourceClassADto.Projection;
 import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_a.SourceClassADto;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import java.util.List;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
@@ -20,10 +20,10 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 @DtoFor(SourceClassB.class)
 public class SourceClassBDto implements Dto<SourceClassB>{
 
-    public Option<SourceClassADto> property = Option.none();
-    public Option<List<ListOperation<SourceClassADto>>> propertyArray = Option.none();
-    public Option<List<ListOperation<SourceClassADto>>> genericProperty = Option.none();
-    public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = Option.none();
+    public ValueWrapper<SourceClassADto> property = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<SourceClassADto>>> propertyArray = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<SourceClassADto>>> genericProperty = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = ValueWrapper.empty();
 
     public SourceClassBDto() {
     }
@@ -34,32 +34,32 @@ public class SourceClassBDto implements Dto<SourceClassB>{
 
     public static class Builder{
 
-        Option<SourceClassADto> property = Option.none();
-        Option<List<ListOperation<SourceClassADto>>> propertyArray = Option.none();
-        Option<List<ListOperation<SourceClassADto>>> genericProperty = Option.none();
-        Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = Option.none();
+        ValueWrapper<SourceClassADto> property = ValueWrapper.empty();
+        ValueWrapper<List<ListOperation<SourceClassADto>>> propertyArray = ValueWrapper.empty();
+        ValueWrapper<List<ListOperation<SourceClassADto>>> genericProperty = ValueWrapper.empty();
+        ValueWrapper<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder property(final Option<SourceClassADto> property){
-            this.property = property == null ? Option.none() : property;
+        public Builder property(final ValueWrapper<SourceClassADto> property){
+            this.property = property == null ? ValueWrapper.empty() : property;
             return this;
         }
 
-        public Builder propertyArray(final Option<List<ListOperation<SourceClassADto>>> propertyArray){
-            this.propertyArray = propertyArray == null ? Option.none() : propertyArray;
+        public Builder propertyArray(final ValueWrapper<List<ListOperation<SourceClassADto>>> propertyArray){
+            this.propertyArray = propertyArray == null ? ValueWrapper.empty() : propertyArray;
             return this;
         }
 
-        public Builder genericProperty(final Option<List<ListOperation<SourceClassADto>>> genericProperty){
-            this.genericProperty = genericProperty == null ? Option.none() : genericProperty;
+        public Builder genericProperty(final ValueWrapper<List<ListOperation<SourceClassADto>>> genericProperty){
+            this.genericProperty = genericProperty == null ? ValueWrapper.empty() : genericProperty;
             return this;
         }
 
-        public Builder genericPropertyArray(final Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray){
-            this.genericPropertyArray = genericPropertyArray == null ? Option.none() : genericPropertyArray;
+        public Builder genericPropertyArray(final ValueWrapper<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray){
+            this.genericPropertyArray = genericPropertyArray == null ? ValueWrapper.empty() : genericPropertyArray;
             return this;
         }
 

@@ -1,6 +1,6 @@
 package solutions.sulfura
 
-import io.vavr.control.Option
+import solutions.sulfura.hyperkit.dtos.ValueWrapper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -24,12 +24,6 @@ interface HyperKitDtoGeneratorConfigurationExtension {
     /**Output path for the generated sources*/
     val rootOutputPath: Property<String>
 
-    /**Canonical name of the type that will be used as a wrapper for the dto fields. Default: io.vavr.control.Option*/
-    val valueWrapperType: Property<String?>
-
-    /**The default value for fields that use the value wrapper. Default: Option.none()*/
-    val valueWrapperDefaultValue: Property<String?>
-
     /**Default package where the generated DTOs will be placed. Default: solutions.sulfura.hyperkit.dtos*/
     val defaultOutputPackage: Property<String?>
 
@@ -47,8 +41,6 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         val extension = project.extensions.create("hyperKit", HyperKitDtoGeneratorConfigurationExtension::class.java)
         extension.inputPaths.convention(mutableSetOf("src/main/java/"))
         extension.rootOutputPath.convention("src/main/java/")
-        extension.valueWrapperType.convention(Option::class.java.canonicalName)
-        extension.valueWrapperDefaultValue.convention("Option.none()")
         extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
         project.task("annotationProcessor") {
 
@@ -79,14 +71,8 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                 }
 
                 logger.info("Classes to process: ${classesToProcess.list<CtClass<*>>().map { it.qualifiedName }}")
-                /**Classes created or updated by this process*/
-                val newClasses = mutableSetOf<CtType<*>>()
-                val valueWrapperTypeCanonicalName = extension.valueWrapperType.get()
-                var valueWrapperType = spoon.factory.Type().get<Any>(valueWrapperTypeCanonicalName)
-                if (valueWrapperType == null) {
-                    valueWrapperType = spoon.factory.Class().create<Any>(valueWrapperTypeCanonicalName)
-                }
-                var valueWrapperDefaultValue = extension.valueWrapperDefaultValue.get()
+                val valueWrapperType = spoon.factory.Class().create<ValueWrapper<Any>>(ValueWrapper::class.java.canonicalName)
+                var valueWrapperDefaultValue = "ValueWrapper.empty()"
 
                 classesToProcess.forEach { ctClass: CtClass<*> ->
                     var collectedProperties = collectProperties(ctClass.reference, spoon.factory)
@@ -106,20 +92,15 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                         valueWrapperType,
                         spoon.factory
                     )
+
                     val classSourceCode = generateClassSourceCode(dtoClass, ctClass, valueWrapperDefaultValue)
                     val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
                     val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
                     val outFile = File(project.file(outFilePath).absolutePath)
                     outFile.parentFile.mkdirs()
                     outFile.writeText(classSourceCode)
-                    //TODO add class and source to the list of generated classes
-//                    newClasses.add(classSourceCode)
-                }
 
-                //TODO create files for all generated classes
-//                spoon.setSourceOutputDirectory(project.file(extension.rootOutputPath.get()).absolutePath)
-//                spoon.setOutputFilter { el: CtElement -> el in newClasses }
-//                spoon.prettyprint()
+                }
             }
         }
     }

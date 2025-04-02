@@ -1,6 +1,6 @@
 package solutions.sulfura.processor.utils
 
-import io.vavr.control.Option
+import solutions.sulfura.hyperkit.dtos.ValueWrapper
 import solutions.sulfura.hyperkit.dtos.Dto
 import solutions.sulfura.hyperkit.dtos.ListOperation
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection
@@ -189,12 +189,12 @@ fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
     //Add statements "dto.field = ProjectionUtils.getProjectedValue(dto.field, this.field)" to method body
     result.fields.forEach { ctField ->
         @Suppress("UNCHECKED_CAST")
-        ctField as CtField<Option<Any>>
+        ctField as CtField<ValueWrapper<Any>>
 
         val projectionUtilsCtClass = factory.Class().createReference(ProjectionUtils::class.java)
 
         @Suppress("UNCHECKED_CAST")
-        val optionCtClass = factory.Class().createReference(Option::class.java) as CtTypeReference<Option<Any>>
+        val optionCtClass = factory.Class().createReference(ValueWrapper::class.java) as CtTypeReference<ValueWrapper<Any>>
         val getProjectedValueMethod = factory.Method().createReference(
             projectionUtilsCtClass,
             true,
@@ -204,19 +204,19 @@ fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
         )
 
         //Field read: "this.field" in "ProjectionUtils.getProjectedValue(dto.field, this.field)"
-        val projectionFieldRead = factory.createFieldRead<Option<Any>>()
+        val projectionFieldRead = factory.createFieldRead<ValueWrapper<Any>>()
         val thisAccess = factory.createThisAccess<Any>(result.reference)
-        projectionFieldRead.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(thisAccess)
-        projectionFieldRead.setVariable<CtVariableAccess<Option<Any>>>(ctField.reference)
+        projectionFieldRead.setTarget<CtTargetedExpression<ValueWrapper<Any>, CtExpression<*>>>(thisAccess)
+        projectionFieldRead.setVariable<CtVariableAccess<ValueWrapper<Any>>>(ctField.reference)
 
         //Parameter field read: "dto.field" in "ProjectionUtils.getProjectedValue(dto.field, this.field)"
         @Suppress("UNCHECKED_CAST")
         val parameterField =
-            parameter.type.getDeclaredOrInheritedField(ctField.simpleName) as CtVariableReference<Option<Any>>
+            parameter.type.getDeclaredOrInheritedField(ctField.simpleName) as CtVariableReference<ValueWrapper<Any>>
         val parameterAccess = factory.Code().createVariableRead(parameter.reference, false)
-        val parameterFieldRead = factory.createFieldRead<Option<Any>>()
-        parameterFieldRead.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(parameterAccess)
-        parameterFieldRead.setVariable<CtVariableAccess<Option<Any>>>(parameterField)
+        val parameterFieldRead = factory.createFieldRead<ValueWrapper<Any>>()
+        parameterFieldRead.setTarget<CtTargetedExpression<ValueWrapper<Any>, CtExpression<*>>>(parameterAccess)
+        parameterFieldRead.setVariable<CtVariableAccess<ValueWrapper<Any>>>(parameterField)
 
         //Static method invocation: "ProjectionUtils.getProjectedValue(dto.field, this.field)"
         val projectionUtilsTypeAccess = factory.createTypeAccess(projectionUtilsCtClass)
@@ -228,14 +228,14 @@ fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
 
 
         //Parameter field write: "dto.field" in "dto.field = ..."
-        val parameterFieldWrite = factory.createFieldWrite<Option<Any>>()
-        parameterFieldWrite.setTarget<CtTargetedExpression<Option<Any>, CtExpression<*>>>(parameterAccess)
-        parameterFieldWrite.setVariable<CtVariableAccess<Option<Any>>>(parameterField)
+        val parameterFieldWrite = factory.createFieldWrite<ValueWrapper<Any>>()
+        parameterFieldWrite.setTarget<CtTargetedExpression<ValueWrapper<Any>, CtExpression<*>>>(parameterAccess)
+        parameterFieldWrite.setVariable<CtVariableAccess<ValueWrapper<Any>>>(parameterField)
 
         //Assignment: "dto.field = ProjectionUtils.getProjectedValue(dto.field, this.field)"
-        val assignmentStatement = factory.Core().createAssignment<Option<Any>, Option<Any>>()
-        assignmentStatement.setAssignment<CtRHSReceiver<Option<Any>>>(getProjectedValueInvocation)
-        assignmentStatement.setAssigned<CtAssignment<Option<Any>, Option<Any>>>(parameterFieldWrite)
+        val assignmentStatement = factory.Core().createAssignment<ValueWrapper<Any>, ValueWrapper<Any>>()
+        assignmentStatement.setAssignment<CtRHSReceiver<ValueWrapper<Any>>>(getProjectedValueInvocation)
+        assignmentStatement.setAssigned<CtAssignment<ValueWrapper<Any>, ValueWrapper<Any>>>(parameterFieldWrite)
 
         methodBody.addStatement<CtStatementList>(assignmentStatement)
 

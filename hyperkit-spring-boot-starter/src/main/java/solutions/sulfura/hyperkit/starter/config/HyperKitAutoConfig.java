@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import solutions.sulfura.hyperkit.utils.OptionValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.ValueWrapperAdapterImpl;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
@@ -45,7 +45,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean
     public HyperMapper<?> hyperMapper(HyperRepository<?> repository) {
-        return new HyperMapper<>(repository, new OptionValueWrapperAdapter());
+        return new HyperMapper<>(repository, new ValueWrapperAdapterImpl());
     }
 
     @Override

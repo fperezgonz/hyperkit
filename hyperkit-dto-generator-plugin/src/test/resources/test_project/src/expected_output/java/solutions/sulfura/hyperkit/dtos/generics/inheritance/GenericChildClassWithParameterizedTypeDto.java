@@ -2,13 +2,13 @@ package solutions.sulfura.hyperkit.dtos.generics.inheritance;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
 import java.util.Set;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.generics.inheritance.GenericChildClassWithParameterizedType;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
@@ -17,16 +17,16 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 @DtoFor(GenericChildClassWithParameterizedType.class)
 public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChildClassWithParameterizedType>{
 
-    public Option<String> genericProperty = Option.none();
-    public Option<Set<ListOperation<String>>> nestedGenericProperty = Option.none();
-    public Option<String> genericPropertyWithGetter = Option.none();
-    public Option<String> genericPropertyWithSetter = Option.none();
-    public Option<String> inheritedGenericProperty = Option.none();
-    public Option<Set<ListOperation<String>>> inheritedNestedGenericProperty = Option.none();
-    public Option<String> overlappingGenericProperty = Option.none();
-    public Option<Set<ListOperation<String>>> overlappingNestedGenericProperty = Option.none();
-    public Option<String> inheritedGenericPropertyWithGetter = Option.none();
-    public Option<String> inheritedGenericPropertyWithSetter = Option.none();
+    public ValueWrapper<String> genericProperty = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<String>>> nestedGenericProperty = ValueWrapper.empty();
+    public ValueWrapper<String> genericPropertyWithGetter = ValueWrapper.empty();
+    public ValueWrapper<String> genericPropertyWithSetter = ValueWrapper.empty();
+    public ValueWrapper<String> inheritedGenericProperty = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<String>>> inheritedNestedGenericProperty = ValueWrapper.empty();
+    public ValueWrapper<String> overlappingGenericProperty = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<String>>> overlappingNestedGenericProperty = ValueWrapper.empty();
+    public ValueWrapper<String> inheritedGenericPropertyWithGetter = ValueWrapper.empty();
+    public ValueWrapper<String> inheritedGenericPropertyWithSetter = ValueWrapper.empty();
 
     public GenericChildClassWithParameterizedTypeDto() {
     }
@@ -37,68 +37,68 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     public static class Builder{
 
-        Option<String> genericProperty = Option.none();
-        Option<Set<ListOperation<String>>> nestedGenericProperty = Option.none();
-        Option<String> genericPropertyWithGetter = Option.none();
-        Option<String> genericPropertyWithSetter = Option.none();
-        Option<String> inheritedGenericProperty = Option.none();
-        Option<Set<ListOperation<String>>> inheritedNestedGenericProperty = Option.none();
-        Option<String> overlappingGenericProperty = Option.none();
-        Option<Set<ListOperation<String>>> overlappingNestedGenericProperty = Option.none();
-        Option<String> inheritedGenericPropertyWithGetter = Option.none();
-        Option<String> inheritedGenericPropertyWithSetter = Option.none();
+        ValueWrapper<String> genericProperty = ValueWrapper.empty();
+        ValueWrapper<Set<ListOperation<String>>> nestedGenericProperty = ValueWrapper.empty();
+        ValueWrapper<String> genericPropertyWithGetter = ValueWrapper.empty();
+        ValueWrapper<String> genericPropertyWithSetter = ValueWrapper.empty();
+        ValueWrapper<String> inheritedGenericProperty = ValueWrapper.empty();
+        ValueWrapper<Set<ListOperation<String>>> inheritedNestedGenericProperty = ValueWrapper.empty();
+        ValueWrapper<String> overlappingGenericProperty = ValueWrapper.empty();
+        ValueWrapper<Set<ListOperation<String>>> overlappingNestedGenericProperty = ValueWrapper.empty();
+        ValueWrapper<String> inheritedGenericPropertyWithGetter = ValueWrapper.empty();
+        ValueWrapper<String> inheritedGenericPropertyWithSetter = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder genericProperty(final Option<String> genericProperty){
-            this.genericProperty = genericProperty == null ? Option.none() : genericProperty;
+        public Builder genericProperty(final ValueWrapper<String> genericProperty){
+            this.genericProperty = genericProperty == null ? ValueWrapper.empty() : genericProperty;
             return this;
         }
 
-        public Builder nestedGenericProperty(final Option<Set<ListOperation<String>>> nestedGenericProperty){
-            this.nestedGenericProperty = nestedGenericProperty == null ? Option.none() : nestedGenericProperty;
+        public Builder nestedGenericProperty(final ValueWrapper<Set<ListOperation<String>>> nestedGenericProperty){
+            this.nestedGenericProperty = nestedGenericProperty == null ? ValueWrapper.empty() : nestedGenericProperty;
             return this;
         }
 
-        public Builder genericPropertyWithGetter(final Option<String> genericPropertyWithGetter){
-            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.none() : genericPropertyWithGetter;
+        public Builder genericPropertyWithGetter(final ValueWrapper<String> genericPropertyWithGetter){
+            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? ValueWrapper.empty() : genericPropertyWithGetter;
             return this;
         }
 
-        public Builder genericPropertyWithSetter(final Option<String> genericPropertyWithSetter){
-            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.none() : genericPropertyWithSetter;
+        public Builder genericPropertyWithSetter(final ValueWrapper<String> genericPropertyWithSetter){
+            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? ValueWrapper.empty() : genericPropertyWithSetter;
             return this;
         }
 
-        public Builder inheritedGenericProperty(final Option<String> inheritedGenericProperty){
-            this.inheritedGenericProperty = inheritedGenericProperty == null ? Option.none() : inheritedGenericProperty;
+        public Builder inheritedGenericProperty(final ValueWrapper<String> inheritedGenericProperty){
+            this.inheritedGenericProperty = inheritedGenericProperty == null ? ValueWrapper.empty() : inheritedGenericProperty;
             return this;
         }
 
-        public Builder inheritedNestedGenericProperty(final Option<Set<ListOperation<String>>> inheritedNestedGenericProperty){
-            this.inheritedNestedGenericProperty = inheritedNestedGenericProperty == null ? Option.none() : inheritedNestedGenericProperty;
+        public Builder inheritedNestedGenericProperty(final ValueWrapper<Set<ListOperation<String>>> inheritedNestedGenericProperty){
+            this.inheritedNestedGenericProperty = inheritedNestedGenericProperty == null ? ValueWrapper.empty() : inheritedNestedGenericProperty;
             return this;
         }
 
-        public Builder overlappingGenericProperty(final Option<String> overlappingGenericProperty){
-            this.overlappingGenericProperty = overlappingGenericProperty == null ? Option.none() : overlappingGenericProperty;
+        public Builder overlappingGenericProperty(final ValueWrapper<String> overlappingGenericProperty){
+            this.overlappingGenericProperty = overlappingGenericProperty == null ? ValueWrapper.empty() : overlappingGenericProperty;
             return this;
         }
 
-        public Builder overlappingNestedGenericProperty(final Option<Set<ListOperation<String>>> overlappingNestedGenericProperty){
-            this.overlappingNestedGenericProperty = overlappingNestedGenericProperty == null ? Option.none() : overlappingNestedGenericProperty;
+        public Builder overlappingNestedGenericProperty(final ValueWrapper<Set<ListOperation<String>>> overlappingNestedGenericProperty){
+            this.overlappingNestedGenericProperty = overlappingNestedGenericProperty == null ? ValueWrapper.empty() : overlappingNestedGenericProperty;
             return this;
         }
 
-        public Builder inheritedGenericPropertyWithGetter(final Option<String> inheritedGenericPropertyWithGetter){
-            this.inheritedGenericPropertyWithGetter = inheritedGenericPropertyWithGetter == null ? Option.none() : inheritedGenericPropertyWithGetter;
+        public Builder inheritedGenericPropertyWithGetter(final ValueWrapper<String> inheritedGenericPropertyWithGetter){
+            this.inheritedGenericPropertyWithGetter = inheritedGenericPropertyWithGetter == null ? ValueWrapper.empty() : inheritedGenericPropertyWithGetter;
             return this;
         }
 
-        public Builder inheritedGenericPropertyWithSetter(final Option<String> inheritedGenericPropertyWithSetter){
-            this.inheritedGenericPropertyWithSetter = inheritedGenericPropertyWithSetter == null ? Option.none() : inheritedGenericPropertyWithSetter;
+        public Builder inheritedGenericPropertyWithSetter(final ValueWrapper<String> inheritedGenericPropertyWithSetter){
+            this.inheritedGenericPropertyWithSetter = inheritedGenericPropertyWithSetter == null ? ValueWrapper.empty() : inheritedGenericPropertyWithSetter;
             return this;
         }
 

@@ -1,22 +1,22 @@
 package solutions.sulfura.hyperkit.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.SourceUpperCaseProperties;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceUpperCaseProperties.class)
 public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperties>{
 
-    public Option<String> UPPERCASE_FIELD_PROPERTY = Option.none();
-    public Option<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = Option.none();
-    public Option<String> uPPERCASE_GETTER_PROPERTY = Option.none();
+    public ValueWrapper<String> UPPERCASE_FIELD_PROPERTY = ValueWrapper.empty();
+    public ValueWrapper<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
+    public ValueWrapper<String> uPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
 
     public SourceUpperCasePropertiesDto() {
     }
@@ -27,26 +27,26 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
     public static class Builder{
 
-        Option<String> UPPERCASE_FIELD_PROPERTY = Option.none();
-        Option<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = Option.none();
-        Option<String> uPPERCASE_GETTER_PROPERTY = Option.none();
+        ValueWrapper<String> UPPERCASE_FIELD_PROPERTY = ValueWrapper.empty();
+        ValueWrapper<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
+        ValueWrapper<String> uPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder UPPERCASE_FIELD_PROPERTY(final Option<String> UPPERCASE_FIELD_PROPERTY){
-            this.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY == null ? Option.none() : UPPERCASE_FIELD_PROPERTY;
+        public Builder UPPERCASE_FIELD_PROPERTY(final ValueWrapper<String> UPPERCASE_FIELD_PROPERTY){
+            this.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY == null ? ValueWrapper.empty() : UPPERCASE_FIELD_PROPERTY;
             return this;
         }
 
-        public Builder PRESERVE_UPPERCASE_GETTER_PROPERTY(final Option<String> PRESERVE_UPPERCASE_GETTER_PROPERTY){
-            this.PRESERVE_UPPERCASE_GETTER_PROPERTY = PRESERVE_UPPERCASE_GETTER_PROPERTY == null ? Option.none() : PRESERVE_UPPERCASE_GETTER_PROPERTY;
+        public Builder PRESERVE_UPPERCASE_GETTER_PROPERTY(final ValueWrapper<String> PRESERVE_UPPERCASE_GETTER_PROPERTY){
+            this.PRESERVE_UPPERCASE_GETTER_PROPERTY = PRESERVE_UPPERCASE_GETTER_PROPERTY == null ? ValueWrapper.empty() : PRESERVE_UPPERCASE_GETTER_PROPERTY;
             return this;
         }
 
-        public Builder uPPERCASE_GETTER_PROPERTY(final Option<String> uPPERCASE_GETTER_PROPERTY){
-            this.uPPERCASE_GETTER_PROPERTY = uPPERCASE_GETTER_PROPERTY == null ? Option.none() : uPPERCASE_GETTER_PROPERTY;
+        public Builder uPPERCASE_GETTER_PROPERTY(final ValueWrapper<String> uPPERCASE_GETTER_PROPERTY){
+            this.uPPERCASE_GETTER_PROPERTY = uPPERCASE_GETTER_PROPERTY == null ? ValueWrapper.empty() : uPPERCASE_GETTER_PROPERTY;
             return this;
         }
 

@@ -1,24 +1,24 @@
 package solutions.sulfura.hyperkit.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.SourceClassWithIncluded;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassWithIncluded.class)
 public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
-    public Option<String> stringProperty = Option.none();
-    public Option<String> stringPropertyWithCustomAnnotation = Option.none();
-    public Option<String> stringPropertyWithGetter = Option.none();
-    public Option<String> stringPropertyWithSetter = Option.none();
-    public Option<String> stringPropertyWithSetterAndCustomAnnotation = Option.none();
+    public ValueWrapper<String> stringProperty = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithCustomAnnotation = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithSetterAndCustomAnnotation = ValueWrapper.empty();
 
     public SourceClassWithIncludedDto() {
     }
@@ -29,38 +29,38 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     public static class Builder{
 
-        Option<String> stringProperty = Option.none();
-        Option<String> stringPropertyWithCustomAnnotation = Option.none();
-        Option<String> stringPropertyWithGetter = Option.none();
-        Option<String> stringPropertyWithSetter = Option.none();
-        Option<String> stringPropertyWithSetterAndCustomAnnotation = Option.none();
+        ValueWrapper<String> stringProperty = ValueWrapper.empty();
+        ValueWrapper<String> stringPropertyWithCustomAnnotation = ValueWrapper.empty();
+        ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
+        ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
+        ValueWrapper<String> stringPropertyWithSetterAndCustomAnnotation = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringProperty(final Option<String> stringProperty){
-            this.stringProperty = stringProperty == null ? Option.none() : stringProperty;
+        public Builder stringProperty(final ValueWrapper<String> stringProperty){
+            this.stringProperty = stringProperty == null ? ValueWrapper.empty() : stringProperty;
             return this;
         }
 
-        public Builder stringPropertyWithCustomAnnotation(final Option<String> stringPropertyWithCustomAnnotation){
-            this.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation == null ? Option.none() : stringPropertyWithCustomAnnotation;
+        public Builder stringPropertyWithCustomAnnotation(final ValueWrapper<String> stringPropertyWithCustomAnnotation){
+            this.stringPropertyWithCustomAnnotation = stringPropertyWithCustomAnnotation == null ? ValueWrapper.empty() : stringPropertyWithCustomAnnotation;
             return this;
         }
 
-        public Builder stringPropertyWithGetter(final Option<String> stringPropertyWithGetter){
-            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? Option.none() : stringPropertyWithGetter;
+        public Builder stringPropertyWithGetter(final ValueWrapper<String> stringPropertyWithGetter){
+            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? ValueWrapper.empty() : stringPropertyWithGetter;
             return this;
         }
 
-        public Builder stringPropertyWithSetter(final Option<String> stringPropertyWithSetter){
-            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? Option.none() : stringPropertyWithSetter;
+        public Builder stringPropertyWithSetter(final ValueWrapper<String> stringPropertyWithSetter){
+            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? ValueWrapper.empty() : stringPropertyWithSetter;
             return this;
         }
 
-        public Builder stringPropertyWithSetterAndCustomAnnotation(final Option<String> stringPropertyWithSetterAndCustomAnnotation){
-            this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation == null ? Option.none() : stringPropertyWithSetterAndCustomAnnotation;
+        public Builder stringPropertyWithSetterAndCustomAnnotation(final ValueWrapper<String> stringPropertyWithSetterAndCustomAnnotation){
+            this.stringPropertyWithSetterAndCustomAnnotation = stringPropertyWithSetterAndCustomAnnotation == null ? ValueWrapper.empty() : stringPropertyWithSetterAndCustomAnnotation;
             return this;
         }
 

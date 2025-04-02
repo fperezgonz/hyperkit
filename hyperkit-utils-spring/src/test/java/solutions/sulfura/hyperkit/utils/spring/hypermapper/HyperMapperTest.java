@@ -1,6 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
-import io.vavr.control.Option;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ class HyperMapperTest {
 
         Object userContextInfo = new Object();
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
-        oneToManyDto.name = Option.some("Existing OneToManyEntity");
+        oneToManyDto.name = ValueWrapper.of("Existing OneToManyEntity");
 
         // Act
         OneToManyEntity result = dtoMapper.persistDtoToEntity(oneToManyDto, userContextInfo);
@@ -142,15 +142,15 @@ class HyperMapperTest {
 
         Object userContextInfo = new Object();
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
-        oneToManyDto.id = Option.some(oneToMany.id);
-        oneToManyDto.description = Option.some(null);
+        oneToManyDto.id = ValueWrapper.of(oneToMany.id);
+        oneToManyDto.description = ValueWrapper.of(null);
 
         ManyToOneEntityDto manyToOneDto = new ManyToOneEntityDto();
-        manyToOneDto.description = Option.some("Updated ManyToOne Description");
-        manyToOneDto.id = Option.some(manyToOne.id);
-        manyToOneDto.oneToManyEntity = Option.some(oneToManyDto);
+        manyToOneDto.description = ValueWrapper.of("Updated ManyToOne Description");
+        manyToOneDto.id = ValueWrapper.of(manyToOne.id);
+        manyToOneDto.oneToManyEntity = ValueWrapper.of(oneToManyDto);
 
-        oneToManyDto.manyToOneEntities = Option.some(new java.util.HashSet<>());
+        oneToManyDto.manyToOneEntities = ValueWrapper.of(new java.util.HashSet<>());
         oneToManyDto.manyToOneEntities.get().add(ListOperation.valueOf(manyToOneDto, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
 
         // Act
@@ -197,15 +197,15 @@ class HyperMapperTest {
 
         Object userContextInfo = new Object();
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
-        oneToManyDto.id = Option.some(oneToMany.id);
-        oneToManyDto.description = Option.some(null);
+        oneToManyDto.id = ValueWrapper.of(oneToMany.id);
+        oneToManyDto.description = ValueWrapper.of(null);
 
         ManyToOneEntityDto manyToOneDto = new ManyToOneEntityDto();
-        manyToOneDto.description = Option.some("Updated ManyToOne Description");
-        manyToOneDto.id = Option.some(manyToOne.id);
-        manyToOneDto.oneToManyEntity = Option.some(oneToManyDto);
+        manyToOneDto.description = ValueWrapper.of("Updated ManyToOne Description");
+        manyToOneDto.id = ValueWrapper.of(manyToOne.id);
+        manyToOneDto.oneToManyEntity = ValueWrapper.of(oneToManyDto);
 
-        oneToManyDto.manyToOneEntities = Option.some(new java.util.HashSet<>());
+        oneToManyDto.manyToOneEntities = ValueWrapper.of(new java.util.HashSet<>());
         oneToManyDto.manyToOneEntities.get().add(ListOperation.valueOf(manyToOneDto, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
 
         // Act
@@ -257,12 +257,12 @@ class HyperMapperTest {
         hyperRepository.save(manyToOne2, null);
 
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
-        oneToManyDto.id = Option.some(oneToMany.id);
+        oneToManyDto.id = ValueWrapper.of(oneToMany.id);
 
         ManyToOneEntityDto manyToOneDto1 = new ManyToOneEntityDto();
-        manyToOneDto1.id = Option.some(manyToOne1.id);
+        manyToOneDto1.id = ValueWrapper.of(manyToOne1.id);
 
-        oneToManyDto.manyToOneEntities = Option.some(new java.util.HashSet<>());
+        oneToManyDto.manyToOneEntities = ValueWrapper.of(new java.util.HashSet<>());
         oneToManyDto.manyToOneEntities.get().add(ListOperation.valueOf(manyToOneDto1, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE));
 
         // Act

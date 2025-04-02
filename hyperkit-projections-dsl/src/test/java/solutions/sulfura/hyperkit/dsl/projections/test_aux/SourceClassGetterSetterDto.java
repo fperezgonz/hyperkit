@@ -1,6 +1,6 @@
 package solutions.sulfura.hyperkit.dsl.projections.test_aux;
 
-import io.vavr.control.Option;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dsl.projections.test_aux.dto_sources.SourceClassGetterSetter;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
@@ -13,9 +13,9 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 @DtoFor(SourceClassGetterSetter.class)
 public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
-    public Option<String> stringPropertyWithGetter = Option.none();
-    public Option<String> stringPropertyWithSetter = Option.none();
-    public Option<String> stringPropertyWithGetterAndSetter = Option.none();
+    public ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithGetterAndSetter = ValueWrapper.empty();
 
     public SourceClassGetterSetterDto(){}
 

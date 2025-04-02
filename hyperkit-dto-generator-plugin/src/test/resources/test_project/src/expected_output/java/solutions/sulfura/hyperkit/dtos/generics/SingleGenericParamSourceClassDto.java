@@ -2,13 +2,13 @@ package solutions.sulfura.hyperkit.dtos.generics;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
 import java.util.Set;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.generics.SingleGenericParamSourceClass;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
@@ -17,10 +17,10 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 @DtoFor(SingleGenericParamSourceClass.class)
 public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamSourceClass>{
 
-    public Option<T> genericProperty = Option.none();
-    public Option<Set<ListOperation<T>>> nestedGenericProperty = Option.none();
-    public Option<T> genericPropertyWithGetter = Option.none();
-    public Option<T> genericPropertyWithSetter = Option.none();
+    public ValueWrapper<T> genericProperty = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<T>>> nestedGenericProperty = ValueWrapper.empty();
+    public ValueWrapper<T> genericPropertyWithGetter = ValueWrapper.empty();
+    public ValueWrapper<T> genericPropertyWithSetter = ValueWrapper.empty();
 
     public SingleGenericParamSourceClassDto() {
     }
@@ -31,32 +31,32 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
 
     public static class Builder{
 
-        Option<T> genericProperty = Option.none();
-        Option<Set<ListOperation<T>>> nestedGenericProperty = Option.none();
-        Option<T> genericPropertyWithGetter = Option.none();
-        Option<T> genericPropertyWithSetter = Option.none();
+        ValueWrapper<T> genericProperty = ValueWrapper.empty();
+        ValueWrapper<Set<ListOperation<T>>> nestedGenericProperty = ValueWrapper.empty();
+        ValueWrapper<T> genericPropertyWithGetter = ValueWrapper.empty();
+        ValueWrapper<T> genericPropertyWithSetter = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder genericProperty(final Option<T> genericProperty){
-            this.genericProperty = genericProperty == null ? Option.none() : genericProperty;
+        public Builder genericProperty(final ValueWrapper<T> genericProperty){
+            this.genericProperty = genericProperty == null ? ValueWrapper.empty() : genericProperty;
             return this;
         }
 
-        public Builder nestedGenericProperty(final Option<Set<ListOperation<T>>> nestedGenericProperty){
-            this.nestedGenericProperty = nestedGenericProperty == null ? Option.none() : nestedGenericProperty;
+        public Builder nestedGenericProperty(final ValueWrapper<Set<ListOperation<T>>> nestedGenericProperty){
+            this.nestedGenericProperty = nestedGenericProperty == null ? ValueWrapper.empty() : nestedGenericProperty;
             return this;
         }
 
-        public Builder genericPropertyWithGetter(final Option<T> genericPropertyWithGetter){
-            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? Option.none() : genericPropertyWithGetter;
+        public Builder genericPropertyWithGetter(final ValueWrapper<T> genericPropertyWithGetter){
+            this.genericPropertyWithGetter = genericPropertyWithGetter == null ? ValueWrapper.empty() : genericPropertyWithGetter;
             return this;
         }
 
-        public Builder genericPropertyWithSetter(final Option<T> genericPropertyWithSetter){
-            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? Option.none() : genericPropertyWithSetter;
+        public Builder genericPropertyWithSetter(final ValueWrapper<T> genericPropertyWithSetter){
+            this.genericPropertyWithSetter = genericPropertyWithSetter == null ? ValueWrapper.empty() : genericPropertyWithSetter;
             return this;
         }
 

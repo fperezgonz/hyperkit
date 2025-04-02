@@ -1,6 +1,6 @@
 package solutions.sulfura.hyperkit.dsl.projections.test_aux.circular_dependencies;
 
-import io.vavr.control.Option;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dsl.projections.test_aux.dto_sources.circular_dependencies.SourceClassB;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
@@ -18,10 +18,10 @@ import java.util.List;
 @DtoFor(SourceClassB.class)
 public class SourceClassBDto implements Dto<SourceClassB>{
 
-    public Option<List<ListOperation<SourceClassADto>>> propertyArray = Option.none();
-    public Option<SourceClassADto> property = Option.none();
-    public Option<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = Option.none();
-    public Option<List<ListOperation<SourceClassADto>>> genericProperty = Option.none();
+    public ValueWrapper<List<ListOperation<SourceClassADto>>> propertyArray = ValueWrapper.empty();
+    public ValueWrapper<SourceClassADto> property = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<List<ListOperation<SourceClassADto>>>>> genericPropertyArray = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<SourceClassADto>>> genericProperty = ValueWrapper.empty();
 
     public SourceClassBDto(){}
 

@@ -1,6 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper.entities;
 
-import io.vavr.control.Option;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
@@ -17,10 +17,10 @@ import java.util.Set;
 @DtoFor(OneToManyEntity.class)
 public class OneToManyEntityDto implements Dto<OneToManyEntity>{
 
-    public Option<Long> id = Option.none();
-    public Option<String> name = Option.none();
-    public Option<String> description = Option.none();
-    public Option<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities = Option.none();
+    public ValueWrapper<Long> id = ValueWrapper.empty();
+    public ValueWrapper<String> name = ValueWrapper.empty();
+    public ValueWrapper<String> description = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities = ValueWrapper.empty();
 
     public OneToManyEntityDto() {
     }
@@ -31,32 +31,32 @@ public class OneToManyEntityDto implements Dto<OneToManyEntity>{
 
     public static class Builder{
 
-        Option<Long> id = Option.none();
-        Option<String> name = Option.none();
-        Option<String> description = Option.none();
-        Option<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities = Option.none();
+        ValueWrapper<Long> id = ValueWrapper.empty();
+        ValueWrapper<String> name = ValueWrapper.empty();
+        ValueWrapper<String> description = ValueWrapper.empty();
+        ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder id(final Option<Long> id){
-            this.id = id == null ? Option.none() : id;
+        public Builder id(final ValueWrapper<Long> id){
+            this.id = id == null ? ValueWrapper.empty() : id;
             return this;
         }
 
-        public Builder name(final Option<String> name){
-            this.name = name == null ? Option.none() : name;
+        public Builder name(final ValueWrapper<String> name){
+            this.name = name == null ? ValueWrapper.empty() : name;
             return this;
         }
 
-        public Builder description(final Option<String> description){
-            this.description = description == null ? Option.none() : description;
+        public Builder description(final ValueWrapper<String> description){
+            this.description = description == null ? ValueWrapper.empty() : description;
             return this;
         }
 
-        public Builder manyToOneEntities(final Option<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities){
-            this.manyToOneEntities = manyToOneEntities == null ? Option.none() : manyToOneEntities;
+        public Builder manyToOneEntities(final ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities){
+            this.manyToOneEntities = manyToOneEntities == null ? ValueWrapper.empty() : manyToOneEntities;
             return this;
         }
 

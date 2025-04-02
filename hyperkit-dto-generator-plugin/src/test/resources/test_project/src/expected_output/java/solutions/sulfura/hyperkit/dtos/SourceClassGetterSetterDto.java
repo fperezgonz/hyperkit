@@ -2,21 +2,21 @@ package solutions.sulfura.hyperkit.dtos;
 
 import solutions.sulfura.hyperkit.dtos.SourceClassGetterSetter;
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassGetterSetter.class)
 public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
-    public Option<String> stringPropertyWithGetter = Option.none();
-    public Option<String> stringPropertyWithGetterAndSetter = Option.none();
-    public Option<String> stringPropertyWithSetter = Option.none();
+    public ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithGetterAndSetter = ValueWrapper.empty();
+    public ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
 
     public SourceClassGetterSetterDto() {
     }
@@ -27,26 +27,26 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     public static class Builder{
 
-        Option<String> stringPropertyWithGetter = Option.none();
-        Option<String> stringPropertyWithGetterAndSetter = Option.none();
-        Option<String> stringPropertyWithSetter = Option.none();
+        ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
+        ValueWrapper<String> stringPropertyWithGetterAndSetter = ValueWrapper.empty();
+        ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringPropertyWithGetter(final Option<String> stringPropertyWithGetter){
-            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? Option.none() : stringPropertyWithGetter;
+        public Builder stringPropertyWithGetter(final ValueWrapper<String> stringPropertyWithGetter){
+            this.stringPropertyWithGetter = stringPropertyWithGetter == null ? ValueWrapper.empty() : stringPropertyWithGetter;
             return this;
         }
 
-        public Builder stringPropertyWithGetterAndSetter(final Option<String> stringPropertyWithGetterAndSetter){
-            this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter == null ? Option.none() : stringPropertyWithGetterAndSetter;
+        public Builder stringPropertyWithGetterAndSetter(final ValueWrapper<String> stringPropertyWithGetterAndSetter){
+            this.stringPropertyWithGetterAndSetter = stringPropertyWithGetterAndSetter == null ? ValueWrapper.empty() : stringPropertyWithGetterAndSetter;
             return this;
         }
 
-        public Builder stringPropertyWithSetter(final Option<String> stringPropertyWithSetter){
-            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? Option.none() : stringPropertyWithSetter;
+        public Builder stringPropertyWithSetter(final ValueWrapper<String> stringPropertyWithSetter){
+            this.stringPropertyWithSetter = stringPropertyWithSetter == null ? ValueWrapper.empty() : stringPropertyWithSetter;
             return this;
         }
 

@@ -1,6 +1,6 @@
 package solutions.sulfura.hyperkit.dtos.projection;
 
-import io.vavr.control.Option;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public class ProjectionUtils {
 
-    public static <T> Option<T> getProjectedValue(Option<T> value, FieldConf fieldConf) {
+    public static <T> ValueWrapper<T> getProjectedValue(ValueWrapper<T> value, FieldConf fieldConf) {
 
         if (fieldConf instanceof DtoFieldConf<?>) {
             return getProjectedValue(value, (DtoFieldConf<?>) fieldConf);
@@ -44,12 +44,12 @@ public class ProjectionUtils {
 
     }
 
-    public static <T> Option<T> getProjectedValue(Option<T> value, DtoFieldConf<?> fieldConf) {
+    public static <T> ValueWrapper<T> getProjectedValue(ValueWrapper<T> value, DtoFieldConf<?> fieldConf) {
 
         value = evaluatePresenceAndNullValues(value, fieldConf);
 
         if (value.isEmpty()) {
-            return Option.none();
+            return ValueWrapper.empty();
         }
 
         Object nestedVal = value.getOrNull();
@@ -58,7 +58,7 @@ public class ProjectionUtils {
 
         if (nestedVal == null){
 
-            return Option.some(null);
+            return ValueWrapper.of(null);
 
         } else if (nestedVal instanceof Collection<?>) {
 
@@ -86,10 +86,10 @@ public class ProjectionUtils {
         return fieldConf == null || fieldConf.getPresence() == FieldConf.Presence.IGNORED;
     }
 
-    public static <T> Option<T> evaluatePresenceAndNullValues(Option<T> value, FieldConf fieldConf) {
+    public static <T> ValueWrapper<T> evaluatePresenceAndNullValues(ValueWrapper<T> value, FieldConf fieldConf) {
 
         if (fieldShouldBeIgnored(fieldConf)) {
-            return Option.none();
+            return ValueWrapper.empty();
         }
 
         if (fieldMustBePresent(fieldConf) && (value == null || value.isEmpty())) {
@@ -97,7 +97,7 @@ public class ProjectionUtils {
         }
 
         if (value == null) {
-            return Option.none();
+            return ValueWrapper.empty();
         }
 
         return value;

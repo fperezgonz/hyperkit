@@ -2,6 +2,7 @@ package solutions.sulfura.hyperkit.dtos;
 
 import solutions.sulfura.hyperkit.dtos.SourceClassTypes;
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
@@ -9,7 +10,6 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import java.util.List;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
-import io.vavr.control.Option;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
@@ -17,12 +17,12 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
-    public Option<String> stringProperty = Option.none();
-    public Option<Long> longProperty = Option.none();
-    public Option<Boolean> booleanProperty = Option.none();
-    public Option<Double> doubleProperty = Option.none();
-    public Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
-    public Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
+    public ValueWrapper<String> stringProperty = ValueWrapper.empty();
+    public ValueWrapper<Long> longProperty = ValueWrapper.empty();
+    public ValueWrapper<Boolean> booleanProperty = ValueWrapper.empty();
+    public ValueWrapper<Double> doubleProperty = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<String>>> stringArrayProperty = ValueWrapper.empty();
+    public ValueWrapper<List<ListOperation<Boolean>>> booleanArrayProperty = ValueWrapper.empty();
 
     public SourceClassTypesDto() {
     }
@@ -33,44 +33,44 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     public static class Builder{
 
-        Option<String> stringProperty = Option.none();
-        Option<Long> longProperty = Option.none();
-        Option<Boolean> booleanProperty = Option.none();
-        Option<Double> doubleProperty = Option.none();
-        Option<List<ListOperation<String>>> stringArrayProperty = Option.none();
-        Option<List<ListOperation<Boolean>>> booleanArrayProperty = Option.none();
+        ValueWrapper<String> stringProperty = ValueWrapper.empty();
+        ValueWrapper<Long> longProperty = ValueWrapper.empty();
+        ValueWrapper<Boolean> booleanProperty = ValueWrapper.empty();
+        ValueWrapper<Double> doubleProperty = ValueWrapper.empty();
+        ValueWrapper<List<ListOperation<String>>> stringArrayProperty = ValueWrapper.empty();
+        ValueWrapper<List<ListOperation<Boolean>>> booleanArrayProperty = ValueWrapper.empty();
 
         public static  Builder newInstance(){
             return new Builder();
         }
 
-        public Builder stringProperty(final Option<String> stringProperty){
-            this.stringProperty = stringProperty == null ? Option.none() : stringProperty;
+        public Builder stringProperty(final ValueWrapper<String> stringProperty){
+            this.stringProperty = stringProperty == null ? ValueWrapper.empty() : stringProperty;
             return this;
         }
 
-        public Builder longProperty(final Option<Long> longProperty){
-            this.longProperty = longProperty == null ? Option.none() : longProperty;
+        public Builder longProperty(final ValueWrapper<Long> longProperty){
+            this.longProperty = longProperty == null ? ValueWrapper.empty() : longProperty;
             return this;
         }
 
-        public Builder booleanProperty(final Option<Boolean> booleanProperty){
-            this.booleanProperty = booleanProperty == null ? Option.none() : booleanProperty;
+        public Builder booleanProperty(final ValueWrapper<Boolean> booleanProperty){
+            this.booleanProperty = booleanProperty == null ? ValueWrapper.empty() : booleanProperty;
             return this;
         }
 
-        public Builder doubleProperty(final Option<Double> doubleProperty){
-            this.doubleProperty = doubleProperty == null ? Option.none() : doubleProperty;
+        public Builder doubleProperty(final ValueWrapper<Double> doubleProperty){
+            this.doubleProperty = doubleProperty == null ? ValueWrapper.empty() : doubleProperty;
             return this;
         }
 
-        public Builder stringArrayProperty(final Option<List<ListOperation<String>>> stringArrayProperty){
-            this.stringArrayProperty = stringArrayProperty == null ? Option.none() : stringArrayProperty;
+        public Builder stringArrayProperty(final ValueWrapper<List<ListOperation<String>>> stringArrayProperty){
+            this.stringArrayProperty = stringArrayProperty == null ? ValueWrapper.empty() : stringArrayProperty;
             return this;
         }
 
-        public Builder booleanArrayProperty(final Option<List<ListOperation<Boolean>>> booleanArrayProperty){
-            this.booleanArrayProperty = booleanArrayProperty == null ? Option.none() : booleanArrayProperty;
+        public Builder booleanArrayProperty(final ValueWrapper<List<ListOperation<Boolean>>> booleanArrayProperty){
+            this.booleanArrayProperty = booleanArrayProperty == null ? ValueWrapper.empty() : booleanArrayProperty;
             return this;
         }
 
