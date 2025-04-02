@@ -11,6 +11,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
+@SuppressWarnings("unused")
 @DtoFor(ManyToOneEntity.class)
 public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
 

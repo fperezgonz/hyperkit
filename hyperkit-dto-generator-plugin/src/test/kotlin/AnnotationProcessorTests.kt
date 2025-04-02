@@ -15,7 +15,7 @@ const val testDtoPackagePath: String = "solutions/sulfura/hyperkit/dtos/"
 @TestInstance(PER_CLASS)
 class AnnotationProcessorTests {
 
-    val testProjectFolder = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
+    val testProjectFolder: File = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
 
     @BeforeAll
     fun generateDtosForTestProject() {

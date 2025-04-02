@@ -1,20 +1,15 @@
 package solutions.sulfura
 
-import solutions.sulfura.hyperkit.dtos.ValueWrapper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import solutions.sulfura.processor.utils.buildOutputClass
-import solutions.sulfura.processor.utils.collectAnnotations
-import solutions.sulfura.processor.utils.collectClasses
-import solutions.sulfura.processor.utils.collectProperties
-import solutions.sulfura.processor.utils.sourceClassToDtoClassReference
+import solutions.sulfura.hyperkit.dtos.ValueWrapper
+import solutions.sulfura.processor.utils.*
 import spoon.Launcher
 import spoon.SpoonAPI
 import spoon.compiler.Environment
 import spoon.reflect.declaration.CtClass
-import spoon.reflect.declaration.CtType
 import java.io.File
 
 interface HyperKitDtoGeneratorConfigurationExtension {
