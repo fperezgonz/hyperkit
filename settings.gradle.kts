@@ -7,7 +7,7 @@ pluginManagement {
 
 plugins {
     // Apply the foojay-resolver plugin to allow automatic download of JDKs
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
 }
 
 rootProject.name = "hyperkit"
@@ -16,3 +16,4 @@ include("hyperkit-dto-api")
 include("hyperkit-projections-dsl")
 include("hyperkit-utils-spring")
 include("hyperkit-utils-serialization")
+include("hyperkit-spring-boot-starter")
