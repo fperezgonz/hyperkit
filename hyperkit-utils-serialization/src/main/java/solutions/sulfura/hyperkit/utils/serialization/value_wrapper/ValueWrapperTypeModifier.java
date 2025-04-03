@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 import java.lang.reflect.Type;
 

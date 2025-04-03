@@ -6,13 +6,14 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.ReferenceTypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class ValueWrapperDeserializer extends ReferenceTypeDeserializer<Object> {
 
+    @SuppressWarnings("rawtypes")
     private final ValueWrapperAdapter adapter;
 
-    public ValueWrapperDeserializer(JavaType fullType, ValueInstantiator vi, TypeDeserializer typeDeser, JsonDeserializer<?> deser, ValueWrapperAdapter adapter) {
+    public ValueWrapperDeserializer(JavaType fullType, ValueInstantiator vi, TypeDeserializer typeDeser, JsonDeserializer<?> deser, ValueWrapperAdapter<?> adapter) {
         super(fullType, vi, typeDeser, deser);
         this.adapter = adapter;
     }
@@ -39,6 +40,7 @@ public class ValueWrapperDeserializer extends ReferenceTypeDeserializer<Object> 
 
     @Override
     public Object getReferenced(Object reference) {
+        //noinspection unchecked
         return adapter.unwrap(reference);
     }
 

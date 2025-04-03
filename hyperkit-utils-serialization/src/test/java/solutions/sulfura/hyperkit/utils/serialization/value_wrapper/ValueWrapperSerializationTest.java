@@ -3,7 +3,7 @@ package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 import java.io.IOException;
 import java.util.Map;

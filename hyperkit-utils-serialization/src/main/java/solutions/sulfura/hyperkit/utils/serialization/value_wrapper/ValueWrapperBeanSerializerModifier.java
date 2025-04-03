@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 import java.util.List;
 

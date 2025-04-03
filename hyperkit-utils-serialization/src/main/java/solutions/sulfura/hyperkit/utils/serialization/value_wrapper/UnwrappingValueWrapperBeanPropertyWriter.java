@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class UnwrappingValueWrapperBeanPropertyWriter extends UnwrappingBeanPropertyWriter {
 

@@ -4,12 +4,14 @@ package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 import java.io.IOException;
 
+@SuppressWarnings("unchecked")
 public class ValueWrapperSerializer extends JsonSerializer {
 
+    @SuppressWarnings("rawtypes")
     private final ValueWrapperAdapter adapter;
 
     public ValueWrapperSerializer(ValueWrapperAdapter<?> adapter) {

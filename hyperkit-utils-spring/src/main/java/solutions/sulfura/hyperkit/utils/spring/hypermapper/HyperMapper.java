@@ -6,10 +6,10 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUtils.PropertyDescriptor;
 
@@ -25,12 +25,10 @@ import static solutions.sulfura.hyperkit.utils.spring.hypermapper.RelationshipMa
 public class HyperMapper<C> {
 
     private final HyperRepository<C> hyperRepository;
-    private final ValueWrapperAdapter valueWrapperAdapter;
 
 
-    public HyperMapper(final HyperRepository<C> hyperRepository, ValueWrapperAdapter valueWrapperAdapter) {
+    public HyperMapper(final HyperRepository<C> hyperRepository) {
         this.hyperRepository = hyperRepository;
-        this.valueWrapperAdapter = valueWrapperAdapter;
     }
 
     /**
@@ -120,7 +118,7 @@ public class HyperMapper<C> {
                 throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + value.getSourceClass().getName());
             }
             var itemIdWrapper = HyperMapperPropertyUtils.getProperty(value, listValueIdPropertyDescriptor.getPropertyName());
-            Serializable itemId = (Serializable) valueWrapperAdapter.unwrap(itemIdWrapper);
+            Serializable itemId = (Serializable) (itemIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.get() : itemIdWrapper);
 
             // Case INSERT; ensure the item does not have an ID.
             if (listOperation.getItemOperationType() == ListOperation.ItemOperationType.INSERT && itemId != null) {
@@ -239,9 +237,7 @@ public class HyperMapper<C> {
         try {
 
             Object dtoIdWrapper = HyperMapperPropertyUtils.getProperty(dto, entityIdPropDesc.getPropertyName());
-            Serializable dtoId = valueWrapperAdapter.isSupportedWrapperInstance(dtoIdWrapper)
-                    ? (Serializable) valueWrapperAdapter.unwrap(dtoIdWrapper)
-                    : (Serializable) dtoIdWrapper;
+            Serializable dtoId = (Serializable) (dtoIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.getOrNull() : dtoIdWrapper);
 
             //Retrieves an instance from the repository or creates a new instance, depending on whether it has an id or not
             if (dtoId != null) {
@@ -277,17 +273,17 @@ public class HyperMapper<C> {
                             "Dto fields MUST NEVER be null. Use a non-empty wrapper that contains a null value or an empty wrapper for absent values");
                 }
 
-                if (!(valueWrapperAdapter.isSupportedWrapperInstance(propertyValue))) {
+                if (!(propertyValue instanceof ValueWrapper valWrapper)) {
                     throw new HyperMapperException("Property " + propertyDescriptor.getPropertyName() + " in type " + dtoClass.getCanonicalName() + " is of type " + propertyValue.getClass().getSimpleName() + ". " +
                             "All Dto Fields must be of the wrapper type");
                 }
 
                 //If the DTO property is absent/empty it is ignored
-                if (valueWrapperAdapter.isEmpty(propertyValue)) {
+                if (valWrapper.isEmpty()) {
                     continue;
                 }
 
-                Object unwrappedValue = valueWrapperAdapter.unwrap(propertyValue);
+                Object unwrappedValue = valWrapper.get();
 
                 //TODO It should not be ignored, the mapped result should be used and set on the property before continuing to the next entity
                 //If the entity has already been processed, ignore it
@@ -361,12 +357,12 @@ public class HyperMapper<C> {
         //Property ignored by projection
         if (fieldConf == null || fieldConf.getPresence() == FieldConf.Presence.IGNORED) {
 
-            wrappedValue = valueWrapperAdapter.empty();
+            wrappedValue = ValueWrapper.empty();
 
             //Null property
         } else if (entityPropertyValue == null) {
 
-            wrappedValue = valueWrapperAdapter.wrap(null);
+            wrappedValue = ValueWrapper.of(null);
 
             //Collection property
         } else if (entityPropertyValue instanceof Collection<?> collectionProperty) {
@@ -384,7 +380,7 @@ public class HyperMapper<C> {
                 values.add(ListOperation.valueOf(dtoFromEntityElement));
             }
 
-            wrappedValue = valueWrapperAdapter.wrap(values);
+            wrappedValue = ValueWrapper.of(values);
 
             //Dto property
         } else if (Dto.class.isAssignableFrom(propertyDescriptor.getContainedType())) {
@@ -392,12 +388,12 @@ public class HyperMapper<C> {
             //Cast to the right FieldConf type
             DtoFieldConf nestedDtoConf = (DtoFieldConf<?>) fieldConf;
             var value = mapEntityToDto(entityPropertyValue, (Class<Dto>) propertyDescriptor.getContainedType(), nestedDtoConf.dtoProjection);
-            wrappedValue = valueWrapperAdapter.wrap(value);
+            wrappedValue = ValueWrapper.of(value);
 
             //Plain property
         } else {
 
-            wrappedValue = valueWrapperAdapter.wrap(entityPropertyValue);
+            wrappedValue = ValueWrapper.of(entityPropertyValue);
 
         }
 

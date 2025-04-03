@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.dtos;
+package solutions.sulfura.hyperkit.utils.serialization;
 
 public interface ValueWrapperAdapter<T> {
 

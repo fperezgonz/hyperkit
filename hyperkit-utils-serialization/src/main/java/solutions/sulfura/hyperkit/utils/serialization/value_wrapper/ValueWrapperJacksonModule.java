@@ -3,7 +3,7 @@ package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class ValueWrapperJacksonModule extends SimpleModule {
 

@@ -1,7 +1,6 @@
-package solutions.sulfura.hyperkit.utils;
+package solutions.sulfura.hyperkit.utils.serialization;
 
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
 
 /**
  * Implementation of ValueWrapperAdapter for ValueWrapper

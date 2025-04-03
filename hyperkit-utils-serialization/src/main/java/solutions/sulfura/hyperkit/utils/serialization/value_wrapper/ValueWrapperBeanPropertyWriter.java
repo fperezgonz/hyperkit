@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
-import solutions.sulfura.hyperkit.dtos.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class ValueWrapperBeanPropertyWriter extends BeanPropertyWriter {
 
+    @SuppressWarnings("rawtypes")
     private final ValueWrapperAdapter adapter;
 
     protected ValueWrapperBeanPropertyWriter(BeanPropertyWriter base, ValueWrapperAdapter<?> adapter) {
@@ -36,6 +37,7 @@ public class ValueWrapperBeanPropertyWriter extends BeanPropertyWriter {
 
         Object value = get(bean);
 
+        //noinspection unchecked
         if (value == null || adapter.isEmpty(value)) {
             return;
         }

@@ -16,12 +16,12 @@ public class ValueWrapper<T> {
      *
      * @param value the value to wrap
      */
-    public ValueWrapper(T value) {
+    private ValueWrapper(T value) {
         this.value = value;
         this.empty = false;
     }
 
-    private ValueWrapper() {
+    public ValueWrapper() {
         this.value = null;
         this.empty = true;
     }
@@ -40,7 +40,7 @@ public class ValueWrapper<T> {
      * Creates a ValueWrapper with the given value.
      *
      * @param value the value to wrap
-     * @param <T> the type of the wrapped value
+     * @param <T>   the type of the wrapped value
      * @return a ValueWrapper containing the given value
      */
     public static <T> ValueWrapper<T> of(T value) {
@@ -53,7 +53,13 @@ public class ValueWrapper<T> {
      * @return the wrapped value
      */
     public T get() {
+
+        if (empty) {
+            throw new IllegalStateException("ValueWrapper is empty");
+        }
+
         return value;
+
     }
 
     /**
