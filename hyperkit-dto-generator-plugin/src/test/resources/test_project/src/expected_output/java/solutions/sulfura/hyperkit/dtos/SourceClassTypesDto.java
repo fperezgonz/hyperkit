@@ -15,7 +15,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassTypes.class)
-public class SourceClassTypesDto implements Dto<SourceClassTypes>{
+public class SourceClassTypesDto implements Dto<SourceClassTypes> {
 
     public ValueWrapper<String> stringProperty = ValueWrapper.empty();
     public ValueWrapper<Long> longProperty = ValueWrapper.empty();
@@ -31,7 +31,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         return SourceClassTypes.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<String> stringProperty = ValueWrapper.empty();
         ValueWrapper<Long> longProperty = ValueWrapper.empty();
@@ -40,7 +40,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         ValueWrapper<List<ListOperation<String>>> stringArrayProperty = ValueWrapper.empty();
         ValueWrapper<List<ListOperation<Boolean>>> booleanArrayProperty = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -75,7 +75,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
         }
 
 
-        public SourceClassTypesDto build(){
+        public SourceClassTypesDto build() {
 
             SourceClassTypesDto instance = new SourceClassTypesDto();
             instance.stringProperty = stringProperty;
@@ -113,7 +113,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
             dto.booleanArrayProperty = ProjectionUtils.getProjectedValue(dto.booleanArrayProperty, this.booleanArrayProperty);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf stringProperty;
             FieldConf longProperty;
@@ -122,7 +122,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
             ListFieldConf stringArrayProperty;
             ListFieldConf booleanArrayProperty;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -186,7 +186,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
                 return this;
             }
 
-            public SourceClassTypesDto.Projection build(){
+            public SourceClassTypesDto.Projection build() {
 
                 SourceClassTypesDto.Projection instance = new SourceClassTypesDto.Projection();
                 instance.stringProperty = stringProperty;
@@ -204,7 +204,7 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes>{
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _stringProperty = "stringProperty";
         public static final String _longProperty = "longProperty";

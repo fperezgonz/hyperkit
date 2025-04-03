@@ -12,7 +12,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassWithIncluded.class)
-public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
+public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded> {
 
     public ValueWrapper<String> stringProperty = ValueWrapper.empty();
     public ValueWrapper<String> stringPropertyWithCustomAnnotation = ValueWrapper.empty();
@@ -27,7 +27,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
         return SourceClassWithIncluded.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<String> stringProperty = ValueWrapper.empty();
         ValueWrapper<String> stringPropertyWithCustomAnnotation = ValueWrapper.empty();
@@ -35,7 +35,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
         ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
         ValueWrapper<String> stringPropertyWithSetterAndCustomAnnotation = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -65,7 +65,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
         }
 
 
-        public SourceClassWithIncludedDto build(){
+        public SourceClassWithIncludedDto build() {
 
             SourceClassWithIncludedDto instance = new SourceClassWithIncludedDto();
             instance.stringProperty = stringProperty;
@@ -100,7 +100,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
             dto.stringPropertyWithSetterAndCustomAnnotation = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetterAndCustomAnnotation, this.stringPropertyWithSetterAndCustomAnnotation);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf stringProperty;
             FieldConf stringPropertyWithCustomAnnotation;
@@ -108,7 +108,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
             FieldConf stringPropertyWithSetter;
             FieldConf stringPropertyWithSetterAndCustomAnnotation;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -162,7 +162,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
                 return this;
             }
 
-            public SourceClassWithIncludedDto.Projection build(){
+            public SourceClassWithIncludedDto.Projection build() {
 
                 SourceClassWithIncludedDto.Projection instance = new SourceClassWithIncludedDto.Projection();
                 instance.stringProperty = stringProperty;
@@ -179,7 +179,7 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded>{
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _stringProperty = "stringProperty";
         public static final String _stringPropertyWithCustomAnnotation = "stringPropertyWithCustomAnnotation";

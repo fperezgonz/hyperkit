@@ -18,7 +18,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassA.class)
-public class SourceClassADto implements Dto<SourceClassA>{
+public class SourceClassADto implements Dto<SourceClassA> {
 
     public ValueWrapper<SourceClassBDto> property = ValueWrapper.empty();
     public ValueWrapper<List<ListOperation<SourceClassBDto>>> propertyArray = ValueWrapper.empty();
@@ -32,14 +32,14 @@ public class SourceClassADto implements Dto<SourceClassA>{
         return SourceClassA.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<SourceClassBDto> property = ValueWrapper.empty();
         ValueWrapper<List<ListOperation<SourceClassBDto>>> propertyArray = ValueWrapper.empty();
         ValueWrapper<List<ListOperation<SourceClassBDto>>> genericProperty = ValueWrapper.empty();
         ValueWrapper<List<ListOperation<List<ListOperation<SourceClassBDto>>>>> genericPropertyArray = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -64,7 +64,7 @@ public class SourceClassADto implements Dto<SourceClassA>{
         }
 
 
-        public SourceClassADto build(){
+        public SourceClassADto build() {
 
             SourceClassADto instance = new SourceClassADto();
             instance.property = property;
@@ -96,14 +96,14 @@ public class SourceClassADto implements Dto<SourceClassA>{
             dto.genericPropertyArray = ProjectionUtils.getProjectedValue(dto.genericPropertyArray, this.genericPropertyArray);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             DtoFieldConf<SourceClassBDto.Projection> property;
             DtoListFieldConf<SourceClassBDto.Projection> propertyArray;
             DtoListFieldConf<SourceClassBDto.Projection> genericProperty;
             ListFieldConf genericPropertyArray;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -147,7 +147,7 @@ public class SourceClassADto implements Dto<SourceClassA>{
                 return this;
             }
 
-            public SourceClassADto.Projection build(){
+            public SourceClassADto.Projection build() {
 
                 SourceClassADto.Projection instance = new SourceClassADto.Projection();
                 instance.property = property;
@@ -163,7 +163,7 @@ public class SourceClassADto implements Dto<SourceClassA>{
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _property = "property";
         public static final String _propertyArray = "propertyArray";
