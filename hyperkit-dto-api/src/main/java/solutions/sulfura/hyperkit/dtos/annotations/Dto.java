@@ -10,11 +10,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Dto {
 
-    Class<?extends Annotation>[] include() default {};
+    Class<? extends Annotation>[] include() default {};
 
     String destPackageName() default "";
 
-    String prefix() default "";
-
-    String suffix() default "Dto";
 }

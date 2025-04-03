@@ -8,8 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface DtoProperty {
-    String propertyName() default "";
-    boolean createGetter() default false;
-    boolean createSetter() default false;
     boolean preserveCase() default false;
 }
