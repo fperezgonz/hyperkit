@@ -133,7 +133,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
 
     @Override
     public <T> List<T> findAll(@NonNull Class<T> entityClass, @NonNull Specification<T> spec, @NonNull Sort sort, C contextInfo) {
-        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, null);
+        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, sort);
         return entityManager.createQuery(query).getResultList();
     }
 
