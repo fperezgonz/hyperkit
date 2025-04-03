@@ -14,7 +14,7 @@ This style guide outlines the coding conventions and best practices for the Hype
 8. [Collections](#collections)
 9. [Null Safety](#null-safety)
 10. [Common Pitfalls to Avoid](#common-pitfalls-to-avoid)
-11. [Testing](#testing)
+11. [Test Coverage](#test-coverage)
 
 ## Code Organization
 
@@ -211,9 +211,11 @@ This style guide outlines the coding conventions and best practices for the Hype
 - Group related tests in the same class
 
 ### Test Methods
-- Use descriptive test method names that explain the scenario and expected outcome
-- Follow the Arrange-Act-Assert pattern
+- Add @DisplayName annotations to test methods, that succintly describe what is being tested
+- Follow the Given/When/Then pattern
+- Add concise comments to explain the Given, When and Then in natural language
 - Keep tests independent and isolated
+- As a rule of thumb, avoid testing several things in the same method (e.g.: serialize and deserialize) and instead make several tests, unless it is a series of steps of the same process and the setup to be able to test the intermediate and final steps is very complicated
 
 ### Mocking
 - Avoid mocking except for integration tests with external services
@@ -221,6 +223,12 @@ This style guide outlines the coding conventions and best practices for the Hype
 - Avoid excessive mocking that leads to brittle tests
 
 ### Test Coverage
-- Aim for high test coverage
-- Test edge cases and error scenarios
+- The purpose of the tests is to serve as an executable specification
+- Details of the specification that are obvious and very simple to implement (such as direct getters, setters and constructors) do not need tests. This reduces the cost of maintaining tests
+- Do not chase high test coverage
+- Keep the tests maintainable by limiting test coverage to key functionality
+- Test the expected results, not the implementation details, e.g.: do not test the size and contents of enums
+- Do not test simple constructors that do not have logic
+- Do not test simple factory methods that do not have logic
+- Test edge cases and error scenarios when there is complex logic involved
 - Use parameterized tests for testing multiple inputs
