@@ -15,7 +15,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(GenericChildClassWithParameterizedType.class)
-public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChildClassWithParameterizedType>{
+public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChildClassWithParameterizedType> {
 
     public ValueWrapper<String> genericProperty = ValueWrapper.empty();
     public ValueWrapper<Set<ListOperation<String>>> nestedGenericProperty = ValueWrapper.empty();
@@ -35,7 +35,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         return GenericChildClassWithParameterizedType.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<String> genericProperty = ValueWrapper.empty();
         ValueWrapper<Set<ListOperation<String>>> nestedGenericProperty = ValueWrapper.empty();
@@ -48,7 +48,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         ValueWrapper<String> inheritedGenericPropertyWithGetter = ValueWrapper.empty();
         ValueWrapper<String> inheritedGenericPropertyWithSetter = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -103,7 +103,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
         }
 
 
-        public GenericChildClassWithParameterizedTypeDto build(){
+        public GenericChildClassWithParameterizedTypeDto build() {
 
             GenericChildClassWithParameterizedTypeDto instance = new GenericChildClassWithParameterizedTypeDto();
             instance.genericProperty = genericProperty;
@@ -153,7 +153,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
             dto.inheritedGenericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.inheritedGenericPropertyWithSetter, this.inheritedGenericPropertyWithSetter);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf genericProperty;
             ListFieldConf nestedGenericProperty;
@@ -166,7 +166,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
             FieldConf inheritedGenericPropertyWithGetter;
             FieldConf inheritedGenericPropertyWithSetter;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -270,7 +270,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                 return this;
             }
 
-            public GenericChildClassWithParameterizedTypeDto.Projection build(){
+            public GenericChildClassWithParameterizedTypeDto.Projection build() {
 
                 GenericChildClassWithParameterizedTypeDto.Projection instance = new GenericChildClassWithParameterizedTypeDto.Projection();
                 instance.genericProperty = genericProperty;
@@ -292,7 +292,7 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _genericProperty = "genericProperty";
         public static final String _nestedGenericProperty = "nestedGenericProperty";

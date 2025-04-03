@@ -119,4 +119,14 @@ class generateDtosTests {
 
     }
 
+    @Test
+    fun booleanGetterSetterTest() {
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}SourceClassBooleanGetterSetterDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}SourceClassBooleanGetterSetterDto.java"
+        )
+
+    }
+
 }

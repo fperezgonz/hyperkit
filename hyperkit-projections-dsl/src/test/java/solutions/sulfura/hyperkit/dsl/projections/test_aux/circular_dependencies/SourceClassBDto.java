@@ -16,7 +16,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import java.util.List;
 
 @DtoFor(SourceClassB.class)
-public class SourceClassBDto implements Dto<SourceClassB>{
+public class SourceClassBDto implements Dto<SourceClassB> {
 
     public ValueWrapper<List<ListOperation<SourceClassADto>>> propertyArray = ValueWrapper.empty();
     public ValueWrapper<SourceClassADto> property = ValueWrapper.empty();
@@ -30,7 +30,7 @@ public class SourceClassBDto implements Dto<SourceClassB>{
     }
 
     @ProjectionFor(SourceClassBDto.class)
-    public static class Projection extends DtoProjection<SourceClassBDto>{
+    public static class Projection extends DtoProjection<SourceClassBDto> {
 
         public DtoListFieldConf<solutions.sulfura.hyperkit.dsl.projections.test_aux.circular_dependencies.SourceClassADto.Projection> propertyArray;
         public DtoFieldConf<solutions.sulfura.hyperkit.dsl.projections.test_aux.circular_dependencies.SourceClassADto.Projection> property;

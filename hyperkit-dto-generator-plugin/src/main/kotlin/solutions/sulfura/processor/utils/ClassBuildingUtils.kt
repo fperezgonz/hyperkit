@@ -475,13 +475,69 @@ fun buildOutputClass(
         valueWrapperTypeReference.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(if (fieldType.isPrimitive) fieldType.box() else fieldType))
         fieldType = valueWrapperTypeReference
 
-        factory.createField(
+        // Use the field name from PropertyData (which might be a custom name from @DtoProperty)
+        val fieldName = propData.name
+
+        // Create the field
+        val field = factory.createField(
             result,
             setOf(ModifierKind.PUBLIC),
             fieldType,
-            propData.name
+            fieldName
         )
 
+        // Generate getter if requested
+        if (propData.createGetter) {
+            // Use "is" prefix for boolean properties, "get" for others
+            val prefix = if (propData.type.qualifiedName == "boolean" || propData.type.qualifiedName == "java.lang.Boolean") "is" else "get"
+            val getterName = prefix + capitalize(fieldName)
+            val getter = factory.createMethod<Any>()
+            getter.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+            getter.setSimpleName<CtMethod<*>>(getterName)
+            getter.setType<CtMethod<*>>(fieldType)
+
+            // Create return statement: return this.fieldName;
+            val fieldRead = factory.createFieldRead<Any>()
+            fieldRead.setTarget<CtTargetedExpression<Any, CtExpression<*>>>(factory.createThisAccess(result.reference))
+            fieldRead.setVariable<CtVariableAccess<Any>>(field.reference)
+            val returnStatement = factory.createReturn<Any>().setReturnedExpression<CtReturn<Any>>(fieldRead)
+
+            getter.setBody<CtBodyHolder>(returnStatement)
+            result.addMethod<Any, CtType<*>>(getter)
+        }
+
+        // Generate setter if requested
+        if (propData.createSetter) {
+            val setterName = "set" + capitalize(fieldName)
+            val setter = factory.createMethod<Any>()
+            setter.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+            setter.setSimpleName<CtMethod<*>>(setterName)
+            setter.setType<CtMethod<*>>(factory.Type().voidPrimitiveType())
+
+            // Create parameter
+            val parameter = factory.createParameter<Any>()
+            parameter.setSimpleName<CtNamedElement>("value")
+            parameter.setType<CtTypedElement<*>>(fieldType)
+            setter.addParameter<CtExecutable<Any>>(parameter)
+
+            // Create assignment: this.fieldName = value;
+            val fieldWrite = factory.createFieldWrite<Any>()
+            fieldWrite.setTarget<CtTargetedExpression<Any, CtExpression<*>>>(factory.createThisAccess(result.reference))
+            fieldWrite.setVariable<CtVariableAccess<Any>>(field.reference)
+
+            val parameterRead = factory.createVariableRead<Any>()
+            parameterRead.setVariable<CtVariableAccess<Any>>(parameter.reference)
+
+            val assignment = factory.createAssignment<Any, Any>()
+            assignment.setAssigned<CtAssignment<Any, Any>>(fieldWrite)
+            assignment.setAssignment<CtRHSReceiver<Any>>(parameterRead)
+
+            val block = factory.createBlock<Any>()
+            block.addStatement<CtStatementList>(assignment)
+
+            setter.setBody<CtBodyHolder>(block)
+            result.addMethod<Any, CtType<*>>(setter)
+        }
     }
 
     buildBuilderClass(result, factory)
@@ -492,4 +548,9 @@ fun buildOutputClass(
 
 }
 
-class PropertyData(val name: String, val type: CtTypeReference<*>)
+data class PropertyData(
+    val name: String, 
+    val type: CtTypeReference<*>,
+    val createGetter: Boolean = false,
+    val createSetter: Boolean = false
+)

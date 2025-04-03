@@ -13,7 +13,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @SuppressWarnings("unused")
 @DtoFor(ManyToOneEntity.class)
-public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
+public class ManyToOneEntityDto implements Dto<ManyToOneEntity> {
 
     public ValueWrapper<Long> id = ValueWrapper.empty();
     public ValueWrapper<String> name = ValueWrapper.empty();
@@ -27,14 +27,14 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
         return ManyToOneEntity.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<Long> id = ValueWrapper.empty();
         ValueWrapper<String> name = ValueWrapper.empty();
         ValueWrapper<String> description = ValueWrapper.empty();
         ValueWrapper<OneToManyEntityDto> oneToManyEntity = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -59,7 +59,7 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
         }
 
 
-        public ManyToOneEntityDto build(){
+        public ManyToOneEntityDto build() {
 
             ManyToOneEntityDto instance = new ManyToOneEntityDto();
             instance.id = id;
@@ -91,14 +91,14 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
             dto.oneToManyEntity = ProjectionUtils.getProjectedValue(dto.oneToManyEntity, this.oneToManyEntity);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf id;
             FieldConf name;
             FieldConf description;
             DtoFieldConf<OneToManyEntityDto.Projection> oneToManyEntity;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -142,7 +142,7 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
                 return this;
             }
 
-            public Projection build(){
+            public Projection build() {
 
                 Projection instance = new Projection();
                 instance.id = id;
@@ -158,7 +158,7 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity>{
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _id = "id";
         public static final String _name = "name";

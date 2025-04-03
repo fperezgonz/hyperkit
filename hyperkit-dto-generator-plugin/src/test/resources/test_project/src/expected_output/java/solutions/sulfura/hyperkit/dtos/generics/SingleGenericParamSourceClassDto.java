@@ -15,7 +15,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SingleGenericParamSourceClass.class)
-public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamSourceClass>{
+public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamSourceClass> {
 
     public ValueWrapper<T> genericProperty = ValueWrapper.empty();
     public ValueWrapper<Set<ListOperation<T>>> nestedGenericProperty = ValueWrapper.empty();
@@ -29,14 +29,14 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
         return SingleGenericParamSourceClass.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<T> genericProperty = ValueWrapper.empty();
         ValueWrapper<Set<ListOperation<T>>> nestedGenericProperty = ValueWrapper.empty();
         ValueWrapper<T> genericPropertyWithGetter = ValueWrapper.empty();
         ValueWrapper<T> genericPropertyWithSetter = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -61,7 +61,7 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
         }
 
 
-        public SingleGenericParamSourceClassDto build(){
+        public SingleGenericParamSourceClassDto build() {
 
             SingleGenericParamSourceClassDto instance = new SingleGenericParamSourceClassDto();
             instance.genericProperty = genericProperty;
@@ -93,14 +93,14 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
             dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf genericProperty;
             ListFieldConf nestedGenericProperty;
             FieldConf genericPropertyWithGetter;
             FieldConf genericPropertyWithSetter;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -144,7 +144,7 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
                 return this;
             }
 
-            public SingleGenericParamSourceClassDto.Projection build(){
+            public SingleGenericParamSourceClassDto.Projection build() {
 
                 SingleGenericParamSourceClassDto.Projection instance = new SingleGenericParamSourceClassDto.Projection();
                 instance.genericProperty = genericProperty;
@@ -160,7 +160,7 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _genericProperty = "genericProperty";
         public static final String _nestedGenericProperty = "nestedGenericProperty";

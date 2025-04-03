@@ -11,7 +11,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 
 @DtoFor(SourceClassGetterSetter.class)
-public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
+public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> {
 
     public ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
     public ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
@@ -25,7 +25,7 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
 
     @ProjectionFor(SourceClassGetterSetterDto.class)
-    public static class Projection extends DtoProjection<SourceClassGetterSetterDto>{
+    public static class Projection extends DtoProjection<SourceClassGetterSetterDto> {
 
         public FieldConf stringPropertyWithGetter;
         public FieldConf stringPropertyWithSetter;

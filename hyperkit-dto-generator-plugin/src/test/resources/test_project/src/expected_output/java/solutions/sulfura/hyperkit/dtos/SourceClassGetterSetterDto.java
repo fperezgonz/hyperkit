@@ -12,7 +12,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceClassGetterSetter.class)
-public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
+public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> {
 
     public ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
     public ValueWrapper<String> stringPropertyWithGetterAndSetter = ValueWrapper.empty();
@@ -25,13 +25,13 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
         return SourceClassGetterSetter.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<String> stringPropertyWithGetter = ValueWrapper.empty();
         ValueWrapper<String> stringPropertyWithGetterAndSetter = ValueWrapper.empty();
         ValueWrapper<String> stringPropertyWithSetter = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -51,7 +51,7 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
         }
 
 
-        public SourceClassGetterSetterDto build(){
+        public SourceClassGetterSetterDto build() {
 
             SourceClassGetterSetterDto instance = new SourceClassGetterSetterDto();
             instance.stringPropertyWithGetter = stringPropertyWithGetter;
@@ -80,13 +80,13 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
             dto.stringPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetter, this.stringPropertyWithSetter);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf stringPropertyWithGetter;
             FieldConf stringPropertyWithGetterAndSetter;
             FieldConf stringPropertyWithSetter;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -120,7 +120,7 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
                 return this;
             }
 
-            public SourceClassGetterSetterDto.Projection build(){
+            public SourceClassGetterSetterDto.Projection build() {
 
                 SourceClassGetterSetterDto.Projection instance = new SourceClassGetterSetterDto.Projection();
                 instance.stringPropertyWithGetter = stringPropertyWithGetter;
@@ -135,7 +135,7 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter>{
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _stringPropertyWithGetter = "stringPropertyWithGetter";
         public static final String _stringPropertyWithGetterAndSetter = "stringPropertyWithGetterAndSetter";

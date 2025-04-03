@@ -11,7 +11,7 @@ import solutions.sulfura.hyperkit.dtos.Dto;
  * <br>
  * <br>
  * Example of the problem:
- * <pre>{@code
+ * <pre> {@code
  * @FooDtoConfig {
  *     IntFieldConf intField = @IntFieldConf;
  *     FloatFieldConf floatField = @FloatFieldConf;

@@ -17,6 +17,26 @@ import spoon.reflect.reference.CtTypeReference
 import spoon.reflect.visitor.chain.CtQuery
 import java.util.Locale
 
+/**
+ * Builds a PropertyData object from a DtoProperty annotation
+ *
+ * @param annotation The DtoProperty annotation to extract data from
+ * @param name The name of the property
+ * @param type The type of the property
+ * @return A PropertyData object with the properties from the annotation
+ */
+fun buildPropertyDataFromAnnotation(annotation: DtoProperty?, name: String, type: CtTypeReference<*>): PropertyData {
+    val createGetter = annotation?.createGetter ?: false
+    val createSetter = annotation?.createSetter ?: false
+
+    return PropertyData(
+        name,
+        type,
+        createGetter,
+        createSetter
+    )
+}
+
 fun capitalize(s: String): String {
     return s.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 }
@@ -131,7 +151,12 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
 
         val typeWithInferredParameters =
             buildTypeReferenceWithInferredParameters(ctFieldRef.type, typeParamMap, factory)
-        result.put(ctFieldRef.simpleName, PropertyData(ctFieldRef.simpleName, typeWithInferredParameters))
+
+        // Extract DtoProperty annotation data and build PropertyData
+        val dtoPropertyAnnotation = ctFieldRef.fieldDeclaration.getAnnotation<DtoProperty>(DtoProperty::class.java)
+        val propertyData = buildPropertyDataFromAnnotation(dtoPropertyAnnotation, ctFieldRef.simpleName, typeWithInferredParameters)
+
+        result.put(ctFieldRef.simpleName, propertyData)
 
     }
 
@@ -158,10 +183,22 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
                 buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
             var propertyName = methodName.substring(3)
             val dtoPropertyAnnotation = ctMethod.getAnnotation<DtoProperty>(DtoProperty::class.java)
-            if (dtoPropertyAnnotation == null || !dtoPropertyAnnotation.preserveCase) {
+
+            // Extract annotation data
+            val customPropertyName = dtoPropertyAnnotation?.propertyName?.takeIf { it.isNotEmpty() }
+            val preserveCase = dtoPropertyAnnotation?.preserveCase ?: false
+
+            if (!preserveCase) {
                 propertyName = uncapitalize(propertyName)
             }
-            result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
+
+            // Use custom property name if provided
+            val finalPropertyName = customPropertyName ?: propertyName
+
+            // Build PropertyData directly
+            val propertyData = buildPropertyDataFromAnnotation(dtoPropertyAnnotation, finalPropertyName, typeWithInferredParameters)
+
+            result.put(finalPropertyName, propertyData)
 
         }
 
@@ -172,10 +209,22 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
                 buildTypeReferenceWithInferredParameters(ctMethod.type, typeParamMap, factory)
             var propertyName = methodName.substring(2)
             val dtoPropertyAnnotation = ctMethod.getAnnotation<DtoProperty>(DtoProperty::class.java)
-            if (dtoPropertyAnnotation == null || !dtoPropertyAnnotation.preserveCase) {
+
+            // Extract annotation data
+            val customPropertyName = dtoPropertyAnnotation?.propertyName?.takeIf { it.isNotEmpty() }
+            val preserveCase = dtoPropertyAnnotation?.preserveCase ?: false
+
+            if (!preserveCase) {
                 propertyName = uncapitalize(propertyName)
             }
-            result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
+
+            // Use custom property name if provided
+            val finalPropertyName = customPropertyName ?: propertyName
+
+            // Build PropertyData directly
+            val propertyData = buildPropertyDataFromAnnotation(dtoPropertyAnnotation, finalPropertyName, typeWithInferredParameters)
+
+            result.put(finalPropertyName, propertyData)
 
         }
 
@@ -190,10 +239,22 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
                 buildTypeReferenceWithInferredParameters(setterParamType, typeParamMap, factory)
             var propertyName = methodName.substring(3)
             val dtoPropertyAnnotation = ctMethod.getAnnotation<DtoProperty>(DtoProperty::class.java)
-            if (dtoPropertyAnnotation == null || !dtoPropertyAnnotation.preserveCase) {
+
+            // Extract annotation data
+            val customPropertyName = dtoPropertyAnnotation?.propertyName?.takeIf { it.isNotEmpty() }
+            val preserveCase = dtoPropertyAnnotation?.preserveCase ?: false
+
+            if (!preserveCase) {
                 propertyName = uncapitalize(propertyName)
             }
-            result.put(propertyName, PropertyData(propertyName, typeWithInferredParameters))
+
+            // Use custom property name if provided
+            val finalPropertyName = customPropertyName ?: propertyName
+
+            // Build PropertyData directly
+            val propertyData = buildPropertyDataFromAnnotation(dtoPropertyAnnotation, finalPropertyName, typeWithInferredParameters)
+
+            result.put(finalPropertyName, propertyData)
 
         }
 

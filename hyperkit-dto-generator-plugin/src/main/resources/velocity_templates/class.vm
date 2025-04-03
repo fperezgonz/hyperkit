@@ -32,7 +32,7 @@ import ${importQualName.replace("$", ".")};
 ${annotation}
 #end
 ### Class
-public class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterfaces, ", "){
+public class ${ctClass.simpleName} implements #concatCollection($ctClass.superInterfaces, ", ") {
 
 #foreach($field in ${ctClass.fields})
     ##
@@ -45,18 +45,19 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 
 #foreach($method in ${ctClass.methods})
     #indent(1, ${method.toString()})$lb##
-#end
 
+#end
+##
 ### Builder class
 #foreach($type in ${ctClass.nestedTypes})
     #if($type.simpleName=="Builder")
-    public static class Builder{
+    public static class Builder {
 
         #foreach($field in ${ctClass.fields})
             #indent(2, ${field.type.toString()}) ${field.simpleName} = $valueWrapperDefaultValue;$lb##
         #end
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -69,7 +70,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 
         #end
 
-        public ${ctClass.simpleName} build(){
+        public ${ctClass.simpleName} build() {
 
             ${ctClass.simpleName} instance = new ${ctClass.simpleName}();
         #foreach($field in ${ctClass.fields})
@@ -112,13 +113,13 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
         }
 
 ###     Projection Builder class
-        public static class Builder{
+        public static class Builder {
 
         #foreach($field in ${projectionType.fields})
             #indent(3, ${field.type.toString()}) ${field.simpleName};$lb##
         #end
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -142,7 +143,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
             #end
 
         #end
-            public ${ctClass.simpleName}.${projectionType.simpleName} build(){
+            public ${ctClass.simpleName}.${projectionType.simpleName} build() {
 
                 ${ctClass.simpleName}.${projectionType.simpleName} instance = new ${ctClass.simpleName}.${projectionType.simpleName}();
                 #foreach($field in ${projectionType.fields})
@@ -162,7 +163,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 ### DtoModel class
 #foreach($type in ${ctClass.nestedTypes})
     #if($type.simpleName=="DtoModel")
-    public static class DtoModel{
+    public static class DtoModel {
 
     #foreach($field in ${ctClass.fields})
         public static final String _${field.simpleName} = "${field.simpleName}";

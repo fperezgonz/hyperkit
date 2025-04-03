@@ -12,7 +12,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 
 @DtoFor(SourceUpperCaseProperties.class)
-public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperties>{
+public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperties> {
 
     public ValueWrapper<String> UPPERCASE_FIELD_PROPERTY = ValueWrapper.empty();
     public ValueWrapper<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
@@ -25,13 +25,13 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
         return SourceUpperCaseProperties.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<String> UPPERCASE_FIELD_PROPERTY = ValueWrapper.empty();
         ValueWrapper<String> PRESERVE_UPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
         ValueWrapper<String> uPPERCASE_GETTER_PROPERTY = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -51,7 +51,7 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
         }
 
 
-        public SourceUpperCasePropertiesDto build(){
+        public SourceUpperCasePropertiesDto build() {
 
             SourceUpperCasePropertiesDto instance = new SourceUpperCasePropertiesDto();
             instance.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY;
@@ -80,13 +80,13 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
             dto.uPPERCASE_GETTER_PROPERTY = ProjectionUtils.getProjectedValue(dto.uPPERCASE_GETTER_PROPERTY, this.uPPERCASE_GETTER_PROPERTY);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf UPPERCASE_FIELD_PROPERTY;
             FieldConf PRESERVE_UPPERCASE_GETTER_PROPERTY;
             FieldConf uPPERCASE_GETTER_PROPERTY;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
@@ -120,7 +120,7 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
                 return this;
             }
 
-            public SourceUpperCasePropertiesDto.Projection build(){
+            public SourceUpperCasePropertiesDto.Projection build() {
 
                 SourceUpperCasePropertiesDto.Projection instance = new SourceUpperCasePropertiesDto.Projection();
                 instance.UPPERCASE_FIELD_PROPERTY = UPPERCASE_FIELD_PROPERTY;
@@ -135,7 +135,7 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _UPPERCASE_FIELD_PROPERTY = "UPPERCASE_FIELD_PROPERTY";
         public static final String _PRESERVE_UPPERCASE_GETTER_PROPERTY = "PRESERVE_UPPERCASE_GETTER_PROPERTY";
