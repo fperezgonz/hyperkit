@@ -37,7 +37,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         extension.inputPaths.convention(mutableSetOf("src/main/java/"))
         extension.rootOutputPath.convention("src/main/java/")
         extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
-        project.task("annotationProcessor") {
+        project.task("generateDtos") {
 
             group = "hyperkit"
 

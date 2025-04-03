@@ -13,7 +13,7 @@ const val expectedOutputDir: String = "src/expected_output/"
 const val testDtoPackagePath: String = "solutions/sulfura/hyperkit/dtos/"
 
 @TestInstance(PER_CLASS)
-class AnnotationProcessorTests {
+class generateDtosTests {
 
     val testProjectFolder: File = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
 
@@ -22,10 +22,10 @@ class AnnotationProcessorTests {
 
         val gradleRunner = GradleRunner.create()
         gradleRunner.withProjectDir(testProjectFolder)
-            .withArguments(":annotationProcessor")
+            .withArguments(":generateDtos")
             .withPluginClasspath()
         val gradleBuild = gradleRunner.build()
-        val outcome = gradleBuild.task(":annotationProcessor")!!.outcome.name
+        val outcome = gradleBuild.task(":generateDtos")!!.outcome.name
 
         if (!"SUCCESS".equals(outcome)) {
             println(gradleBuild.output)
