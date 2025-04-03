@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.dtos;
 
+@SuppressWarnings("unused")
 public class ListOperation<T> {
 
     public enum ListOperationType {

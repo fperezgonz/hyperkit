@@ -241,6 +241,7 @@ public class ProjectionDsl {
                         charsRead++;
                         characterStream.next();
                         //Skip
+                        //noinspection UnnecessaryContinue
                         continue;
                     } else if (c == '}') {
                         charsRead++;

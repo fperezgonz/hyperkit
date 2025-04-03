@@ -45,7 +45,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                 val spoon: SpoonAPI = Launcher()
                 spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
 
-                //Setup the input files
+                //Set up the input files
                 for (path in extension.inputPaths.get()) {
                     spoon.addInputResource(project.file(path).absolutePath)
                 }

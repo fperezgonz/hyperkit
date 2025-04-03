@@ -38,11 +38,11 @@ publishing {
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
-    implementation("org.jspecify:jspecify:1.0.0")
-    implementation("org.hsqldb:hsqldb:2.7.1")
     implementation("org.springframework.boot:spring-boot-starter-web:3.4.4")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.4")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")
+    compileOnly("org.jspecify:jspecify:1.0.0")
+    testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

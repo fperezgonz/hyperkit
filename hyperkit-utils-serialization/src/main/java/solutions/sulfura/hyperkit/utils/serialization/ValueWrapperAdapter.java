@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.utils.serialization;
 
+@SuppressWarnings("unused")
 public interface ValueWrapperAdapter<T> {
 
     T empty();

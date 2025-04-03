@@ -4,6 +4,7 @@ package solutions.sulfura.hyperkit.dtos.projection.fields;
  * The purpose of this class is to specify the list operations allowed in the process related to this configuration
  * see {@link FieldConf}
  */
+@SuppressWarnings("unused")
 public class ListFieldConf extends FieldConf {
 
     public boolean allowInsert = false;

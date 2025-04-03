@@ -5,7 +5,7 @@ public class CharacterStream {
     Character previousChar = null;
     Character currentChar = null;
     Character nextChar = null;
-    char[] streamData;
+    final char[] streamData;
 
     public CharacterStream(char[] streamData) {
         this.streamData = streamData;

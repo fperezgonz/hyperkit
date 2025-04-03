@@ -1,3 +1,5 @@
+@file:Suppress("UsePropertyAccessSyntax")
+
 package solutions.sulfura.processor.utils
 
 import solutions.sulfura.hyperkit.dtos.ValueWrapper
@@ -19,6 +21,7 @@ import spoon.reflect.reference.CtArrayTypeReference
 import spoon.reflect.reference.CtTypeReference
 import spoon.reflect.reference.CtVariableReference
 
+@Suppress("FunctionName")
 private fun createAnnotation_ProjectionFor(
     ctClass: CtClass<*>,
     factory: Factory
@@ -171,18 +174,18 @@ fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
         .setBody<CtBodyHolder>(factory.createCtBlock<CtStatement>(null))
 
     //Method "public void applyProjectionTo(SourceClassTypesDto dto) throws DtoProjectionException"
-    val method_applyProjectionTo = factory.createMethod<Any>()
-    method_applyProjectionTo.addModifier<CtModifiable>(ModifierKind.PUBLIC)
-    method_applyProjectionTo.setSimpleName<CtMethod<*>>("applyProjectionTo")
-    method_applyProjectionTo.setType<CtMethod<*>>(factory.Type().voidPrimitiveType())
+    val methodApplyProjectionTo = factory.createMethod<Any>()
+    methodApplyProjectionTo.addModifier<CtModifiable>(ModifierKind.PUBLIC)
+    methodApplyProjectionTo.setSimpleName<CtMethod<*>>("applyProjectionTo")
+    methodApplyProjectionTo.setType<CtMethod<*>>(factory.Type().voidPrimitiveType())
 
     val parameter = factory.createParameter<Any>()
     parameter.setSimpleName<CtNamedElement>("dto")
     parameter.setType<CtTypedElement<*>>(dtoClass.reference)
-    method_applyProjectionTo.addParameter<CtExecutable<Any>>(parameter)
+    methodApplyProjectionTo.addParameter<CtExecutable<Any>>(parameter)
 
     val exception = factory.Type().get<DtoProjectionException>(DtoProjectionException::class.java).reference
-    method_applyProjectionTo.addThrownType<CtExecutable<Any>>(exception)
+    methodApplyProjectionTo.addThrownType<CtExecutable<Any>>(exception)
 
     val methodBody: CtBlock<Int?> = factory.Core().createBlock()
 
@@ -241,7 +244,7 @@ fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
 
     }
 
-    result.addMethod<Any, CtType<*>>(method_applyProjectionTo)
+    result.addMethod<Any, CtType<*>>(methodApplyProjectionTo)
 
     return result
 

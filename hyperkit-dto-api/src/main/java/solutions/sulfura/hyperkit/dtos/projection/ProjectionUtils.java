@@ -8,6 +8,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 
 import java.util.Collection;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ProjectionUtils {
 
     public static <T> ValueWrapper<T> getProjectedValue(ValueWrapper<T> value, FieldConf fieldConf) {

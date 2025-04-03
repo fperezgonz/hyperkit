@@ -16,6 +16,7 @@ import java.util.Optional;
  *
  * @param <C> the type of the context information used for repository operations
  */
+@SuppressWarnings("unused")
 public interface HyperRepository<C> {
 
     /**

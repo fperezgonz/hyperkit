@@ -11,6 +11,7 @@ import java.lang.reflect.Parameter;
 
 class ProjectionDslTest {
 
+    @SuppressWarnings("unused")
     void testMethodInput(@DtoProjectionSpec(projectedClass = SourceClassGetterSetterDto.class, value = """
             stringPropertyWithGetter
             stringPropertyWithSetter @Mandatory""") SourceClassGetterSetterDto testParameter) {
@@ -28,7 +29,7 @@ class ProjectionDslTest {
     }
 
     @Test
-    void parseNestedDto() throws NoSuchMethodException {
+    void parseNestedDto() {
         SourceClassADto.Projection result = ProjectionDsl.parse("""
                 property{
                     property{}

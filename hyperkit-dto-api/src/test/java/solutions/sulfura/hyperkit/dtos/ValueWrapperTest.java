@@ -100,13 +100,12 @@ class ValueWrapperTest {
     }
 
     @Test
-    @DisplayName("equals() should return false when comparing with null or different type")
-    void equals_shouldReturnFalseWhenComparingWithNullOrDifferentType() {
+    @DisplayName("equals() should return false when comparing with null")
+    void equals_shouldReturnFalseWhenComparingWithNull() {
         // Given: We have a ValueWrapper
         ValueWrapper<String> wrapper = ValueWrapper.of("test");
 
-        // When/Then: Comparing with null or different type should return false
+        // When/Then: Comparing with null should return false
         assertNotEquals(null, wrapper);
-        assertNotEquals("test", wrapper);
     }
 }

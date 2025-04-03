@@ -12,6 +12,7 @@ public @interface DtoProjectionSpec {
     /**
      * The class that is projected by the root of the dsl string in {@link #value}
      */
+    @SuppressWarnings("rawtypes")
     Class<? extends Dto> projectedClass();
 
     /**

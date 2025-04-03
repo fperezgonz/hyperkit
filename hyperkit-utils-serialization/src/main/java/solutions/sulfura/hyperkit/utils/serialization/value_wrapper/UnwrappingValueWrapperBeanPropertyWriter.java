@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class UnwrappingValueWrapperBeanPropertyWriter extends UnwrappingBeanPropertyWriter {
 
+    @SuppressWarnings("rawtypes")
     private final ValueWrapperAdapter adapter;
 
     public UnwrappingValueWrapperBeanPropertyWriter(BeanPropertyWriter base,
@@ -34,6 +35,7 @@ public class UnwrappingValueWrapperBeanPropertyWriter extends UnwrappingBeanProp
 
         Object value = get(bean);
 
+        //noinspection unchecked
         if (value == null || adapter.isEmpty(value)) {
             return;
         }

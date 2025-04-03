@@ -29,7 +29,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
     private EntityManager entityManager;
 
     @Override
-    public <T, ID extends Serializable> Optional<T> findById(@NonNull Class<T> entityClass, ID id, C contextInfo) {
+    public <T, ID extends Serializable> Optional<T> findById(@NonNull Class<T> entityClass, @NonNull ID id, C contextInfo) {
         T entity = entityManager.find(entityClass, id);
         return Optional.ofNullable(entity);
     }
@@ -62,7 +62,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
 
     }
 
-    private <T> Long countTotalElements(@NonNull Class<T> entityClass, Specification<T> spec, C contextInfo) {
+    private <T> Long countTotalElements(@NonNull Class<T> entityClass, Specification<T> spec) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<T> countRoot = countQuery.from(entityClass);
@@ -80,8 +80,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
 
     private <T> CriteriaQuery<T> buildQueryWithSpecificationAndSort(@NonNull Class<T> entityClass,
                                                                             Specification<T> spec,
-                                                                            Sort sort,
-                                                                            C contextInfo) {
+                                                                            Sort sort) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(entityClass);
         Root<T> root = query.from(entityClass);
@@ -107,17 +106,17 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
 
     @Override
     public <T> List<T> findAll(@NonNull Class<T> entityClass, @NonNull Sort sort, C contextInfo) {
-        CriteriaQuery<T>  query = buildQueryWithSpecificationAndSort(entityClass, null, sort, contextInfo);
+        CriteriaQuery<T>  query = buildQueryWithSpecificationAndSort(entityClass, null, sort);
         return entityManager.createQuery(query).getResultList();
     }
 
     @Override
     public <T> Page<T> findAll(@NonNull Class<T> entityClass, @NonNull Pageable pageable, C contextInfo) {
         // Query for counting total elements
-        Long totalElements = countTotalElements(entityClass, null, contextInfo);
+        Long totalElements = countTotalElements(entityClass, null);
 
         // Query for fetching data
-        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, null, pageable.getSort(), contextInfo);
+        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, null, pageable.getSort());
 
         TypedQuery<T> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());
@@ -128,22 +127,22 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
 
     @Override
     public <T> List<T> findAll(@NonNull Class<T> entityClass, @NonNull Specification<T> spec, C contextInfo) {
-        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, null, contextInfo);
+        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, null);
         return entityManager.createQuery(query).getResultList();
     }
 
     @Override
     public <T> List<T> findAll(@NonNull Class<T> entityClass, @NonNull Specification<T> spec, @NonNull Sort sort, C contextInfo) {
-        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, null, contextInfo);
+        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, null);
         return entityManager.createQuery(query).getResultList();
     }
 
     @Override
     public <T> Page<T> findAll(@NonNull Class<T> entityClass, @NonNull Specification<T> spec, @NonNull Pageable pageable, C contextInfo) {
 
-        Long totalElements = countTotalElements(entityClass, spec, contextInfo);
+        Long totalElements = countTotalElements(entityClass, spec);
 
-        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, pageable.getSort(), contextInfo);
+        CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, pageable.getSort());
 
         TypedQuery<T> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());

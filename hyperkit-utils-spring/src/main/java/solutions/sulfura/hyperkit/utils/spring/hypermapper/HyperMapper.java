@@ -455,7 +455,7 @@ public class HyperMapper<C> {
     public static class ToEntityResult<T> {
 
         T entity;
-        List<Object> persistenceQueue = new ArrayList<>();
+        final List<Object> persistenceQueue = new ArrayList<>();
 
         public T getEntity() {
             return entity;

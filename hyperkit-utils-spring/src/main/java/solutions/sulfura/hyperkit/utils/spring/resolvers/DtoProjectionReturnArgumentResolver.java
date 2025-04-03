@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.resolvers;
 
 import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -29,7 +30,7 @@ public class DtoProjectionReturnArgumentResolver implements HandlerMethodArgumen
      */
     @Override
     public Object resolveArgument(@Nonnull MethodParameter parameter, ModelAndViewContainer mavContainer,
-                                 NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                                  @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         if (parameter.getMethod() == null) {
             return null;
         }
@@ -52,6 +53,7 @@ public class DtoProjectionReturnArgumentResolver implements HandlerMethodArgumen
         }
 
         // Parse the projection specification and create a DtoProjection instance
+        //noinspection rawtypes,unchecked
         return ProjectionDsl.parse(projectionAnnotation.value(), (Class<DtoProjection>) parameter.getParameterType());
 
     }

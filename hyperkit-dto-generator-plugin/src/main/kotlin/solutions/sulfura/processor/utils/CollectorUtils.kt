@@ -25,6 +25,7 @@ fun uncapitalize(s: String): String {
     return s.replaceFirstChar { it.lowercase(Locale.getDefault()) }
 }
 
+@Suppress("FunctionName")
 private fun createAnnotation_DtoFor(ctClass: CtClass<*>, spoonApi: SpoonAPI): CtAnnotation<DtoFor> {
 
     val dtoAnnotationCtType = spoonApi.factory.Annotation().get<DtoFor>(DtoFor::class.java)
