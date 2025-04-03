@@ -4,9 +4,6 @@ plugins {
     `maven-publish`
 }
 
-group = "solutions.sulfura"
-version = "1.3.0-SNAPSHOT"
-
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))

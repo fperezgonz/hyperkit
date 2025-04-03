@@ -4,8 +4,6 @@ plugins {
     id("com.gradle.plugin-publish") version "1.3.1"
 }
 
-version = "0.2.0-SNAPSHOT"
-
 publishing {
     repositories{
         maven {
