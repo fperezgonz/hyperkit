@@ -278,7 +278,7 @@ public class ProjectionDsl {
 
                 if (characterStream.pos < characterStream.streamData.length) {
 
-                    System.out.println("Error parsing projection\n" +
+                    System.err.println("Error parsing projection\n" +
                             "  Message: " + ex.getMessage() + "\n" +
                             "  Pos " + characterStream.pos + "\n" +
                             "  Rest of the Stream: " + String.valueOf(characterStream.streamData).substring(characterStream.pos));
