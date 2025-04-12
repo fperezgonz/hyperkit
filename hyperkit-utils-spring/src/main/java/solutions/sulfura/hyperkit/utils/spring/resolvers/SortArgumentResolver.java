@@ -14,6 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Resolves sort parameters in the forms field1:direction,field2:direction (e.g. name:asc,date:desc = order by name ASC and date DESC)
+ * or +-field1,+-field2 (e.g. +name,-date = order by name ASC, and date DESC)<br>
+ * <br>
+ * Note that Spring has its own built-in resolver for Sort (with a different syntax), so
+ * adding this to the WebMvcConfigurer won't be enough to resolve Sort arguments with this Resolver
+ * One option to configure this is setting the argument resolvers directly on a @PostConstruct
+ */
+@Deprecated(since = "2.0.3", forRemoval = true)
 @Component
 public class SortArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -24,7 +33,7 @@ public class SortArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter,
+    public Sort resolveArgument(MethodParameter parameter,
                                   ModelAndViewContainer mavContainer,
                                   @NonNull NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
