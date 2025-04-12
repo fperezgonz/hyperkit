@@ -1,6 +1,6 @@
 allprojects {
     group = "solutions.sulfura"
-    version = "2.0.3-SNAPSHOT"
+    version = "3.0.0-SNAPSHOT"
 }
 
 tasks.register("publish") {
