@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring.resolvers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +22,13 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class SortArgumentResolverTest {
 
-    @Autowired private SortArgumentResolver resolver;
+    @Autowired
+    private SortArgumentResolver resolver;
+
+    @BeforeEach
+    void setUp() {
+        resolver.setTreatNullAsUnsorted(true);
+    }
 
     @Test
     @DisplayName("Should support Sort parameters")
@@ -136,9 +143,28 @@ class SortArgumentResolverTest {
     }
 
     @Test
-    @DisplayName("Should return unsorted when parameter is null")
-    void resolveArgument_shouldReturnUnsortedWhenParameterIsNull() {
+    @DisplayName("Should return unsorted when parameter is null and treatNullAsUnsorted is true")
+    void resolveArgument_shouldReturnUnsortedWhenParameterIsNullAndTreatNullAsUnsortedIsTrue() {
         // Given
+        MethodParameter parameter = mock(MethodParameter.class);
+        NativeWebRequest webRequest = mock(NativeWebRequest.class);
+
+        when(parameter.getParameterAnnotation(RequestParam.class)).thenReturn(null);
+        when(webRequest.getParameter("sort")).thenReturn(null);
+
+        // When
+        Sort result = resolver.resolveArgument(parameter, null, webRequest, null);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isUnsorted());
+    }
+
+    @Test
+    @DisplayName("Should return null when parameter is null and treatNullAsUnsorted is false")
+    void resolveArgument_shouldReturnNullWhenParameterIsNullAndTreatNullAsUnsortedIsFalse() {
+        // Given
+        resolver.setTreatNullAsUnsorted(false);
         MethodParameter parameter = mock(MethodParameter.class);
         NativeWebRequest webRequest = mock(NativeWebRequest.class);
 
@@ -219,9 +245,31 @@ class SortArgumentResolverTest {
     }
 
     @Test
-    @DisplayName("Should ignore Spring's magic default value")
-    void resolveArgument_shouldIgnoreSpringMagicDefaultValue() {
+    @DisplayName("Should ignore Spring's magic default value and return unsorted when treatNullAsUnsorted is true")
+    void resolveArgument_shouldIgnoreSpringMagicDefaultValueAndReturnUnsortedWhenTreatNullAsUnsortedIsTrue() {
         // Given
+        MethodParameter parameter = mock(MethodParameter.class);
+        NativeWebRequest webRequest = mock(NativeWebRequest.class);
+        RequestParam requestParam = mock(RequestParam.class);
+
+        when(parameter.getParameterAnnotation(RequestParam.class)).thenReturn(requestParam);
+        when(requestParam.name()).thenReturn("sort");
+        when(requestParam.defaultValue()).thenReturn("\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n");
+        when(webRequest.getParameter("sort")).thenReturn(null);
+
+        // When
+        Sort result = resolver.resolveArgument(parameter, null, webRequest, null);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isUnsorted());
+    }
+
+    @Test
+    @DisplayName("Should ignore Spring's magic default value and return null when treatNullAsUnsorted is false")
+    void resolveArgument_shouldIgnoreSpringMagicDefaultValueAndReturnNullWhenTreatNullAsUnsortedIsFalse() {
+        // Given
+        resolver.setTreatNullAsUnsorted(false);
         MethodParameter parameter = mock(MethodParameter.class);
         NativeWebRequest webRequest = mock(NativeWebRequest.class);
         RequestParam requestParam = mock(RequestParam.class);
@@ -240,10 +288,11 @@ class SortArgumentResolverTest {
 
     private static Stream<Arguments> provideSortFormats() {
         return Stream.of(
-            Arguments.of("name:asc", "name", Sort.Direction.ASC),
-            Arguments.of("name:desc", "name", Sort.Direction.DESC),
-            Arguments.of("+name", "name", Sort.Direction.ASC),
-            Arguments.of("-name", "name", Sort.Direction.DESC)
+                Arguments.of("name:asc", "name", Sort.Direction.ASC),
+                Arguments.of("name:desc", "name", Sort.Direction.DESC),
+                Arguments.of("+name", "name", Sort.Direction.ASC),
+                Arguments.of("-name", "name", Sort.Direction.DESC)
         );
     }
+
 }

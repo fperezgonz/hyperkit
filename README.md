@@ -138,3 +138,26 @@ To generate the DTOs, run the `generateDtos` task:
 ```
 
 This will process all classes annotated with `@Dto` and generate the corresponding DTO classes in the configured output directory.
+
+## Spring Utilities
+
+### Sort Argument Resolver
+
+The `SortArgumentResolver` is a Spring `HandlerMethodArgumentResolver` that resolves sort parameters in HTTP requests to `org.springframework.data.domain.Sort` objects. It supports two formats:
+
+1. Field-direction format: `field1:direction,field2:direction` (e.g., `name:asc,date:desc`)
+2. Prefix format: `+-field1,+-field2` (e.g., `+name,-date`)
+
+#### Configuration Properties
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `hyperkit.sort-resolver.treat-nulls-as-unsorted` | When `true`, null sort parameters are treated as `Sort.unsorted()`. When `false`, null is returned. | `true` |
+
+#### Example Configuration
+
+```yaml
+hyperkit:
+  sort-resolver:
+    treat-nulls-as-unsorted: false
+```

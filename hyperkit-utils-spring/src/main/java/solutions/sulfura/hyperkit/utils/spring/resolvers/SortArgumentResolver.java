@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.resolvers;
 
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Sort;
@@ -22,9 +23,15 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class SortArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final SortConverter converter;
+    private boolean treatNullAsUnsorted = true;
 
     public SortArgumentResolver(SortConverter converter) {
         this.converter = converter;
+    }
+
+    public void setTreatNullAsUnsorted(
+            @Value("${hyperkit.sort-resolver.treat-nulls-as-unsorted:true}") boolean treatNullAsUnsorted) {
+        this.treatNullAsUnsorted = treatNullAsUnsorted;
     }
 
     @Override
@@ -74,14 +81,15 @@ public class SortArgumentResolver implements HandlerMethodArgumentResolver {
         }
 
         //Handle null value
-        if(sortParam == null) {
+        if (sortParam == null) {
 
             //If the parameter is required but not found, throw an exception
             if (requestParamAnn != null && requestParamAnn.required()) {
                 throw new IllegalArgumentException("Missing required parameter: " + sortParamName);
             }
 
-            return null;
+            //Use the configured default sort if available
+            return treatNullAsUnsorted ? Sort.unsorted() : null;
 
         }
 

@@ -30,7 +30,11 @@ public class TestController {
     }
 
     @GetMapping("/sort")
-    public List<SortOrderData> testSort(@RequestParam("sort") Sort sort) {
+    public List<SortOrderData> testSort(@RequestParam(value = "sort", required = false) Sort sort) {
+
+        if (sort == null) {
+            return null;
+        }
 
         return sort.get()
                 .map(SortOrderData::new)

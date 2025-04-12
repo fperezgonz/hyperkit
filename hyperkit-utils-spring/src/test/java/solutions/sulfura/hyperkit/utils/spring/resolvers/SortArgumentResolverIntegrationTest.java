@@ -94,4 +94,21 @@ public class SortArgumentResolverIntegrationTest {
         List<SortOrderData> parsedContent = objectMapper.readValue(content, orderDataTypeRef);
         assertTrue(parsedContent.isEmpty());
     }
+
+    @Test
+    @DisplayName("Should return empty list when sort parameter is not provided and treatNullAsUnsorted is true")
+    public void testSortArgumentResolverWithNullParameterAndTreatNullAsUnsortedTrue() throws Exception {
+        // Given a request without sort parameter
+        // The default behavior is treatNullAsUnsorted=true
+
+        // When the request is executed
+        MvcResult result = mockMvc.perform(get("/test/sort"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Then the response should indicate that the sort is unsorted
+        String content = result.getResponse().getContentAsString();
+        assertEquals("", content);
+    }
+
 }
