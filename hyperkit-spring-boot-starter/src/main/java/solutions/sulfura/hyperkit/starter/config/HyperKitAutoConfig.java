@@ -3,6 +3,7 @@ package solutions.sulfura.hyperkit.starter.config;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
@@ -14,6 +15,7 @@ import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.DtoProjectionReturnArgumentResolver;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.RsqlFilterArgumentResolver;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.SortArgumentResolver;
+import solutions.sulfura.hyperkit.utils.spring.resolvers.SortConverter;
 
 import java.util.List;
 
@@ -28,8 +30,14 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
+    SortConverter sortConverter() {
+        return new SortConverter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     SortArgumentResolver sortArgumentResolver() {
-        return new SortArgumentResolver();
+        return new SortArgumentResolver(sortConverter());
     }
 
     @Bean
@@ -60,6 +68,11 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     public DtoJacksonModule dtoJacksonModule() {
         return new DtoJacksonModule();
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new SortConverter());
     }
 
     @Override

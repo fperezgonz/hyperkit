@@ -1,8 +1,56 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import solutions.sulfura.hyperkit.utils.spring.resolvers.DtoProjectionReturnArgumentResolver;
+import solutions.sulfura.hyperkit.utils.spring.resolvers.RsqlFilterArgumentResolver;
+import solutions.sulfura.hyperkit.utils.spring.resolvers.SortArgumentResolver;
+import solutions.sulfura.hyperkit.utils.spring.resolvers.SortConverter;
+
+import java.util.List;
 
 @SpringBootApplication
-public class SpringTestConfig {
+@EnableWebMvc
+public class SpringTestConfig  implements WebMvcConfigurer {
+
+    @Bean
+    @ConditionalOnMissingBean
+    DtoProjectionReturnArgumentResolver dtoProjectionReturnArgumentResolver() {
+        return new DtoProjectionReturnArgumentResolver();
+    }
+
+    @Bean
+    SortConverter sortConverter() {
+        return new SortConverter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    SortArgumentResolver sortArgumentResolver() {
+        return new SortArgumentResolver(sortConverter());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    RsqlFilterArgumentResolver rsqlFilterArgumentResolver() {
+        return new RsqlFilterArgumentResolver();
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new SortConverter());
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(this.dtoProjectionReturnArgumentResolver());
+        resolvers.add(this.sortArgumentResolver());
+        resolvers.add(this.rsqlFilterArgumentResolver());
+    }
 
 }

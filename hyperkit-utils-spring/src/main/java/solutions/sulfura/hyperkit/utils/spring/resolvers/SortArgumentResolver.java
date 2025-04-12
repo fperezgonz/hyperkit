@@ -2,6 +2,7 @@ package solutions.sulfura.hyperkit.utils.spring.resolvers;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,21 +11,21 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Resolves sort parameters in the forms field1:direction,field2:direction (e.g. name:asc,date:desc = order by name ASC and date DESC)
  * or +-field1,+-field2 (e.g. +name,-date = order by name ASC, and date DESC)<br>
- * <br>
- * Note that Spring has its own built-in resolver for Sort (with a different syntax), so
- * adding this to the WebMvcConfigurer won't be enough to resolve Sort arguments with this Resolver
- * One option to configure this is setting the argument resolvers directly on a @PostConstruct
+ * <p>
+ * Note that Spring tries to resolve parameters annotated with {@link RequestParam} using a {@link Converter} first,
+ * and it has a converter for Sort parameters. To cover this case, you must also register the SortConverter
  */
-@Deprecated(since = "2.0.3", forRemoval = true)
 @Component
 public class SortArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private final SortConverter converter;
+
+    public SortArgumentResolver(SortConverter converter) {
+        this.converter = converter;
+    }
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -34,15 +35,17 @@ public class SortArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Sort resolveArgument(MethodParameter parameter,
-                                  ModelAndViewContainer mavContainer,
-                                  @NonNull NativeWebRequest webRequest,
-                                  WebDataBinderFactory binderFactory) {
+                                ModelAndViewContainer mavContainer,
+                                @NonNull NativeWebRequest webRequest,
+                                WebDataBinderFactory binderFactory) {
 
         String sortParamName = "";
         var requestParamAnn = parameter.getParameterAnnotation(RequestParam.class);
 
+        //Try to resolve the parameter name from the annotation's attributes
         if (requestParamAnn != null) {
 
+            //First try the "name" attribute
             sortParamName = requestParamAnn.name();
 
             if (sortParamName.isEmpty()) {
@@ -58,54 +61,33 @@ public class SortArgumentResolver implements HandlerMethodArgumentResolver {
 
         String sortParam = webRequest.getParameter(sortParamName);
 
-        if (sortParam == null || sortParam.isEmpty()) {
-            if (requestParamAnn != null) {
-                sortParam = requestParamAnn.defaultValue();
-                // Check if it's the default "magic" value used by Spring
-                if ("\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n".equals(sortParam)) {
-                    sortParam = null;
-                }
+        //Default value from annotation when the request parameter is null
+        if (sortParam == null && requestParamAnn != null) {
+
+            sortParam = requestParamAnn.defaultValue();
+
+            // Check if it's the default "magic" value used by Spring
+            if ("\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n".equals(sortParam)) {
+                sortParam = null;
             }
+
         }
 
-        if (sortParam == null || sortParam.isEmpty()) {
+        //Handle null value
+        if(sortParam == null) {
 
+            //If the parameter is required but not found, throw an exception
             if (requestParamAnn != null && requestParamAnn.required()) {
-                return null;
-//                throw new IllegalArgumentException("Missing required parameter: " + sortParamName);
+                throw new IllegalArgumentException("Missing required parameter: " + sortParamName);
             }
 
-            return Sort.unsorted();
+            return null;
 
         }
 
         //Parses order definition in the forms field:direction,... (e.g.: "name:asc,age:desc") or +-field (e.g.:"+name,-age")
-        List<Sort.Order> orders = Arrays.stream(sortParam.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(fieldSpec -> {
-                    Sort.Direction direction = Sort.Direction.ASC;
-                    String property = fieldSpec;
-
-                    if (fieldSpec.startsWith("-")) {
-                        direction = Sort.Direction.DESC;
-                        property = fieldSpec.substring(1).trim();
-                    } else if (fieldSpec.startsWith("+")) {
-                        property = fieldSpec.substring(1).trim();
-                    } else if (fieldSpec.contains(":")) {
-                        // handle original format "field,direction"
-                        String[] parts = fieldSpec.split(":");
-                        property = parts[0].trim();
-                        if (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim())) {
-                            direction = Sort.Direction.DESC;
-                        }
-                    }
-
-                    return new Sort.Order(direction, property);
-                })
-                .collect(Collectors.toList());
-
-        return Sort.by(orders);
+        return converter.convert(sortParam);
 
     }
+
 }
