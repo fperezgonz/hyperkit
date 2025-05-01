@@ -38,9 +38,11 @@ repositories {
 
 dependencies {
     // Essential Spring Boot AutoConfiguration Annotation
-    implementation("org.springframework.boot:spring-boot-autoconfigure:3.4.4")
+    api("org.springframework.boot:spring-boot-autoconfigure:3.4.5")
     // Required for implementing the WebMvcConfigurer interface
-    implementation("org.springframework:spring-webmvc:6.2.5")
+    api("org.springframework:spring-webmvc:6.2.6")
+    // Required for
+    api("org.springframework:spring-data-jpa:3.4.5")
 
     api(project(":hyperkit-dto-api"))
     api(project(":hyperkit-projections-dsl"))
