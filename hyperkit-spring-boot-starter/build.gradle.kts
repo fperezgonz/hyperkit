@@ -42,7 +42,7 @@ dependencies {
     // Required for implementing the WebMvcConfigurer interface
     api("org.springframework:spring-webmvc:6.2.6")
     // Required for
-    api("org.springframework:spring-data-jpa:3.4.5")
+    api("org.springframework.data:spring-data-jpa:3.4.5")
 
     api(project(":hyperkit-dto-api"))
     api(project(":hyperkit-projections-dsl"))
