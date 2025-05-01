@@ -14,10 +14,7 @@ import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapper
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
-import solutions.sulfura.hyperkit.utils.spring.resolvers.DtoProjectionReturnArgumentResolver;
-import solutions.sulfura.hyperkit.utils.spring.resolvers.RsqlFilterArgumentResolver;
-import solutions.sulfura.hyperkit.utils.spring.resolvers.SortArgumentResolver;
-import solutions.sulfura.hyperkit.utils.spring.resolvers.SortConverter;
+import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
 
 import java.util.List;
 
@@ -35,6 +32,12 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     SortConverter sortConverter() {
         return new SortConverter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    RsqlFilterConverter rsqlFilterConverterConverter() {
+        return new RsqlFilterConverter();
     }
 
     @Bean
@@ -76,6 +79,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new SortConverter());
+        registry.addConverter(new RsqlFilterConverter());
     }
 
     @Override

@@ -1,6 +1,30 @@
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.publish.PublishingExtension
+
 allprojects {
     group = "solutions.sulfura"
-    version = "3.0.0-SNAPSHOT"
+    version = "3.1.0-SNAPSHOT"
+}
+
+subprojects {
+    plugins.withType<JavaPlugin> {
+        extensions.configure<JavaPluginExtension> {
+            withSourcesJar()
+        }
+    }
+
+    plugins.withType<MavenPublishPlugin> {
+        extensions.configure<PublishingExtension> {
+            publications {
+                withType<MavenPublication> {
+                    // Sources JAR will be automatically included because of withSourcesJar()
+                }
+            }
+        }
+    }
 }
 
 tasks.register("publish") {
