@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.starter.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,10 +23,22 @@ import java.util.List;
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class HyperKitAutoConfig implements WebMvcConfigurer {
 
+    private final ObjectMapper objectMapper;
+
+    public HyperKitAutoConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Bean
     @ConditionalOnMissingBean
     DtoProjectionReturnArgumentResolver dtoProjectionReturnArgumentResolver() {
         return new DtoProjectionReturnArgumentResolver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    DtoProjectionArgumentResolver dtoProjectionArgumentResolver() {
+        return new DtoProjectionArgumentResolver(this.objectMapper);
     }
 
     @Bean
@@ -85,6 +98,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(this.dtoProjectionReturnArgumentResolver());
+        resolvers.add(this.dtoProjectionArgumentResolver());
         resolvers.add(this.sortArgumentResolver());
         resolvers.add(this.rsqlFilterArgumentResolver());
     }

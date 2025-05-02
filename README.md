@@ -230,6 +230,36 @@ public UserDto getUser(@PathVariable Long id, DtoProjection<UserDto> projection)
 }
 ```
 
+### DTO Projection Argument Resolver
+
+The `DtoProjectionArgumentResolver` is a Spring `HandlerMethodArgumentResolver` that applies projections defined in `@DtoProjectionSpec` annotations to method arguments. If a parameter is annotated or meta-annotated with `@DtoProjectionSpec`, this resolver applies the projection defined in that annotation to the argument.
+
+#### Key Features
+
+- Applies projections to method arguments based on annotations
+- Supports both direct annotations and meta-annotations
+
+#### Example Usage
+
+```java
+@PostMapping("/users")
+public UserDto createUser(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id, name, email") UserDto userDto) {
+    return userService.createUser(userDto);
+}
+
+// Using a custom annotation
+@PostMapping("/users/")
+public UserDto updateUser(@UserProjection UserDto userDto) {
+    return userService.createUser(userDto);
+}
+
+// Custom annotation annotated with @DtoProjectionSpec
+@Target({ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@DtoProjectionSpec(projectedClass = UserDto.class, value = "id, name, email")
+@interface UserProjection {}
+```
+
 ### Sort Argument Resolver
 
 The `SortArgumentResolver` is a Spring `HandlerMethodArgumentResolver` that resolves sort parameters in HTTP requests to `org.springframework.data.domain.Sort` objects. It supports two formats:

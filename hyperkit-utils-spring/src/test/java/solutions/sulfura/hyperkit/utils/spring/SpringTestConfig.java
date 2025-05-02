@@ -7,6 +7,8 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
+import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.DtoProjectionReturnArgumentResolver;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.RsqlFilterArgumentResolver;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.SortArgumentResolver;
@@ -27,6 +29,11 @@ public class SpringTestConfig  implements WebMvcConfigurer {
     @Bean
     SortConverter sortConverter() {
         return new SortConverter();
+    }
+
+    @Bean
+    public ValueWrapperJacksonModule valueWrapperJacksonModule() {
+        return new ValueWrapperJacksonModule(new ValueWrapperAdapterImpl());
     }
 
     @Bean

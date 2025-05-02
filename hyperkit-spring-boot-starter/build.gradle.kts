@@ -41,8 +41,8 @@ dependencies {
     api("org.springframework.boot:spring-boot-autoconfigure:3.4.5")
     // Required for implementing the WebMvcConfigurer interface
     api("org.springframework:spring-webmvc:6.2.6")
-    // Required for
     api("org.springframework.data:spring-data-jpa:3.4.5")
+    api("com.fasterxml.jackson.core:jackson-databind:2.18.3")
 
     api(project(":hyperkit-dto-api"))
     api(project(":hyperkit-projections-dsl"))
