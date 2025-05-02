@@ -86,7 +86,7 @@ This style guide outlines the coding conventions and best practices for the Hype
 
 ### Comments
 - Use comments to explain complex logic or non-obvious behavior
-- Keep comments up-to-date with code changes
+- Keep comments up to date with code changes
 - Avoid redundant comments that merely restate the code
 
 ## Annotations
@@ -211,7 +211,7 @@ This style guide outlines the coding conventions and best practices for the Hype
 - Group related tests in the same class
 
 ### Test Methods
-- Add @DisplayName annotations to test methods, that succintly describe what is being tested
+- Add @DisplayName annotations to test methods, that succinctly describe what is being tested
 - Follow the Given/When/Then pattern
 - Add concise comments to explain the Given, When and Then in natural language
 - Keep tests independent and isolated

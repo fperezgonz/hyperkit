@@ -49,6 +49,9 @@ dependencies {
     api(project(":hyperkit-utils-serialization"))
     api(project(":hyperkit-utils-spring"))
 
+    // Test dependencies
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.5")
+    testImplementation("com.h2database:h2:2.2.224")
 }
 
 tasks.test {

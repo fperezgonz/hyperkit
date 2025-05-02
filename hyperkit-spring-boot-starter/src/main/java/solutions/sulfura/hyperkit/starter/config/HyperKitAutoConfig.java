@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.starter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -8,6 +9,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
@@ -21,12 +23,13 @@ import java.util.List;
 
 @AutoConfiguration
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
+@EnableWebMvc
 public class HyperKitAutoConfig implements WebMvcConfigurer {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectProvider<ObjectMapper> objectMapperProvider;
 
-    public HyperKitAutoConfig(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public HyperKitAutoConfig(ObjectProvider<ObjectMapper> objectMapperProvider) {
+        this.objectMapperProvider = objectMapperProvider;
     }
 
     @Bean
@@ -38,7 +41,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean
     DtoProjectionArgumentResolver dtoProjectionArgumentResolver() {
-        return new DtoProjectionArgumentResolver(this.objectMapper);
+        return new DtoProjectionArgumentResolver(objectMapperProvider.getObject());
     }
 
     @Bean
