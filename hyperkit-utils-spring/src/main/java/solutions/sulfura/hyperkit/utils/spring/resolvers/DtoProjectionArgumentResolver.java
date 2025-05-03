@@ -15,6 +15,9 @@ import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
+import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
+
+import java.util.ArrayList;
 
 /**
  * Resolves method arguments applying projections defined in @DtoProjectionSpec annotations.<br>
@@ -76,16 +79,56 @@ public class DtoProjectionArgumentResolver implements HandlerMethodArgumentResol
         @SuppressWarnings("unchecked")
         Class<? extends Dto<?>> projectedClass = (Class<? extends Dto<?>>) projectionAnnotation.projectedClass();
 
+        var javaType = objectMapper.getTypeFactory().constructType(parameter.getGenericParameterType());
+
         // Parse the request body
-        Dto<?> dto = objectMapper.readValue(servletRequest.getReader(), projectedClass);
+        Object parameterValue = objectMapper.readValue(servletRequest.getReader(), javaType);
+
+        try {
+
+            if (parameterValue instanceof Dto<?> dto) {
+                return applyProjection(dto, projectionAnnotation);
+            }
+
+            if (parameterValue instanceof ProjectableHolder projectableHolder) {
+
+                var projectables = projectableHolder.getProjectables();
+                var projectionResults = new ArrayList<Dto<?>>();
+
+                for (var projectable : projectables) {
+
+                    if (!(projectable instanceof Dto<?> dto)) {
+                        throw new RuntimeException("Unsupported projectable type: " + projectable.getClass() + ". Only classes that extend Dto are supported");
+                    }
+
+                    projectionResults.add(applyProjection(dto, projectionAnnotation));
+
+                }
+
+                return projectableHolder;
+
+            }
+
+            throw new RuntimeException("Unsupported parameter type: " + parameterValue.getClass());
+
+        } catch (RuntimeException e) {
+
+            throw new RuntimeException("Failed applying projections to argument. Class: " + parameter.getMethod().getDeclaringClass() +
+                    ", method: " + parameter.getMethod().getName() +
+                    ", parameter:" + parameter.getParameterName()
+                    , e);
+
+        }
+    }
+
+
+    @NonNull
+    public Dto<?> applyProjection(Dto<?> dto, @NonNull DtoProjectionSpec projectionAnnotation) {
 
         Class<? extends DtoProjection> projectionClass = findProjectionClass(dto);
 
         if (projectionClass == null) {
-            throw new RuntimeException("Failed to find projection class for DTO of type: " + dto.getClass() +
-                    ". Class: " + parameter.getMethod().getDeclaringClass() +
-                    ", method: " + parameter.getMethod().getName() +
-                    ", parameter:" + parameter.getParameterName());
+            throw new RuntimeException("Failed to find projection class for DTO of type: " + dto.getClass());
         }
 
         DtoProjection projection = ProjectionDsl.parse(projectionAnnotation.value(), projectionClass);
@@ -93,7 +136,7 @@ public class DtoProjectionArgumentResolver implements HandlerMethodArgumentResol
         try {
             projection.applyProjectionTo(dto);
         } catch (DtoProjectionException e) {
-            throw new RuntimeException("Failed to apply projection to DTO", e);
+            throw e;
         }
 
         return dto;

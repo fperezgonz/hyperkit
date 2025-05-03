@@ -10,6 +10,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -127,10 +129,39 @@ class DtoProjectionArgumentResolverTest {
 
     }
 
-    NativeWebRequest getMockRequest(TestDto testDto) throws IOException {
+    @Test
+    @DisplayName("Should resolve argument of type StdDtoRequest")
+    void resolveArgument_shouldResolveArgumentofTypeStdDtoRequest() throws Exception {
+
+        // Given
+        Method method = getClass().getDeclaredMethod("methodUsingDtoStdRequest", StdDtoRequestBody.class);
+        MethodParameter parameter = new MethodParameter(method, 0);
+        TestDto testDto = new TestDto(1L, "Test", 25);
+        StdDtoRequestBody<TestDto> dtoRequest = new StdDtoRequestBody<>();
+        dtoRequest.setData(List.of(testDto));
+        NativeWebRequest webRequest = getMockRequest(dtoRequest);
+
+        // When
+        @SuppressWarnings("unchecked")
+        StdDtoRequestBody<TestDto> result = (StdDtoRequestBody<TestDto>)resolver.resolveArgument(parameter, null, webRequest, null);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getData().size());
+        TestDto dto = result.getData().getFirst();
+        assertEquals(ValueWrapper.empty(), dto.id);
+        assertEquals(testDto.name, dto.name);
+        assertEquals(testDto.age, dto.age);
+
+    }
+
+
+    // Test utils
+
+    NativeWebRequest getMockRequest(Object requestPayload) throws IOException {
 
         NativeWebRequest webRequest = mock(NativeWebRequest.class);
-        String requestBody = objectMapper.writeValueAsString(testDto);
+        String requestBody = objectMapper.writeValueAsString(requestPayload);
 
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         BufferedReader reader = new BufferedReader(new StringReader(requestBody));
@@ -148,6 +179,10 @@ class DtoProjectionArgumentResolverTest {
 
     // Method used for testing
     void methodWithCustomAnnotation(@TestProjection TestDto dto) {
+    }
+
+    // Method used for testing
+    void methodUsingDtoStdRequest(@DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age") StdDtoRequestBody<TestDto> dto) {
     }
 
     //AnnotationUsedForTesting
