@@ -8,9 +8,10 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 
 // Simple DTO class for testing
 public class TestDto implements Dto<Long> {
-    public ValueWrapper<Long> id;
-    public ValueWrapper<String> name;
-    public ValueWrapper<Integer> age;
+
+    public ValueWrapper<Long> id = ValueWrapper.empty();
+    public ValueWrapper<String> name = ValueWrapper.empty();
+    public ValueWrapper<Integer> age = ValueWrapper.empty();
 
     public TestDto() {
     }
