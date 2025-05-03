@@ -14,6 +14,7 @@ import solutions.sulfura.hyperkit.utils.spring.resolvers.RsqlFilterArgumentResol
 import solutions.sulfura.hyperkit.utils.spring.resolvers.SortArgumentResolver;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests to verify that all beans defined in {@link HyperKitAutoConfig} can be created without errors
@@ -28,6 +29,9 @@ public class HyperKitAutoConfigTest {
         contextRunner.run(context -> {
             assertNotNull(context);
             assertNotNull(context.getBean(HyperKitAutoConfig.class));
+            ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
+            assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule"));
+            assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule"));
             assertNotNull(context.getBean(ObjectMapper.class));
             assertNotNull(context.getBean(DtoProjectionArgumentResolver.class));
             assertNotNull(context.getBean(SortArgumentResolver.class));

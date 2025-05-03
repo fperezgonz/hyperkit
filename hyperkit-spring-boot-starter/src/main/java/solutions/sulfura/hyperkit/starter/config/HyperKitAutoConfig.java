@@ -23,7 +23,6 @@ import java.util.List;
 
 @AutoConfiguration
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-@EnableWebMvc
 public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     private final ObjectProvider<ObjectMapper> objectMapperProvider;
