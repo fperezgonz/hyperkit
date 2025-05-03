@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
