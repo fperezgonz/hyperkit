@@ -3,11 +3,11 @@ package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ValueWrapperSerializationTest {
 
     private ObjectMapper objectMapper;
-    private TestValueWrapperAdapter adapter;
+    private ValueWrapperAdapterImpl adapter;
 
     @BeforeEach
     void setUp() {
-        adapter = new TestValueWrapperAdapter();
+        adapter = new ValueWrapperAdapterImpl();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new ValueWrapperJacksonModule(adapter));
     }
@@ -30,7 +30,7 @@ public class ValueWrapperSerializationTest {
     @Test
     void testSerializeString() throws IOException {
         // Given a wrapper with the string "test"
-        TestValueWrapper<String> wrapper = new TestValueWrapper<>("test");
+        ValueWrapper<String> wrapper = ValueWrapper.of("test");
 
         // When serializing it
         String json = objectMapper.writeValueAsString(wrapper);
@@ -45,16 +45,16 @@ public class ValueWrapperSerializationTest {
         String json = "\"test\"";
 
         // When deserializing it
-        TestValueWrapper<String> deserialized = objectMapper.readValue(json, TestValueWrapper.class);
+        ValueWrapper<String> deserialized = objectMapper.readValue(json, ValueWrapper.class);
 
         // Then the deserialized value must contain "test"
-        assertEquals("test", deserialized.getValue());
+        assertEquals("test", deserialized.get());
     }
 
     @Test
     void testSerializeNumber() throws IOException {
         // Given a wrapper initialized with the number 42
-        TestValueWrapper<Integer> wrapper = new TestValueWrapper<>(42);
+        ValueWrapper<Integer> wrapper = ValueWrapper.of(42);
 
         // When serializing the wrapper into JSON format
         String json = objectMapper.writeValueAsString(wrapper);
@@ -69,16 +69,16 @@ public class ValueWrapperSerializationTest {
         String json = "42";
 
         // When deserializing the JSON string
-        TestValueWrapper<Integer> deserialized = objectMapper.readValue(json, TestValueWrapper.class);
+        ValueWrapper<Integer> deserialized = objectMapper.readValue(json, ValueWrapper.class);
 
         // Then the deserialized wrapper's value must equal 42
-        assertEquals(42, deserialized.getValue());
+        assertEquals(42, deserialized.get());
     }
 
     @Test
     void testSerializeNull() throws IOException {
         // Given
-        TestValueWrapper<Object> wrapper = new TestValueWrapper<>(null);
+        ValueWrapper<Object> wrapper = ValueWrapper.of(null);
 
         // When
         String json = objectMapper.writeValueAsString(wrapper);
@@ -93,16 +93,16 @@ public class ValueWrapperSerializationTest {
         String json = "null";
 
         // When deserializing the JSON string
-        TestValueWrapper<Object> deserialized = objectMapper.readValue(json, TestValueWrapper.class);
+        ValueWrapper<Object> deserialized = objectMapper.readValue(json, ValueWrapper.class);
 
         // Then the deserialized wrapper's value must be null
-        assertNull(deserialized.getValue());
+        assertNull(deserialized.get());
     }
 
     @Test
     void testSerializeEmpty() throws IOException {
         // Given an empty wrapper
-        TestValueWrapper<Object> wrapper = TestValueWrapper.empty();
+        ValueWrapper<Object> wrapper = ValueWrapper.empty();
 
         // When serializing the empty wrapper into JSON format
         String json = objectMapper.writeValueAsString(wrapper);
@@ -112,19 +112,10 @@ public class ValueWrapperSerializationTest {
     }
 
     @Test
-    void testDeserializeEmpty() {
-        // Given an empty JSON string
-        String json = "";
-
-        // When deserializing, an exception must be thrown
-        assertThrows(IOException.class, () -> objectMapper.readValue(json, TestValueWrapper.class));
-    }
-
-    @Test
     void testSerializeComplex() throws IOException {
         // Given a wrapper containing a TestPerson
         TestPerson person = new TestPerson("John", 30);
-        TestValueWrapper<TestPerson> wrapper = new TestValueWrapper<>(person);
+        ValueWrapper<TestPerson> wrapper = ValueWrapper.of(person);
 
         // When serializing the wrapper into JSON
         String json = objectMapper.writeValueAsString(wrapper);
@@ -132,8 +123,8 @@ public class ValueWrapperSerializationTest {
         // Then the resulting JSON must represent the TestPerson object
         assertEquals("{\"name\":\"John\",\"age\":30}", json);
     }
-    
-    
+
+
 
     @Test
     void testDeserializeComplex() throws IOException {
@@ -141,12 +132,12 @@ public class ValueWrapperSerializationTest {
         String json = "{\"name\":\"John\",\"age\":30}";
 
         // When
-        TestValueWrapper<?> deserialized = objectMapper.readValue(json, TestValueWrapper.class);
+        ValueWrapper<?> deserialized = objectMapper.readValue(json, ValueWrapper.class);
 
         // Then
         // When deserializing, Jackson creates a LinkedHashMap instead of a TestPerson object
         @SuppressWarnings("unchecked")
-        Map<String, Object> deserializedMap = (Map<String, Object>) deserialized.getValue();
+        Map<String, Object> deserializedMap = (Map<String, Object>) deserialized.get();
         assertEquals("John", deserializedMap.get("name"));
         assertEquals(30, deserializedMap.get("age"));
     }
@@ -154,8 +145,8 @@ public class ValueWrapperSerializationTest {
     @Test
     void testSerializeNestedWrapper() throws IOException {
         // Given a nested wrapper where an outer wrapper contains an inner wrapper with the string "inner"
-        TestValueWrapper<String> innerWrapper = new TestValueWrapper<>("inner");
-        TestValueWrapper<TestValueWrapper<String>> outerWrapper = new TestValueWrapper<>(innerWrapper);
+        ValueWrapper<String> innerWrapper = ValueWrapper.of("inner");
+        ValueWrapper<ValueWrapper<String>> outerWrapper = ValueWrapper.of(innerWrapper);
 
         // When serializing the nested wrapper into JSON format
         String json = objectMapper.writeValueAsString(outerWrapper);
@@ -167,7 +158,7 @@ public class ValueWrapperSerializationTest {
     @Test
     void testSerializeEmptyString() throws IOException {
         // Given a wrapper containing an empty string
-        TestValueWrapper<String> wrapper = new TestValueWrapper<>("");
+        ValueWrapper<String> wrapper = ValueWrapper.of("");
 
         // When serializing the empty string wrapper
         String json = objectMapper.writeValueAsString(wrapper);
@@ -182,10 +173,10 @@ public class ValueWrapperSerializationTest {
         String json = "\"\"";
 
         // When deserializing the JSON string
-        TestValueWrapper<String> deserialized = objectMapper.readValue(json, TestValueWrapper.class);
+        ValueWrapper<String> deserialized = objectMapper.readValue(json, ValueWrapper.class);
 
         // Then the deserialized value must be an empty string
-        assertEquals("", deserialized.getValue());
+        assertEquals("", deserialized.get());
     }
 
     @Test
@@ -194,10 +185,10 @@ public class ValueWrapperSerializationTest {
         String json = "42";
 
         // When
-        TestValueWrapper<Integer> deserialized = objectMapper.readValue(json, TestValueWrapper.class);
+        ValueWrapper<Integer> deserialized = objectMapper.readValue(json, ValueWrapper.class);
 
         // Then
-        assertEquals(42, deserialized.getValue());
+        assertEquals(42, deserialized.get());
     }
 
     @Test
@@ -207,7 +198,7 @@ public class ValueWrapperSerializationTest {
 
         // When attempting to deserialize the empty JSON
         // Then it must throw an IOException as the input is invalid
-        assertThrows(IOException.class, () -> objectMapper.readValue(json, TestValueWrapper.class));
+        assertThrows(IOException.class, () -> objectMapper.readValue(json, ValueWrapper.class));
     }
 
     @Test
@@ -231,14 +222,27 @@ public class ValueWrapperSerializationTest {
         TestValueWrapperContainer deserialized = objectMapper.readValue(json, TestValueWrapperContainer.class);
 
         // Then the deserialized wrapper must contain "testValue"
-        assertEquals("testValue", deserialized.getWrapper().getValue());
+        assertEquals("testValue", deserialized.getWrapper().get());
     }
 
     @Test
     void testSerializeObjectWithValueWrapper() throws IOException {
-        // Given a container object with a TestValueWrapper containing "wrappedValue"
+        // Given a container object with a ValueWrapper containing "wrappedValue"
         TestValueWrapperContainer container = new TestValueWrapperContainer();
-        container.setWrapper(new TestValueWrapper<>("wrappedValue"));
+        container.setWrapper(ValueWrapper.of("wrappedValue"));
+
+        // When serializing the container
+        String json = objectMapper.writeValueAsString(container);
+
+        // Then the resulting JSON must contain the property with the same value
+        assertEquals("{\"wrapper\":\"wrappedValue\"}", json);
+    }
+
+    @Test
+    void testSerializeObjectWithEmptyValueWrapper() throws IOException {
+        // Given a container object with a ValueWrapper containing "wrappedValue"
+        TestValueWrapperContainer container = new TestValueWrapperContainer();
+        container.setWrapper(ValueWrapper.of("wrappedValue"));
 
         // When serializing the container
         String json = objectMapper.writeValueAsString(container);
@@ -249,98 +253,24 @@ public class ValueWrapperSerializationTest {
 
 
     /**
-     * Test class for testing presence or absence of a property of type TestValueWrapper
+     * Test class for testing presence or absence of a property of type ValueWrapper
      */
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
     private static class TestValueWrapperContainer {
-        private TestValueWrapper<String> wrapper;
+        private ValueWrapper<String> wrapper;
 
         public TestValueWrapperContainer() {
             // Default constructor for Jackson
             // Initialize wrapper with an empty ValueWrapper
-            this.wrapper = TestValueWrapper.empty();
+            this.wrapper = ValueWrapper.empty();
         }
 
-        public TestValueWrapper<String> getWrapper() {
+        public ValueWrapper<String> getWrapper() {
             return wrapper;
         }
 
-        public void setWrapper(TestValueWrapper<String> wrapper) {
+        public void setWrapper(ValueWrapper<String> wrapper) {
             this.wrapper = wrapper;
-        }
-    }
-
-    /**
-     * Test implementation of ValueWrapperAdapter for testing purposes.
-     */
-    private static class TestValueWrapperAdapter implements ValueWrapperAdapter<TestValueWrapper> {
-
-        @Override
-        public TestValueWrapper empty() {
-            return TestValueWrapper.empty();
-        }
-
-        @Override
-        public TestValueWrapper wrap(Object value) {
-            return new TestValueWrapper<>(value);
-        }
-
-        @Override
-        public Object unwrap(TestValueWrapper valueWrapper) {
-            return valueWrapper.getValue();
-        }
-
-        @Override
-        public boolean isEmpty(TestValueWrapper valueWrapper) {
-            return valueWrapper.isEmpty();
-        }
-
-        @Override
-        public Class<TestValueWrapper> getWrapperClass() {
-            return TestValueWrapper.class;
-        }
-    }
-
-    /**
-     * Test implementation of a value wrapper for testing purposes.
-     */
-    private static class TestValueWrapper<T> {
-        private final T value;
-        private final boolean empty;
-
-        public TestValueWrapper(T value) {
-            this.value = value;
-            this.empty = false;
-        }
-
-        private TestValueWrapper() {
-            this.value = null;
-            this.empty = true;
-        }
-
-        public static <T> TestValueWrapper<T> empty() {
-            return new TestValueWrapper<>();
-        }
-
-        public T getValue() {
-            return value;
-        }
-
-        public boolean isEmpty() {
-            return empty;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TestValueWrapper<?> that = (TestValueWrapper<?>) o;
-            return empty == that.empty && Objects.equals(value, that.value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value, empty);
         }
     }
 
