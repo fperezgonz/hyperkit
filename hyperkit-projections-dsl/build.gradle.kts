@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly("org.jspecify:jspecify:1.0.0")
     implementation(project(":hyperkit-dto-api"))
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

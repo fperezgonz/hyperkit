@@ -12,6 +12,8 @@ import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
+import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getMethodProjectionAnnotationOrMetaAnnotation;
+
 /**
  * Resolves DtoProjection parameters in controller methods by extracting the projection
  * information from the method's return type annotation.
@@ -36,17 +38,7 @@ public class DtoProjectionReturnArgumentResolver implements HandlerMethodArgumen
         }
 
         // Get the method's return type annotation
-        DtoProjectionSpec projectionAnnotation = parameter.getMethod().getAnnotation(DtoProjectionSpec.class);
-
-        // If the method itself doesn't have the annotation, check if it has a meta-annotation
-        if (projectionAnnotation == null) {
-            for (var annotation : parameter.getMethod().getAnnotations()) {
-                projectionAnnotation = annotation.annotationType().getAnnotation(DtoProjectionSpec.class);
-                if (projectionAnnotation != null) {
-                    break;
-                }
-            }
-        }
+        DtoProjectionSpec projectionAnnotation = getMethodProjectionAnnotationOrMetaAnnotation(parameter.getMethod());
 
         if (projectionAnnotation == null) {
             return null;

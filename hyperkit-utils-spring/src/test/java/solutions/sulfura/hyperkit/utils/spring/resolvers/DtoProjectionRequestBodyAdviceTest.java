@@ -1,25 +1,23 @@
 package solutions.sulfura.hyperkit.utils.spring.resolvers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.MethodParameter;
-import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.http.HttpInputMessage;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,23 +25,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class DtoProjectionArgumentResolverTest {
+class DtoProjectionRequestBodyAdviceTest {
 
     @Autowired
-    private DtoProjectionArgumentResolver resolver;
-    @Autowired
-    private ObjectMapper objectMapper;
+    private DtoProjectionRequestBodyAdvice resolver;
 
     @Test
     @DisplayName("Should support parameters with @DtoProjectionSpec annotation")
-    void supportsParameter_shouldSupportParametersWithDtoProjectionSpecAnnotation() {
-
+    void supports_shouldSupportParametersWithDtoProjectionSpecAnnotation() {
         // Given
         MethodParameter parameter = mock(MethodParameter.class);
         when(parameter.hasParameterAnnotation(DtoProjectionSpec.class)).thenReturn(true);
+        Type targetType = TestDto.class;
+        Class<? extends HttpMessageConverter<?>> converterType = MappingJackson2HttpMessageConverter.class;
 
         // When
-        boolean result = resolver.supportsParameter(parameter);
+        boolean result = resolver.supports(parameter, targetType, converterType);
 
         // Then
         assertTrue(result);
@@ -52,14 +49,15 @@ class DtoProjectionArgumentResolverTest {
 
     @Test
     @DisplayName("Should support parameters with annotation annotated with @DtoProjectionSpec")
-    void supportsParameter_shouldSupportParametersWithMetaAnnotation() throws NoSuchMethodException {
-
+    void supports_shouldSupportParametersWithMetaAnnotation() throws NoSuchMethodException {
         // Given
         Method method = getClass().getDeclaredMethod("methodWithCustomAnnotation", TestDto.class);
         MethodParameter parameter = new MethodParameter(method, 0);
+        Type targetType = TestDto.class;
+        Class<? extends HttpMessageConverter<?>> converterType = MappingJackson2HttpMessageConverter.class;
 
         // When
-        boolean result = resolver.supportsParameter(parameter);
+        boolean result = resolver.supports(parameter, targetType, converterType);
 
         // Then
         assertTrue(result);
@@ -68,15 +66,16 @@ class DtoProjectionArgumentResolverTest {
 
     @Test
     @DisplayName("Should not support parameters without @DtoProjectionSpec annotation")
-    void supportsParameter_shouldNotSupportParametersWithoutAnnotation() {
-
+    void supports_shouldNotSupportParametersWithoutAnnotation() {
         // Given
         MethodParameter parameter = mock(MethodParameter.class);
         when(parameter.hasParameterAnnotation(DtoProjectionSpec.class)).thenReturn(false);
         when(parameter.getParameterAnnotations()).thenReturn(new java.lang.annotation.Annotation[0]);
+        Type targetType = TestDto.class;
+        Class<? extends HttpMessageConverter<?>> converterType = MappingJackson2HttpMessageConverter.class;
 
         // When
-        boolean result = resolver.supportsParameter(parameter);
+        boolean result = resolver.supports(parameter, targetType, converterType);
 
         // Then
         assertFalse(result);
@@ -84,17 +83,18 @@ class DtoProjectionArgumentResolverTest {
     }
 
     @Test
-    @DisplayName("Should resolve argument with @DtoProjectionSpec annotation")
-    void resolveArgument_shouldResolveArgumentWithAnnotation() throws Exception {
-
+    @DisplayName("Should apply projection to DTO in afterBodyRead")
+    void afterBodyRead_shouldApplyProjectionToDto() throws Exception {
         // Given
         Method method = getClass().getDeclaredMethod("methodWithDirectAnnotation", TestDto.class);
         MethodParameter parameter = new MethodParameter(method, 0);
         TestDto testDto = new TestDto(1L, "Test", 25);
-        NativeWebRequest webRequest = getMockRequest(testDto);
+        HttpInputMessage inputMessage = mock(HttpInputMessage.class);
+        Type targetType = TestDto.class;
+        Class<? extends HttpMessageConverter<?>> converterType = MappingJackson2HttpMessageConverter.class;
 
         // When
-        Object result = resolver.resolveArgument(parameter, null, webRequest, null);
+        Object result = resolver.afterBodyRead(testDto, inputMessage, parameter, targetType, converterType);
 
         // Then
         assertNotNull(result);
@@ -107,17 +107,18 @@ class DtoProjectionArgumentResolverTest {
     }
 
     @Test
-    @DisplayName("Should resolve argument with annotation annotated with @DtoProjectionSpec")
-    void resolveArgument_shouldResolveArgumentWithMetaAnnotation() throws Exception {
-
+    @DisplayName("Should apply projection to DTO with meta-annotation in afterBodyRead")
+    void afterBodyRead_shouldApplyProjectionToDtoWithMetaAnnotation() throws Exception {
         // Given
         Method method = getClass().getDeclaredMethod("methodWithCustomAnnotation", TestDto.class);
         MethodParameter parameter = new MethodParameter(method, 0);
         TestDto testDto = new TestDto(1L, "Test", 25);
-        NativeWebRequest webRequest = getMockRequest(testDto);
+        HttpInputMessage inputMessage = mock(HttpInputMessage.class);
+        Type targetType = TestDto.class;
+        Class<? extends HttpMessageConverter<?>> converterType = MappingJackson2HttpMessageConverter.class;
 
         // When
-        Object result = resolver.resolveArgument(parameter, null, webRequest, null);
+        Object result = resolver.afterBodyRead(testDto, inputMessage, parameter, targetType, converterType);
 
         // Then
         assertNotNull(result);
@@ -130,58 +131,46 @@ class DtoProjectionArgumentResolverTest {
     }
 
     @Test
-    @DisplayName("Should resolve argument of type StdDtoRequest")
-    void resolveArgument_shouldResolveArgumentofTypeStdDtoRequest() throws Exception {
-
+    @DisplayName("Should apply projection to DTOs in StdDtoRequestBody in afterBodyRead")
+    void afterBodyRead_shouldApplyProjectionToDtosInStdDtoRequestBody() throws Exception {
         // Given
         Method method = getClass().getDeclaredMethod("methodUsingDtoStdRequest", StdDtoRequestBody.class);
         MethodParameter parameter = new MethodParameter(method, 0);
         TestDto testDto = new TestDto(1L, "Test", 25);
         StdDtoRequestBody<TestDto> dtoRequest = new StdDtoRequestBody<>();
         dtoRequest.setData(List.of(testDto));
-        NativeWebRequest webRequest = getMockRequest(dtoRequest);
+        HttpInputMessage inputMessage = mock(HttpInputMessage.class);
+        Type targetType = StdDtoRequestBody.class;
+        Class<? extends HttpMessageConverter<?>> converterType = MappingJackson2HttpMessageConverter.class;
 
         // When
-        @SuppressWarnings("unchecked")
-        StdDtoRequestBody<TestDto> result = (StdDtoRequestBody<TestDto>)resolver.resolveArgument(parameter, null, webRequest, null);
+        Object result = resolver.afterBodyRead(dtoRequest, inputMessage, parameter, targetType, converterType);
 
         // Then
         assertNotNull(result);
-        assertEquals(1, result.getData().size());
-        TestDto dto = result.getData().getFirst();
+        assertInstanceOf(StdDtoRequestBody.class, result);
+        @SuppressWarnings("unchecked")
+        StdDtoRequestBody<TestDto> resultRequest = (StdDtoRequestBody<TestDto>) result;
+        assertEquals(1, resultRequest.getData().size());
+        TestDto dto = resultRequest.getData().getFirst();
         assertEquals(ValueWrapper.empty(), dto.id);
         assertEquals(testDto.name, dto.name);
         assertEquals(testDto.age, dto.age);
 
     }
 
-
-    // Test utils
-
-    NativeWebRequest getMockRequest(Object requestPayload) throws IOException {
-
-        NativeWebRequest webRequest = mock(NativeWebRequest.class);
-        String requestBody = objectMapper.writeValueAsString(requestPayload);
-
-        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-        BufferedReader reader = new BufferedReader(new StringReader(requestBody));
-
-        when(webRequest.getNativeRequest(HttpServletRequest.class)).thenReturn(servletRequest);
-        when(servletRequest.getReader()).thenReturn(reader);
-
-        return webRequest;
-
+    // Method used for testing
+    @SuppressWarnings("unused")
+    void methodWithDirectAnnotation(@DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age") TestDto dto) {
     }
 
     // Method used for testing
-    void methodWithDirectAnnotation(@DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")TestDto dto) {
-    }
-
-    // Method used for testing
+    @SuppressWarnings("unused")
     void methodWithCustomAnnotation(@TestProjection TestDto dto) {
     }
 
     // Method used for testing
+    @SuppressWarnings("unused")
     void methodUsingDtoStdRequest(@DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age") StdDtoRequestBody<TestDto> dto) {
     }
 
