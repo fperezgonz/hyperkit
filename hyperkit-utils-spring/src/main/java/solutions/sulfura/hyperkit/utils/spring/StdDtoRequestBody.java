@@ -36,7 +36,7 @@ public class StdDtoRequestBody<D extends Dto<?>> implements ProjectableHolder<D>
     }
 
     @Override
-    public void setProjectables(List<D> projectables) {
+    public void setProjectables(@NonNull List<D> projectables) {
         this.data.clear();
         this.data.addAll(projectables);
     }

@@ -12,6 +12,6 @@ public interface ProjectableHolder<P> {
     @NonNull
     List<P> getProjectables();
 
-    void setProjectables(List<P> projectables);
+    void setProjectables(@NonNull List<P> projectables);
 
 }
