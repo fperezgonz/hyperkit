@@ -1,6 +1,5 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.dtos.Dto;
 
@@ -29,16 +28,9 @@ public class StdDtoRequestBody<D extends Dto<?>> implements ProjectableHolder<D>
     }
 
     @Override
-    @JsonIgnore
     @NonNull
-    public List<D> getProjectables() {
+    public List<D> listProjectables() {
         return List.copyOf(data);
-    }
-
-    @Override
-    public void setProjectables(@NonNull List<D> projectables) {
-        this.data.clear();
-        this.data.addAll(projectables);
     }
 
 }

@@ -14,7 +14,6 @@ import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 /**
  * Applies projections defined in @DtoProjectionSpec annotations to request bodies.<br>
@@ -75,8 +74,7 @@ public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
 
             if (body instanceof ProjectableHolder projectableHolder) {
 
-                var projectables = projectableHolder.getProjectables();
-                var projectionResults = new ArrayList<Dto<?>>();
+                var projectables = projectableHolder.listProjectables();
 
                 for (var projectable : projectables) {
                     if (!(projectable instanceof Dto<?> dto)) {
@@ -84,7 +82,7 @@ public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
                     }
 
                     //noinspection ReassignedVariable,DataFlowIssue
-                    projectionResults.add(applyProjection(dto, projectionAnnotation));
+                    applyProjection(dto, projectionAnnotation);
                 }
 
                 return projectableHolder;

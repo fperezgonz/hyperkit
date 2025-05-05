@@ -13,8 +13,6 @@ import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
 
-import java.util.ArrayList;
-
 import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getMethodProjectionAnnotationOrMetaAnnotation;
 
 /**
@@ -64,15 +62,14 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
 
             //noinspection rawtypes
             if (body instanceof ProjectableHolder projectableHolder) {
-                var projectables = projectableHolder.getProjectables();
-                var projectionResults = new ArrayList<Dto<?>>();
+                var projectables = projectableHolder.listProjectables();
 
                 for (var projectable : projectables) {
                     if (!(projectable instanceof Dto<?> dto)) {
                         throw new RuntimeException("Unsupported projectable type: " + projectable.getClass() + ". Only classes that extend Dto are supported");
                     }
 
-                    projectionResults.add(dtoProjectionRequestBodyAdvice.applyProjection(dto, projectionAnnotation));
+                    dtoProjectionRequestBodyAdvice.applyProjection(dto, projectionAnnotation);
                 }
 
                 return projectableHolder;

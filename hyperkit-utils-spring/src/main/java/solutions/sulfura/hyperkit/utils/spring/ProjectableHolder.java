@@ -10,8 +10,6 @@ import java.util.List;
 public interface ProjectableHolder<P> {
 
     @NonNull
-    List<P> getProjectables();
-
-    void setProjectables(@NonNull List<P> projectables);
+    List<P> listProjectables();
 
 }
