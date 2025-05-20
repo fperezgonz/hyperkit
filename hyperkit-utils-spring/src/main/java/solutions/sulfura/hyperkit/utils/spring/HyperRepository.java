@@ -55,7 +55,7 @@ public interface HyperRepository<C> {
      */
     <T, ID extends Serializable> void deleteById(@NonNull Class<T> entityClass, @NonNull ID id, C contextInfo);
 
-    <T> Long count(@NonNull Class<T> entityClass, Specification<T> spec);
+    <T> Long count(@NonNull Class<T> entityClass, Specification<T> spec, C contextInfo);
 
     /**
      * Find all entities of the given type

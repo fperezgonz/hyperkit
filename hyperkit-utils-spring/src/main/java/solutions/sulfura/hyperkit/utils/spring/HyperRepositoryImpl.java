@@ -63,7 +63,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
     }
 
     @Override
-    public <T> Long count(@NonNull Class<T> entityClass, Specification<T> spec) {
+    public <T> Long count(@NonNull Class<T> entityClass, Specification<T> spec, C contextInfo) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<T> countRoot = countQuery.from(entityClass);
@@ -114,7 +114,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
     @Override
     public <T> Page<T> findAll(@NonNull Class<T> entityClass, @NonNull Pageable pageable, C contextInfo) {
         // Query for counting total elements
-        Long totalElements = count(entityClass, null);
+        Long totalElements = count(entityClass, null, null);
 
         // Query for fetching data
         CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, null, pageable.getSort());
@@ -141,7 +141,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
     @Override
     public <T> Page<T> findAll(@NonNull Class<T> entityClass, @NonNull Specification<T> spec, @NonNull Pageable pageable, C contextInfo) {
 
-        Long totalElements = count(entityClass, spec);
+        Long totalElements = count(entityClass, spec, null);
 
         CriteriaQuery<T> query = buildQueryWithSpecificationAndSort(entityClass, spec, pageable.getSort());
 
