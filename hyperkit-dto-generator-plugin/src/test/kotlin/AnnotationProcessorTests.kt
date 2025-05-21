@@ -22,7 +22,7 @@ class AnnotationProcessorTests {
 
         val gradleRunner = GradleRunner.create()
         gradleRunner.withProjectDir(testProjectFolder)
-            .withArguments(":generateDtos")
+            .withArguments(":generateDtos","--info")
             .withPluginClasspath()
         val gradleBuild = gradleRunner.build()
         val outcome = gradleBuild.task(":generateDtos")!!.outcome.name
@@ -115,6 +115,17 @@ class AnnotationProcessorTests {
         assertGeneratedCodeMatchesExpectedOutput(
             "${expectedOutputDir}java/${testDtoPackagePath}SourceUpperCasePropertiesDto.java",
             "${outputSourcesPath}java/${testDtoPackagePath}SourceUpperCasePropertiesDto.java"
+        )
+
+    }
+
+    /** Tests that Dto generation works when {@link Dto#includedAnnotations()} that are in the project's classpath but not in the source or the plugin's classpath */
+    @Test
+    fun includedAnnotationNotInSourcesTest() {
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}DtoAnnotationIncludedClassNotInSourcesDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}DtoAnnotationIncludedClassNotInSourcesDto.java"
         )
 
     }
