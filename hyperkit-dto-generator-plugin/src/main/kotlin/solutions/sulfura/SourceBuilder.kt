@@ -12,7 +12,7 @@ class SourceBuilder {
      * dtoCtClass: the specifications of the dto class
      * sourceCtClass: the specifications of the class from which the dtoCtClass is derived
      */
-    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>, valueWrapperDefaultvalue: String): String {
+    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): String {
 
 //        This does not include ProjectionUtils in the imports
 //        val cu:CtCompilationUnit = dtoCtClass.getFactory().createCompilationUnit();
@@ -37,7 +37,6 @@ class SourceBuilder {
         }
         val velocityContext = VelocityContext()
         velocityContext.put("sourceCtClass", sourceCtClass)
-        velocityContext.put("valueWrapperDefaultValue", valueWrapperDefaultvalue)
         velocityContext.put("ctClass", dtoCtClass)
         velocityContext.put("imports", imports)
         val velocityEngine = VelocityEngine()

@@ -36,7 +36,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 
 #foreach($field in ${ctClass.fields})
     ##
-    #concatCollection($field.modifiers, " ") ${field.type} ${field.simpleName} = $valueWrapperDefaultValue;$lb##
+    #concatCollection($field.modifiers, " ") ${field.type} ${field.simpleName} = ValueWrapper.empty();$lb##
 #end
 
 #foreach($constructor in ${ctClass.constructors})
@@ -54,7 +54,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
     public static class Builder {
 
         #foreach($field in ${ctClass.fields})
-            #indent(2, ${field.type.toString()}) ${field.simpleName} = $valueWrapperDefaultValue;$lb##
+            #indent(2, ${field.type.toString()}) ${field.simpleName} = ValueWrapper.empty();$lb##
         #end
 
         public static Builder newInstance() {
@@ -64,7 +64,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 ##      Builder methods
         #foreach($field in ${ctClass.fields})
         public Builder ${field.simpleName}(final ${field.type} ${field.simpleName}){
-            this.${field.simpleName} = ${field.simpleName} == null ? $valueWrapperDefaultValue : ${field.simpleName};
+            this.${field.simpleName} = ${field.simpleName} == null ? ValueWrapper.empty() : ${field.simpleName};
             return this;
         }
 

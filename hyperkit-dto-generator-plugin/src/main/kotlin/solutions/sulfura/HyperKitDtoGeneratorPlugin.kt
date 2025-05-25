@@ -2,9 +2,9 @@ package solutions.sulfura
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import solutions.sulfura.hyperkit.dtos.ValueWrapper
 import solutions.sulfura.processor.utils.*
 import spoon.Launcher
 import spoon.SpoonAPI
@@ -28,8 +28,8 @@ interface HyperKitDtoGeneratorConfigurationExtension {
 @Suppress("unused")
 class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, valueWrapperDefaultvalue: String): String {
-        return SourceBuilder().buildClassSource(ctClass, dtoCtClass, valueWrapperDefaultvalue)
+    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>): String {
+        return SourceBuilder().buildClassSource(ctClass, dtoCtClass)
     }
 
     override fun apply(project: Project) {
@@ -80,43 +80,19 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                 }
 
                 logger.info("Classes to process: ${classesToProcess.list<CtClass<*>>().map { it.qualifiedName }}")
-                val valueWrapperType = spoon.factory.Class().create<ValueWrapper<Any>>(ValueWrapper::class.java.canonicalName)
-                val valueWrapperDefaultValue = "ValueWrapper.empty()"
 
                 logger.info("${Instant.now()} - Generating DTOs...")
-                classesToProcess.forEach { ctClass: CtClass<*> ->
-                    try {
 
-                        val collectedProperties = collectProperties(ctClass.reference, spoon.factory)
-                        val collectedAnnotations = collectAnnotations(ctClass, spoon)
-                        val oldDtoClass =
-                            sourceClassToDtoClassReference(ctClass, spoon.factory, extension.defaultOutputPackage.get())
-                        val dtoClassPackage = oldDtoClass.`package`.qualifiedName
-                        val dtoClassSimpleName = oldDtoClass.simpleName
-                        val dtoClassQualifiedName = oldDtoClass.qualifiedName
-
-                        val dtoClass = buildOutputClass(
-                            ctClass,
-                            dtoClassQualifiedName,
-                            className__ctClass,
-                            collectedAnnotations,
-                            collectedProperties,
-                            valueWrapperType,
-                            spoon.factory
-                        )
-
-                        val classSourceCode = generateClassSourceCode(dtoClass, ctClass, valueWrapperDefaultValue)
-                        val outDirPath = "${extension.rootOutputPath.get()}/${dtoClassPackage.replace(".", "/")}/"
-                        val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
-                        val outFile = File(project.file(outFilePath).absolutePath)
-                        outFile.parentFile.mkdirs()
-                        outFile.writeText(classSourceCode)
-
-                    } catch (e: Exception) {
-                        logger.error("${Instant.now()} - ERROR: Error while processing class ${ctClass.qualifiedName}", e)
-                        throw e
-                    }
-
+                classesToProcess.list<CtClass<*>>().parallelStream().forEach { ctClass: CtClass<*> ->
+                    createDtoSourceFile(
+                        ctClass,
+                        spoon,
+                        extension.defaultOutputPackage.get(),
+                        extension.rootOutputPath.get(),
+                        className__ctClass,
+                        project,
+                        logger
+                    )
                 }
 
                 logger.info("${Instant.now()} - Generating DTOs... DONE")
@@ -124,4 +100,52 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
             }
         }
     }
+
+    fun createDtoSourceFile(
+        ctClass: CtClass<*>,
+        spoon: SpoonAPI,
+        defaultOutputPackage: String,
+        rootOutputPath: String,
+        className__ctClass: MutableMap<String, CtClass<*>>,
+        project: Project,
+        logger: Logger
+    ) {
+
+        try {
+
+            val collectedProperties = collectProperties(ctClass.reference, spoon.factory)
+            val collectedAnnotations = collectAnnotations(ctClass, spoon)
+            val oldDtoClass =
+                sourceClassToDtoClassReference(ctClass, spoon.factory, defaultOutputPackage)
+            val dtoClassPackage = oldDtoClass.`package`.qualifiedName
+            val dtoClassSimpleName = oldDtoClass.simpleName
+            val dtoClassQualifiedName = oldDtoClass.qualifiedName
+
+            val dtoClass = buildOutputClass(
+                ctClass,
+                dtoClassQualifiedName,
+                className__ctClass,
+                collectedAnnotations,
+                collectedProperties,
+                spoon.factory
+            )
+
+            val classSourceCode = generateClassSourceCode(dtoClass, ctClass)
+            val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
+            val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
+            val outFile = File(project.file(outFilePath).absolutePath)
+
+            outFile.parentFile.mkdirs()
+            outFile.writeText(classSourceCode)
+
+        } catch (e: Exception) {
+            logger.error(
+                "${Instant.now()} - ERROR: Error while processing class ${ctClass.qualifiedName}",
+                e
+            )
+            throw e
+        }
+
+    }
+
 }

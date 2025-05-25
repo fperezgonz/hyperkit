@@ -428,7 +428,6 @@ fun buildOutputClass(
     sourceClassName__dtoCtClass: Map<String, CtClass<*>>,
     collectedAnnotations: List<CtAnnotation<*>>,
     collectedProperties: List<PropertyData>,
-    valueWrapperType: CtType<*>?,
     factory: Factory
 ): CtClass<*> {
 
@@ -474,7 +473,7 @@ fun buildOutputClass(
         //Replace types with dto types
         fieldType = buildReplacedType(fieldType, sourceClassName__dtoCtClass, factory)
 
-        val valueWrapperTypeReference = factory.Type().createReference(valueWrapperType)
+        val valueWrapperTypeReference = factory.Type().createReference(ValueWrapper::class.java)
         valueWrapperTypeReference.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(if (fieldType.isPrimitive) fieldType.box() else fieldType))
         fieldType = valueWrapperTypeReference
 
