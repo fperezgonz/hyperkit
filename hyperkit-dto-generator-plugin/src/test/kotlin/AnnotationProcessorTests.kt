@@ -22,7 +22,7 @@ class AnnotationProcessorTests {
 
         val gradleRunner = GradleRunner.create()
         gradleRunner.withProjectDir(testProjectFolder)
-            .withArguments(":generateDtos","--info")
+            .withArguments(":clean", ":generateDtos", "--info")
             .withPluginClasspath()
         val gradleBuild = gradleRunner.build()
         val outcome = gradleBuild.task(":generateDtos")!!.outcome.name
@@ -34,7 +34,7 @@ class AnnotationProcessorTests {
 
     }
 
-    fun assertGeneratedCodeMatchesExpectedOutput(expectedSourcePath: String, generatedSourcePath: String){
+    fun assertGeneratedCodeMatchesExpectedOutput(expectedSourcePath: String, generatedSourcePath: String) {
 
         val expectedSource = File(testProjectFolder, expectedSourcePath).readText()
         val generatedSource = File(testProjectFolder, generatedSourcePath).readText()
@@ -44,7 +44,7 @@ class AnnotationProcessorTests {
     }
 
     @Test
-    fun basicTypesDtoTest(){
+    fun basicTypesDtoTest() {
 
         assertGeneratedCodeMatchesExpectedOutput(
             "${expectedOutputDir}java/${testDtoPackagePath}SourceClassTypesDto.java",

@@ -51,6 +51,15 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(17)
+}
+
+tasks.named<Copy>("processTestResources") {
+    outputs.upToDateWhen { false }
+    doFirst {
+        // Remove dto source files generated in previous test runs to avoid false positives
+        delete("$buildDir/resources/test")
+    }
 }
