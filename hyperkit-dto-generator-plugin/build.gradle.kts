@@ -56,10 +56,10 @@ kotlin {
     jvmToolchain(17)
 }
 
+// Remove dto source files generated in previous test runs to avoid false positives
 tasks.named<Copy>("processTestResources") {
     outputs.upToDateWhen { false }
     doFirst {
-        // Remove dto source files generated in previous test runs to avoid false positives
-        delete("$buildDir/resources/test")
+        delete("${layout.buildDirectory}/resources/test")
     }
 }
