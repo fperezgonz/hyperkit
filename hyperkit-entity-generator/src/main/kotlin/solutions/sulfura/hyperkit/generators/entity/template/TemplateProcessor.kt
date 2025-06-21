@@ -28,19 +28,19 @@ class TemplateProcessor() {
 
         props.setProperty("resource.loaders", "file, class")
         velocityEngine.setProperty(
-            "file.resource.loader.class",
+            "resource.loader.file.class",
             "org.apache.velocity.runtime.resource.loader.FileResourceLoader"
         )
         props.setProperty(
-            "class.resource.loader.class",
+            "resource.loader.class.class",
             "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader"
         )
         // Empty path allows absolute paths
-        props.setProperty("file.resource.loader.path", "")
+        props.setProperty("resource.loader.file.path", "")
 
         // Configure Velocity
         props.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute")
-        props.setProperty("input.encoding", "UTF-8")
+        props.setProperty("resource.default_encoding", "UTF-8")
         props.setProperty("output.encoding", "UTF-8")
 
         velocityEngine.init(props)

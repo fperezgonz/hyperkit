@@ -68,8 +68,6 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.2")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
     // Testing
@@ -79,13 +77,15 @@ dependencies {
 }
 
 tasks.test {
-    testLogging.showStandardStreams = true
+//    testLogging.showStandardStreams = true
     useJUnitPlatform()
 }
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
-    filesMatching("BOOT-INF/lib/kotlin-stdlib-2.0.21.jar") {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    eachFile {
+        if (path.contains("kotlin-stdlib")) {
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
     }
 }
 
