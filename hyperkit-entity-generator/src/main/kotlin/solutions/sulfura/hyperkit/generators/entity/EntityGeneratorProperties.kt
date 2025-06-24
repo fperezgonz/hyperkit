@@ -14,10 +14,10 @@ class EntityGeneratorProperties(
     val databaseUrl: String,
 
     /** The username to use for database connection */
-    val databaseUsername: String,
+    val databaseUsername: String?,
 
     /** The password to use for database connection */
-    val databasePassword: String,
+    val databasePassword: String?,
 
     /** The JDBC driver class name */
     val databaseDriver: String,

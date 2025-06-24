@@ -19,8 +19,13 @@ class DatabaseConnectionManager {
         Class.forName(config.databaseDriver)
 
         val connectionProps = Properties()
-        connectionProps.setProperty("user", config.username)
-        connectionProps.setProperty("password", config.password)
+
+        if (config.username != null) {
+            connectionProps.setProperty("user", config.username)
+        }
+        if (config.password != null) {
+            connectionProps.setProperty("password", config.password)
+        }
 
         return DriverManager.getConnection(config.url, connectionProps)
 
@@ -28,4 +33,9 @@ class DatabaseConnectionManager {
 
 }
 
-data class ConnectionProperties(val url: String, val username: String, val password: String, val databaseDriver: String)
+data class ConnectionProperties(
+    val url: String,
+    val username: String?,
+    val password: String?,
+    val databaseDriver: String
+)

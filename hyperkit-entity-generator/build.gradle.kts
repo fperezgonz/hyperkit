@@ -51,9 +51,9 @@ publishing {
 
 dependencies {
     // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework.boot:spring-boot-starter:3.4.6")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc:3.4.6")
+    implementation("org.springframework.boot:spring-boot-configuration-processor:3.4.6")
 
     // JPA
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
@@ -62,10 +62,11 @@ dependencies {
     implementation("org.apache.velocity:velocity-engine-core:2.3")
 
     // Database drivers
-    implementation("com.h2database:h2")
+    implementation("com.h2database:h2:2.3.232")
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.3.2")
     implementation("org.postgresql:postgresql:42.7.2")
+    implementation("org.hsqldb:hsqldb:2.7.2")
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")

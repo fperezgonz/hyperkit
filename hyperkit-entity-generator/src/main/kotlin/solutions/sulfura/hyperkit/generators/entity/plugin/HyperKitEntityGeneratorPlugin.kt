@@ -51,9 +51,11 @@ abstract class GenerateEntitiesTask : DefaultTask() {
     abstract val databaseUrl: Property<String>
 
     @get:Input
+    @get:Optional
     abstract val databaseUsername: Property<String>
 
     @get:Input
+    @get:Optional
     abstract val databasePassword: Property<String>
 
     @get:Input
@@ -86,8 +88,8 @@ abstract class GenerateEntitiesTask : DefaultTask() {
         // Create configuration object
         val config = EntityGeneratorConfig(
             databaseUrl = databaseUrl.get(),
-            databaseUsername = databaseUsername.get(),
-            databasePassword = databasePassword.get(),
+            databaseUsername = databaseUsername.getOrNull(),
+            databasePassword = databasePassword.getOrNull(),
             databaseDriver = databaseDriver.get(),
             outputPath = outputPath.get(),
             basePackage = basePackage.get(),
@@ -164,10 +166,10 @@ class HyperKitEntityGeneratorPlugin : Plugin<Project> {
             // Configure task from extension
             databaseUrl.set(project.findProperty("databaseUrl")?.toString() ?: extension.databaseUrl.get())
             databaseUsername.set(
-                project.findProperty("databaseUsername")?.toString() ?: extension.databaseUsername.get()
+                project.findProperty("databaseUsername")?.toString() ?: extension.databaseUsername.getOrNull()
             )
             databasePassword.set(
-                project.findProperty("databasePassword")?.toString() ?: extension.databasePassword.get()
+                project.findProperty("databasePassword")?.toString() ?: extension.databasePassword.getOrNull ()
             )
             databaseDriver.set(project.findProperty("databaseDriver")?.toString() ?: extension.databaseDriver.get())
             outputPath.set(project.findProperty("outputPath")?.toString() ?: extension.outputPath.get())
