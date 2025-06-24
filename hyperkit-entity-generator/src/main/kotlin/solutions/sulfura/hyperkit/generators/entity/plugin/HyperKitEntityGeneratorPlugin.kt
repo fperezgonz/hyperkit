@@ -174,8 +174,6 @@ class HyperKitEntityGeneratorPlugin : Plugin<Project> {
             databaseDriver.set(project.findProperty("databaseDriver")?.toString() ?: extension.databaseDriver.get())
             outputPath.set(project.findProperty("outputPath")?.toString() ?: extension.outputPath.get())
             basePackage.set(project.findProperty("tableNamePattern")?.toString() ?: extension.basePackage.get())
-            println(resolvedTemplatePath)
-            println(extension.templatePath.get())
             templatePath.set(resolvedTemplatePath ?: extension.templatePath.get())
             tableNamePattern.set(
                 project.findProperty("tableNamePattern")?.toString() ?: extension.tableNamePattern.get()

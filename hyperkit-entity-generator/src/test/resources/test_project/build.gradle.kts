@@ -32,6 +32,5 @@ tasks.register("initDatabase") {
             RunScript.execute(connection, reader)
         }
         connection.close()
-        println("Database initialized successfully")
     }
 }
