@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.generators.entity.database
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.sql.Connection
 import java.sql.DriverManager
@@ -10,6 +11,8 @@ import java.util.*
  */
 @Component
 class DatabaseConnectionManager {
+
+    private val logger = LoggerFactory.getLogger(DatabaseConnectionManager::class.java)
 
     /**
      * Establishes a connection to the database using the configured properties
@@ -27,7 +30,16 @@ class DatabaseConnectionManager {
             connectionProps.setProperty("password", config.password)
         }
 
-        return DriverManager.getConnection(config.url, connectionProps)
+        var databaseUrl = config.url;
+
+        if (config.databaseDriver.contains("hsqldb", ignoreCase = true)
+            && databaseUrl.contains("hsqldb", ignoreCase = true)
+            && !databaseUrl.contains("shutdown=true", ignoreCase = true)
+        ) {
+            databaseUrl += ";shutdown=true"
+        }
+
+        return DriverManager.getConnection(databaseUrl, connectionProps)
 
     }
 
