@@ -26,7 +26,7 @@ public class ProjectionOpenApiTestController {
      * Uses projection {name, age}.
      */
     @GetMapping("/test-dto-projection-response")
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+    @TestDto1
     public HttpEntity<TestDto> getTestDto() {
         return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
     }
@@ -36,20 +36,29 @@ public class ProjectionOpenApiTestController {
      * Uses projection {id, name}.
      */
     @GetMapping("/test-dto-projection2-response")
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name")
+    @TestDto2
     public HttpEntity<TestDto> getTestDto2() {
         return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
     }
 
     /**
      * Endpoint that returns a projected nested DTO.
-     * Uses projection {nestedDto{name, age}}.
+     * Uses projection {nestedDto{id}}.
      */
     @GetMapping("/test-nested-dto-projection-response")
-    @DtoProjectionSpec(projectedClass = NestedTestDto.class, value = "nestedDto{name, age}")
-    public HttpEntity<NestedTestDto> getNestedTestDto() {
-        TestDto testDto = new TestDto(1L, "Test", 25, null);
-        return new HttpEntity<>(new NestedTestDto(1L, testDto));
+    @NestedDto1
+    public HttpEntity<TestDto> getNestedTestDto() {
+        return new HttpEntity<>(new TestDto(1L, "Test", 25, ValueWrapper.of(new NestedTestDto(1L, null))));
+    }
+
+    /**
+     * Endpoint that returns a projected nested DTO.
+     * Uses projection {nestedDto{id}}.
+     */
+    @GetMapping("/test-nested-dto-projection2-response")
+    @NestedDto2
+    public HttpEntity<TestDto> getNestedTestDto2() {
+        return new HttpEntity<>(new TestDto(1L, "Test", 25, ValueWrapper.of(new NestedTestDto(1L, null))));
     }
 
     /**
@@ -57,7 +66,7 @@ public class ProjectionOpenApiTestController {
      * Uses projection {name, age}.
      */
     @GetMapping("/test-dto-list-projection-response")
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+    @TestDto1
     public HttpEntity<List<TestDto>> getTestDtosList() {
         return new HttpEntity<>(List.of(new TestDto(1L, "Test", 25, null)));
     }
@@ -67,7 +76,7 @@ public class ProjectionOpenApiTestController {
      * Uses projection {name, age}.
      */
     @GetMapping("/test-std-dto-projection-response")
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+    @TestDto1
     public HttpEntity<StdDtoResponseBody<TestDto>> getTestDtos() {
         StdDtoResponseBody<TestDto> response = new StdDtoResponseBody<>();
         response.setData(List.of(new TestDto(1L, "Test", 25, null)));
@@ -80,7 +89,7 @@ public class ProjectionOpenApiTestController {
      */
     @PostMapping("/test-dto-projection-body")
     public HttpEntity<TestDto> postTestDto(
-            @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+            @TestDto1
             @RequestBody TestDto testDto) {
         return new HttpEntity<>(testDto);
     }
@@ -91,7 +100,7 @@ public class ProjectionOpenApiTestController {
      */
     @PostMapping("/test-std-dto-projection-body")
     public HttpEntity<StdDtoResponseBody<TestDto>> postTestDtos(
-            @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+            @TestDto1
             @RequestBody StdDtoRequestBody<TestDto> request) {
         StdDtoResponseBody<TestDto> response = new StdDtoResponseBody<>();
         response.setData(request.getData());
@@ -105,8 +114,9 @@ public class ProjectionOpenApiTestController {
         public ValueWrapper<Long> id = ValueWrapper.empty();
         public ValueWrapper<String> name = ValueWrapper.empty();
         public ValueWrapper<Integer> age = ValueWrapper.empty();
-        public ValueWrapper<NestedTestDto> nested = ValueWrapper.empty();
+        public ValueWrapper<NestedTestDto> nestedDto = ValueWrapper.empty();
 
+        @SuppressWarnings("unused")
         public TestDto() {
         }
 
@@ -114,7 +124,7 @@ public class ProjectionOpenApiTestController {
             this.id = ValueWrapper.of(l);
             this.name = ValueWrapper.of(test);
             this.age = ValueWrapper.of(i);
-            this.nested = nestedTestDto == null ? ValueWrapper.empty() : nestedTestDto;
+            this.nestedDto = nestedTestDto == null ? ValueWrapper.empty() : nestedTestDto;
         }
 
         @Override
@@ -122,18 +132,19 @@ public class ProjectionOpenApiTestController {
             return TestDto.class;
         }
 
+        @SuppressWarnings("unused")
         public static class Projection extends DtoProjection<TestDto> {
             public FieldConf id;
             public FieldConf name;
             public FieldConf age;
-            public DtoFieldConf<NestedTestDto.Projection> nested;
+            public DtoFieldConf<NestedTestDto.Projection> nestedDto;
 
             @Override
             public void applyProjectionTo(TestDto dto) {
                 dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
                 dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
                 dto.age = ProjectionUtils.getProjectedValue(dto.age, this.age);
-                dto.nested = ProjectionUtils.getProjectedValue(dto.nested, this.nested);
+                dto.nestedDto = ProjectionUtils.getProjectedValue(dto.nestedDto, this.nestedDto);
             }
         }
     }
@@ -145,6 +156,7 @@ public class ProjectionOpenApiTestController {
         public ValueWrapper<Long> id = ValueWrapper.empty();
         public ValueWrapper<TestDto> nestedDto = ValueWrapper.empty();
 
+        @SuppressWarnings("unused")
         public NestedTestDto() {
         }
 
@@ -169,4 +181,21 @@ public class ProjectionOpenApiTestController {
             }
         }
     }
+
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+    @interface TestDto1 {
+    }
+
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name")
+    @interface TestDto2 {
+    }
+
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "nestedDto{id}")
+    @interface NestedDto1 {
+    }
+
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "nestedDto{id}")
+    @interface NestedDto2 {
+    }
+
 }

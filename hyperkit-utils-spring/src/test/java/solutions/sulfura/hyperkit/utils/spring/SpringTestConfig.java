@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
+import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,7 @@ import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
 import java.util.List;
 
 @SpringBootApplication
-public class SpringTestConfig  implements WebMvcConfigurer {
+public class SpringTestConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
@@ -45,7 +46,7 @@ public class SpringTestConfig  implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(){
+    public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice() {
         return new DtoProjectionRequestBodyAdvice();
     }
 
@@ -59,6 +60,11 @@ public class SpringTestConfig  implements WebMvcConfigurer {
         resolvers.add(this.dtoProjectionReturnArgumentResolver());
         resolvers.add(this.sortArgumentResolver());
         resolvers.add(this.rsqlFilterArgumentResolver());
+    }
+
+    @Bean
+    public SpringDocConfigProperties springDocConfigProperties() {
+        return new SpringDocConfigProperties();
     }
 
 }
