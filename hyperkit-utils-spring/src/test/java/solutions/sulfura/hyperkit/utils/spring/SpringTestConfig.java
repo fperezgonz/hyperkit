@@ -9,6 +9,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.spring.openapi.ValueWrapperModelConverter;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
 
 import java.util.List;
@@ -60,6 +61,11 @@ public class SpringTestConfig implements WebMvcConfigurer {
         resolvers.add(this.dtoProjectionReturnArgumentResolver());
         resolvers.add(this.sortArgumentResolver());
         resolvers.add(this.rsqlFilterArgumentResolver());
+    }
+
+    @Bean
+    public ValueWrapperModelConverter valueWrapperCustomizer() {
+        return new ValueWrapperModelConverter();
     }
 
     @Bean

@@ -11,101 +11,114 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoResponseBody;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-/**
- * Test controller for testing the ProjectionOpenApiCustomizer.
- * Contains endpoints with various projection scenarios.
- */
-@RestController
-@RequestMapping("/openapi-test")
-public class ProjectionOpenApiTestController {
+public class OpenApiTestControllers {
 
     /**
      * Endpoint that returns a projected DTO.
-     * Uses projection {name, age}.
+     * Uses projection {@link TestDto1}.
      */
-    @GetMapping("/test-dto-projection-response")
-    @TestDto1
-    public HttpEntity<TestDto> getTestDto() {
-        return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+    @RestController
+    @RequestMapping("/openapi-test")
+    public static class ProjectionOnResponseTestController1 {
+
+        @GetMapping("/openapi-test/test-dto-projection1-response")
+        @TestDto1
+        public HttpEntity<TestDto> getTestDto1() {
+            return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+        }
+
     }
 
     /**
-     * Endpoint that returns a differently projected DTO.
-     * Uses projection {id, name}.
+     * Uses projection {@link TestDto2}.
      */
-    @GetMapping("/test-dto-projection2-response")
-    @TestDto2
-    public HttpEntity<TestDto> getTestDto2() {
-        return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+    @RestController
+    public static class ProjectionOnResponseTestController2 {
+
+        @GetMapping("/openapi-test/test-dto-projection2-response")
+        @TestDto2
+        public HttpEntity<TestDto> getTestDto2() {
+            return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+        }
+
     }
 
     /**
-     * Endpoint that returns a projected nested DTO.
-     * Uses projection {nestedDto{id}}.
+     * Uses projection {@link DeepProjection}.
      */
-    @GetMapping("/test-nested-dto-projection-response")
-    @NestedDto1
-    public HttpEntity<TestDto> getNestedTestDto() {
-        return new HttpEntity<>(new TestDto(1L, "Test", 25, ValueWrapper.of(new NestedTestDto(1L, null))));
+    @RestController
+    public static class DeeplyNestedProjectionOnResponseTestController {
+        @GetMapping("/deeply-nested-projection-response")
+        @DeepProjection
+        public TestDto DeepProjection() {
+            return new TestDto(1L, "Test1", 25,
+                    ValueWrapper.of(new NestedTestDto(1L, new TestDto(2L, "Test2", 25,
+                            ValueWrapper.of(new NestedTestDto(2L, new TestDto(3L, "Test3", 25,
+                                    ValueWrapper.of(new NestedTestDto(3L, new TestDto(4L, "Test4", 25, null)))))))))
+            );
+        }
     }
 
     /**
-     * Endpoint that returns a projected nested DTO.
-     * Uses projection {nestedDto{id}}.
+     * Uses projection {@link TestDto1}.
      */
-    @GetMapping("/test-nested-dto-projection2-response")
-    @NestedDto2
-    public HttpEntity<TestDto> getNestedTestDto2() {
-        return new HttpEntity<>(new TestDto(1L, "Test", 25, ValueWrapper.of(new NestedTestDto(1L, null))));
+    @RestController
+    public static class DtoListProjectionOnResponseTestController {
+
+        @GetMapping("/test-dto-list-projection-response")
+        @TestDto1
+        public HttpEntity<List<TestDto>> getTestDtosList() {
+            return new HttpEntity<>(List.of(new TestDto(1L, "Test", 25, null)));
+        }
+
     }
 
     /**
-     * Endpoint that returns a list of projected DTOs.
-     * Uses projection {name, age}.
+     * Uses projection {@link TestDto1}.
      */
-    @GetMapping("/test-dto-list-projection-response")
-    @TestDto1
-    public HttpEntity<List<TestDto>> getTestDtosList() {
-        return new HttpEntity<>(List.of(new TestDto(1L, "Test", 25, null)));
+    @RestController
+    public static class StdDtoResponseProjectionOnResponseTestController {
+        @GetMapping("/test-std-dto-projection-response")
+        @TestDto1
+        public HttpEntity<StdDtoResponseBody<TestDto>> getTestDtos() {
+            StdDtoResponseBody<TestDto> response = new StdDtoResponseBody<>();
+            response.setData(List.of(new TestDto(1L, "Test", 25, null)));
+            return new HttpEntity<>(response);
+        }
     }
 
     /**
-     * Endpoint that returns a StdDtoResponseBody with projected DTOs.
-     * Uses projection {name, age}.
+     * Uses projection {@link TestDto1}.
      */
-    @GetMapping("/test-std-dto-projection-response")
-    @TestDto1
-    public HttpEntity<StdDtoResponseBody<TestDto>> getTestDtos() {
-        StdDtoResponseBody<TestDto> response = new StdDtoResponseBody<>();
-        response.setData(List.of(new TestDto(1L, "Test", 25, null)));
-        return new HttpEntity<>(response);
+    @RestController
+    public static class DtoProjectionOnRequestTestController {
+        @PostMapping("/test-dto-projection-body")
+        public HttpEntity<TestDto> postTestDto(
+                @TestDto1
+                @RequestBody TestDto testDto) {
+            return new HttpEntity<>(testDto);
+        }
     }
 
     /**
-     * Endpoint that accepts a projected DTO in the request body.
-     * Uses projection {name, age}.
+     * Uses projection {@link TestDto1}.
      */
-    @PostMapping("/test-dto-projection-body")
-    public HttpEntity<TestDto> postTestDto(
-            @TestDto1
-            @RequestBody TestDto testDto) {
-        return new HttpEntity<>(testDto);
+    @RestController
+    public static class StdDtoRequestProjectionOnRequestTestController {
+        @PostMapping("/test-std-dto-projection-request")
+        public HttpEntity<StdDtoRequestBody<TestDto>> postTestDtos(
+                @TestDto1
+                @RequestBody StdDtoRequestBody<TestDto> request) {
+            StdDtoRequestBody<TestDto> response = new StdDtoRequestBody<>();
+            response.setData(request.getData());
+            return new HttpEntity<>(response);
+        }
     }
 
-    /**
-     * Endpoint that accepts a StdDtoRequestBody with projected DTOs.
-     * Uses projection {name, age}.
-     */
-    @PostMapping("/test-std-dto-projection-body")
-    public HttpEntity<StdDtoResponseBody<TestDto>> postTestDtos(
-            @TestDto1
-            @RequestBody StdDtoRequestBody<TestDto> request) {
-        StdDtoResponseBody<TestDto> response = new StdDtoResponseBody<>();
-        response.setData(request.getData());
-        return new HttpEntity<>(response);
-    }
 
     /**
      * Simple DTO class for testing projections.
@@ -182,20 +195,28 @@ public class ProjectionOpenApiTestController {
         }
     }
 
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age, nestedDto{id}")
+    @Retention(RetentionPolicy.RUNTIME)
     @interface TestDto1 {
     }
 
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name")
+    @Retention(RetentionPolicy.RUNTIME)
     @interface TestDto2 {
     }
 
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, nestedDto{id,nestedDto{id,nestedDto{id,nestedDto{id}}}}")
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface DeepProjection {
+    }
+
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "nestedDto{id}")
+    @Retention(RetentionPolicy.RUNTIME)
     @interface NestedDto1 {
     }
 
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "nestedDto{id}")
+    @Retention(RetentionPolicy.RUNTIME)
     @interface NestedDto2 {
     }
-
 }
