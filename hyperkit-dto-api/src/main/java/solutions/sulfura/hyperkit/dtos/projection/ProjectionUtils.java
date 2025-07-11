@@ -10,6 +10,23 @@ import java.util.Collection;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ProjectionUtils {
+    /**
+     * Searches within a {@link Dto} class for a nested class that extends {@link DtoProjection}.
+     * <p>
+     * Expects the {@link Dto} class to contain an inner {@link DtoProjection} class similar to the one defined in the default template for generating Dtos
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static Class<? extends DtoProjection> findDefaultProjectionClass(Class<?> dtoClass) {
+
+        // Look for a nested class that extends DtoProjection
+        for (Class<?> nestedClass : dtoClass.getDeclaredClasses()) {
+            if (DtoProjection.class.isAssignableFrom(nestedClass)) {
+                return (Class<? extends DtoProjection>) nestedClass;
+            }
+        }
+
+        return null;
+    }
 
     public static <T> ValueWrapper<T> getProjectedValue(ValueWrapper<T> value, FieldConf fieldConf) {
 
@@ -57,7 +74,7 @@ public class ProjectionUtils {
 
         DtoProjection dtoProjection = fieldConf.dtoProjection;
 
-        if (nestedVal == null){
+        if (nestedVal == null) {
 
             return ValueWrapper.of(null);
 
@@ -69,7 +86,7 @@ public class ProjectionUtils {
 
             dtoProjection.applyProjectionTo((Dto) nestedVal);
 
-        } else{
+        } else {
 
             throw new DtoProjectionException("Unable to apply projection of type " + dtoProjection.getClass() + " to type " + nestedVal.getClass());
 
