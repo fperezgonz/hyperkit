@@ -6,7 +6,7 @@ import io.swagger.v3.core.util.Json;
 
 import java.util.function.Function;
 
-public class ValueWrapperTypeUtils {
+public class OpenApiTypeUtils {
 
 
     /**

@@ -1,0 +1,78 @@
+package solutions.sulfura.hyperkit.utils.spring.openapi;
+
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springdoc.core.configuration.SpringDocConfiguration;
+import org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = {
+        OpenApiTestControllers.ProjectionOnResponseTestController1.class,
+        OpenApiTestControllers.ProjectionOnResponseTestController2.class
+})
+@Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
+public class MultipleOperationsWithDifferentProjectionsOnResultTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void checkApiDocsIsAccessible() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk());
+    }
+
+    private OpenAPI parseOpenApiSpec(String json) throws Exception {
+        return Json.mapper().readValue(json, OpenAPI.class);
+    }
+
+    @Test
+    @DisplayName("Should generate different model classes for different projections of the same DTO")
+    public void testShouldGenerateDifferentModelClassesForDifferentProjections() throws Exception {
+        // Given the OpenAPI spec is generated
+
+        // When we get the OpenAPI spec
+        MvcResult result = mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Then the OpenAPI spec should contain different model classes for different projections
+        String content = result.getResponse().getContentAsString();
+
+        // Parse the OpenAPI JSON response
+        OpenAPI openAPI = parseOpenApiSpec(content);
+
+        // Verify that the OpenAPI spec contains both projected models
+        assertTrue(content.contains("TestDto1_TestDto"));
+        assertTrue(content.contains("TestDto2_TestDto"));
+
+        // Verify that the projected models have different fields
+        Schema<?> schema1 = openAPI.getComponents().getSchemas().get("TestDto1_TestDto");
+        Schema<?> schema2 = openAPI.getComponents().getSchemas().get("TestDto2_TestDto");
+
+        assertNotNull(schema1);
+        assertNotNull(schema2);
+
+        assertTrue(schema1.getProperties().containsKey("name"));
+        assertTrue(schema1.getProperties().containsKey("age"));
+        assertFalse(schema1.getProperties().containsKey("id"));
+
+        assertTrue(schema2.getProperties().containsKey("id"));
+        assertTrue(schema2.getProperties().containsKey("name"));
+        assertFalse(schema2.getProperties().containsKey("age"));
+
+    }
+
+}

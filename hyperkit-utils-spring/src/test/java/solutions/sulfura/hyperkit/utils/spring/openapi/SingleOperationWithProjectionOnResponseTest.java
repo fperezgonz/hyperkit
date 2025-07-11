@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = OpenApiTestControllers.ProjectionOnResponseTestController1.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
-public class SingleOpenApiOperationWithProjectionOnResponseTest {
+public class SingleOperationWithProjectionOnResponseTest {
 
     @Autowired
     private MockMvc mockMvc;

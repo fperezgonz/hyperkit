@@ -25,7 +25,7 @@ public class ValueWrapperModelConverter implements ModelConverter {
     @Override
     public Schema<?> resolve(AnnotatedType type, ModelConverterContext context, Iterator<ModelConverter> chain) {
 
-        AnnotatedType unwrappedType = ValueWrapperTypeUtils.unwrapReference(type, ValueWrapperModelConverter::isValueWrapperType);
+        AnnotatedType unwrappedType = OpenApiTypeUtils.unwrapReference(type, ValueWrapperModelConverter::isValueWrapperType);
 
         if (unwrappedType == null) {
             return nextResolver(type, context, chain);
