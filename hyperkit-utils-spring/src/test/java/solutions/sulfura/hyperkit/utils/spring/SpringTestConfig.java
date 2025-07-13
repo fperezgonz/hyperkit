@@ -98,48 +98,6 @@ public class SpringTestConfig implements WebMvcConfigurer {
         return new ValueWrapperModelConverter();
     }
 
-//    @Bean
-//    public ApplicationListener<ContextRefreshedEvent> modelConverterConfigurer() {
-//        return event -> {
-//            SpringDocConfigProperties properties = event.getApplicationContext().getBean(SpringDocConfigProperties.class);
-//            configureModelConverters(properties);
-//        };
-//    }
-//
-//
-//    public void configureModelConverters(SpringDocConfigProperties springDocConfigProperties) {
-//        ModelConverters modelConverters = ModelConverters.getInstance(springDocConfigProperties.isOpenapi31());
-//
-//        var converters = new ArrayList<ModelConverter>();
-//        converters.addAll(modelConverters.getConverters());
-//
-//        for (ModelConverter converter : converters) {
-//            modelConverters.removeConverter(converter);
-//        }
-//
-////        ProjectionSpecDetector projectionSpecDetector = new ProjectionSpecDetector();
-//        HyperModelResolver hyperModelResolver;
-//        if (springDocConfigProperties.isOpenapi31()) {
-//            hyperModelResolver = new HyperModelResolver(Json31.mapper(), TypeNameResolver.std);
-//        } else {
-//            hyperModelResolver = new HyperModelResolver(Json.mapper(), TypeNameResolver.std);
-//        }
-////        hyperModelResolver.openapi31(true);
-//
-//        converters.removeIf(converter -> converter instanceof ModelResolver);
-//
-//        // To be able to apply projections correctly, it must be the last to resolve
-//        converters.add(hyperModelResolver);
-//        // To detect the annotations, it must always be the first to resolve
-
-    /// /        converters.add(projectionSpecDetector);
-//
-//        for (int i = converters.size() - 1; i >= 0; i--) {
-//            ModelConverter converter = converters.get(i);
-//            modelConverters.addConverter(converter);
-//        }
-//
-//    }
     @Bean
     public SpringDocConfigProperties springDocConfigProperties() {
         SpringDocConfigProperties result = new SpringDocConfigProperties();

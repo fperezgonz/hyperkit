@@ -206,6 +206,6 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
         result.putAll(collectProperties(typeReference.superclass, factory).associateBy { it.name })
     }
 
-    return return result.values.toList()
+    return result.values.toList()
 
 }
