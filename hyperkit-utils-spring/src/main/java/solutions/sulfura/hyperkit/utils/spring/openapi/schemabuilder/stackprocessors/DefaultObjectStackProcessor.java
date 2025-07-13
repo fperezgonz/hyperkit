@@ -168,8 +168,8 @@ public class DefaultObjectStackProcessor implements StackProcessor {
             projectedSchemaName = targetClass.getSimpleName();
         }
 
-        if (stackData.rootProjectionAnnotationInfo.directAnnotation != stackData.rootProjectionAnnotationInfo.targetAnnotation) {
-            projectedSchemaName = stackData.rootProjectionAnnotationInfo.directAnnotation.annotationType().getSimpleName() + "_" + projectedSchemaName;
+        if (!stackData.currentNamespace.isBlank()) {
+            projectedSchemaName = stackData.currentNamespace + "_" + projectedSchemaName;
         }
 
         if (schemaProcessingCounts.getOrDefault(schema.getName(), 0) > 0) {
