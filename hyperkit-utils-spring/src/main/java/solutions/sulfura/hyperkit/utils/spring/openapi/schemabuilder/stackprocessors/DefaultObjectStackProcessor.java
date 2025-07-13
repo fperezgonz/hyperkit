@@ -19,6 +19,31 @@ import static solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils
 
 public class DefaultObjectStackProcessor implements StackProcessor {
 
+    protected String getNameForCurrentType(StackData stackData, Map<String, Integer> schemaProcessingCounts) {
+
+        Schema<?> schema = stackData.schema;
+        Type schemaTargetType = stackData.schemaTargetType;
+        Class<?> targetClass = getRawType(schemaTargetType);
+
+        // Generate a name for the projected schema
+        String projectedSchemaName = schema.getName();
+
+        if (projectedSchemaName == null || projectedSchemaName.isBlank()) {
+            projectedSchemaName = targetClass.getSimpleName();
+        }
+
+        if (!stackData.currentNamespace.isBlank()) {
+            projectedSchemaName = stackData.currentNamespace + "_" + projectedSchemaName;
+        }
+
+        if (schemaProcessingCounts.getOrDefault(schema.getName(), 0) > 0) {
+            projectedSchemaName += "_" + schemaProcessingCounts.get(schema.getName());
+        }
+
+
+        return projectedSchemaName;
+    }
+
     public Type buildPropertyType(ParameterizedType projectionHolderType, Type dataPropertyType) {
 
         if (!(dataPropertyType instanceof ParameterizedType parameterizedPropertyType)) {
@@ -31,6 +56,7 @@ public class DefaultObjectStackProcessor implements StackProcessor {
             return dataPropertyType;
         }
 
+        //noinspection NullableProblems
         return new ParameterizedType() {
 
             @Override
@@ -162,19 +188,7 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         projectedSchema.setFormat(schema.getFormat());
 
         // Generate a name for the projected schema
-        String projectedSchemaName = schema.getName();
-
-        if (projectedSchemaName == null || projectedSchemaName.isBlank()) {
-            projectedSchemaName = targetClass.getSimpleName();
-        }
-
-        if (!stackData.currentNamespace.isBlank()) {
-            projectedSchemaName = stackData.currentNamespace + "_" + projectedSchemaName;
-        }
-
-        if (schemaProcessingCounts.getOrDefault(schema.getName(), 0) > 0) {
-            projectedSchemaName += "_" + schemaProcessingCounts.get(schema.getName());
-        }
+        String projectedSchemaName = getNameForCurrentType(stackData, schemaProcessingCounts);
 
         projectedSchema.setName(projectedSchemaName);
 
