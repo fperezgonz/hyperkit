@@ -279,7 +279,10 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
 
         String projectedSchemaName = "";
 
-        if (projectionAnnotationInfo.directAnnotation != projectionAnnotationInfo.targetAnnotation) {
+        // Use explicit or implicit namespace
+        if (!projectionSpec.namespace().isBlank()) {
+            projectedSchemaName = projectionSpec.namespace();
+        } else if (projectionAnnotationInfo.directAnnotation != projectionAnnotationInfo.targetAnnotation) {
             projectedSchemaName = projectionAnnotationInfo.directAnnotation.annotationType().getSimpleName();
         }
 

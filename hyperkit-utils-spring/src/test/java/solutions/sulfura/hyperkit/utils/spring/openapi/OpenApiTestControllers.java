@@ -124,6 +124,20 @@ public class OpenApiTestControllers {
         }
     }
 
+    /**
+     * Uses projection {@link ExplicitNamespaceProjection}
+     */
+    @RestController
+    @RequestMapping("/explicit-namespace")
+    public static class ExplicitNamespaceController {
+
+        @GetMapping("/test")
+        @ExplicitNamespaceProjection
+        public HttpEntity<TestDto> getTestDto() {
+            return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+        }
+    }
+
 
     /**
      * Simple DTO class for testing projections.
@@ -306,5 +320,27 @@ public class OpenApiTestControllers {
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "nestedDto{id}")
     @Retention(RetentionPolicy.RUNTIME)
     @interface NestedDto2 {
+    }
+
+    /**
+     * Projection annotation with an explicit namespace declaration.
+     */
+    @DtoProjectionSpec(
+            projectedClass = TestDto.class,
+            value = "id",
+            namespace = "CustomNamespace"
+    )
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ExplicitNamespaceProjection {
+    }
+
+    public static void verifyExplicitNamespaceProjectionSchema(OpenAPI openAPI, Schema<?> schema) {
+        schema = SchemaBuilderUtils.findReferencedModel(openAPI, schema);
+
+        assertNotNull(schema, "Schema with explicit namespace should exist");
+        assertTrue(schema.getProperties().containsKey("id"), "Schema should contain 'id' property");
+        assertFalse(schema.getProperties().containsKey("name"), "Schema should contain 'name' property");
+        assertFalse(schema.getProperties().containsKey("age"), "Schema should not contain 'age' property");
+        assertFalse(schema.getProperties().containsKey("nestedDto"), "Schema should not contain 'nestedDto' property");
     }
 }

@@ -9,6 +9,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface DtoProjectionSpec {
 
+    String namespace() default "";
+
     /**
      * The class that is projected by the root of the dsl string in {@link #value}
      */
