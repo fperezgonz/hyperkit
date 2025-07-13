@@ -1,8 +1,8 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper.entities;
 
-import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;

@@ -1,6 +1,5 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
-import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.ManyToOneEntity;

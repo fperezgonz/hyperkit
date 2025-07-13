@@ -22,13 +22,13 @@ import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.AnnotationInfo
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.SchemaCreationResult;
 
-import static solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass;
-
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass;
 
 /**
  * Customizes the OpenAPI specification to apply projections to the generated models.
