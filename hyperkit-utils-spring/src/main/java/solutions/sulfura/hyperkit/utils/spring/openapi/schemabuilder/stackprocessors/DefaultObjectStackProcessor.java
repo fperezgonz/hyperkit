@@ -75,10 +75,12 @@ public class DefaultObjectStackProcessor implements StackProcessor {
     /**
      * Rebuilds each property schema in the target type schema using the stack info
      */
-    protected Map<String, SchemaCreationResult> buildPropertySchemas(StackData stackData, List<StackProcessor> stackProcessors) {
+    @NonNull
+    protected PropertySchemaCreationResult buildPropertySchemas(StackData stackData, List<StackProcessor> stackProcessors) {
 
         Schema<?> schema = stackData.schema;
         Type schemaTargetType = stackData.schemaTargetType;
+        Map<String, Integer> schemaProcessingCounts = new HashMap<>(stackData.schemaProcessingCounts);
         BeanDescription beanDescription = Json.mapper().getSerializationConfig().introspect(Json.mapper().constructType(schemaTargetType));
         Map<String, BeanPropertyDefinition> beanProperties = beanDescription.findProperties().stream()
                 .collect(Collectors.toMap(BeanPropertyDefinition::getName, propDef -> propDef));
@@ -128,22 +130,26 @@ public class DefaultObjectStackProcessor implements StackProcessor {
                             propertyType,
                             stackData.projection,
                             stackData.projectedClass,
-                            stackData.rootProjectionAnnotationInfo);
+                            stackData.rootProjectionAnnotationInfo,
+                            stackData.currentNamespace,
+                            schemaProcessingCounts);
 
                     var schemaCreationResult = buildSchemaForStack(fieldStackData, stackProcessors);
                     schemaCreationResults.put(propertyName, schemaCreationResult);
+                    schemaProcessingCounts.putAll(schemaCreationResult.schemaProcessingCounts);
                 }
 
         );
 
-        return schemaCreationResults;
+        return new PropertySchemaCreationResult(schemaCreationResults, schemaProcessingCounts);
 
     }
 
     protected SchemaCreationResult buildNewSchemaForTargetType(StackData stackData,
                                                                Map<String, Schema<?>> propertiesSchemas,
                                                                Map<String, Schema<?>> newNamedSchemas,
-                                                               Set<Schema<?>> newAnonymousSchemas
+                                                               Set<Schema<?>> newAnonymousSchemas,
+                                                               Map<String, Integer> schemaProcessingCounts
     ) {
 
         Schema<?> schema = stackData.schema;
@@ -166,6 +172,10 @@ public class DefaultObjectStackProcessor implements StackProcessor {
             projectedSchemaName = stackData.rootProjectionAnnotationInfo.directAnnotation.annotationType().getSimpleName() + "_" + projectedSchemaName;
         }
 
+        if (schemaProcessingCounts.getOrDefault(schema.getName(), 0) > 0) {
+            projectedSchemaName += "_" + schemaProcessingCounts.get(schema.getName());
+        }
+
         projectedSchema.setName(projectedSchemaName);
 
         // Add properties to the new schema
@@ -173,10 +183,11 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
         // Build the schema creation result
         // Create a new schema with only the projected fields
-        SchemaCreationResult result = new SchemaCreationResult(projectedSchema);
+        SchemaCreationResult result = new SchemaCreationResult(projectedSchema, schemaProcessingCounts);
         result.newNamedSchemas.putAll(newNamedSchemas);
         result.newAnonymousSchemas.addAll(newAnonymousSchemas);
         result.newNamedSchemas.put(projectedSchemaName, projectedSchema);
+        result.increaseSchemaProcessingCount(schema.getName());
 
         // Return a reference to the projected schema
         Schema<?> refSchema = new Schema<>();
@@ -196,7 +207,8 @@ public class DefaultObjectStackProcessor implements StackProcessor {
     @NonNull
     public SchemaCreationResult processStack(StackData stackData, List<StackProcessor> stackProcessors) {
 
-        var schemaCreationResults = buildPropertySchemas(stackData, stackProcessors);
+        PropertySchemaCreationResult propertySchemaCreationResult = buildPropertySchemas(stackData, stackProcessors);
+        var schemaCreationResults = propertySchemaCreationResult.propertySchemas;
 
         // Collect new schemas
 
@@ -212,13 +224,26 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         boolean propertiesRemoved = stackData.schema.getProperties().size() != schemaCreationResults.size();
 
         if (!newSchemasCreated && !propertiesRemoved) {
-            return new SchemaCreationResult(stackData.schema);
+            return new SchemaCreationResult(stackData.schema, stackData.schemaProcessingCounts);
         }
 
         Map<String, Schema<?>> propertiesSchemas = schemaCreationResults.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().resultingSchema));
 
-        return buildNewSchemaForTargetType(stackData, propertiesSchemas, newNamedSchemas, newAnonymousSchemas);
+        return buildNewSchemaForTargetType(stackData, propertiesSchemas, newNamedSchemas, newAnonymousSchemas, propertySchemaCreationResult.schemaProcessingCounts);
 
     }
+
+    protected static class PropertySchemaCreationResult {
+        @NonNull
+        Map<String, SchemaCreationResult> propertySchemas;
+        @NonNull
+        Map<String, Integer> schemaProcessingCounts;
+
+        public PropertySchemaCreationResult(@NonNull Map<String, SchemaCreationResult> propertySchemas, @NonNull Map<String, Integer> schemaProcessingCounts) {
+            this.propertySchemas = propertySchemas;
+            this.schemaProcessingCounts = schemaProcessingCounts;
+        }
+    }
+
 }

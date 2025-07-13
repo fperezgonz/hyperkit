@@ -1,5 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.openapi;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
@@ -14,6 +16,9 @@ import solutions.sulfura.hyperkit.utils.spring.StdDtoResponseBody;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class OpenApiTestControllers {
 
@@ -185,7 +190,7 @@ public class OpenApiTestControllers {
 
         public static class Projection extends DtoProjection<NestedTestDto> {
             public FieldConf id;
-            public FieldConf nestedDto;
+            public DtoFieldConf<TestDto.Projection> nestedDto;
 
             @Override
             public void applyProjectionTo(NestedTestDto dto) {
@@ -200,14 +205,97 @@ public class OpenApiTestControllers {
     @interface TestDto1 {
     }
 
+    public static void verifyTestDtoProjection1Schema(OpenAPI openAPI, Schema<?> testDtoProjection1Schema) {
+
+        testDtoProjection1Schema = SchemaBuilderUtils.findReferencedModel(openAPI, testDtoProjection1Schema);
+        // Should contain
+        assertNotNull(testDtoProjection1Schema);
+        assertTrue(testDtoProjection1Schema.getProperties().containsKey("name"));
+        assertTrue(testDtoProjection1Schema.getProperties().containsKey("age"));
+        assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDto"));
+        // Should not contain
+        assertFalse(testDtoProjection1Schema.getProperties().containsKey("id"));
+
+        Schema<?> nestedDtoSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDto");
+        nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
+
+        assertNotNull(nestedDtoSchema);
+        assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDto"));
+        assertTrue(nestedDtoSchema.getProperties().containsKey("id"));
+        // Should not contain
+        assertFalse(nestedDtoSchema.getProperties().containsKey("nestedDto"));
+
+    }
+
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name")
     @Retention(RetentionPolicy.RUNTIME)
     @interface TestDto2 {
     }
 
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, nestedDto{id,nestedDto{id,nestedDto{id,nestedDto{id}}}}")
+    public static void verifyTestDtoProjection2Schema(OpenAPI openAPI, Schema<?> testDtoProjection2Schema) {
+
+        testDtoProjection2Schema = SchemaBuilderUtils.findReferencedModel(openAPI, testDtoProjection2Schema);
+
+        assertNotNull(testDtoProjection2Schema);
+        assertTrue(testDtoProjection2Schema.getProperties().containsKey("id"));
+        assertTrue(testDtoProjection2Schema.getProperties().containsKey("name"));
+        // Should not contain
+        assertFalse(testDtoProjection2Schema.getProperties().containsKey("age"));
+        assertFalse(testDtoProjection2Schema.getProperties().containsKey("nestedDto"));
+
+    }
+
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name, nestedDto{id,nestedDto{id,nestedDto{id,nestedDto{id}}}}")
     @Retention(RetentionPolicy.RUNTIME)
     @interface DeepProjection {
+    }
+
+    public static void verifyTestDtoDeepProjectionSchema(OpenAPI openAPI, Schema<?> deepProjectionSchema) {
+
+        deepProjectionSchema = SchemaBuilderUtils.findReferencedModel(openAPI, deepProjectionSchema);
+
+        // Should contain
+        assertNotNull(deepProjectionSchema);
+        assertTrue(deepProjectionSchema.getProperties().containsKey("id"));
+        assertTrue(deepProjectionSchema.getProperties().containsKey("nestedDto"));
+        assertTrue(deepProjectionSchema.getProperties().containsKey("name"));
+        // Should not contain
+        assertFalse(deepProjectionSchema.getProperties().containsKey("age"));
+
+        Schema<?> nestedSchema = (Schema<?>) deepProjectionSchema.getProperties().get("nestedDto");
+        nestedSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedSchema);
+        //Should contain
+        assertNotNull(nestedSchema);
+        assertTrue(nestedSchema.getProperties().containsKey("id"));
+        assertTrue(deepProjectionSchema.getProperties().containsKey("nestedDto"));
+
+        nestedSchema = (Schema<?>) nestedSchema.getProperties().get("nestedDto");
+        nestedSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedSchema);
+        //Should contain
+        assertNotNull(nestedSchema);
+        assertTrue(nestedSchema.getProperties().containsKey("id"));
+        assertTrue(nestedSchema.getProperties().containsKey("nestedDto"));
+        //Should not contain
+        assertFalse(nestedSchema.getProperties().containsKey("age"));
+        assertFalse(nestedSchema.getProperties().containsKey("name"));
+
+        nestedSchema = (Schema<?>) nestedSchema.getProperties().get("nestedDto");
+        nestedSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedSchema);
+        //Should contain
+        assertNotNull(nestedSchema);
+        assertTrue(nestedSchema.getProperties().containsKey("id"));
+        assertTrue(nestedSchema.getProperties().containsKey("nestedDto"));
+
+        nestedSchema = (Schema<?>) nestedSchema.getProperties().get("nestedDto");
+        nestedSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedSchema);
+        //Should contain
+        assertNotNull(nestedSchema);
+        assertTrue(nestedSchema.getProperties().containsKey("id"));
+        //Should not contain
+        assertFalse(nestedSchema.getProperties().containsKey("nestedDto"));
+        assertFalse(nestedSchema.getProperties().containsKey("age"));
+        assertFalse(nestedSchema.getProperties().containsKey("name"));
+
     }
 
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "nestedDto{id}")

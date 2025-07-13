@@ -55,23 +55,8 @@ public class MultipleOperationsWithDifferentProjectionsOnResultTest {
         OpenAPI openAPI = parseOpenApiSpec(content);
 
         // Verify that the OpenAPI spec contains both projected models
-        assertTrue(content.contains("TestDto1_TestDto"));
-        assertTrue(content.contains("TestDto2_TestDto"));
-
-        // Verify that the projected models have different fields
-        Schema<?> schema1 = openAPI.getComponents().getSchemas().get("TestDto1_TestDto");
-        Schema<?> schema2 = openAPI.getComponents().getSchemas().get("TestDto2_TestDto");
-
-        assertNotNull(schema1);
-        assertNotNull(schema2);
-
-        assertTrue(schema1.getProperties().containsKey("name"));
-        assertTrue(schema1.getProperties().containsKey("age"));
-        assertFalse(schema1.getProperties().containsKey("id"));
-
-        assertTrue(schema2.getProperties().containsKey("id"));
-        assertTrue(schema2.getProperties().containsKey("name"));
-        assertFalse(schema2.getProperties().containsKey("age"));
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, openAPI.getComponents().getSchemas().get("TestDto1_TestDto"));
+        OpenApiTestControllers.verifyTestDtoProjection2Schema(openAPI, openAPI.getComponents().getSchemas().get("TestDto2_TestDto"));
 
     }
 

@@ -276,11 +276,19 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
         DtoProjectionSpec projectionSpec = projectionAnnotationInfo.targetAnnotation;
         Class<? extends DtoProjection> projectionClass = findDefaultProjectionClass(projectionSpec.projectedClass());
         DtoProjection<?> projection = ProjectionDsl.parse(projectionSpec.value(), projectionClass);
+
+        String projectedSchemaName = "";
+
+        if (projectionAnnotationInfo.directAnnotation != projectionAnnotationInfo.targetAnnotation) {
+            projectedSchemaName = projectionAnnotationInfo.directAnnotation.annotationType().getSimpleName();
+        }
+
         SchemaCreationResult schemaCreationResult = ProjectedSchemaBuilder.buildProjectedSchemas(openApi,
                 schema,
                 projectionAnnotationInfo.annotatedType.getType(),
                 projection,
                 projectionSpec.projectedClass(),
+                projectedSchemaName,
                 projectionAnnotationInfo,
                 stackProcessors);
         projectedSchemas.putAll(schemaCreationResult.newNamedSchemas);

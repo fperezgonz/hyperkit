@@ -14,13 +14,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = OpenApiTestControllers.ProjectionOnResponseTestController1.class)
+@WebMvcTest(controllers = {
+        OpenApiTestControllers.DeeplyNestedProjectionOnResponseTestController.class
+})
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
-public class SingleOperationWithProjectionOnResponseTest {
+public class OpenApiDeeplyNestedProjectionTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,8 +48,8 @@ public class SingleOperationWithProjectionOnResponseTest {
         OpenAPI openAPI = parseOpenApiJson(content);
 
         // Then the OpenAPI spec should contain the projected model
-        Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_TestDto");
-        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, schema);
+        Schema<?> schema = openAPI.getComponents().getSchemas().get("DeepProjection_TestDto");
+        OpenApiTestControllers.verifyTestDtoDeepProjectionSchema(openAPI, schema);
 
     }
 

@@ -3,12 +3,11 @@ package solutions.sulfura.hyperkit.utils.spring.openapi.schemabuilder.stackproce
 import io.swagger.v3.oas.models.media.Schema;
 import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.SchemaCreationResult;
-import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackProcessor;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackData;
+import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackProcessor;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,14 +42,14 @@ public class ArrayStackProcessor implements StackProcessor {
         Schema<?> itemsSchema = schema.getItems();
 
         if (itemsSchema == null) {
-            return new SchemaCreationResult(schema);
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
         }
 
         if (itemsSchema.get$ref() == null
                 && (itemsSchema.getType() == null || itemsSchema.getType().isBlank())
                 && (itemsSchema.getTypes() == null || itemsSchema.getTypes().isEmpty())
         ) {
-            return new SchemaCreationResult(schema);
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
         }
 
         Type itemsType = getItemsType(stackData.schemaTargetType);
@@ -60,12 +59,14 @@ public class ArrayStackProcessor implements StackProcessor {
                 itemsType,
                 stackData.projection,
                 stackData.projectedClass,
-                stackData.rootProjectionAnnotationInfo);
+                stackData.rootProjectionAnnotationInfo,
+                stackData.currentNamespace,
+                stackData.schemaProcessingCounts);
 
         SchemaCreationResult replicatedItemsSchemaResult = buildSchemaForStack(itemsStack, stackProcessors);
 
         if (replicatedItemsSchemaResult.resultingSchema == itemsSchema) {
-            return new SchemaCreationResult(schema);
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
         }
 
         Schema<?> result = new Schema<>();

@@ -26,7 +26,13 @@ public class SchemaReferenceStackProcessor implements StackProcessor {
         OpenAPI openAPI = stackData.openApi;
         Schema<?> schema = stackData.schema;
         Schema<?> referencedSchema = findReferencedModel(openAPI, schema);
-        StackData referencedStackData = new StackData(stackData.openApi, referencedSchema, stackData.schemaTargetType, stackData.projection, stackData.projectedClass, stackData.rootProjectionAnnotationInfo);
+        StackData referencedStackData = new StackData(stackData.openApi, referencedSchema,
+                stackData.schemaTargetType,
+                stackData.projection,
+                stackData.projectedClass,
+                stackData.rootProjectionAnnotationInfo,
+                stackData.currentNamespace,
+                stackData.schemaProcessingCounts);
         return buildSchemaForStack(referencedStackData, stackProcessors);
 
     }

@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.openapi.schemabuilder.stackprocessors;
 
 import io.swagger.v3.oas.models.media.Schema;
+import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
@@ -27,11 +28,13 @@ import static solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils
 public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
     @Override
-    protected Map<String, SchemaCreationResult> buildPropertySchemas(StackData stackData, List<StackProcessor> stackProcessors) {
+    @NonNull
+    protected PropertySchemaCreationResult buildPropertySchemas(StackData stackData, List<StackProcessor> stackProcessors) {
 
         // If the projection applies to the current schema, create a new schema with the projection applied
         Schema<?> schema = stackData.schema;
         Type projectedType = stackData.schemaTargetType;
+        Map<String, Integer> schemaProcessingCounts = new HashMap<>(stackData.schemaProcessingCounts);
         //noinspection unchecked
         Class<? extends Dto<?>> projectedClass = (Class<? extends Dto<?>>) getRawType(projectedType);
 
@@ -43,7 +46,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
         Class<? extends DtoProjection> projectionClass = findDefaultProjectionClass(projectedClass);
 
         if (projectionClass == null) {
-            return new HashMap<>();
+            return new PropertySchemaCreationResult(new HashMap<>(), schemaProcessingCounts);
             // TODO log warning or error
         }
 
@@ -101,11 +104,13 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
                         dtoField.getGenericType(),
                         fieldStackProjection,
                         projectedClass,
-                        stackData.rootProjectionAnnotationInfo);
+                        stackData.rootProjectionAnnotationInfo,
+                        stackData.currentNamespace,
+                        schemaProcessingCounts);
 
                 SchemaCreationResult fieldSchemaResult = buildSchemaForStack(fieldStackData, stackProcessors);
-
                 schemaCreationResults.put(projectionField.getName(), fieldSchemaResult);
+                schemaProcessingCounts.putAll(fieldSchemaResult.schemaProcessingCounts);
 
             } catch (IllegalAccessException | NoSuchFieldException e) {
                 throw new RuntimeException(e);
@@ -113,7 +118,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
         }
 
-        return schemaCreationResults;
+        return new PropertySchemaCreationResult(schemaCreationResults, schemaProcessingCounts);
 
     }
 

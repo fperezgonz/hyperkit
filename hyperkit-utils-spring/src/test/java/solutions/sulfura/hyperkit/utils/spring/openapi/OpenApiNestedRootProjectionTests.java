@@ -51,23 +51,13 @@ public class OpenApiNestedRootProjectionTests {
         Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_StdDtoResponseBodyTestDto");
         assertNotNull(schema);
 
-        // Verify that the projected model only contains the fields specified in the projection
-        // Should contain
+        // StdDtoResponse Should contain "data"
         Schema<?> responseDataSchema = schema.getProperties().get("data");
         assertNotNull(responseDataSchema);
         Schema<?> dataItemsSchema = responseDataSchema.getItems();
-        dataItemsSchema = SchemaBuilderUtils.findReferencedModel(openAPI, dataItemsSchema);
-        assertNotNull(dataItemsSchema);
-        assertTrue(dataItemsSchema.getProperties().containsKey("name"));
-        assertTrue(dataItemsSchema.getProperties().containsKey("age"));
-        Schema<?> nestedDtoSchema = (Schema<?>) dataItemsSchema.getProperties().get("nestedDto");
-        nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
-        assertNotNull(nestedDtoSchema);
-        assertTrue(dataItemsSchema.getProperties().containsKey("nestedDto"));
-        assertTrue(nestedDtoSchema.getProperties().containsKey("id"));
-        // Should not contain
-        assertFalse(dataItemsSchema.getProperties().containsKey("id"));
-        assertFalse(nestedDtoSchema.getProperties().containsKey("nestedDto"));
+
+        //Verify the items schema
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, dataItemsSchema);
 
     }
 
