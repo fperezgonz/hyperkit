@@ -34,7 +34,9 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
         // If the projection applies to the current schema, create a new schema with the projection applied
         Schema<?> schema = stackData.schema;
         Type projectedType = stackData.schemaTargetType;
-        Map<String, Integer> schemaProcessingCounts = new HashMap<>(stackData.schemaProcessingCounts);
+        // New nested namespace for properties
+        String newNamespace = getNameForCurrentType(stackData, stackData.schemaProcessingCounts);
+        Map<String, Integer> schemaProcessingCounts = new HashMap<>();
         //noinspection unchecked
         Class<? extends Dto<?>> projectedClass = (Class<? extends Dto<?>>) getRawType(projectedType);
 
@@ -105,7 +107,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
                         fieldStackProjection,
                         projectedClass,
                         stackData.rootProjectionAnnotationInfo,
-                        stackData.currentNamespace,
+                        newNamespace,
                         schemaProcessingCounts);
 
                 SchemaCreationResult fieldSchemaResult = buildSchemaForStack(fieldStackData, stackProcessors);
@@ -118,7 +120,8 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
         }
 
-        return new PropertySchemaCreationResult(schemaCreationResults, schemaProcessingCounts);
+        // Using again stackData.schemaProcessingCounts to pop the namespace
+        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts);
 
     }
 

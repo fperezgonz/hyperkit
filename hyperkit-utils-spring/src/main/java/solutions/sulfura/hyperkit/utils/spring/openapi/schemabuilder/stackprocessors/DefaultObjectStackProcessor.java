@@ -106,10 +106,12 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
         Schema<?> schema = stackData.schema;
         Type schemaTargetType = stackData.schemaTargetType;
-        Map<String, Integer> schemaProcessingCounts = new HashMap<>(stackData.schemaProcessingCounts);
         BeanDescription beanDescription = Json.mapper().getSerializationConfig().introspect(Json.mapper().constructType(schemaTargetType));
         Map<String, BeanPropertyDefinition> beanProperties = beanDescription.findProperties().stream()
                 .collect(Collectors.toMap(BeanPropertyDefinition::getName, propDef -> propDef));
+        // New nested namespace for properties
+        String newNamespace = getNameForCurrentType(stackData, stackData.schemaProcessingCounts);
+        Map<String, Integer> schemaProcessingCounts = new HashMap<>();
 
         HashMap<String, SchemaCreationResult> schemaCreationResults = new HashMap<>();
 
@@ -157,7 +159,7 @@ public class DefaultObjectStackProcessor implements StackProcessor {
                             stackData.projection,
                             stackData.projectedClass,
                             stackData.rootProjectionAnnotationInfo,
-                            stackData.currentNamespace,
+                            newNamespace,
                             schemaProcessingCounts);
 
                     var schemaCreationResult = buildSchemaForStack(fieldStackData, stackProcessors);
@@ -167,7 +169,8 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
         );
 
-        return new PropertySchemaCreationResult(schemaCreationResults, schemaProcessingCounts);
+        // Use stackData.schemaProcessingCounts to pop the namespace
+        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts);
 
     }
 
