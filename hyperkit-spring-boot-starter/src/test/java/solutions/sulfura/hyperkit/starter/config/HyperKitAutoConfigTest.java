@@ -9,6 +9,8 @@ import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
+import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectionOpenApiCustomizer;
+import solutions.sulfura.hyperkit.utils.spring.openapi.ValueWrapperModelConverter;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.DtoProjectionRequestBodyAdvice;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.DtoProjectionResponseBodyAdvice;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.RsqlFilterArgumentResolver;
@@ -42,6 +44,8 @@ public class HyperKitAutoConfigTest {
             assertNotNull(context.getBean(HyperMapper.class));
             assertNotNull(context.getBean(ValueWrapperJacksonModule.class));
             assertNotNull(context.getBean(DtoJacksonModule.class));
+            assertNotNull(context.getBean(ProjectionOpenApiCustomizer.class));
+            assertNotNull(context.getBean(ValueWrapperModelConverter.class));
         });
     }
 
