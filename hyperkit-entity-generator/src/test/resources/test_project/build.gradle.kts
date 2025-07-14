@@ -12,11 +12,11 @@ repositories {
 }
 
 hyperKitEntityGenerator {
-    databaseUrl.set("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1")
-    databaseUsername.set("sa")
-    databasePassword.set("")
-    databaseDriver.set("org.h2.Driver")
-    basePackage.set("solutions.sulfura.hyperkit.test.entities")
+    databaseUrl.set(project.property("databaseUrl").toString())
+    databaseUsername.set(project.property("databaseUsername").toString())
+    databasePassword.set(project.property("databasePassword").toString())
+    databaseDriver.set(project.property("databaseDriver").toString())
+    basePackage.set(project.property("basePackage").toString())
 }
 
 dependencies {
