@@ -110,22 +110,22 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
             }
             if (pathItem.getPost() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("POST", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getGet(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getPost(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getPut() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("PUT", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getGet(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getPut(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getDelete() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("DELETE", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getGet(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getDelete(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getPatch() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("PATCH", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getGet(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getPatch(), handlerMethod);
                 result.putAll(records);
             }
         });

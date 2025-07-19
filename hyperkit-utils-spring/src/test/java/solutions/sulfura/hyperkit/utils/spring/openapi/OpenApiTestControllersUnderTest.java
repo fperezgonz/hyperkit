@@ -19,7 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OpenApiTestControllers {
+public class OpenApiTestControllersUnderTest {
 
     /**
      * Endpoint that returns a projected DTO.

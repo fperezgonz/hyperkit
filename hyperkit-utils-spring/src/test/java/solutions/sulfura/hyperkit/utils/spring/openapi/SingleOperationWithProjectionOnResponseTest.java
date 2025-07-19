@@ -17,7 +17,7 @@ import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = OpenApiTestControllers.ProjectionOnResponseTestController1.class)
+@WebMvcTest(controllers = OpenApiTestControllersUnderTest.ProjectionOnResponseTestController1.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
 public class SingleOperationWithProjectionOnResponseTest {
 
@@ -32,8 +32,8 @@ public class SingleOperationWithProjectionOnResponseTest {
     }
 
     @Test
-    @DisplayName("Should apply projection to the generated model")
-    public void testShouldApplyProjectionsToGeneratedModel() throws Exception {
+    @DisplayName("OpenApi should apply projection to the generated model")
+    public void testOpenApiShouldApplyProjectionsToGeneratedModel() throws Exception {
         // Given a controller with a projection annotation on a Dto
 
         // When we get the OpenAPI spec
@@ -47,7 +47,7 @@ public class SingleOperationWithProjectionOnResponseTest {
 
         // Then the OpenAPI spec should contain the projected model
         Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_TestDto");
-        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, schema);
+        OpenApiTestControllersUnderTest.verifyTestDtoProjection1Schema(openAPI, schema);
 
     }
 

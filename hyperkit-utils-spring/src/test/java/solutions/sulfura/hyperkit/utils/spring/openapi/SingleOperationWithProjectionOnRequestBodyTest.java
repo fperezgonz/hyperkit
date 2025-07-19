@@ -2,6 +2,7 @@ package solutions.sulfura.hyperkit.utils.spring.openapi;
 
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,25 +18,20 @@ import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = {
-        OpenApiTestControllersUnderTest.DeeplyNestedProjectionOnResponseTestController.class
-})
+@WebMvcTest(controllers = OpenApiTestControllersUnderTest.DtoProjectionOnRequestTestController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
-public class OpenApiDeeplyNestedProjectionTests {
+public class SingleOperationWithProjectionOnRequestBodyTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    /**
-     * Parses the OpenAPI JSON response to get the OpenAPI object.
-     */
-    private OpenAPI parseOpenApiJson(String json) throws Exception {
+    private OpenAPI parseOpenApiSpec(String json) throws Exception {
         return Json.mapper().readValue(json, OpenAPI.class);
     }
 
     @Test
-    @DisplayName("OpenApi should apply projection to the generated model")
-    public void testOpenApiShouldApplyProjectionsToGeneratedModel() throws Exception {
+    @DisplayName("OpenApi generation should apply projection to request body parameter model")
+    public void testOpenApiShouldApplyProjectionToRequestBodyParameterModel() throws Exception {
         // Given a controller with a projection annotation on a Dto
 
         // When we get the OpenAPI spec
@@ -45,11 +41,15 @@ public class OpenApiDeeplyNestedProjectionTests {
 
         String content = result.getResponse().getContentAsString();
 
-        OpenAPI openAPI = parseOpenApiJson(content);
+        // Parse the OpenAPI JSON response and get the Schema for the controller under test
+        OpenAPI openAPI = parseOpenApiSpec(content);
+        PathItem pathItem = openAPI.getPaths().get("/test-dto-projection-body");
+        Schema<?> schema = pathItem
+                .getPost()
+                .getRequestBody().getContent().get("application/json").getSchema();
 
-        // Then the OpenAPI spec should contain the projected model
-        Schema<?> schema = openAPI.getComponents().getSchemas().get("DeepProjection_TestDto");
-        OpenApiTestControllersUnderTest.verifyTestDtoDeepProjectionSchema(openAPI, schema);
+        // Then the schema for the parameter should match expectations
+        OpenApiTestControllersUnderTest.verifyTestDtoProjection1Schema(openAPI, schema);
 
     }
 
