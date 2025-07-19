@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for controllers with explicit namespace declarations on projection annotations.
  */
-@WebMvcTest(controllers = OpenApiTestControllersUnderTest.ExplicitNamespaceController.class)
+@WebMvcTest(controllers = OpenApiTestControllers.ExplicitNamespaceController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
 public class OpenApiExplicitNamespaceTests {
 
@@ -46,6 +46,6 @@ public class OpenApiExplicitNamespaceTests {
 
         // Then the OpenAPI spec should contain the projected model with the explicit namespace
         Schema<?> schema = openAPI.getComponents().getSchemas().get("CustomNamespace_TestDto");
-        OpenApiTestControllersUnderTest.verifyExplicitNamespaceProjectionSchema(openAPI, schema);
+        OpenApiTestControllers.verifyExplicitNamespaceProjectionSchema(openAPI, schema);
     }
 }

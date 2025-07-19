@@ -21,8 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {
-        OpenApiTestControllersUnderTest.DtoListProjectionOnResponseTestController.class,
-        OpenApiTestControllersUnderTest.StdDtoResponseProjectionOnResponseTestController.class
+        OpenApiTestControllers.DtoListProjectionOnResponseTestController.class,
+        OpenApiTestControllers.StdDtoResponseProjectionOnResponseTestController.class
 })
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
 public class OpenApiNestedRootProjectionTests {
@@ -58,7 +58,7 @@ public class OpenApiNestedRootProjectionTests {
         Schema<?> dataItemsSchema = responseDataSchema.getItems();
 
         //Verify the items schema
-        OpenApiTestControllersUnderTest.verifyTestDtoProjection1Schema(openAPI, dataItemsSchema);
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, dataItemsSchema);
 
     }
 
@@ -94,7 +94,7 @@ public class OpenApiNestedRootProjectionTests {
         assertNotNull(itemsSchema);
 
         //Verify the items schema
-        OpenApiTestControllersUnderTest.verifyTestDtoProjection1Schema(openAPI, itemsSchema);
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, itemsSchema);
 
     }
 

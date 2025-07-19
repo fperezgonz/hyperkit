@@ -10,6 +10,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import solutions.sulfura.hyperkit.utils.spring.ParameterUtils;
 
 /**
  * Resolves RSQL filter strings to JPA Specifications.
@@ -25,24 +26,16 @@ public class RsqlFilterArgumentResolver implements HandlerMethodArgumentResolver
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter,
+    public Object resolveArgument(@NonNull MethodParameter parameter,
                                   ModelAndViewContainer mavContainer,
                                   @NonNull NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
 
-        String filterParamName = "";
+        String filterParamName = ParameterUtils.getParameterName(parameter);
         var requestParamAnn = parameter.getParameterAnnotation(RequestParam.class);
 
-        if (requestParamAnn != null) {
-            filterParamName = requestParamAnn.name();
-
-            if (filterParamName.isEmpty()) {
-                filterParamName = requestParamAnn.value();
-            }
-        }
-
         // Default parameter name
-        if (filterParamName.isEmpty()) {
+        if (filterParamName == null || filterParamName.isEmpty()) {
             filterParamName = "filter";
         }
 

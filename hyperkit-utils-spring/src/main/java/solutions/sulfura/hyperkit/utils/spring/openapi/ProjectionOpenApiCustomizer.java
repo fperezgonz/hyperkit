@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -20,6 +21,7 @@ import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.AnnotationInfo;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
+import solutions.sulfura.hyperkit.utils.spring.ParameterUtils;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.SchemaCreationResult;
 
 import java.lang.annotation.Annotation;
@@ -38,7 +40,8 @@ import static solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDef
 public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
 
     private final Map<String, Schema<?>> projectedSchemas = new HashMap<>();
-    private final Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> schemaProjections = new HashMap<>();
+    private final Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> schemaProjectionsByOperationMediaType = new HashMap<>();
+    private final Map<Parameter, AnnotationInfo<Annotation, DtoProjectionSpec>> schemaProjectionsByParameter = new HashMap<>();
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private final List<ProjectedSchemaBuilder.StackProcessor> stackProcessors;
 
@@ -55,9 +58,12 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
             return;
         }
 
-        schemaProjections.clear();
-        // First, collect all operations and their handler methods
-        schemaProjections.putAll(collectOperationHandlerMethods(openApi));
+        schemaProjectionsByOperationMediaType.clear();
+        schemaProjectionsByParameter.clear();
+
+        // First, collect all operations and their requests, responses and parameters
+        schemaProjectionsByOperationMediaType.putAll(collectAnnotationInfoForOperationMediaTypes(openApi));
+        schemaProjectionsByParameter.putAll(collectAnnotationInfoForOperationParameters(openApi));
 
         // Then, process each operation
         openApi.getPaths().forEach((path, pathItem) -> {
@@ -94,7 +100,53 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
      * Collects all operations and their handler methods.
      * This is used to associate OpenAPI operations with Spring MVC handler methods.
      */
-    private Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> collectOperationHandlerMethods(OpenAPI openApi) {
+    private Map<Parameter, AnnotationInfo<Annotation, DtoProjectionSpec>> collectAnnotationInfoForOperationParameters(
+            OpenAPI openApi) {
+
+        Map<Parameter, AnnotationInfo<Annotation, DtoProjectionSpec>> result = new HashMap<>();
+
+        // Get all handler methods
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
+
+        // For each path and operation in the OpenAPI spec
+        openApi.getPaths().forEach((path, pathItem) -> {
+            if (pathItem.getGet() != null) {
+                HandlerMethod handlerMethod = findHandlerMethodForOperation("GET", path, handlerMethods);
+                var records = getProjectionAnnotationInfoForHandlerMethodParameters(pathItem.getGet(), handlerMethod);
+                result.putAll(records);
+            }
+            if (pathItem.getPost() != null) {
+                HandlerMethod handlerMethod = findHandlerMethodForOperation("POST", path, handlerMethods);
+                var records = getProjectionAnnotationInfoForHandlerMethodParameters(pathItem.getPost(), handlerMethod);
+                result.putAll(records);
+            }
+            if (pathItem.getPut() != null) {
+                HandlerMethod handlerMethod = findHandlerMethodForOperation("PUT", path, handlerMethods);
+                var records = getProjectionAnnotationInfoForHandlerMethodParameters(pathItem.getPut(), handlerMethod);
+                result.putAll(records);
+            }
+            if (pathItem.getDelete() != null) {
+                HandlerMethod handlerMethod = findHandlerMethodForOperation("DELETE", path, handlerMethods);
+                var records = getProjectionAnnotationInfoForHandlerMethodParameters(pathItem.getDelete(), handlerMethod);
+                result.putAll(records);
+            }
+            if (pathItem.getPatch() != null) {
+                HandlerMethod handlerMethod = findHandlerMethodForOperation("PATCH", path, handlerMethods);
+                var records = getProjectionAnnotationInfoForHandlerMethodParameters(pathItem.getPatch(), handlerMethod);
+                result.putAll(records);
+            }
+        });
+
+        return result;
+
+    }
+
+    /**
+     * Collects Projection annotations for request and response bodies
+     * This is used to associate OpenAPI requests and responses their {@link DtoProjectionSpec}
+     */
+    private Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> collectAnnotationInfoForOperationMediaTypes(
+            OpenAPI openApi) {
 
         Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> result = new HashMap<>();
 
@@ -105,27 +157,37 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
         openApi.getPaths().forEach((path, pathItem) -> {
             if (pathItem.getGet() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("GET", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getGet(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodResponses(pathItem.getGet(), handlerMethod);
+                result.putAll(records);
+                records = getProjectionAnnotationInfoForHandlerMethodRequestBodies(pathItem.getGet(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getPost() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("POST", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getPost(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodResponses(pathItem.getPost(), handlerMethod);
+                result.putAll(records);
+                records = getProjectionAnnotationInfoForHandlerMethodRequestBodies(pathItem.getPost(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getPut() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("PUT", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getPut(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodResponses(pathItem.getPut(), handlerMethod);
+                result.putAll(records);
+                records = getProjectionAnnotationInfoForHandlerMethodRequestBodies(pathItem.getPut(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getDelete() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("DELETE", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getDelete(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodResponses(pathItem.getDelete(), handlerMethod);
+                result.putAll(records);
+                records = getProjectionAnnotationInfoForHandlerMethodRequestBodies(pathItem.getDelete(), handlerMethod);
                 result.putAll(records);
             }
             if (pathItem.getPatch() != null) {
                 HandlerMethod handlerMethod = findHandlerMethodForOperation("PATCH", path, handlerMethods);
-                var records = getProjectionAnnotationInfoForHandlerMethodSchemas(pathItem.getPatch(), handlerMethod);
+                var records = getProjectionAnnotationInfoForHandlerMethodResponses(pathItem.getPatch(), handlerMethod);
+                result.putAll(records);
+                records = getProjectionAnnotationInfoForHandlerMethodRequestBodies(pathItem.getPatch(), handlerMethod);
                 result.putAll(records);
             }
         });
@@ -134,22 +196,47 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
 
     }
 
-    protected Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> getProjectionAnnotationInfoForHandlerMethodSchemas(Operation operation, HandlerMethod handlerMethod) {
+    protected Map<Parameter, AnnotationInfo<Annotation, DtoProjectionSpec>> getProjectionAnnotationInfoForHandlerMethodParameters(Operation operation, HandlerMethod handlerMethod) {
 
-        // Check if the handler method has a DtoProjectionSpec annotation or meta-annotation
-        AnnotationInfo<Annotation, DtoProjectionSpec> returnTypeAnnotationInfo = ProjectionUtils.getReturnTypeAnnotationInfo(handlerMethod.getMethod(), DtoProjectionSpec.class);
+        Map<Parameter, AnnotationInfo<Annotation, DtoProjectionSpec>> result = new HashMap<>();
+
+        if (operation.getParameters() == null) {
+            return result;
+        }
+
+        for (Parameter parameter : operation.getParameters()) {
+
+
+            // Check if any of the parameters that are not @RequestBody have a DtoProjectionSpec annotation
+            for (MethodParameter methodParameter : handlerMethod.getMethodParameters()) {
+
+                if (methodParameter.getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class) != null) {
+                    continue;
+                }
+
+                AnnotationInfo<Annotation, DtoProjectionSpec> paramAnnotationInfo = ProjectionUtils.getAnnotationInfo(methodParameter.getParameter(), DtoProjectionSpec.class);
+
+                if (paramAnnotationInfo == null) {
+                    continue;
+                }
+
+                String parameterName = ParameterUtils.getParameterName(methodParameter);
+
+                if (Objects.equals(parameterName, parameter.getName())) {
+                    result.put(parameter, paramAnnotationInfo);
+                }
+
+            }
+        }
+
+        return result;
+    }
+
+    protected Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> getProjectionAnnotationInfoForHandlerMethodRequestBodies(
+            Operation operation,
+            HandlerMethod handlerMethod) {
 
         Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> result = new HashMap<>();
-
-        if (returnTypeAnnotationInfo != null && operation.getResponses() != null) {
-
-            operation.getResponses().values().stream()
-                    .filter(response -> response.getContent() != null)
-                    .flatMap(response -> response.getContent().values().stream())
-                    .filter(mediaTypeObject -> mediaTypeObject.getSchema() != null)
-                    .forEach(mediaTypeObject -> result.put(new OperationMediaType(operation, mediaTypeObject), returnTypeAnnotationInfo));
-
-        }
 
         if (operation.getRequestBody() == null || operation.getRequestBody().getContent() == null) {
             return result;
@@ -165,9 +252,36 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
                 continue;
             }
 
+            if (methodParameter.getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class) == null) {
+                continue;
+            }
+
             operation.getRequestBody().getContent().values().stream()
                     .filter(mediaTypeObject -> mediaTypeObject.getSchema() != null)
                     .forEach(mediaTypeObject -> result.put(new OperationMediaType(operation, mediaTypeObject), paramAnnotationInfo));
+
+            return result;
+
+        }
+
+        return result;
+
+    }
+
+    protected Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> getProjectionAnnotationInfoForHandlerMethodResponses(Operation operation, HandlerMethod handlerMethod) {
+
+        // Check if the handler method has a DtoProjectionSpec annotation or meta-annotation
+        AnnotationInfo<Annotation, DtoProjectionSpec> returnTypeAnnotationInfo = ProjectionUtils.getReturnTypeAnnotationInfo(handlerMethod.getMethod(), DtoProjectionSpec.class);
+
+        Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> result = new HashMap<>();
+
+        if (returnTypeAnnotationInfo != null && operation.getResponses() != null) {
+
+            operation.getResponses().values().stream()
+                    .filter(response -> response.getContent() != null)
+                    .flatMap(response -> response.getContent().values().stream())
+                    .filter(mediaTypeObject -> mediaTypeObject.getSchema() != null)
+                    .forEach(mediaTypeObject -> result.put(new OperationMediaType(operation, mediaTypeObject), returnTypeAnnotationInfo));
 
         }
 
@@ -223,12 +337,35 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
             customizeRequestBody(openApi, path, pathItem, operation, operation.getRequestBody());
         }
 
+        // Customize parameters
+        if (operation.getParameters() != null) {
+            operation.getParameters().forEach(parameter ->
+                    customizeParameter(openApi, path, pathItem, operation, parameter)
+            );
+        }
+
         // Customize responses
         if (operation.getResponses() != null) {
             operation.getResponses().forEach((statusCode, response) ->
                     customizeResponse(openApi, path, pathItem, operation, response)
             );
         }
+    }
+
+    private void customizeParameter(OpenAPI openApi, String path, PathItem pathItem, Operation operation, io.swagger.v3.oas.models.parameters.Parameter parameter) {
+
+        Schema<?> schema = parameter.getSchema();
+
+        if (parameter.getSchema() == null) {
+            return;
+        }
+
+        // Check if this schema has a projection annotation
+        AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionSpecForParameter(parameter);
+
+        schema = customizeSchema(openApi, path, pathItem, operation, schema, projectionAnnotationInfo);
+        parameter.setSchema(schema);
+
     }
 
     private void customizeRequestBody(OpenAPI openApi, String path, PathItem pathItem, Operation operation, RequestBody requestBody) {
@@ -253,6 +390,45 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
         );
     }
 
+    private Schema<?> customizeSchema(OpenAPI openApi, String path,
+                                      PathItem pathItem,
+                                      Operation operation,
+                                      Schema<?> schema,
+                                      AnnotationInfo<Annotation, DtoProjectionSpec> rootProjectionAnnotationInfo) {
+
+        if (rootProjectionAnnotationInfo == null) {
+            return schema;
+        }
+
+        schema = SchemaBuilderUtils.findReferencedModel(openApi, schema);
+
+        DtoProjectionSpec projectionSpec = rootProjectionAnnotationInfo.targetAnnotation;
+        Class<? extends DtoProjection> projectionClass = findDefaultProjectionClass(projectionSpec.projectedClass());
+        DtoProjection<?> projection = ProjectionDsl.parse(projectionSpec.value(), projectionClass);
+
+        String projectedSchemaName = "";
+
+        // Use explicit or implicit namespace
+        if (!projectionSpec.namespace().isBlank()) {
+            projectedSchemaName = projectionSpec.namespace();
+        } else if (rootProjectionAnnotationInfo.directAnnotation != rootProjectionAnnotationInfo.targetAnnotation) {
+            projectedSchemaName = rootProjectionAnnotationInfo.directAnnotation.annotationType().getSimpleName();
+        }
+
+        SchemaCreationResult schemaCreationResult = ProjectedSchemaBuilder.buildProjectedSchemas(openApi,
+                schema,
+                rootProjectionAnnotationInfo.annotatedType.getType(),
+                projection,
+                projectionSpec.projectedClass(),
+                projectedSchemaName,
+                rootProjectionAnnotationInfo,
+                stackProcessors);
+        projectedSchemas.putAll(schemaCreationResult.newNamedSchemas);
+
+        return schemaCreationResult.resultingSchema;
+
+    }
+
     private void customizeMediaType(OpenAPI openApi, String path, PathItem pathItem, Operation operation, MediaType mediaTypeObject) {
 
         if (mediaTypeObject.getSchema() == null) {
@@ -262,45 +438,24 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
         Schema<?> schema = mediaTypeObject.getSchema();
 
         // Check if this schema has a projection annotation
-        AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionSpecForSchema(new OperationMediaType(operation, mediaTypeObject));
+        AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionSpecForOperationMediaType(new OperationMediaType(operation, mediaTypeObject));
 
         if (projectionAnnotationInfo == null) {
             return;
         }
 
-        if (schema.get$ref() != null) {
-            String referencedSchemaName = schema.get$ref().substring(schema.get$ref().lastIndexOf('/') + 1);
-            schema = openApi.getComponents().getSchemas().get(referencedSchemaName);
-        }
+        schema = customizeSchema(openApi, path, pathItem, operation, schema, projectionAnnotationInfo);
 
-        DtoProjectionSpec projectionSpec = projectionAnnotationInfo.targetAnnotation;
-        Class<? extends DtoProjection> projectionClass = findDefaultProjectionClass(projectionSpec.projectedClass());
-        DtoProjection<?> projection = ProjectionDsl.parse(projectionSpec.value(), projectionClass);
-
-        String projectedSchemaName = "";
-
-        // Use explicit or implicit namespace
-        if (!projectionSpec.namespace().isBlank()) {
-            projectedSchemaName = projectionSpec.namespace();
-        } else if (projectionAnnotationInfo.directAnnotation != projectionAnnotationInfo.targetAnnotation) {
-            projectedSchemaName = projectionAnnotationInfo.directAnnotation.annotationType().getSimpleName();
-        }
-
-        SchemaCreationResult schemaCreationResult = ProjectedSchemaBuilder.buildProjectedSchemas(openApi,
-                schema,
-                projectionAnnotationInfo.annotatedType.getType(),
-                projection,
-                projectionSpec.projectedClass(),
-                projectedSchemaName,
-                projectionAnnotationInfo,
-                stackProcessors);
-        projectedSchemas.putAll(schemaCreationResult.newNamedSchemas);
-        mediaTypeObject.setSchema(schemaCreationResult.resultingSchema);
+        mediaTypeObject.setSchema(schema);
 
     }
 
-    private AnnotationInfo<Annotation, DtoProjectionSpec> getProjectionSpecForSchema(OperationMediaType mediaTypeObject) {
-        return schemaProjections.get(mediaTypeObject);
+    private AnnotationInfo<Annotation, DtoProjectionSpec> getProjectionSpecForOperationMediaType(OperationMediaType mediaTypeObject) {
+        return schemaProjectionsByOperationMediaType.get(mediaTypeObject);
+    }
+
+    private AnnotationInfo<Annotation, DtoProjectionSpec> getProjectionSpecForParameter(Parameter parameter) {
+        return schemaProjectionsByParameter.get(parameter);
     }
 
     public static class OperationMediaType {

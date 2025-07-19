@@ -18,7 +18,7 @@ import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = OpenApiTestControllersUnderTest.DtoProjectionOnRequestTestController.class)
+@WebMvcTest(controllers = OpenApiTestControllers.DtoProjectionOnRequestTestController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
 public class SingleOperationWithProjectionOnRequestBodyTest {
 
@@ -49,7 +49,7 @@ public class SingleOperationWithProjectionOnRequestBodyTest {
                 .getRequestBody().getContent().get("application/json").getSchema();
 
         // Then the schema for the parameter should match expectations
-        OpenApiTestControllersUnderTest.verifyTestDtoProjection1Schema(openAPI, schema);
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, schema);
 
     }
 

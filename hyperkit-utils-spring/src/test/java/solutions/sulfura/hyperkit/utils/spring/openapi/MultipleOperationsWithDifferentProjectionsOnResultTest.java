@@ -17,8 +17,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {
-        OpenApiTestControllersUnderTest.ProjectionOnResponseTestController1.class,
-        OpenApiTestControllersUnderTest.ProjectionOnResponseTestController2.class
+        OpenApiTestControllers.ProjectionOnResponseTestController1.class,
+        OpenApiTestControllers.ProjectionOnResponseTestController2.class
 })
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
 public class MultipleOperationsWithDifferentProjectionsOnResultTest {
@@ -53,8 +53,8 @@ public class MultipleOperationsWithDifferentProjectionsOnResultTest {
         OpenAPI openAPI = parseOpenApiSpec(content);
 
         // Verify that the OpenAPI spec contains both projected models
-        OpenApiTestControllersUnderTest.verifyTestDtoProjection1Schema(openAPI, openAPI.getComponents().getSchemas().get("TestDto1_TestDto"));
-        OpenApiTestControllersUnderTest.verifyTestDtoProjection2Schema(openAPI, openAPI.getComponents().getSchemas().get("TestDto2_TestDto"));
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, openAPI.getComponents().getSchemas().get("TestDto1_TestDto"));
+        OpenApiTestControllers.verifyTestDtoProjection2Schema(openAPI, openAPI.getComponents().getSchemas().get("TestDto2_TestDto"));
 
     }
 

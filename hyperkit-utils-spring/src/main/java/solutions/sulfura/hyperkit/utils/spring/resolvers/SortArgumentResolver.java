@@ -11,6 +11,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import solutions.sulfura.hyperkit.utils.spring.ParameterUtils;
 
 /**
  * Resolves sort parameters in the forms field1:direction,field2:direction (e.g. name:asc,date:desc = order by name ASC and date DESC)
@@ -41,28 +42,16 @@ public class SortArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Sort resolveArgument(MethodParameter parameter,
+    public Sort resolveArgument(@NonNull MethodParameter parameter,
                                 ModelAndViewContainer mavContainer,
                                 @NonNull NativeWebRequest webRequest,
                                 WebDataBinderFactory binderFactory) {
 
-        String sortParamName = "";
+        String sortParamName = ParameterUtils.getParameterName(parameter);
         var requestParamAnn = parameter.getParameterAnnotation(RequestParam.class);
 
-        //Try to resolve the parameter name from the annotation's attributes
-        if (requestParamAnn != null) {
-
-            //First try the "name" attribute
-            sortParamName = requestParamAnn.name();
-
-            if (sortParamName.isEmpty()) {
-                sortParamName = requestParamAnn.value();
-            }
-
-        }
-
         //Default parameter name
-        if (sortParamName.isEmpty()) {
+        if (sortParamName == null || sortParamName.isEmpty()) {
             sortParamName = "sort";
         }
 

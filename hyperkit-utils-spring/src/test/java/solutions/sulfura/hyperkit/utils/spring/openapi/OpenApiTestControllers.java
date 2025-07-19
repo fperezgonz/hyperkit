@@ -19,7 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OpenApiTestControllersUnderTest {
+public class OpenApiTestControllers {
 
     /**
      * Endpoint that returns a projected DTO.
@@ -137,6 +137,18 @@ public class OpenApiTestControllersUnderTest {
         }
     }
 
+    /**
+     * Controller for testing projections on parameters. Uses projection {@link OpenApiTestControllers.TestDto1}
+     */
+    @RestController
+    public static class ParameterProjectionTestController {
+        @GetMapping("/parameter-projection-test")
+        public String getWithProjectedParameter(
+                @OpenApiTestControllers.TestDto1
+                @RequestParam(name = "testDtoParam") OpenApiTestControllers.TestDto testDto) {
+            return "Test";
+        }
+    }
 
     /**
      * Simple DTO class for testing projections.
