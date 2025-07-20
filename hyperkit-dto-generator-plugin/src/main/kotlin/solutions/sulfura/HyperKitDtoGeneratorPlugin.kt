@@ -16,28 +16,49 @@ import java.time.Instant
 interface HyperKitDtoGeneratorConfigurationExtension {
     /*Paths of the input sources*/
     val inputPaths: SetProperty<String>
-
-    /**Output path for the generated sources*/
+    /** Output path for the generated sources*/
     val rootOutputPath: Property<String>
-
-    /**Default package where the generated DTOs will be placed. Default: solutions.sulfura.hyperkit.dtos*/
+    /** Default package where the generated DTOs will be placed. Default: solutions.sulfura.hyperkit.dtos*/
     val defaultOutputPackage: Property<String?>
+    /** Velocity template used for DTO code generation */
+    val templatePath: Property<String?>
 
 }
 
 @Suppress("unused")
 class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>): String {
-        return SourceBuilder().buildClassSource(ctClass, dtoCtClass)
+    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, templatePath: String): String {
+        return SourceBuilder().buildClassSource(ctClass, dtoCtClass, templatePath)
     }
 
     override fun apply(project: Project) {
 
-        val extension = project.extensions.create("hyperKitDtoGenerator", HyperKitDtoGeneratorConfigurationExtension::class.java)
+        val extension = project.extensions.create(
+            "hyperKitDtoGenerator",
+            HyperKitDtoGeneratorConfigurationExtension::class.java
+        )
         extension.inputPaths.convention(mutableSetOf("src/main/java/"))
         extension.rootOutputPath.convention("src/main/java/")
         extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
+        extension.templatePath.convention("templates/dto.vm")
+
+        val templatePathAux = project.findProperty("hyperkit.dtoGenerator.templatePath")?.toString()
+
+        if (templatePathAux != null) {
+
+            val templateFile = project.projectDir.resolve(templatePathAux)
+
+            val resolvedTemplatePath =
+                if (templateFile.exists())
+                    templateFile.absolutePath
+                else
+                    templatePathAux
+
+            extension.templatePath.set(resolvedTemplatePath)
+
+        }
+
         project.task("generateDtos") {
 
             group = "hyperkit"
@@ -89,6 +110,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                         spoon,
                         extension.defaultOutputPackage.get(),
                         extension.rootOutputPath.get(),
+                        extension.templatePath.get(),
                         className__ctClass,
                         project,
                         logger
@@ -106,6 +128,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         spoon: SpoonAPI,
         defaultOutputPackage: String,
         rootOutputPath: String,
+        templatePath: String,
         className__ctClass: MutableMap<String, CtClass<*>>,
         project: Project,
         logger: Logger
@@ -130,7 +153,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                 spoon.factory
             )
 
-            val classSourceCode = generateClassSourceCode(dtoClass, ctClass)
+            val classSourceCode = generateClassSourceCode(dtoClass, ctClass, templatePath)
             val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
             val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
             val outFile = File(project.file(outFilePath).absolutePath)

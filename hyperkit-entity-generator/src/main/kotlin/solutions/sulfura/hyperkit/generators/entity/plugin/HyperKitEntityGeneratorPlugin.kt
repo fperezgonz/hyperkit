@@ -132,11 +132,11 @@ class HyperKitEntityGeneratorPlugin : Plugin<Project> {
             HyperKitEntityGeneratorExtension::class.java
         )
 
-        val tableOverridesJson = project.findProperty("tableOverrides")?.toString() ?: "[]"
+        val tableOverridesJson = project.findProperty("hyperkit.entityGenerator.tableOverrides")?.toString() ?: "[]"
         val parsedTableOverrides = Json.decodeFromString<List<TableOverride>>(tableOverridesJson)
         val outputDirectoryAbsolutePath =
-            project.projectDir.resolve(project.findProperty("outputPath")?.toString() ?: "src/main/java").absolutePath
-        val templatePathAux = project.findProperty("templatePath")?.toString()
+            project.projectDir.resolve(project.findProperty("hyperkit.entityGenerator.outputPath")?.toString() ?: "src/main/java").absolutePath
+        val templatePathAux = project.findProperty("hyperkit.entityGenerator.templatePath")?.toString()
         val templateFile =
             if (templatePathAux != null)
                 project.projectDir.resolve(templatePathAux)
@@ -164,21 +164,21 @@ class HyperKitEntityGeneratorPlugin : Plugin<Project> {
             description = "Generates entity classes from database metadata"
 
             // Configure task from extension
-            databaseUrl.set(project.findProperty("databaseUrl")?.toString() ?: extension.databaseUrl.get())
+            databaseUrl.set(project.findProperty("hyperkit.entityGenerator.databaseUrl")?.toString() ?: extension.databaseUrl.get())
             databaseUsername.set(
-                project.findProperty("databaseUsername")?.toString() ?: extension.databaseUsername.getOrNull()
+                project.findProperty("hyperkit.entityGenerator.databaseUsername")?.toString() ?: extension.databaseUsername.getOrNull()
             )
             databasePassword.set(
-                project.findProperty("databasePassword")?.toString() ?: extension.databasePassword.getOrNull ()
+                project.findProperty("hyperkit.entityGenerator.databasePassword")?.toString() ?: extension.databasePassword.getOrNull ()
             )
-            databaseDriver.set(project.findProperty("databaseDriver")?.toString() ?: extension.databaseDriver.get())
-            outputPath.set(project.findProperty("outputPath")?.toString() ?: extension.outputPath.get())
-            basePackage.set(project.findProperty("tableNamePattern")?.toString() ?: extension.basePackage.get())
+            databaseDriver.set(project.findProperty("hyperkit.entityGenerator.databaseDriver")?.toString() ?: extension.databaseDriver.get())
+            outputPath.set(project.findProperty("hyperkit.entityGenerator.outputPath")?.toString() ?: extension.outputPath.get())
+            basePackage.set(project.findProperty("hyperkit.entityGenerator.tableNamePattern")?.toString() ?: extension.basePackage.get())
             templatePath.set(resolvedTemplatePath ?: extension.templatePath.get())
             tableNamePattern.set(
-                project.findProperty("tableNamePattern")?.toString() ?: extension.tableNamePattern.get()
+                project.findProperty("hyperkit.entityGenerator.tableNamePattern")?.toString() ?: extension.tableNamePattern.get()
             )
-            schemaPattern.set(project.findProperty("schemaPattern")?.toString() ?: extension.schemaPattern.get())
+            schemaPattern.set(project.findProperty("hyperkit.entityGenerator.schemaPattern")?.toString() ?: extension.schemaPattern.get())
             tableOverrides.set(extension.tableOverrides)
         }
 

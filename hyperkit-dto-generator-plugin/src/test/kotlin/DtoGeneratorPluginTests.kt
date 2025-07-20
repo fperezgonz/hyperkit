@@ -13,7 +13,7 @@ const val expectedOutputDir: String = "src/expected_output/"
 const val testDtoPackagePath: String = "solutions/sulfura/hyperkit/dtos/"
 
 @TestInstance(PER_CLASS)
-class AnnotationProcessorTests {
+class DtoGeneratorPluginTests {
 
     val testProjectFolder: File = this.javaClass.getResource(testProjectPath)!!.toURI().toPath().toFile()
 

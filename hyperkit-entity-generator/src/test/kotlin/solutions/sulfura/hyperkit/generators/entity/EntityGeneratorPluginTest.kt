@@ -87,7 +87,7 @@ class EntityGeneratorPluginTest {
                 "initDatabase",
                 "generateEntities",
                 // Specify a custom template
-                "-PtemplatePath=test-template.vm"
+                "-Phyperkit.entityGenerator.templatePath=test-template.vm"
             )
             .build()
 

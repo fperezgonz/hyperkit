@@ -39,7 +39,6 @@ class TemplateProcessor() {
         props.setProperty("resource.loader.file.path", "")
 
         // Configure Velocity
-        props.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute")
         props.setProperty("resource.default_encoding", "UTF-8")
         props.setProperty("output.encoding", "UTF-8")
 
