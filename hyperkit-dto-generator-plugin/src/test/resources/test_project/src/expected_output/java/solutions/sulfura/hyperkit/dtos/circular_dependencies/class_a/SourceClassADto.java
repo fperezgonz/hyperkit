@@ -8,7 +8,6 @@ import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_a.SourceClass
 import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import java.util.List;

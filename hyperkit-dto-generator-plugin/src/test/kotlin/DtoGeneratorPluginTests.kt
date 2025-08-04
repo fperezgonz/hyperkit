@@ -27,6 +27,8 @@ class DtoGeneratorPluginTests {
         val gradleBuild = gradleRunner.build()
         val outcome = gradleBuild.task(":generateDtos")!!.outcome.name
 
+//        println(gradleBuild.output)
+
         if ("SUCCESS" != outcome) {
             println(gradleBuild.output)
             Assertions.fail<Any>()

@@ -4,9 +4,11 @@ import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf
+import solutions.sulfura.processor.utils.implements
 import spoon.reflect.declaration.CtClass
+import spoon.reflect.reference.CtTypeReference
 import java.io.StringWriter
-import java.util.Properties
+import java.util.*
 
 class SourceBuilder {
 
@@ -42,10 +44,35 @@ class SourceBuilder {
         return velocityEngine
     }
 
+    fun isDto(ctTypeReference: CtTypeReference<*>): Boolean {
+        return implements(
+            ctTypeReference, typeToImplement = "solutions.sulfura.hyperkit.dtos.Dto"
+        )
+    }
+
+    /** @return true if it is not a projection nested within a Dto*/
+    fun isDefaultDtoProjection(referencedType: CtTypeReference<*>): Boolean {
+
+        if (referencedType.declaringType == null) {
+            return false
+        }
+
+        if (!isDto(referencedType.declaringType)) {
+            return false
+        }
+
+        return implements(
+            referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection"
+        )
+
+    }
+
     fun buildVelocityContext(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): VelocityContext {
 
         val imports = dtoCtClass.referencedTypes
             .filter { referencedType -> !referencedType.qualifiedName.startsWith(dtoCtClass.qualifiedName) }
+            .filter { referencedType -> !referencedType.isPrimitive }
+            .filter { referencedType -> !isDefaultDtoProjection(referencedType) }
             .distinctBy { it.qualifiedName }
             .toMutableSet()
 
@@ -69,7 +96,7 @@ class SourceBuilder {
      * dtoCtClass: the specifications of the dto class
      * sourceCtClass: the specifications of the class from which the dtoCtClass is derived
      */
-    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>, templatePath:String): String {
+    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>, templatePath: String): String {
 
         val velocityContext = buildVelocityContext(dtoCtClass, sourceCtClass)
         val classTemplate = velocityEngine.getTemplate(templatePath)

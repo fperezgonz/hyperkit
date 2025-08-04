@@ -7,7 +7,6 @@ import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_a.SourceClassADto.Projection;
 import solutions.sulfura.hyperkit.dtos.circular_dependencies.class_a.SourceClassADto;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
