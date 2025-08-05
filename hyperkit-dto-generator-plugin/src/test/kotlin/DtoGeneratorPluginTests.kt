@@ -41,7 +41,7 @@ class DtoGeneratorPluginTests {
         val expectedSource = File(testProjectFolder, expectedSourcePath).readText()
         val generatedSource = File(testProjectFolder, generatedSourcePath).readText()
         if (expectedSource != generatedSource) {
-            error("expected source:\n$expectedSource\n\n\n\ngenerated source:\n$generatedSource\n")
+            println("expected source:\n$expectedSource\n\n\n\ngenerated source:\n$generatedSource\n")
         }
         Assertions.assertEquals(expectedSource, generatedSource)
 
