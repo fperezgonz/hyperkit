@@ -104,7 +104,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
                 logger.info("${Instant.now()} - Generating DTOs...")
 
-                classesToProcess.list<CtClass<*>>().parallelStream().forEach { ctClass: CtClass<*> ->
+                classesToProcess.list<CtClass<*>>().stream().forEach { ctClass: CtClass<*> ->
                     createDtoSourceFile(
                         ctClass,
                         spoon,
