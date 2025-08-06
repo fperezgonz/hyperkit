@@ -29,7 +29,7 @@ interface HyperKitDtoGeneratorConfigurationExtension {
 class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
     fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, templatePath: String): String {
-        return SourceBuilder().buildClassSource(ctClass, dtoCtClass, templatePath)
+        return SourceBuilder().buildClassSource(ctClass, dtoCtClass, templatePath, logger)
     }
 
     override fun apply(project: Project) {

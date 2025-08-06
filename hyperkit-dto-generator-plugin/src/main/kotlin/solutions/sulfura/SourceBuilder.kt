@@ -2,6 +2,7 @@ package solutions.sulfura
 
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
+import org.gradle.api.logging.Logger
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf
 import solutions.sulfura.processor.utils.implements
@@ -51,10 +52,10 @@ class SourceBuilder {
     }
 
     /** @return true if it is not a projection nested within a Dto*/
-    fun isDefaultDtoProjection(referencedType: CtTypeReference<*>): Boolean {
+    fun isDefaultDtoProjection(referencedType: CtTypeReference<*>, logger: Logger): Boolean {
 
         if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection"){
-            println("Declaring type: ${referencedType.declaringType}")
+            logger.info("Declaring type: ${referencedType.declaringType}")
         }
         if (referencedType.declaringType == null) {
             return false
@@ -62,7 +63,7 @@ class SourceBuilder {
 
         if (!isDto(referencedType.declaringType)) {
             if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
-                println("Declaring type: ${referencedType.declaringType.qualifiedName} is not a dto")
+                logger.info("Declaring type: ${referencedType.declaringType.qualifiedName} is not a dto")
             }
             return false
         }
@@ -72,19 +73,19 @@ class SourceBuilder {
         )
 
         if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
-            println("${referencedType.qualifiedName} is not a projection")
+            logger.info("${referencedType.qualifiedName} is not a projection")
         }
 
         return result
 
     }
 
-    fun buildVelocityContext(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): VelocityContext {
+    fun buildVelocityContext(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>, logger: Logger): VelocityContext {
 
         val imports = dtoCtClass.referencedTypes
             .filter { referencedType -> !referencedType.qualifiedName.startsWith(dtoCtClass.qualifiedName) }
             .filter { referencedType -> !referencedType.isPrimitive }
-            .filter { referencedType -> !isDefaultDtoProjection(referencedType) }
+            .filter { referencedType -> !isDefaultDtoProjection(referencedType, logger) }
             .distinctBy { it.qualifiedName }
             .toMutableSet()
 
@@ -108,9 +109,9 @@ class SourceBuilder {
      * dtoCtClass: the specifications of the dto class
      * sourceCtClass: the specifications of the class from which the dtoCtClass is derived
      */
-    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>, templatePath: String): String {
+    fun buildClassSource(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>, templatePath: String, logger: Logger): String {
 
-        val velocityContext = buildVelocityContext(dtoCtClass, sourceCtClass)
+        val velocityContext = buildVelocityContext(dtoCtClass, sourceCtClass, logger)
         val classTemplate = velocityEngine.getTemplate(templatePath)
         val stringWriter = StringWriter()
 
