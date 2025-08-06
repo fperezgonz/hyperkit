@@ -96,6 +96,12 @@ fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String, 
         }
 
         if (c.superclass != null && implements(c.superclass, typeToImplement = typeToImplement, logger = null)) {
+            if (logger!=null && c.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+                && c.qualifiedName.endsWith("Projection")
+            ){
+                logger.error("Qualified name: ${c.declaringType.qualifiedName}")
+                logger.error("Extends ${c.superclass.qualifiedName}")
+            }
             return true
         }
 
