@@ -72,10 +72,7 @@ class SourceBuilder {
             return false
         }
 
-        val result = implements(
-            referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection", logger = logger
-        )
-
+        val result = referencedType.qualifiedName.endsWith("\$Projection")
         if (referencedType.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
             && referencedType.qualifiedName.endsWith("Projection")
         ){
