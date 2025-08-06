@@ -71,9 +71,7 @@ class SourceBuilder {
             referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection"
         )
 
-        if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection"
-            && !result
-        ) {
+        if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
             println("${referencedType.qualifiedName} is not a projection")
         }
 
