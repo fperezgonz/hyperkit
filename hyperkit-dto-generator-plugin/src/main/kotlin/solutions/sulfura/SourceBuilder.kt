@@ -53,17 +53,31 @@ class SourceBuilder {
     /** @return true if it is not a projection nested within a Dto*/
     fun isDefaultDtoProjection(referencedType: CtTypeReference<*>): Boolean {
 
+        if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection"){
+            println("Declaring type: ${referencedType.declaringType}")
+        }
         if (referencedType.declaringType == null) {
             return false
         }
 
         if (!isDto(referencedType.declaringType)) {
+            if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
+                println("Declaring type: ${referencedType.declaringType.qualifiedName} is not a dto")
+            }
             return false
         }
 
-        return implements(
+        val result = implements(
             referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection"
         )
+
+        if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection"
+            && !result
+        ) {
+            println("${referencedType.qualifiedName} is not a projection")
+        }
+
+        return result
 
     }
 
