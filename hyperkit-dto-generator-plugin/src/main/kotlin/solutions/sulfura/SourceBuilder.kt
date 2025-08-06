@@ -53,17 +53,21 @@ class SourceBuilder {
 
     /** @return true if it is not a projection nested within a Dto*/
     fun isDefaultDtoProjection(referencedType: CtTypeReference<*>, logger: Logger): Boolean {
-
-        if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection"){
-            logger.error("Declaring type: ${referencedType.declaringType}")
-        }
         if (referencedType.declaringType == null) {
             return false
         }
+        if (referencedType.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+            && referencedType.qualifiedName.endsWith("Projection")
+        ){
+            logger.error("Declaring type: ${referencedType.declaringType.qualifiedName}")
+            logger.error("Type: ${referencedType.qualifiedName}")
+        }
 
         if (!isDto(referencedType.declaringType)) {
-            if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
-                logger.error("Declaring type: ${referencedType.declaringType.qualifiedName} is not a dto")
+            if (referencedType.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+                && referencedType.qualifiedName.endsWith("Projection")
+            ){
+                logger.error("Declaring type: ${referencedType.declaringType.qualifiedName} is not a Dto")
             }
             return false
         }
@@ -72,8 +76,10 @@ class SourceBuilder {
             referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection"
         )
 
-        if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
-            logger.error("${referencedType.qualifiedName} is not a projection")
+        if (referencedType.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+            && referencedType.qualifiedName.endsWith("Projection")
+        ){
+            logger.error("Is ${referencedType.qualifiedName} is a projection? $result")
         }
 
         return result
