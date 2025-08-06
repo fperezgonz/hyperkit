@@ -55,7 +55,7 @@ class SourceBuilder {
     fun isDefaultDtoProjection(referencedType: CtTypeReference<*>, logger: Logger): Boolean {
 
         if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection"){
-            logger.info("Declaring type: ${referencedType.declaringType}")
+            logger.error("Declaring type: ${referencedType.declaringType}")
         }
         if (referencedType.declaringType == null) {
             return false
@@ -63,7 +63,7 @@ class SourceBuilder {
 
         if (!isDto(referencedType.declaringType)) {
             if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
-                logger.info("Declaring type: ${referencedType.declaringType.qualifiedName} is not a dto")
+                logger.error("Declaring type: ${referencedType.declaringType.qualifiedName} is not a dto")
             }
             return false
         }
@@ -73,7 +73,7 @@ class SourceBuilder {
         )
 
         if (referencedType.qualifiedName == "solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto.Projection") {
-            logger.info("${referencedType.qualifiedName} is not a projection")
+            logger.error("${referencedType.qualifiedName} is not a projection")
         }
 
         return result

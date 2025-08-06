@@ -28,7 +28,7 @@ interface HyperKitDtoGeneratorConfigurationExtension {
 @Suppress("unused")
 class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, templatePath: String): String {
+    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, templatePath: String, logger: Logger): String {
         return SourceBuilder().buildClassSource(ctClass, dtoCtClass, templatePath, logger)
     }
 
@@ -153,7 +153,7 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
                 spoon.factory
             )
 
-            val classSourceCode = generateClassSourceCode(dtoClass, ctClass, templatePath)
+            val classSourceCode = generateClassSourceCode(dtoClass, ctClass, templatePath, logger)
             val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
             val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
             val outFile = File(project.file(outFilePath).absolutePath)
