@@ -61,9 +61,7 @@ class SourceBuilder {
             return false
         }
 
-        return implements(
-            referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection"
-        )
+        return referencedType.qualifiedName.endsWith("\$Projection")
 
     }
 
