@@ -73,7 +73,7 @@ class SourceBuilder {
         }
 
         val result = implements(
-            referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection"
+            referencedType, typeToImplement = "solutions.sulfura.hyperkit.dtos.projection.DtoProjection", logger = logger
         )
 
         if (referencedType.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
