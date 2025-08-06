@@ -112,6 +112,14 @@ fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String, 
                 logger.error("Qualified name: ${c.declaringType.qualifiedName}")
                 logger.error("Extends ${c.superclass.qualifiedName}, but it is not detected as a projection")
             }
+        }else {
+
+            if (logger!=null && c.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+                && c.qualifiedName.endsWith("Projection")
+            ){
+                logger.error("Qualified name: ${c.declaringType.qualifiedName}")
+                logger.error("Does not have a superclass? WTF?")
+            }
         }
 
         if (c.superInterfaces == null || c.superInterfaces.isEmpty()) {
