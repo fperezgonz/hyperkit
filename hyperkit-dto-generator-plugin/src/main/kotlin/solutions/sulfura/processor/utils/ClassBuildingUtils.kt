@@ -2,6 +2,7 @@
 
 package solutions.sulfura.processor.utils
 
+import org.gradle.api.logging.Logger
 import solutions.sulfura.hyperkit.dtos.ValueWrapper
 import solutions.sulfura.hyperkit.dtos.Dto
 import solutions.sulfura.hyperkit.dtos.ListOperation
@@ -71,7 +72,7 @@ fun isInnerType(ctType: CtTypeReference<*>): CtTypeReference<*>? {
 
 }
 
-fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String): Boolean {
+fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String, logger: Logger? = null): Boolean {
 
     for (t in typesToTest) {
 
@@ -82,12 +83,19 @@ fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String):
             c = isInnerType(c) ?: c
         }
 
+        if (logger!=null && c.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+            && c.qualifiedName.endsWith("Projection")
+        ){
+            logger.error("Qualified name: ${c.declaringType.qualifiedName}")
+            logger.error("Type to Implement: $typeToImplement")
+        }
+
 
         if (c.qualifiedName == typeToImplement) {
             return true
         }
 
-        if (c.superclass != null && implements(c.superclass, typeToImplement = typeToImplement)) {
+        if (c.superclass != null && implements(c.superclass, typeToImplement = typeToImplement, logger = null)) {
             return true
         }
 
@@ -96,8 +104,22 @@ fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String):
         }
 
         for (interf in c.superInterfaces) {
-            if (implements(interf, typeToImplement = typeToImplement)) {
+            if (implements(interf, typeToImplement = typeToImplement, logger = null)) {
+
+                if (logger!=null && c.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+                    && c.qualifiedName.endsWith("Projection")
+                ){
+                    logger.error("Qualified name: ${c.declaringType.qualifiedName}")
+                    logger.error("Implements $interf? yes")
+                }
                 return true
+            }
+
+            if (logger!=null && c.qualifiedName.startsWith("solutions.sulfura.hyperkit.dtos.circular_dependencies.class_b.SourceClassBDto")
+                && c.qualifiedName.endsWith("Projection")
+            ){
+                logger.error("Qualified name: ${c.declaringType.qualifiedName}")
+                logger.error("Implements $interf? no")
             }
         }
 
@@ -108,11 +130,11 @@ fun implements(vararg typesToTest: CtTypeReference<*>, typeToImplement: String):
 }
 
 fun implementsList(vararg typesToTest: CtTypeReference<*>): Boolean {
-    return implements(typesToTest = typesToTest, typeToImplement = "java.util.List")
+    return implements(typesToTest = typesToTest, typeToImplement = "java.util.List", null)
 }
 
 fun implementsSet(vararg typesToTest: CtTypeReference<*>): Boolean {
-    return implements(typesToTest = typesToTest, typeToImplement = "java.util.Set")
+    return implements(typesToTest = typesToTest, typeToImplement = "java.util.Set", null)
 }
 
 fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
