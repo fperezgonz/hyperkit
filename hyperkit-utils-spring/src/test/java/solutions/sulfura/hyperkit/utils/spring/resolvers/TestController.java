@@ -5,7 +5,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
-import solutions.sulfura.hyperkit.utils.spring.StdDtoResponseBody;
+import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
 import java.util.List;
 
@@ -49,12 +49,12 @@ public class TestController {
      * Applies a projection {name, age} to the request body and returns the result
      */
     @PostMapping("/test/test-dtos/")
-    public HttpEntity<StdDtoResponseBody<TestDto>> testArgumentProjection(
+    public HttpEntity<DtoListResponseBody<TestDto>> testArgumentProjection(
             @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
             @RequestBody
             StdDtoRequestBody<TestDto> testDtoRequestBody) {
 
-        StdDtoResponseBody<TestDto> testDtoResponseBody = new StdDtoResponseBody<>();
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
         testDtoResponseBody.setData(testDtoRequestBody.getData());
 
         return new HttpEntity<>(testDtoResponseBody);
@@ -66,13 +66,12 @@ public class TestController {
      */
     @GetMapping("/test/test-dtos/")
     @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name")
-    public HttpEntity<StdDtoResponseBody<TestDto>> testArgumentProjection() {
+    public HttpEntity<DtoListResponseBody<TestDto>> testArgumentProjection() {
 
-        StdDtoResponseBody<TestDto> testDtoResponseBody = new StdDtoResponseBody<>();
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
         testDtoResponseBody.setData(List.of(new TestDto(1L, "Test Dto", 25)));
 
         return new HttpEntity<>(testDtoResponseBody);
 
     }
-
 }

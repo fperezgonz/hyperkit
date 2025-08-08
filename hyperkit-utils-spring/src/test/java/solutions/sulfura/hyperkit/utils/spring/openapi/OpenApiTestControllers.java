@@ -10,8 +10,9 @@ import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.utils.spring.SingleDtoResponseBody;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
-import solutions.sulfura.hyperkit.utils.spring.StdDtoResponseBody;
+import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -86,11 +87,25 @@ public class OpenApiTestControllers {
      */
     @RestController
     public static class StdDtoResponseProjectionOnResponseTestController {
-        @GetMapping("/test-std-dto-projection-response")
+        @GetMapping("/test-multi-dto-projection-response")
         @TestDto1
-        public HttpEntity<StdDtoResponseBody<TestDto>> getTestDtos() {
-            StdDtoResponseBody<TestDto> response = new StdDtoResponseBody<>();
+        public HttpEntity<DtoListResponseBody<TestDto>> getTestDtos() {
+            DtoListResponseBody<TestDto> response = new DtoListResponseBody<>();
             response.setData(List.of(new TestDto(1L, "Test", 25, null)));
+            return new HttpEntity<>(response);
+        }
+    }
+
+    /**
+     * Uses projection {@link TestDto1}.
+     */
+    @RestController
+    public static class SingleDtoResponseProjectionOnResponseTestController {
+        @GetMapping("/test-single-dto-projection-response")
+        @TestDto1
+        public HttpEntity<SingleDtoResponseBody<TestDto>> getTestDtos() {
+            SingleDtoResponseBody<TestDto> response = new SingleDtoResponseBody<>();
+            response.setData(new TestDto(1L, "Test", 25, null));
             return new HttpEntity<>(response);
         }
     }

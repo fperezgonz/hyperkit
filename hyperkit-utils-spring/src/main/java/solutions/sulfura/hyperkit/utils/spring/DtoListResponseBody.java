@@ -10,11 +10,11 @@ import java.util.List;
  * A response body that contains a List of Dtos in a "data" field
  * This class implements the {@link ProjectableHolder} interface, which enables automatic application of projections
  */
-public class StdDtoResponseBody<D extends Dto<?>> implements ProjectableHolder<D> {
+public class DtoListResponseBody<D extends Dto<?>> implements ProjectableHolder<D> {
 
     private final List<D> data = new ArrayList<>();
 
-    public StdDtoResponseBody() {
+    public DtoListResponseBody() {
     }
 
     @NonNull

@@ -22,7 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = {
         OpenApiTestControllers.DtoListProjectionOnResponseTestController.class,
-        OpenApiTestControllers.StdDtoResponseProjectionOnResponseTestController.class
+        OpenApiTestControllers.StdDtoResponseProjectionOnResponseTestController.class,
+        OpenApiTestControllers.SingleDtoResponseProjectionOnResponseTestController.class
 })
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
 public class OpenApiNestedRootProjectionTests {
@@ -35,9 +36,9 @@ public class OpenApiNestedRootProjectionTests {
     }
 
     @Test
-    @DisplayName("OpenApi generation should apply projections on ProjectableHolder to the contained dtos")
-    public void testOpenApiShouldApplyProjectionOnProjectableHolderToTheContainedDtos() throws Exception {
-        // Given a controller with a projection annotation on a ProjectableHolder
+    @DisplayName("OpenApi generation should apply projections on ProjectableHolder to the dtos in the list")
+    public void testOpenApiShouldApplyProjectionOnProjectableHolderToTheDtosInTheList() throws Exception {
+        // Given a controller with a projection annotation on a ProjectableHolder that holds a list of DTOs
 
         // When we get the OpenAPI spec
         MvcResult result = mockMvc.perform(get("/v3/api-docs"))
@@ -49,7 +50,7 @@ public class OpenApiNestedRootProjectionTests {
         OpenAPI openAPI = parseOpenApiSpec(content);
 
         // Then the OpenAPI spec should contain the projected model
-        Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_StdDtoResponseBodyTestDto");
+        Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_DtoListResponseBodyTestDto");
         assertNotNull(schema);
 
         // StdDtoResponse Should contain "data"
@@ -59,6 +60,29 @@ public class OpenApiNestedRootProjectionTests {
 
         //Verify the items schema
         OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, dataItemsSchema);
+
+    }
+
+    @Test
+    @DisplayName("OpenApi generation should apply projections on ProjectableHolder to the contained dto")
+    public void testOpenApiShouldApplyProjectionOnProjectableHolderToTheContainedDto() throws Exception {
+        // Given a controller with a projection annotation on a ProjectableHolder that holds a single DTO
+
+        // When we get the OpenAPI spec
+        MvcResult result = mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        OpenAPI openAPI = parseOpenApiSpec(content);
+
+        // Then the OpenAPI spec should contain the projected model
+        Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_SingleDtoResponseBodyTestDto_TestDto");
+        assertNotNull(schema);
+
+        //Verify the items schema
+        OpenApiTestControllers.verifyTestDtoProjection1Schema(openAPI, schema);
 
     }
 

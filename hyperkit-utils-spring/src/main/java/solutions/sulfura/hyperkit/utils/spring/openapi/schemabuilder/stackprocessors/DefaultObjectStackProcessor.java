@@ -8,6 +8,7 @@ import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.SchemaCreationResult;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackData;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackProcessor;
+import solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -44,16 +45,29 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         return projectedSchemaName;
     }
 
-    public Type buildPropertyType(ParameterizedType projectionHolderType, Type dataPropertyType) {
-
-        if (!(dataPropertyType instanceof ParameterizedType parameterizedPropertyType)) {
-            return dataPropertyType;
-        }
+    public ParameterizedType buildPropertyType(@NonNull ParameterizedType projectionHolderType, @NonNull ParameterizedType parameterizedPropertyType) {
 
         Type[] typeArgs = projectionHolderType.getActualTypeArguments();
 
         if (typeArgs.length == 0) {
-            return dataPropertyType;
+            return parameterizedPropertyType;
+        }
+
+        Type[] actualTypeArguments = Arrays.copyOf(typeArgs, typeArgs.length);
+
+        for (int i = 0; i < actualTypeArguments.length; i++) {
+
+            if (!(actualTypeArguments[i] instanceof TypeVariable)) {
+                continue;
+            }
+
+            for (Type type : typeArgs) {
+                if (actualTypeArguments[i].getTypeName().equals(type.getTypeName())) {
+                    actualTypeArguments[i] = type;
+                    break;
+                }
+            }
+
         }
 
         //noinspection NullableProblems
@@ -61,26 +75,7 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
             @Override
             public Type[] getActualTypeArguments() {
-
-                Type[] result = Arrays.copyOf(typeArgs, typeArgs.length);
-
-                for (int i = 0; i < result.length; i++) {
-
-                    if (!(result[i] instanceof TypeVariable)) {
-                        continue;
-                    }
-
-                    for (Type type : typeArgs) {
-                        if (result[i].getTypeName().equals(type.getTypeName())) {
-                            result[i] = type;
-                            break;
-                        }
-                    }
-
-                }
-
-                return result;
-
+                return actualTypeArguments;
             }
 
             @Override
@@ -133,7 +128,6 @@ public class DefaultObjectStackProcessor implements StackProcessor {
                         //Getter
                         if (method.getParameterCount() == 0) {
                             propertyType = method.getGenericReturnType();
-
                         }
 
                         // Setter
@@ -143,13 +137,15 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
                     }
 
-                    if (propertyType == null) {
-                        throw new RuntimeException("Unsupported property");
-                    }
-
                     if (propertyType instanceof ParameterizedType parameterizedPropertyType
                             && schemaTargetType instanceof ParameterizedType projectionHolderType) {
                         propertyType = buildPropertyType(projectionHolderType, parameterizedPropertyType);
+                    } else if (propertyType instanceof TypeVariable<?> typeVariable) {
+                        propertyType = SchemaBuilderUtils.resolveTypeVariableForField(schemaTargetType, propertyPrimaryMember, typeVariable);
+                    }
+
+                    if (propertyType == null) {
+                        throw new RuntimeException("Unsupported property " + propertyName + " on " + schemaTargetType);
                     }
 
                     StackData fieldStackData = new StackData(

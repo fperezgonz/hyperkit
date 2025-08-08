@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
-import solutions.sulfura.hyperkit.utils.spring.StdDtoResponseBody;
+import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TestController.class)
 public class DtoProjectionRequestBodyAdviceIntegrationTest {
 
-    static TypeReference<StdDtoResponseBody<TestDto>> stdDtoResponseBodyTypeRef = new TypeReference<>() {
+    static TypeReference<DtoListResponseBody<TestDto>> stdDtoResponseBodyTypeRef = new TypeReference<>() {
     };
 
     @Autowired
@@ -51,7 +51,7 @@ public class DtoProjectionRequestBodyAdviceIntegrationTest {
 
         // Then the response should contain a Dto with the argument projection applied
         String content = result.getResponse().getContentAsString();
-        StdDtoResponseBody<TestDto> parsedResponse = objectMapper.readValue(content, stdDtoResponseBodyTypeRef);
+        DtoListResponseBody<TestDto> parsedResponse = objectMapper.readValue(content, stdDtoResponseBodyTypeRef);
 
         // Check that the response contains the projected values
         assertEquals(1, parsedResponse.getData().size());
@@ -72,7 +72,7 @@ public class DtoProjectionRequestBodyAdviceIntegrationTest {
 
         // Then the response should contain a Dto with the method projection applied
         String content = result.getResponse().getContentAsString();
-        StdDtoResponseBody<TestDto> parsedResponse = objectMapper.readValue(content, stdDtoResponseBodyTypeRef);
+        DtoListResponseBody<TestDto> parsedResponse = objectMapper.readValue(content, stdDtoResponseBodyTypeRef);
 
         // Check that the response contains the property names
         assertEquals(1, parsedResponse.getData().size());
