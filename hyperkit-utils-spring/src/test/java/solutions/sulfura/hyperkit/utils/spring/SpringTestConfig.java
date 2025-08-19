@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -83,6 +85,8 @@ public class SpringTestConfig implements WebMvcConfigurer {
                 new TypeReferenceStackProcessor(
                         ValueWrapper.class,
                         HttpEntity.class,
+                        RequestEntity.class,
+                        ResponseEntity.class,
                         List.class,
                         Set.class
                 )

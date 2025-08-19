@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -45,7 +47,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(){
+    DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice() {
         return new DtoProjectionResponseBodyAdvice(dtoProjectionRequestBodyAdvice());
     }
 
@@ -122,6 +124,8 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
                 new TypeReferenceStackProcessor(
                         ValueWrapper.class,
                         HttpEntity.class,
+                        RequestEntity.class,
+                        ResponseEntity.class,
                         List.class,
                         Set.class
                 )

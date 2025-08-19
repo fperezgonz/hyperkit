@@ -3,6 +3,7 @@ package solutions.sulfura.hyperkit.utils.spring.openapi;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
@@ -46,8 +47,10 @@ public class OpenApiTestControllers {
 
         @GetMapping("/openapi-test/test-dto-projection2-response")
         @TestDto2
-        public HttpEntity<TestDto> getTestDto2() {
-            return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+        public ResponseEntity<TestDto> getTestDto2() {
+            return ResponseEntity
+                    .ok()
+                    .body(new TestDto(1L, "Test", 25, null));
         }
 
     }
