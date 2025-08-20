@@ -62,34 +62,17 @@ public class DefaultObjectStackProcessor implements StackProcessor {
             }
 
             for (Type type : typeArgs) {
+
                 if (actualTypeArguments[i].getTypeName().equals(type.getTypeName())) {
                     actualTypeArguments[i] = type;
                     break;
                 }
+
             }
 
         }
 
-        //noinspection NullableProblems
-        return new ParameterizedType() {
-
-            @Override
-            public Type[] getActualTypeArguments() {
-                return actualTypeArguments;
-            }
-
-            @Override
-            @NonNull
-            public Type getRawType() {
-                return parameterizedPropertyType.getRawType();
-            }
-
-            @Override
-            public Type getOwnerType() {
-                return parameterizedPropertyType.getOwnerType();
-            }
-
-        };
+        return new SchemaBuilderUtils.ParameterizedTypeImpl(actualTypeArguments, parameterizedPropertyType);
 
     }
 
@@ -178,8 +161,6 @@ public class DefaultObjectStackProcessor implements StackProcessor {
     ) {
 
         Schema<?> schema = stackData.schema;
-        Type schemaTargetType = stackData.schemaTargetType;
-        Class<?> targetClass = getRawType(schemaTargetType);
 
         // If any of the results created a new schema, replicate the schema for the current stack, change the name if necessary and return it
         Schema<?> projectedSchema = new Schema<>();

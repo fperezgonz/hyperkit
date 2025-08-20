@@ -113,6 +113,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public ProjectionOpenApiCustomizer projectionOpenApiCustomizer(RequestMappingHandlerMapping requestMappingHandlerMapping) {
 
         ArrayList<ProjectedSchemaBuilder.StackProcessor> stackProcessors = new ArrayList<>();

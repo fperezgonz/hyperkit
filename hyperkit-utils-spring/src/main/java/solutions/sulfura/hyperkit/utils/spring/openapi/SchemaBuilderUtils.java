@@ -2,12 +2,11 @@ package solutions.sulfura.hyperkit.utils.spring.openapi;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
+import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.dtos.Dto;
 
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class SchemaBuilderUtils {
 
@@ -89,31 +88,24 @@ public class SchemaBuilderUtils {
     }
 
     /**
-     * Resolves a TypeVariable to its concrete type by walking the type hierarchy
-     *
-     * @param targetType            The parameterized type under analysis
-     * @param propertyPrimaryMember The field or method declaring the type variable
-     * @param propertyType          The type variable to resolve
-     * @return The resolved concrete type, or null if it cannot be resolved
+     * Builds the type hierarchy from bottom type to top type and returns it. The results are ordered from bottom to top
      */
-    public static Type resolveTypeVariableForField(Type targetType, Member propertyPrimaryMember, TypeVariable<?> propertyType) {
+    private static List<ParameterizedType> buildTypeHierarchy(Type bottomType, Class<?> topClass) {
 
-        Class<?> declaringClass = propertyPrimaryMember.getDeclaringClass();
-
-        if (declaringClass == targetType) {
+        if (topClass == bottomType) {
             return null;
         }
 
-        Class<?> rawAuxType = getRawType(targetType);
+        Class<?> rawAuxType = getRawType(bottomType);
 
         List<ParameterizedType> typeHierarchy = new ArrayList<>();
 
-        if(targetType instanceof ParameterizedType){
-            typeHierarchy.add((ParameterizedType) targetType);
+        if (bottomType instanceof ParameterizedType) {
+            typeHierarchy.add((ParameterizedType) bottomType);
         }
 
         // Build the hierarchy
-        while (rawAuxType != declaringClass) {
+        while (rawAuxType != topClass) {
 
             Type auxType = rawAuxType.getGenericSuperclass();
             if (auxType instanceof ParameterizedType parameterizedAuxType) {
@@ -124,11 +116,16 @@ public class SchemaBuilderUtils {
 
         }
 
+        return typeHierarchy;
 
-        Type resolvedType = propertyType;
+    }
+
+    protected static Type resolveTypeVariable(TypeVariable<?> typeVar, List<ParameterizedType> typeHierarchy, int startIndex) {
+
+        Type resolvedType = typeVar;
 
         // Walk the hierarchy from top to bottom replacing the type argument until a concrete type is found
-        for (int i = typeHierarchy.size() - 1; i >= 0; i--) {
+        for (int i = startIndex; i >= 0; i--) {
 
             ParameterizedType currentType = typeHierarchy.get(i);
             Type[] typeArguments = currentType.getActualTypeArguments();
@@ -141,19 +138,125 @@ public class SchemaBuilderUtils {
             TypeVariable<?>[] typeParameters = currentClass.getTypeParameters();
             int argumentIdx = getTypeArgumentIndex(typeParameters, resolvedType);
 
-            if(argumentIdx == -1){
+            if (argumentIdx == -1) {
                 return null;
             }
 
             resolvedType = typeArguments[argumentIdx];
 
+            // If we've resolved to a concrete type (not a TypeVariable), process it
             if (!(resolvedType instanceof TypeVariable)) {
+                // If the resolved type is a parameterized type, we need to recursively resolve its type arguments
+                if (resolvedType instanceof ParameterizedType parameterizedType) {
+                    resolvedType = resolveNestedParameterizedType(parameterizedType, typeHierarchy, i - 1);
+                }
+
                 return resolvedType;
             }
 
         }
 
-        return null;
+        return typeVar;
+
+    }
+
+    /**
+     * Resolves the type of a generic property resolved for a target type, assuming that the target type or an intermediate type in the hierarchy declares a concrete type for the type parameter.
+     * This method handles both simple type variables and nested parameterized types with type variables. <br>
+     * See the tests for concrete examples
+     *
+     * @param targetType            The parameterized type under analysis
+     * @param propertyPrimaryMember The field or method declaring the type variable
+     * @param propertyType          The type variable to resolve
+     * @return The resolved concrete type, or null if it cannot be resolved
+     */
+    public static Type resolveTypeVariableForField(@NonNull Type targetType, @NonNull Member propertyPrimaryMember, @NonNull TypeVariable<?> propertyType) {
+
+        Class<?> declaringClass = propertyPrimaryMember.getDeclaringClass();
+        List<ParameterizedType> typeHierarchy = buildTypeHierarchy(targetType, declaringClass);
+
+        if (typeHierarchy == null) {
+            return null;
+        }
+
+        Type resolvedType = resolveTypeVariable(propertyType, typeHierarchy, typeHierarchy.size() - 1);
+
+        return resolvedType instanceof TypeVariable ? null : resolvedType;
+
+    }
+
+    /**
+     * Resolves type variables in a nested parameterized type by walking the type hierarchy
+     *
+     * @param parameterizedType The parameterized type whose type arguments need to be resolved
+     * @param typeHierarchy     The type hierarchy to use for resolution
+     * @param startIndex        The index in the hierarchy to start from
+     * @return The resolved parameterized type with concrete type arguments
+     */
+    private static Type resolveNestedParameterizedType(
+            ParameterizedType parameterizedType,
+            List<ParameterizedType> typeHierarchy,
+            int startIndex) {
+
+        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+
+        // Create a new array to hold the resolved type arguments
+        Type[] resolvedTypeArgs = new Type[actualTypeArguments.length];
+
+        // Resolve each type argument
+        for (int j = 0; j < actualTypeArguments.length; j++) {
+
+            Type typeArg = actualTypeArguments[j];
+
+            // If the type argument is itself a parameterized type, recursively resolve it
+            if (typeArg instanceof ParameterizedType nestedType) {
+                resolvedTypeArgs[j] = resolveNestedParameterizedType(nestedType, typeHierarchy, startIndex);
+                continue;
+            }
+
+            // If it is not a TypeVariable, use the type as is
+            if (!(typeArg instanceof TypeVariable<?> typeVar)) {
+                resolvedTypeArgs[j] = typeArg;
+                continue;
+            }
+
+            Type resolvedTypeArg = resolveTypeVariable(typeVar, typeHierarchy, startIndex);
+            resolvedTypeArgs[j] = resolvedTypeArg;
+
+        }
+
+        return new ParameterizedTypeImpl(resolvedTypeArgs, parameterizedType);
+
+    }
+
+    public static class ParameterizedTypeImpl implements ParameterizedType {
+
+        private final Type[] actualTypeArguments;
+        private final Type rawType;
+        private final Type ownerType;
+
+        public ParameterizedTypeImpl(@NonNull Type[] actualTypeArguments, @NonNull ParameterizedType parameterizedPropertyType) {
+            this.actualTypeArguments = actualTypeArguments;
+            this.rawType = parameterizedPropertyType.getRawType();
+            this.ownerType = parameterizedPropertyType.getOwnerType();
+        }
+
+        @Override
+        @NonNull
+        public Type[] getActualTypeArguments() {
+            return actualTypeArguments;
+        }
+
+        @Override
+        @NonNull
+        public Type getRawType() {
+            return rawType;
+        }
+
+        @Override
+        public Type getOwnerType() {
+            return ownerType;
+        }
 
     }
 
