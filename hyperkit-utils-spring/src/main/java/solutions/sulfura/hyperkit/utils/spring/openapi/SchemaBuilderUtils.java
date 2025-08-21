@@ -120,9 +120,9 @@ public class SchemaBuilderUtils {
 
     }
 
-    protected static Type resolveTypeVariable(TypeVariable<?> typeVar, List<ParameterizedType> typeHierarchy, int startIndex) {
+    protected static Type resolveTypeVariable(TypeVariable<?> typeArg, List<ParameterizedType> typeHierarchy, int startIndex) {
 
-        Type resolvedType = typeVar;
+        Type resolvedType = typeArg;
 
         // Walk the hierarchy from top to bottom replacing the type argument until a concrete type is found
         for (int i = startIndex; i >= 0; i--) {
@@ -148,7 +148,7 @@ public class SchemaBuilderUtils {
             if (!(resolvedType instanceof TypeVariable)) {
                 // If the resolved type is a parameterized type, we need to recursively resolve its type arguments
                 if (resolvedType instanceof ParameterizedType parameterizedType) {
-                    resolvedType = resolveNestedParameterizedType(parameterizedType, typeHierarchy, i - 1);
+                    resolvedType = resolveParameterizedType(parameterizedType, typeHierarchy, i - 1);
                 }
 
                 return resolvedType;
@@ -156,21 +156,22 @@ public class SchemaBuilderUtils {
 
         }
 
-        return typeVar;
+        return typeArg;
 
     }
 
     /**
-     * Resolves the type of a generic property resolved for a target type, assuming that the target type or an intermediate type in the hierarchy declares a concrete type for the type parameter.
+     * Resolves the type of a generic property for a target type, assuming that the target type or an intermediate type
+     * in the hierarchy specifies a concrete type for the type parameter.
      * This method handles both simple type variables and nested parameterized types with type variables. <br>
      * See the tests for concrete examples
      *
      * @param targetType            The parameterized type under analysis
-     * @param propertyPrimaryMember The field or method declaring the type variable
-     * @param propertyType          The type variable to resolve
+     * @param propertyPrimaryMember The field or method declaring the type that needs resolving
+     * @param propertyType          The type that needs resolving
      * @return The resolved concrete type, or null if it cannot be resolved
      */
-    public static Type resolveTypeVariableForField(@NonNull Type targetType, @NonNull Member propertyPrimaryMember, @NonNull TypeVariable<?> propertyType) {
+    public static Type resolveTypeForField(@NonNull Type targetType, @NonNull Member propertyPrimaryMember, @NonNull Type propertyType) {
 
         Class<?> declaringClass = propertyPrimaryMember.getDeclaringClass();
         List<ParameterizedType> typeHierarchy = buildTypeHierarchy(targetType, declaringClass);
@@ -179,7 +180,13 @@ public class SchemaBuilderUtils {
             return null;
         }
 
-        Type resolvedType = resolveTypeVariable(propertyType, typeHierarchy, typeHierarchy.size() - 1);
+        Type resolvedType = null;
+
+        if (propertyType instanceof TypeVariable<?> typeVariable) {
+            resolvedType = resolveTypeVariable(typeVariable, typeHierarchy, typeHierarchy.size() - 1);
+        } else if (propertyType instanceof ParameterizedType parameterizedType) {
+            resolvedType = resolveParameterizedType(parameterizedType, typeHierarchy, typeHierarchy.size() - 1);
+        }
 
         return resolvedType instanceof TypeVariable ? null : resolvedType;
 
@@ -193,7 +200,7 @@ public class SchemaBuilderUtils {
      * @param startIndex        The index in the hierarchy to start from
      * @return The resolved parameterized type with concrete type arguments
      */
-    private static Type resolveNestedParameterizedType(
+    private static Type resolveParameterizedType(
             ParameterizedType parameterizedType,
             List<ParameterizedType> typeHierarchy,
             int startIndex) {
@@ -210,7 +217,7 @@ public class SchemaBuilderUtils {
 
             // If the type argument is itself a parameterized type, recursively resolve it
             if (typeArg instanceof ParameterizedType nestedType) {
-                resolvedTypeArgs[j] = resolveNestedParameterizedType(nestedType, typeHierarchy, startIndex);
+                resolvedTypeArgs[j] = resolveParameterizedType(nestedType, typeHierarchy, startIndex);
                 continue;
             }
 

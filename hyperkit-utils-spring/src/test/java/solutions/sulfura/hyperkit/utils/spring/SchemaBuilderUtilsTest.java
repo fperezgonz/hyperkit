@@ -7,7 +7,6 @@ import solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,17 +25,17 @@ public class SchemaBuilderUtilsTest {
         Field field = A.class.getDeclaredField("value");
 
         // When
-        Type resolved = SchemaBuilderUtils.resolveTypeVariableForField(C.class, field, ((TypeVariable<?>) field.getGenericType()));
+        Type resolved = SchemaBuilderUtils.resolveTypeForField(C.class, field, field.getGenericType());
         // Then
         Assertions.assertEquals(Integer.class, resolved);
 
         // When
-        resolved = SchemaBuilderUtils.resolveTypeVariableForField(B2.class, field, ((TypeVariable<?>) field.getGenericType()));
+        resolved = SchemaBuilderUtils.resolveTypeForField(B2.class, field, field.getGenericType());
         // Then
         Assertions.assertEquals(String.class, resolved);
 
         // When
-        resolved = SchemaBuilderUtils.resolveTypeVariableForField(B.class, field, ((TypeVariable<?>) field.getGenericType()));
+        resolved = SchemaBuilderUtils.resolveTypeForField(B.class, field, field.getGenericType());
         // Then
         Assertions.assertNull(resolved);
     }
@@ -53,19 +52,19 @@ public class SchemaBuilderUtilsTest {
         Field field2 = AN.class.getDeclaredField("value2");
 
         // When
-        Type resolved = SchemaBuilderUtils.resolveTypeVariableForField(CN.class, field, ((TypeVariable<?>) field.getGenericType()));
+        Type resolved = SchemaBuilderUtils.resolveTypeForField(CN.class, field, field.getGenericType());
 
         // Then
-        Assertions.assertTrue(List.class.isAssignableFrom((Class<?>)((ParameterizedType) Objects.requireNonNull(resolved)).getRawType()));
+        Assertions.assertTrue(List.class.isAssignableFrom((Class<?>) ((ParameterizedType) Objects.requireNonNull(resolved)).getRawType()));
         ParameterizedType nestedListType = (ParameterizedType) ((ParameterizedType) resolved).getActualTypeArguments()[0];
         Assertions.assertEquals(Integer.class, nestedListType.getActualTypeArguments()[0]);
 
 
         // When
-        resolved = SchemaBuilderUtils.resolveTypeVariableForField(CN.class, field2, ((TypeVariable<?>) field2.getGenericType()));
+        resolved = SchemaBuilderUtils.resolveTypeForField(CN.class, field2, field2.getGenericType());
 
         // Then
-        Assertions.assertTrue(AN.class.isAssignableFrom((Class<?>)((ParameterizedType) Objects.requireNonNull(resolved)).getRawType()));
+        Assertions.assertTrue(AN.class.isAssignableFrom((Class<?>) ((ParameterizedType) Objects.requireNonNull(resolved)).getRawType()));
         Assertions.assertEquals(String.class, ((ParameterizedType) resolved).getActualTypeArguments()[1]);
 
     }

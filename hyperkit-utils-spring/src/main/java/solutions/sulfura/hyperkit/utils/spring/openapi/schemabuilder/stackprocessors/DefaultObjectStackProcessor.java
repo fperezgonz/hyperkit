@@ -45,37 +45,6 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         return projectedSchemaName;
     }
 
-    public ParameterizedType buildPropertyType(@NonNull ParameterizedType projectionHolderType, @NonNull ParameterizedType parameterizedPropertyType) {
-
-        Type[] typeArgs = projectionHolderType.getActualTypeArguments();
-
-        if (typeArgs.length == 0) {
-            return parameterizedPropertyType;
-        }
-
-        Type[] actualTypeArguments = Arrays.copyOf(typeArgs, typeArgs.length);
-
-        for (int i = 0; i < actualTypeArguments.length; i++) {
-
-            if (!(actualTypeArguments[i] instanceof TypeVariable)) {
-                continue;
-            }
-
-            for (Type type : typeArgs) {
-
-                if (actualTypeArguments[i].getTypeName().equals(type.getTypeName())) {
-                    actualTypeArguments[i] = type;
-                    break;
-                }
-
-            }
-
-        }
-
-        return new SchemaBuilderUtils.ParameterizedTypeImpl(actualTypeArguments, parameterizedPropertyType);
-
-    }
-
     /**
      * Rebuilds each property schema in the target type schema using the stack info
      */
@@ -120,11 +89,10 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
                     }
 
-                    if (propertyType instanceof ParameterizedType parameterizedPropertyType
-                            && schemaTargetType instanceof ParameterizedType projectionHolderType) {
-                        propertyType = buildPropertyType(projectionHolderType, parameterizedPropertyType);
-                    } else if (propertyType instanceof TypeVariable<?> typeVariable) {
-                        propertyType = SchemaBuilderUtils.resolveTypeVariableForField(schemaTargetType, propertyPrimaryMember, typeVariable);
+                    if (propertyType instanceof TypeVariable<?> ||
+                            (propertyType instanceof ParameterizedType && schemaTargetType instanceof ParameterizedType)
+                    ) {
+                        propertyType = SchemaBuilderUtils.resolveTypeForField(schemaTargetType, propertyPrimaryMember, propertyType);
                     }
 
                     if (propertyType == null) {

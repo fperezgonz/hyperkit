@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
+import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
@@ -17,6 +18,7 @@ import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -166,6 +168,39 @@ public class OpenApiTestControllers {
                 @RequestParam(name = "testDtoParam") OpenApiTestControllers.TestDto testDto) {
             return "Test";
         }
+    }
+
+    /**
+     * Controller for testing projections on responses with other fields besides the projected class. Uses projection {@link OpenApiTestControllers.TestDto1}
+     */
+    @RestController
+    public static class ResponseWithMultipleFieldsProjectionTestController {
+        @GetMapping("/test-multiple-fields-projection-response")
+        @TestDto1
+        public HttpEntity<DtoResponseWithMultipleFields<TestDto>> getTestDtos() {
+            DtoResponseWithMultipleFields<TestDto> response = new DtoResponseWithMultipleFields<>();
+            response.setData(List.of(new TestDto(1L, "Test", 25, null)));
+            return new HttpEntity<>(response);
+        }
+    }
+
+    public static class DtoResponseWithMultipleFields<T extends Dto<?>> extends DtoListResponseBody<T> {
+
+        public List<ErrorData> errors = new ArrayList<>();
+
+        public static class ErrorData {
+            public String id;
+            public String message;
+            public String code;
+        }
+    }
+
+    public static void verifyErrorItemsSchema(OpenAPI openAPI, Schema<?> errorItemsSchema) {
+        errorItemsSchema = SchemaBuilderUtils.findReferencedModel(openAPI, errorItemsSchema);
+        assertNotNull(errorItemsSchema);
+        assertTrue(errorItemsSchema.getProperties().containsKey("id"));
+        assertTrue(errorItemsSchema.getProperties().containsKey("message"));
+        assertTrue(errorItemsSchema.getProperties().containsKey("code"));
     }
 
     /**
