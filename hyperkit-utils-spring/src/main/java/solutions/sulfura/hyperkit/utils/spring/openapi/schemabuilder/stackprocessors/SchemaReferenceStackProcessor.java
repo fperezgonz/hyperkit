@@ -33,7 +33,14 @@ public class SchemaReferenceStackProcessor implements StackProcessor {
                 stackData.rootProjectionAnnotationInfo,
                 stackData.currentNamespace,
                 stackData.schemaProcessingCounts);
-        return buildSchemaForStack(referencedStackData, stackProcessors);
+
+        var result = buildSchemaForStack(referencedStackData, stackProcessors);
+
+        if(result.newNamedSchemas.isEmpty() && result.newAnonymousSchemas.isEmpty()){
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+        }
+
+        return result;
 
     }
 }
