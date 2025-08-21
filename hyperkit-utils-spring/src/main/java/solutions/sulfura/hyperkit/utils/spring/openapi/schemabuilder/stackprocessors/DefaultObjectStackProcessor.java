@@ -52,6 +52,11 @@ public class DefaultObjectStackProcessor implements StackProcessor {
     protected PropertySchemaCreationResult buildPropertySchemas(StackData stackData, List<StackProcessor> stackProcessors) {
 
         Schema<?> schema = stackData.schema;
+
+        if(schema.getProperties() == null) {
+            throw new IllegalArgumentException("Schema " + schema.getName() + " has no properties");
+        }
+
         Type schemaTargetType = stackData.schemaTargetType;
         BeanDescription beanDescription = Json.mapper().getSerializationConfig().introspect(Json.mapper().constructType(schemaTargetType));
         Map<String, BeanPropertyDefinition> beanProperties = beanDescription.findProperties().stream()
@@ -169,6 +174,13 @@ public class DefaultObjectStackProcessor implements StackProcessor {
     @NonNull
     public SchemaCreationResult processStack(StackData stackData, List<StackProcessor> stackProcessors) {
 
+        Schema<?> schema = stackData.schema;
+
+        // If there are no properties, return the original schema
+        if(schema.getProperties() == null || schema.getProperties().isEmpty() ) {
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+        }
+
         PropertySchemaCreationResult propertySchemaCreationResult = buildPropertySchemas(stackData, stackProcessors);
         var schemaCreationResults = propertySchemaCreationResult.propertySchemas;
 
@@ -183,10 +195,10 @@ public class DefaultObjectStackProcessor implements StackProcessor {
                 .collect(Collectors.toSet());
 
         boolean newSchemasCreated = !newNamedSchemas.isEmpty() || !newAnonymousSchemas.isEmpty();
-        boolean propertiesRemoved = stackData.schema.getProperties().size() != schemaCreationResults.size();
+        boolean propertiesRemoved = schema.getProperties().size() != schemaCreationResults.size();
 
         if (!newSchemasCreated && !propertiesRemoved) {
-            return new SchemaCreationResult(stackData.schema, stackData.schemaProcessingCounts);
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
         }
 
         Map<String, Schema<?>> propertiesSchemas = schemaCreationResults.entrySet().stream()

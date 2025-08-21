@@ -19,6 +19,7 @@ import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -187,6 +188,8 @@ public class OpenApiTestControllers {
     public static class DtoResponseWithMultipleFields<T extends Dto<?>> extends DtoListResponseBody<T> {
 
         public List<ErrorData> errors = new ArrayList<>();
+        // Object field with no properties
+        public HashMap<String, Object> extensions = new HashMap<>();
 
         public static class ErrorData {
             public String id;
