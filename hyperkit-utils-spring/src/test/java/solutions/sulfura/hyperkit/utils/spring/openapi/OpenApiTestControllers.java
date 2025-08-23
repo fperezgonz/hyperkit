@@ -7,23 +7,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 import solutions.sulfura.hyperkit.utils.spring.SingleDtoResponseBody;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
-import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("unused")
 public class OpenApiTestControllers {
 
     /**
@@ -37,7 +41,7 @@ public class OpenApiTestControllers {
         @GetMapping("/openapi-test/test-dto-projection1-response")
         @TestDto1
         public HttpEntity<TestDto> getTestDto1() {
-            return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+            return new HttpEntity<>(new TestDto(1L, "Test", 25, null, null));
         }
 
     }
@@ -53,7 +57,7 @@ public class OpenApiTestControllers {
         public ResponseEntity<TestDto> getTestDto2() {
             return ResponseEntity
                     .ok()
-                    .body(new TestDto(1L, "Test", 25, null));
+                    .body(new TestDto(1L, "Test", 25, null, null));
         }
 
     }
@@ -66,11 +70,15 @@ public class OpenApiTestControllers {
         @GetMapping("/deeply-nested-projection-response")
         @DeepProjection
         public TestDto DeepProjection() {
-            return new TestDto(1L, "Test1", 25,
-                    ValueWrapper.of(new NestedTestDto(1L, new TestDto(2L, "Test2", 25,
-                            ValueWrapper.of(new NestedTestDto(2L, new TestDto(3L, "Test3", 25,
-                                    ValueWrapper.of(new NestedTestDto(3L, new TestDto(4L, "Test4", 25, null)))))))))
-            );
+            TestDto nested6 = new TestDto(4L, "Test4", 25, null, null);
+            NestedTestDto nested5 = new NestedTestDto(3L, nested6);
+            TestDto nested4 = new TestDto(3L, "Test3", 25, ValueWrapper.of(nested5), null);
+            NestedTestDto nested3 =new NestedTestDto(2L, nested4);
+            TestDto nested2 = new TestDto(2L, "Test2", 25, ValueWrapper.of(nested3), null);
+            NestedTestDto nested1 = new NestedTestDto(1L, nested2);
+
+            return new TestDto(1L, "Test1", 25, ValueWrapper.of(nested1), null);
+
         }
     }
 
@@ -83,7 +91,7 @@ public class OpenApiTestControllers {
         @GetMapping("/test-dto-list-projection-response")
         @TestDto1
         public HttpEntity<List<TestDto>> getTestDtosList() {
-            return new HttpEntity<>(List.of(new TestDto(1L, "Test", 25, null)));
+            return new HttpEntity<>(List.of(new TestDto(1L, "Test", 25, null, null)));
         }
 
     }
@@ -97,7 +105,7 @@ public class OpenApiTestControllers {
         @TestDto1
         public HttpEntity<DtoListResponseBody<TestDto>> getTestDtos() {
             DtoListResponseBody<TestDto> response = new DtoListResponseBody<>();
-            response.setData(List.of(new TestDto(1L, "Test", 25, null)));
+            response.setData(List.of(new TestDto(1L, "Test", 25, null, null)));
             return new HttpEntity<>(response);
         }
     }
@@ -111,7 +119,7 @@ public class OpenApiTestControllers {
         @TestDto1
         public HttpEntity<SingleDtoResponseBody<TestDto>> getTestDtos() {
             SingleDtoResponseBody<TestDto> response = new SingleDtoResponseBody<>();
-            response.setData(new TestDto(1L, "Test", 25, null));
+            response.setData(new TestDto(1L, "Test", 25, null, null));
             return new HttpEntity<>(response);
         }
     }
@@ -154,7 +162,7 @@ public class OpenApiTestControllers {
         @GetMapping("/test")
         @ExplicitNamespaceProjection
         public HttpEntity<TestDto> getTestDto() {
-            return new HttpEntity<>(new TestDto(1L, "Test", 25, null));
+            return new HttpEntity<>(new TestDto(1L, "Test", 25, null, null));
         }
     }
 
@@ -180,7 +188,7 @@ public class OpenApiTestControllers {
         @TestDto1
         public HttpEntity<DtoResponseWithMultipleFields<TestDto>> getTestDtos() {
             DtoResponseWithMultipleFields<TestDto> response = new DtoResponseWithMultipleFields<>();
-            response.setData(List.of(new TestDto(1L, "Test", 25, null)));
+            response.setData(List.of(new TestDto(1L, "Test", 25, null, null)));
             return new HttpEntity<>(response);
         }
     }
@@ -195,7 +203,13 @@ public class OpenApiTestControllers {
             public String id;
             public String message;
             public String code;
+            public ErrorSource source;
         }
+
+        public static class ErrorSource{
+            public String id;
+        }
+
     }
 
     public static void verifyErrorItemsSchema(OpenAPI openAPI, Schema<?> errorItemsSchema) {
@@ -204,6 +218,9 @@ public class OpenApiTestControllers {
         assertTrue(errorItemsSchema.getProperties().containsKey("id"));
         assertTrue(errorItemsSchema.getProperties().containsKey("message"));
         assertTrue(errorItemsSchema.getProperties().containsKey("code"));
+        Schema<?> errorSourceSchema = errorItemsSchema.getProperties().get("source");
+        errorSourceSchema = SchemaBuilderUtils.findReferencedModel(openAPI, errorSourceSchema);
+        assertTrue(errorSourceSchema.getProperties().containsKey("id"));
     }
 
     /**
@@ -214,16 +231,18 @@ public class OpenApiTestControllers {
         public ValueWrapper<String> name = ValueWrapper.empty();
         public ValueWrapper<Integer> age = ValueWrapper.empty();
         public ValueWrapper<NestedTestDto> nestedDto = ValueWrapper.empty();
+        public ValueWrapper<java.util.AbstractList<ListOperation<NestedTestDto>>> nestedDtoList = ValueWrapper.empty();
 
         @SuppressWarnings("unused")
         public TestDto() {
         }
 
-        public TestDto(long l, String test, int i, ValueWrapper<NestedTestDto> nestedTestDto) {
+        public TestDto(long l, String test, int i, ValueWrapper<NestedTestDto> nestedTestDto, ValueWrapper<AbstractList<ListOperation<NestedTestDto>>> nestedTestDtoList) {
             this.id = ValueWrapper.of(l);
             this.name = ValueWrapper.of(test);
             this.age = ValueWrapper.of(i);
             this.nestedDto = nestedTestDto == null ? ValueWrapper.empty() : nestedTestDto;
+            this.nestedDtoList = nestedTestDtoList == null ? ValueWrapper.empty() : nestedTestDtoList;
         }
 
         @Override
@@ -237,6 +256,7 @@ public class OpenApiTestControllers {
             public FieldConf name;
             public FieldConf age;
             public DtoFieldConf<NestedTestDto.Projection> nestedDto;
+            public DtoListFieldConf<NestedTestDto.Projection> nestedDtoList;
 
             @Override
             public void applyProjectionTo(TestDto dto) {
@@ -244,6 +264,7 @@ public class OpenApiTestControllers {
                 dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
                 dto.age = ProjectionUtils.getProjectedValue(dto.age, this.age);
                 dto.nestedDto = ProjectionUtils.getProjectedValue(dto.nestedDto, this.nestedDto);
+                dto.nestedDtoList = ProjectionUtils.getProjectedValue(dto.nestedDtoList, this.nestedDtoList);
             }
         }
     }
@@ -281,7 +302,12 @@ public class OpenApiTestControllers {
         }
     }
 
-    @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age, nestedDto{id}")
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = """
+            name
+            age
+            nestedDto{id}
+            nestedDtoList{id}
+            """)
     @Retention(RetentionPolicy.RUNTIME)
     @interface TestDto1 {
     }
@@ -294,17 +320,37 @@ public class OpenApiTestControllers {
         assertTrue(testDtoProjection1Schema.getProperties().containsKey("name"));
         assertTrue(testDtoProjection1Schema.getProperties().containsKey("age"));
         assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDto"));
+        assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDtoList"));
         // Should not contain
         assertFalse(testDtoProjection1Schema.getProperties().containsKey("id"));
 
-        Schema<?> nestedDtoSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDto");
-        nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
+        // NestedDto
+        {
+            Schema<?> nestedDtoSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDto");
+            nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
 
-        assertNotNull(nestedDtoSchema);
-        assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDto"));
-        assertTrue(nestedDtoSchema.getProperties().containsKey("id"));
-        // Should not contain
-        assertFalse(nestedDtoSchema.getProperties().containsKey("nestedDto"));
+            assertNotNull(nestedDtoSchema);
+            assertTrue(nestedDtoSchema.getProperties().containsKey("id"));
+            // Should not contain
+            assertFalse(nestedDtoSchema.getProperties().containsKey("nestedDto"));
+        }
+
+        // NestedDto list
+        {
+            Schema<?> nestedDtoListSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDtoList");
+
+            assertNotNull(nestedDtoListSchema);
+            Schema<?> itemsSchema = nestedDtoListSchema.getItems();
+            // It is a ListOperation, find the value
+            itemsSchema = SchemaBuilderUtils.findReferencedModel(openAPI, itemsSchema);
+            itemsSchema = itemsSchema.getProperties().get("value");
+
+            itemsSchema = SchemaBuilderUtils.findReferencedModel(openAPI, itemsSchema);
+            assertTrue(itemsSchema.getProperties().containsKey("id"));
+            // Should not contain
+            assertFalse(itemsSchema.getProperties().containsKey("nestedDto"));
+
+        }
 
     }
 

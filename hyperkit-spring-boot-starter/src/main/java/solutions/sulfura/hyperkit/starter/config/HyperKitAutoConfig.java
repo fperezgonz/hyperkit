@@ -27,7 +27,6 @@ import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @AutoConfiguration
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
@@ -119,18 +118,16 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
         ArrayList<ProjectedSchemaBuilder.StackProcessor> stackProcessors = new ArrayList<>();
 
         stackProcessors.add(new SchemaReferenceStackProcessor());
-        stackProcessors.add(new ArrayStackProcessor());
-        stackProcessors.add(new DtoProjectionStackProcessor());
         stackProcessors.add(
                 new TypeReferenceStackProcessor(
                         ValueWrapper.class,
                         HttpEntity.class,
                         RequestEntity.class,
-                        ResponseEntity.class,
-                        List.class,
-                        Set.class
+                        ResponseEntity.class
                 )
         );
+        stackProcessors.add(new ArrayStackProcessor());
+        stackProcessors.add(new DtoProjectionStackProcessor());
         stackProcessors.add(new DefaultObjectStackProcessor());
 
         return new ProjectionOpenApiCustomizer(requestMappingHandlerMapping, stackProcessors);

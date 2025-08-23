@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import static solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.buildSchemaForStack;
-import static solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils.isObjectType;
 
 
 /**
@@ -23,10 +22,6 @@ public class TypeReferenceStackProcessor implements StackProcessor {
 
     private final Set<Class<?>> referenceTypes;
 
-    public TypeReferenceStackProcessor(Set<Class<?>> referenceTypes) {
-        this.referenceTypes = referenceTypes;
-    }
-
     public TypeReferenceStackProcessor(Class<?>... referenceTypes) {
         this.referenceTypes = new HashSet<>(Arrays.asList(referenceTypes));
     }
@@ -34,14 +29,11 @@ public class TypeReferenceStackProcessor implements StackProcessor {
     @Override
     public boolean canProcess(StackData stackData) {
 
-        if (!isObjectType(stackData.schema)) {
-            return false;
-        }
-
         if (!(stackData.schemaTargetType instanceof ParameterizedType parameterizedType)) {
             return false;
         }
 
+        //noinspection SuspiciousMethodCalls
         return referenceTypes.contains(parameterizedType.getRawType());
 
     }
