@@ -4,6 +4,7 @@ import jakarta.persistence.Id;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,8 @@ public class HyperMapperPropertyUtils {
 
     private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<String, PropertyDescriptor>> descriptorMapCache = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<Class<?>, PropertyDescriptor> idsCache = new ConcurrentHashMap<>();
-    private static final PropertyDescriptor NULL_MARKER = new PropertyDescriptor() {};
+    private static final PropertyDescriptor NULL_MARKER = new PropertyDescriptor() {
+    };
 
     public static <D> Object getProperty(D object, String propertyName) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         ConcurrentHashMap<String, PropertyDescriptor> descriptors = getPropertiesMap(object.getClass());
@@ -212,17 +214,14 @@ public class HyperMapperPropertyUtils {
 
     private static Method findSetter(Class<?> type, String propertyName) {
 
-        try {
+        Method result = Arrays.stream(type.getMethods())
+                .filter(m -> m.getName().equals("set" + capitalize(propertyName)))
+                .filter(m -> m.getParameterCount() == 1)
+                .filter(m -> m.getReturnType() == void.class)
+                .findFirst()
+                .orElse(null);
 
-            Method result = type.getMethod("set" + capitalize(propertyName));
-            if (result.getParameterCount() == 1 && result.getReturnType() == void.class) {
-                return result;
-            }
-
-        } catch (NoSuchMethodException ignore) {
-        }
-
-        return null;
+        return result;
 
     }
 
@@ -242,7 +241,7 @@ public class HyperMapperPropertyUtils {
         private ConcurrentHashMap<Class<? extends Annotation>, Annotation[]> annotationsByType;
 
 
-        private PropertyDescriptor(){
+        private PropertyDescriptor() {
             declaringType = null;
             propertyName = null;
             getter = null;
@@ -252,6 +251,7 @@ public class HyperMapperPropertyUtils {
             containedType = null;
             annotationsByType = null;
         }
+
         private PropertyDescriptor(Class<?> declaringType, String propertyName) {
 
             this.declaringType = declaringType;

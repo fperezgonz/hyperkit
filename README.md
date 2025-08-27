@@ -20,8 +20,6 @@ For detailed documentation on each module, please refer to the module-specific R
 
 ### Adding Hyperkit to Your Project
 
-
-
 To use Hyperkit in your Spring Boot project, add the hyperkit-spring-boot-starter dependency:
 
 #### Gradle

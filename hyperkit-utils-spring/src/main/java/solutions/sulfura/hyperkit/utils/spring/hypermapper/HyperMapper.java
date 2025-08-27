@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUtils.PropertyDescriptor;
 
@@ -349,7 +350,7 @@ public class HyperMapper<C> {
 
     private <E> Object mapEntityPropertyToDtoProperty(E entity, DtoProjection<? extends Dto<E>> dtoProjection, PropertyDescriptor propertyDescriptor) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-        //Get value from entity and map it to the dto
+        //Get value from the entity and map it to the dto
         var entityPropertyValue = HyperMapperPropertyUtils.getProperty(entity, propertyDescriptor.getPropertyName());
         FieldConf fieldConf = ((FieldConf) HyperMapperPropertyUtils.getProperty(dtoProjection, propertyDescriptor.getPropertyName()));
         Object wrappedValue;
@@ -368,16 +369,23 @@ public class HyperMapper<C> {
         } else if (entityPropertyValue instanceof Collection<?> collectionProperty) {
 
             //Create an instance of the adequate collection type
-            Collection<ListOperation<Dto<?>>> values =
-                    (collectionProperty instanceof List<?>) ? new ArrayList<>() : new HashSet<>();
+            Collection<Object> values = collectionProperty instanceof List ? new ArrayList<>() : new HashSet<>();
 
-            //Cast to the right FieldConf type
-            DtoFieldConf nestedDtoConf = (DtoFieldConf<?>) fieldConf;
+            //Cast to the correct FieldConf type
+            if (fieldConf instanceof ListFieldConf) {
 
-            //Fill the collection
-            for (var element : collectionProperty) {
-                Dto<?> dtoFromEntityElement = mapEntityToDto(element, (Class<Dto>) propertyDescriptor.getContainedType(), nestedDtoConf.dtoProjection);
-                values.add(ListOperation.valueOf(dtoFromEntityElement));
+                values.addAll(collectionProperty);
+
+            } else {
+
+                DtoFieldConf nestedDtoConf = (DtoFieldConf<?>) fieldConf;
+
+                //Fill the collection
+                for (var element : collectionProperty) {
+                    Dto<?> dtoFromEntityElement = mapEntityToDto(element, (Class<Dto>) propertyDescriptor.getContainedType(), nestedDtoConf.dtoProjection);
+                    values.add(ListOperation.valueOf(dtoFromEntityElement));
+                }
+
             }
 
             wrappedValue = ValueWrapper.of(values);
