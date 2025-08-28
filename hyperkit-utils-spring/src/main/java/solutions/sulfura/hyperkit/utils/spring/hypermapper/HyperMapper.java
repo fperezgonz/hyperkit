@@ -100,8 +100,6 @@ public class HyperMapper<C> {
         // Iterate over each item in the collection and perform corresponding operations.
         for (Object item : collection) {
 
-            var itemEntityResult = new ToEntityResult<>();
-
             if (visitedEntities.contains(item)) {
                 continue;
             }
@@ -169,6 +167,12 @@ public class HyperMapper<C> {
                 // If not found in the repository throws an exception.
                 Object repositoryEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
                 removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName()), repositoryEntity);
+
+                var itemEntityResult = new ToEntityResult<>();
+                itemEntityResult.entity = repositoryEntity;
+                itemEntityResult.persistenceQueue.add(repositoryEntity);
+                result.add(itemEntityResult);
+
                 continue;
             }
 
@@ -179,8 +183,12 @@ public class HyperMapper<C> {
             //Retrieve or build the entity
             ToEntityResult<?> toEntityResult = mapDtoToEntity((Dto<?>) value, contextInfo, visitedEntities);
             Object childEntity = toEntityResult.getEntity();
+
+            var itemEntityResult = new ToEntityResult<>();
             itemEntityResult.entity = childEntity;
             itemEntityResult.persistenceQueue.addAll(0, toEntityResult.getPersistenceQueue());
+            result.add(itemEntityResult);
+
             //Set the parent on the new entity
             OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
             String mappedBy = oneToManyAnnotation == null ? null : oneToManyAnnotation.mappedBy();
