@@ -5,23 +5,42 @@ import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUt
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 import static solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUtils.getIdPropertyDescriptor;
 
 public class RelationshipManager {
 
-    public static void addElementToOneToManyProperty(Object parentEntity, String propertyName, Object childEntity) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public static void addToCollectionProperty(Object parentEntity, String propertyName, Object childEntity) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+
+        var propertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(parentEntity, propertyName);
 
         @SuppressWarnings("unchecked")
-        Collection<Object> collection = ((Collection<Object>) HyperMapperPropertyUtils.getProperty(parentEntity, propertyName));
+        Collection<Object> collection = ((Collection<Object>) propertyDescriptor.getValue(parentEntity));
 
         //Initialize the collection property if necessary
         if (collection == null) {
-            collection = new HashSet<>();
+
+            Class<?> collectionType = propertyDescriptor.getPropertyType();
+
+            if (collectionType == List.class) {
+                collection = new ArrayList<>();
+            } else if (collectionType == Set.class) {
+                collection = new HashSet<>();
+            } else {
+
+                try {
+                    //noinspection unchecked
+                    collection = (Collection<Object>) collectionType.getConstructor().newInstance();
+                } catch (InstantiationException e) {
+                    throw new RuntimeException("Automatic instantiation of collection type " + collectionType.getCanonicalName() +
+                            " not supported. Only collections with public no-args constructors are supported", e);
+                }
+
+            }
+
             HyperMapperPropertyUtils.setProperty(parentEntity, propertyName, collection);
+
         }
 
         //Add the element to the collection
@@ -29,7 +48,7 @@ public class RelationshipManager {
 
     }
 
-    private static void removeFromCollectionProperty(Object parentEntity, String propertyName, Object childEntity) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public static void removeFromCollectionProperty(Object parentEntity, String propertyName, Object childEntity) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
         @SuppressWarnings("unchecked")
         Collection<Object> collection = ((Collection<Object>) HyperMapperPropertyUtils.getProperty(parentEntity, propertyName));

@@ -235,6 +235,7 @@ public class HyperMapperPropertyUtils {
         public final Method setter;
         private final Field field;
         private final Class<?> fieldType;
+        private final Class<?> propertyType;
         //If the type is a "container" type, the type of the value held in the container, in other case it is the same as the type of the field
         private final Class<?> containedType;
         // Cache to store annotations of specific types for a property, combining annotations from the field, getter, and setter.
@@ -248,6 +249,7 @@ public class HyperMapperPropertyUtils {
             setter = null;
             field = null;
             fieldType = null;
+            propertyType = null;
             containedType = null;
             annotationsByType = null;
         }
@@ -266,6 +268,8 @@ public class HyperMapperPropertyUtils {
             } catch (NoSuchFieldException ignore) {
             }
 
+            Class<?> auxPropertyType = null;
+
             if (field == null) {
                 this.field = null;
                 this.fieldType = null;
@@ -273,6 +277,7 @@ public class HyperMapperPropertyUtils {
             } else {
                 this.field = field;
                 this.fieldType = field.getType();
+                auxPropertyType = fieldType;
                 try {
                     this.containedType = findContainedType(field.getGenericType());
                 } catch (RuntimeException e) {
@@ -280,6 +285,11 @@ public class HyperMapperPropertyUtils {
                 }
             }
 
+            if (this.getter != null) {
+                auxPropertyType = this.getter.getReturnType();
+            }
+
+            this.propertyType = auxPropertyType;
         }
 
         public Field getField() {
@@ -288,6 +298,10 @@ public class HyperMapperPropertyUtils {
 
         public Class<?> getFieldType() {
             return fieldType;
+        }
+
+        public Class<?> getPropertyType() {
+            return propertyType;
         }
 
         public Class<?> getContainedType() {

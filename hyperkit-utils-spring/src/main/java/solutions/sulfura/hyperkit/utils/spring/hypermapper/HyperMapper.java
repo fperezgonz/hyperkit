@@ -111,7 +111,20 @@ public class HyperMapper<C> {
             }
 
             if (!(listOperation.getValue() instanceof Dto<?> value)) {
-                throw new HyperMapperException("Only Dtos are supported collection elements on properties of Dtos of entities");
+
+                Object nonDtoValue = listOperation.getValue();
+
+                switch (listOperation.getOperationType()) {
+                    case ListOperation.ListOperationType.ADD:
+                        addToCollectionProperty(entity, propertyDescriptor.getPropertyName(), nonDtoValue);
+                        break;
+                    case ListOperation.ListOperationType.REMOVE:
+                        RelationshipManager.removeFromCollectionProperty(entity, propertyDescriptor.getPropertyName(), nonDtoValue);
+                        break;
+                }
+
+                continue;
+
             }
 
             PropertyDescriptor listValueIdPropertyDescriptor = getIdPropertyDescriptor(value.getSourceClass());
@@ -119,7 +132,7 @@ public class HyperMapper<C> {
                 throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + value.getSourceClass().getName());
             }
             var itemIdWrapper = HyperMapperPropertyUtils.getProperty(value, listValueIdPropertyDescriptor.getPropertyName());
-            Serializable itemId = (Serializable) (itemIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.get() : itemIdWrapper);
+            Serializable itemId = (Serializable) (itemIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.getOrNull() : itemIdWrapper);
 
             // Case INSERT; ensure the item does not have an ID.
             if (listOperation.getItemOperationType() == ListOperation.ItemOperationType.INSERT && itemId != null) {
@@ -177,7 +190,7 @@ public class HyperMapper<C> {
 
             // Case ADD: Add the new or updated entity to the collection property of the parent entity.
             if (listOperation.getOperationType() == ListOperation.ListOperationType.ADD) {
-                addElementToOneToManyProperty(entity, propertyDescriptor.getPropertyName(), childEntity);
+                addToCollectionProperty(entity, propertyDescriptor.getPropertyName(), childEntity);
             }
 
         }
@@ -374,13 +387,16 @@ public class HyperMapper<C> {
             //Cast to the correct FieldConf type
             if (fieldConf instanceof ListFieldConf) {
 
-                values.addAll(collectionProperty);
+                // Wrap each element in a ListOperation
+                for (var element : collectionProperty) {
+                    values.add(ListOperation.valueOf(element));
+                }
 
             } else {
 
                 DtoFieldConf nestedDtoConf = (DtoFieldConf<?>) fieldConf;
 
-                //Fill the collection
+                // Map each element and wrap it in a ListOperation
                 for (var element : collectionProperty) {
                     Dto<?> dtoFromEntityElement = mapEntityToDto(element, (Class<Dto>) propertyDescriptor.getContainedType(), nestedDtoConf.dtoProjection);
                     values.add(ListOperation.valueOf(dtoFromEntityElement));

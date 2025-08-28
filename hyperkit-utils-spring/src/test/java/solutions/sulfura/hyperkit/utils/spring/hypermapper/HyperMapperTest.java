@@ -1,19 +1,25 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
-import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.ManyToOneEntity;
-import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.ManyToOneEntityDto;
-import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.OneToManyEntity;
-import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.OneToManyEntityDto;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static solutions.sulfura.hyperkit.dtos.ListOperation.ListOperationType.ADD;
+import static solutions.sulfura.hyperkit.dtos.ListOperation.ItemOperationType.NONE;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +32,114 @@ class HyperMapperTest {
 
     @Autowired
     private HyperRepositoryImpl<Object> hyperRepository;
+
+    @Test
+    @DisplayName("Should map Entities with list properties containing types that cannot be mapped to Dtos")
+    @Transactional
+    void testMappingOfEntityWithNonDtosList() {
+        // Given an entity that as a Dto class
+        EntityWithPrimitiveList entity = new EntityWithPrimitiveList();
+        entity.name = "Test Entity";
+        entity.stringList = new ArrayList<>(Arrays.asList("value1", "value2", "value3"));
+        entity.integerList = new ArrayList<>(Arrays.asList(1, 2, 3));
+
+        hyperRepository.save(entity, null);
+
+        EntityWithPrimitiveListDto.Projection projection = ProjectionDsl.parse("id, name, stringList, integerList", EntityWithPrimitiveListDto.Projection.class);
+
+        // When mapping the entity to DTO
+        EntityWithPrimitiveListDto dto = dtoMapper.mapEntityToDto(entity, EntityWithPrimitiveListDto.class, projection);
+
+        // Then it should map as they are the contents of lists that contain items that cannot be mapped to dtos
+        assertNotNull(dto);
+        assertTrue(dto.stringList.isPresent());
+        assertEquals(3, dto.stringList.get().size());
+        assertEquals("value1", dto.stringList.get().get(0).getValue());
+        assertEquals("value2", dto.stringList.get().get(1).getValue());
+        assertEquals("value3", dto.stringList.get().get(2).getValue());
+        assertTrue(dto.integerList.isPresent());
+        assertEquals(3, dto.integerList.get().size());
+        assertEquals(1, dto.integerList.get().get(0).getValue());
+        assertEquals(2, dto.integerList.get().get(1).getValue());
+        assertEquals(3, dto.integerList.get().get(2).getValue());
+
+        // When the DTO receives changes and is mapped back to an entity
+        dto.name = ValueWrapper.of("Updated Name");
+
+        // Modify the string list: remove value2, add value4
+        List<ListOperation<String>> modifiedStringList = new ArrayList<>();
+        modifiedStringList.add(ListOperation.valueOf("value1", ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
+        modifiedStringList.add(ListOperation.valueOf("value2", ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE));
+        modifiedStringList.add(ListOperation.valueOf("value3", ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
+        modifiedStringList.add(ListOperation.valueOf("value4", ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT));
+        dto.stringList = ValueWrapper.of(modifiedStringList);
+
+        // Modify the integer list: remove 2, add 4
+        List<ListOperation<Integer>> modifiedIntegerList = new ArrayList<>();
+        modifiedIntegerList.add(ListOperation.valueOf(1, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
+        modifiedIntegerList.add(ListOperation.valueOf(2, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE));
+        modifiedIntegerList.add(ListOperation.valueOf(3, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
+        modifiedIntegerList.add(ListOperation.valueOf(4, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT));
+        dto.integerList = ValueWrapper.of(modifiedIntegerList);
+
+        // Persist DTO to entity
+        Object userContextInfo = new Object();
+        EntityWithPrimitiveList modifiedEntity = dtoMapper.persistDtoToEntity(dto, userContextInfo);
+
+        // Assert updated entity values
+        assertNotNull(modifiedEntity);
+        assertEquals(entity.id, modifiedEntity.id);
+        assertEquals("Updated Name", modifiedEntity.name);
+        assertEquals(3, modifiedEntity.stringList.size());
+        assertTrue(modifiedEntity.stringList.contains("value1"));
+        assertFalse(modifiedEntity.stringList.contains("value2"));
+        assertTrue(modifiedEntity.stringList.contains("value3"));
+        assertTrue(modifiedEntity.stringList.contains("value4"));
+        assertEquals(3, modifiedEntity.integerList.size());
+        assertTrue(modifiedEntity.integerList.contains(1));
+        assertFalse(modifiedEntity.integerList.contains(2));
+        assertTrue(modifiedEntity.integerList.contains(3));
+        assertTrue(modifiedEntity.integerList.contains(4));
+    }
+
+    @Test
+    @DisplayName("Should map DTOs with list properties containing non-dto types")
+    @Transactional
+    void testMappingOfDtosWithNonDtosList() {
+
+        // Given
+        EntityWithPrimitiveListDto dto = new EntityWithPrimitiveListDto.Builder()
+                .name(ValueWrapper.of("Test Entity"))
+                .stringList(ValueWrapper.of(Arrays.asList(
+                        ListOperation.valueOf("value1", ADD, NONE),
+                        ListOperation.valueOf("value2", ADD, NONE),
+                        ListOperation.valueOf("value3", ADD, NONE)
+                )))
+                .integerList(ValueWrapper.of(Arrays.asList(
+                                ListOperation.valueOf(1, ADD, NONE),
+                                ListOperation.valueOf(2, ADD, NONE),
+                                ListOperation.valueOf(3, ADD, NONE)
+                        )
+                ))
+                .build();
+
+        // When mapping the Dto to entity
+        EntityWithPrimitiveList entity = dtoMapper.mapDtoToEntity(dto, null).getEntity();
+
+        // Assert entity values
+        assertNotNull(entity);
+        assertNotNull(entity.stringList);
+        assertEquals(3, entity.stringList.size());
+        assertEquals("value1", entity.stringList.get(0));
+        assertEquals("value2", entity.stringList.get(1));
+        assertEquals("value3", entity.stringList.get(2));
+        assertNotNull(entity.integerList);
+        assertEquals(3, entity.integerList.size());
+        assertEquals(1, entity.integerList.get(0));
+        assertEquals(2, entity.integerList.get(1));
+        assertEquals(3, entity.integerList.get(2));
+
+    }
 
     /**
      * Test to verify a OneToManyEntity is saved correctly when a DTO is provided.
