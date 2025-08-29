@@ -112,7 +112,7 @@ public class OpenApiNestedRootProjectionTests {
 
         assertNotNull(schema);
 
-        Assertions.assertFalse(SchemaBuilderUtils.isArrayType(schema), "Schema is not an array");
+        Assertions.assertTrue(SchemaBuilderUtils.isArrayType(schema), "Schema is not an array");
         Schema<?> itemsSchema = schema.getItems();
         assertNotNull(itemsSchema);
 
