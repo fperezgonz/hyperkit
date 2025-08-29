@@ -293,15 +293,18 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
                                     String path,
                                     RequestMappingInfo mappingInfo) {
 
-        // Check if the handler method matches the operation
-        return mappingInfo.getMethodsCondition().getMethods().stream()
-                .anyMatch(method -> method.name().equals(httpMethod))
-                && (mappingInfo.getPatternsCondition() != null
+        boolean methodMatches = mappingInfo.getMethodsCondition().getMethods().stream()
+                .anyMatch(method -> method.name().equals(httpMethod));
+
+        boolean pathMatches = mappingInfo.getPatternsCondition() != null
                 && mappingInfo.getPatternsCondition().getPatterns().stream()
-                .anyMatch(pattern -> pattern.equals(path)))
-                || (mappingInfo.getPathPatternsCondition() != null
+                .anyMatch(pattern -> pattern.equals(path))
+                || mappingInfo.getPathPatternsCondition() != null
                 && mappingInfo.getPathPatternsCondition().getPatterns().stream()
-                .anyMatch(pattern -> pattern.toString().equals(path)));
+                .anyMatch(pattern -> pattern.toString().equals(path));
+
+        // Check if the handler method matches the operation
+        return methodMatches && pathMatches;
 
     }
 
@@ -403,6 +406,7 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
         schema = SchemaBuilderUtils.findReferencedModel(openApi, schema);
 
         DtoProjectionSpec projectionSpec = rootProjectionAnnotationInfo.targetAnnotation;
+        @SuppressWarnings("rawtypes")
         Class<? extends DtoProjection> projectionClass = findDefaultProjectionClass(projectionSpec.projectedClass());
         DtoProjection<?> projection = ProjectionDsl.parse(projectionSpec.value(), projectionClass);
 
