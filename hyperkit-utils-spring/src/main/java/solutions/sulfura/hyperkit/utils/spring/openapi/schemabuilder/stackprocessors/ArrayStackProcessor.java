@@ -5,11 +5,11 @@ import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.SchemaCreationResult;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackData;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.StackProcessor;
+import solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Objects;
 
 import static solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.buildSchemaForStack;
 
@@ -31,7 +31,7 @@ public class ArrayStackProcessor implements StackProcessor {
 
     @Override
     public boolean canProcess(StackData stackData) {
-        return Objects.equals(stackData.schema.getType(), "array");
+        return SchemaBuilderUtils.isArrayType(stackData.schema);
     }
 
     @Override

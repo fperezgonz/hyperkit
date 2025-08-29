@@ -32,6 +32,16 @@ public class SchemaBuilderUtils {
 
     }
 
+    public static boolean isArrayType(Schema<?> schema) {
+
+        if (Objects.equals(schema.getType(), "array")) {
+            return true;
+        }
+
+        return schema.getTypes() != null && schema.getTypes().contains("array");
+
+    }
+
     public static Class<?> getRawType(Type type) {
 
         if (type instanceof AnnotatedType annotatedType) {
