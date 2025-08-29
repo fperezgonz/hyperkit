@@ -6,7 +6,7 @@ import org.gradle.api.publish.PublishingExtension
 
 allprojects {
     group = "solutions.sulfura"
-    version = "5.0.3-RELEASE"
+    version = "5.0.4-SNAPSHOT"
 }
 
 subprojects {

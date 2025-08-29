@@ -11,6 +11,33 @@ import static solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPro
 
 public class RelationshipManager {
 
+    public static Collection<Object> collectionInstanceForType(Class<?> collectionType) {
+
+        if (collectionType == List.class) {
+
+            return new ArrayList<>();
+
+        } else if (collectionType == Set.class) {
+
+            return new HashSet<>();
+
+        } else {
+
+            try {
+
+                //noinspection unchecked
+                return (Collection<Object>) collectionType.getConstructor().newInstance();
+
+            } catch (InstantiationException | NoSuchMethodException | IllegalAccessException |
+                     InvocationTargetException e) {
+                throw new RuntimeException("Automatic instantiation of collection type " + collectionType.getCanonicalName() +
+                        " not supported. Only collections with public no-args constructors are supported", e);
+            }
+
+        }
+
+    }
+
     public static void addToCollectionProperty(Object parentEntity, String propertyName, Object childEntity) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
         var propertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(parentEntity, propertyName);
@@ -21,23 +48,7 @@ public class RelationshipManager {
         //Initialize the collection property if necessary
         if (collection == null) {
 
-            Class<?> collectionType = propertyDescriptor.getPropertyType();
-
-            if (collectionType == List.class) {
-                collection = new ArrayList<>();
-            } else if (collectionType == Set.class) {
-                collection = new HashSet<>();
-            } else {
-
-                try {
-                    //noinspection unchecked
-                    collection = (Collection<Object>) collectionType.getConstructor().newInstance();
-                } catch (InstantiationException e) {
-                    throw new RuntimeException("Automatic instantiation of collection type " + collectionType.getCanonicalName() +
-                            " not supported. Only collections with public no-args constructors are supported", e);
-                }
-
-            }
+            collection = collectionInstanceForType(propertyDescriptor.getPropertyType());
 
             HyperMapperPropertyUtils.setProperty(parentEntity, propertyName, collection);
 

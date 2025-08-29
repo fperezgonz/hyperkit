@@ -17,6 +17,7 @@ import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUt
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUtils.getIdPropertyDescriptor;
 import static solutions.sulfura.hyperkit.utils.spring.hypermapper.RelationshipManager.*;
@@ -72,20 +73,42 @@ public class HyperMapper<C> {
 
     }
 
+    @NonNull
+    public <T> List<T> persistDtosToEntities(@NonNull List<Dto<T>> dtos, C contextInfo) {
+
+        List<T> result = new ArrayList<>();
+        List<ToEntityResult<T>> toEntityResults = mapDtosToEntities(dtos, contextInfo);
+
+        for (int i = 0; i < toEntityResults.size(); i++) {
+
+            ToEntityResult<T> toEntityResult = toEntityResults.get(i);
+
+            for (int j = 0; j < toEntityResult.persistenceQueue.size(); j++) {
+                hyperRepository.save(toEntityResult.persistenceQueue.get(j), contextInfo);
+            }
+
+            result.add(toEntityResult.entity);
+
+        }
+
+        return result;
+
+    }
+
     /**
      * Maps a property of an entity that holds a collection of {@link ListOperation}, including adding, removing, and updating entities,
      * while maintaining relationships
      *
-     * @param entity             The parent entity whose collection property is being modified
-     * @param propertyDescriptor The property descriptor for the property that is being mapped
-     * @param collection         The collection with the {@link ListOperation} elements
-     * @param contextInfo        Extra contextual information for repository access
-     * @param visitedEntities    A hash set for tracking entities already processed
+     * @param entity                The parent entity whose collection property is being modified
+     * @param dtoPropertyDescriptor The property descriptor for the property that is being mapped
+     * @param collection            The collection with the {@link ListOperation} elements
+     * @param contextInfo           Extra contextual information for repository access
+     * @param visitedEntities       A hash set for tracking entities already processed
      * @return A list of ToEntityResult<?> objects representing updated or created entities
      */
     @NonNull
     private List<ToEntityResult<?>> mapListOperations(@NonNull Object entity,
-                                                      @NonNull PropertyDescriptor propertyDescriptor,
+                                                      @NonNull PropertyDescriptor dtoPropertyDescriptor,
                                                       @NonNull Collection<?> collection,
                                                       C contextInfo,
                                                       @NonNull HashSet<Object> visitedEntities) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
@@ -95,6 +118,25 @@ public class HyperMapper<C> {
         // If the collection is empty, return an empty result list as no processing is needed.
         if (collection.isEmpty()) {
             return result;
+        }
+
+        // If it is not a collection of dtos that are entities
+        if (!Dto.class.isAssignableFrom(dtoPropertyDescriptor.getContainedType())
+                || dtoPropertyDescriptor.getContainedType().getAnnotation(Entity.class) != null) {
+
+            var entityPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName());
+            Collection<Object> collectionToSet = RelationshipManager.collectionInstanceForType(entityPropertyDescriptor.getPropertyType());
+
+            collection.stream()
+                    .filter(item -> item instanceof ListOperation lop && lop.getOperationType() != ListOperation.ListOperationType.REMOVE)
+                    .map(item -> ((ListOperation) item).getValue())
+                    .map(item -> item instanceof Dto<?> dto ? mapDtoToObject(dto, contextInfo, visitedEntities) : item)
+                    .collect(Collectors.toCollection(() -> collectionToSet));
+
+            entityPropertyDescriptor.setValue(entity, collectionToSet);
+
+            return result;
+
         }
 
         // Iterate over each item in the collection and perform corresponding operations.
@@ -109,26 +151,15 @@ public class HyperMapper<C> {
             }
 
             if (!(listOperation.getValue() instanceof Dto<?> value)) {
-
-                Object nonDtoValue = listOperation.getValue();
-
-                switch (listOperation.getOperationType()) {
-                    case ListOperation.ListOperationType.ADD:
-                        addToCollectionProperty(entity, propertyDescriptor.getPropertyName(), nonDtoValue);
-                        break;
-                    case ListOperation.ListOperationType.REMOVE:
-                        RelationshipManager.removeFromCollectionProperty(entity, propertyDescriptor.getPropertyName(), nonDtoValue);
-                        break;
-                }
-
-                continue;
-
+                throw new HyperMapperException("Only Dtos are supported collection elements on properties of Dtos of entities");
             }
 
             PropertyDescriptor listValueIdPropertyDescriptor = getIdPropertyDescriptor(value.getSourceClass());
+
             if (listValueIdPropertyDescriptor == null) {
                 throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + value.getSourceClass().getName());
             }
+
             var itemIdWrapper = HyperMapperPropertyUtils.getProperty(value, listValueIdPropertyDescriptor.getPropertyName());
             Serializable itemId = (Serializable) (itemIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.getOrNull() : itemIdWrapper);
 
@@ -144,7 +175,7 @@ public class HyperMapper<C> {
                     throw new HyperMapperException("Unable to perform an UPDATE list operation, could not find the collection item on the repository");
                 }
 
-                boolean inCollection = oneToManyContains(entity, propertyDescriptor.getPropertyName(), itemId);
+                boolean inCollection = oneToManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
 
                 if (!inCollection) {
                     throw new HyperMapperException("Unable to perform an UPDATE using the ListOperation value, could not find the value on the collection of the repository entity");
@@ -158,7 +189,7 @@ public class HyperMapper<C> {
                     throw new HyperMapperException("Unable to perform a REMOVE list operation, could not find the item on the repository");
                 }
 
-                boolean inCollection = oneToManyContains(entity, propertyDescriptor.getPropertyName(), itemId);
+                boolean inCollection = oneToManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
 
                 if (!inCollection) {
                     throw new HyperMapperException("Unable to perform a REMOVE ListOperation, could not find the value on the collection of the repository entity");
@@ -166,7 +197,7 @@ public class HyperMapper<C> {
 
                 // If not found in the repository throws an exception.
                 Object repositoryEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
-                removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName()), repositoryEntity);
+                removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), repositoryEntity);
 
                 var itemEntityResult = new ToEntityResult<>();
                 itemEntityResult.entity = repositoryEntity;
@@ -190,7 +221,7 @@ public class HyperMapper<C> {
             result.add(itemEntityResult);
 
             //Set the parent on the new entity
-            OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
+            OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
             String mappedBy = oneToManyAnnotation == null ? null : oneToManyAnnotation.mappedBy();
             if (mappedBy != null) {
                 HyperMapperPropertyUtils.setProperty(childEntity, mappedBy, entity);
@@ -198,7 +229,7 @@ public class HyperMapper<C> {
 
             // Case ADD: Add the new or updated entity to the collection property of the parent entity.
             if (listOperation.getOperationType() == ListOperation.ListOperationType.ADD) {
-                addToCollectionProperty(entity, propertyDescriptor.getPropertyName(), childEntity);
+                addToCollectionProperty(entity, dtoPropertyDescriptor.getPropertyName(), childEntity);
             }
 
         }
@@ -222,6 +253,67 @@ public class HyperMapper<C> {
         return mapDtoToEntity(dto, contextInfo, new HashSet<>());
     }
 
+    @NonNull
+    public <T> List<ToEntityResult<T>> mapDtosToEntities(@NonNull List<Dto<T>> dtos, C contextInfo) {
+        List<ToEntityResult<T>> result = new ArrayList<>();
+        for (Dto<T> dto : dtos) {
+            result.add(mapDtoToEntity(dto, contextInfo));
+        }
+        return result;
+    }
+
+    protected <T> T mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashSet<Object> visitedEntities) {
+        Class<T> sourceClass = (Class<T>) dto.getSourceClass();
+        T result = null;
+
+        try {
+            result = sourceClass.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException
+                 | InvocationTargetException | NoSuchMethodException e) {
+            throw new HyperMapperException("Reflection exception while processing entity of type " + sourceClass.getName(), e);
+        }
+
+        Collection<PropertyDescriptor> dtoPropDescriptors = HyperMapperPropertyUtils.getProperties(dto.getClass());
+        Map<String, PropertyDescriptor> propDescriptorMap = HyperMapperPropertyUtils.getPropertiesMap(sourceClass);
+
+        for (PropertyDescriptor dtoPropertyDescriptor : dtoPropDescriptors) {
+
+            if (Objects.equals(dtoPropertyDescriptor.getPropertyName(), "sourceClass")) {
+                continue;
+            }
+
+            Object value = dtoPropertyDescriptor.getValue(dto);
+
+            if (value instanceof ValueWrapper<?> wrapper) {
+                if (wrapper.isEmpty()) {
+                    continue;
+                }
+                value = wrapper.getOrNull();
+            }
+
+            if (value instanceof Dto<?> nestedDto) {
+
+                value = mapDtoToObject((Dto<Object>) nestedDto, contextInfo, visitedEntities);
+
+            } else if (value instanceof Collection<?> coll) {
+
+                try {
+                    value = mapListOperations(result, dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
+                } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                    throw new HyperMapperException("Reflection exception while processing property " + dtoPropertyDescriptor.getPropertyName() + " of entity type " + sourceClass.getCanonicalName(), e);
+                }
+
+            }
+
+            var sourcePropertyDescriptor = propDescriptorMap.get(dtoPropertyDescriptor.getPropertyName());
+            sourcePropertyDescriptor.setValue(result, value);
+
+        }
+
+        return result;
+
+    }
+
     /**
      * Converts the given Data Transfer Object (DTO) into its corresponding entity, handling the mapping
      * of all DTO fields, relationships, and collections recursively. This method also ensures that
@@ -243,6 +335,14 @@ public class HyperMapper<C> {
         Class<Dto<T>> dtoClass = (Class<Dto<T>>) dto.getClass();
         //A Dto's generic parameter MUST always match its DtoFor annotation value, an invalid cast will always be a programming error
         Class<T> entityClass = (Class<T>) dto.getSourceClass();
+
+        //If it is not an entity, map it as a normal dto
+        if (entityClass.getAnnotation(Entity.class) == null) {
+            ToEntityResult<T> entityResult = new ToEntityResult<>();
+            entityResult.entity = mapDtoToObject(dto, contextInfo, visitedEntities);
+            return entityResult;
+        }
+
         //Entities MUST always have an @Id, so this MUST never be null
         PropertyDescriptor entityIdPropDesc = getIdPropertyDescriptor(entityClass);
         ToEntityResult<T> result = new ToEntityResult<>();
@@ -317,8 +417,7 @@ public class HyperMapper<C> {
                 if (unwrappedValue instanceof Collection<?> collectionValue) {
 
                     List<ToEntityResult<?>> listOperationsResult =
-                            mapListOperations(entity, propertyDescriptor, collectionValue, contextInfo
-                                    , visitedEntities);
+                            mapListOperations(entity, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
 
                     for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
                         result.persistenceQueue.addAll(0, listOperationsResultItem.getPersistenceQueue());
@@ -481,6 +580,19 @@ public class HyperMapper<C> {
             // Rethrow any reflection-related exception as a HyperMapperException
             throw new HyperMapperException("Reflection exception while processing entity of type " + entity.getClass().getCanonicalName(), e);
         }
+
+    }
+
+    @NonNull
+    public <R extends Dto<E>, E> List<R> mapEntitiesToDtos(@NonNull List<E> entities, @NonNull Class<R> dtoType, @NonNull DtoProjection<R> dtoProjection) {
+
+        List<R> result = new ArrayList<>();
+
+        for (E entity : entities) {
+            result.add(mapEntityToDto(entity, dtoType, dtoProjection));
+        }
+
+        return result;
 
     }
 
