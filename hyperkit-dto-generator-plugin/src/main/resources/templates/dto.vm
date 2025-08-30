@@ -1,6 +1,8 @@
 #set($lb="
 ")
 #macro( indent $indentLevel $bodyContent)
+    #if(!$indentLevel)#set($indentLevel=1)#end
+    #if($bodyContent == "" || !$bodyContent)#foreach($level in [1..$indentLevel])    #end#end
     #foreach($bodyLine in $bodyContent.lines().toList())
 ##      Write indents
         #foreach($level in [1..$indentLevel])    #end
@@ -8,8 +10,19 @@
 #*        *#$bodyLine#if(!${foreach.last})$lb#end##
     #end
 #end
+##
+#macro( typePath $type)
+#if(!$importsMap.get($type.qualifiedName))
+#**#${type.qualifiedName.replace($type.simpleName, "")}##
+#end
+##
+#end
+#macro( printType $type)
+#typePath($type)$type.simpleName#foreach($typeArg in $type.actualTypeArguments)<#printType($typeArg)>#end##
+#end
+##
 #macro(concatCollection $collection $separator)
-    #foreach($element in $collection)#if(!${foreach.first})$separator#end$element#end
+#foreach($element in $collection)#if(!${foreach.first})$separator#end$element#end
 #end
 package ${ctClass.package};
 
@@ -36,7 +49,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 
 #foreach($field in ${ctClass.fields})
     ##
-    #concatCollection($field.modifiers, " ") ${field.type} ${field.simpleName} = ValueWrapper.empty();$lb##
+    #concatCollection($field.modifiers, "") #printType($field.type) ${field.simpleName} = ValueWrapper.empty();$lb##
 #end
 
 #foreach($constructor in ${ctClass.constructors})
@@ -54,7 +67,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
     public static class Builder {
 
         #foreach($field in ${ctClass.fields})
-            #indent(2, ${field.type.toString()}) ${field.simpleName} = ValueWrapper.empty();$lb##
+            #indent(2)#printType($field.type) ${field.simpleName} = ValueWrapper.empty();$lb##
         #end
 
         public static Builder newInstance() {
@@ -63,7 +76,7 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
 
 ##      Builder methods
         #foreach($field in ${ctClass.fields})
-        public Builder ${field.simpleName}(final ${field.type} ${field.simpleName}){
+        public Builder ${field.simpleName}(final #printType($field.type) ${field.simpleName}){
             this.${field.simpleName} = ${field.simpleName} == null ? ValueWrapper.empty() : ${field.simpleName};
             return this;
         }

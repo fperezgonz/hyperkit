@@ -2,6 +2,7 @@ package solutions.sulfura
 
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
+import org.gradle.internal.cc.base.logger
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf
 import solutions.sulfura.processor.utils.implements
@@ -67,24 +68,30 @@ class SourceBuilder {
 
     fun buildVelocityContext(dtoCtClass: CtClass<*>, sourceCtClass: CtClass<*>): VelocityContext {
 
-        val imports = dtoCtClass.referencedTypes
+        val importsMap = dtoCtClass.referencedTypes
             .filter { referencedType -> !referencedType.qualifiedName.startsWith(dtoCtClass.qualifiedName) }
             .filter { referencedType -> !referencedType.isPrimitive }
             .filter { referencedType -> !isDefaultDtoProjection(referencedType) }
-            .distinctBy { it.qualifiedName }
-            .toMutableSet()
+            .distinctBy { it.simpleName }
+            .associateBy { it.qualifiedName }
+            .toMutableMap()
+
+        logger.error("importsMap: $importsMap")
 
         for (type in dtoCtClass.nestedTypes) {
             if (type.simpleName == "Projection") {
-                imports.add(dtoCtClass.factory.Class().createReference(ProjectionUtils::class.java))
-                imports.add(dtoCtClass.factory.Class().createReference(FieldConf.Presence::class.java))
+                importsMap.put("ProjectionUtils", dtoCtClass.factory.Class().createReference(ProjectionUtils::class.java))
+                importsMap.put("FieldConf.Presence", dtoCtClass.factory.Class().createReference(FieldConf.Presence::class.java))
             }
         }
+
+        val imports = importsMap.values
 
         val velocityContext = VelocityContext()
         velocityContext.put("sourceCtClass", sourceCtClass)
         velocityContext.put("ctClass", dtoCtClass)
         velocityContext.put("imports", imports)
+        velocityContext.put("importsMap", importsMap)
 
         return velocityContext
 

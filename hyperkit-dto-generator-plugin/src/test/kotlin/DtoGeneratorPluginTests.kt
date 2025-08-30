@@ -142,4 +142,14 @@ class DtoGeneratorPluginTests {
 
     }
 
+    @Test
+    fun referencesToClassesWithSameNameTest() {
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}SourceClassReferencesClassesWithSameNameDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}SourceClassReferencesClassesWithSameNameDto.java"
+        )
+
+    }
+
 }
