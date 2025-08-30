@@ -132,4 +132,14 @@ class DtoGeneratorPluginTests {
 
     }
 
+    @Test
+    fun referenceToNestedClassTest() {
+
+        assertGeneratedCodeMatchesExpectedOutput(
+            "${expectedOutputDir}java/${testDtoPackagePath}SourceClassWithReferenceToNestedClassDto.java",
+            "${outputSourcesPath}java/${testDtoPackagePath}SourceClassWithReferenceToNestedClassDto.java"
+        )
+
+    }
+
 }
