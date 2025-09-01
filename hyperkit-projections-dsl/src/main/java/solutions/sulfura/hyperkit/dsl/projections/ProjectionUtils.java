@@ -62,7 +62,13 @@ public class ProjectionUtils {
 
     public static class AnnotationInfo<D extends Annotation, M extends Annotation> {
         public AnnotatedType annotatedType;
+        /**
+         * This is the annotation on the type
+         */
         public D directAnnotation;
+        /**
+         * This is the annotation that you were looking for
+         */
         public M targetAnnotation;
 
         public AnnotationInfo() {
