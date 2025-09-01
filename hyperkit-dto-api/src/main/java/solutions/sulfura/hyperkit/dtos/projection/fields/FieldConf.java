@@ -1,5 +1,7 @@
 package solutions.sulfura.hyperkit.dtos.projection.fields;
 
+import java.util.Objects;
+
 /**
  * The purpose of this class is to define presence or absence of the field on processes that adhere to this configuration, such as database queries or request data
  * If a field is IGNORED, the field should be set with NONE and if the field is set with any other value, its value should be ignored by the processes using this config and treat it as NONE
@@ -22,6 +24,18 @@ public class FieldConf {
         FieldConf fieldConf = new FieldConf();
         fieldConf.presence = presence;
         return fieldConf;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldConf fieldConf = (FieldConf) o;
+        return presence == fieldConf.presence;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(presence);
     }
 
     public static FieldConf valueOf(Presence presence) {

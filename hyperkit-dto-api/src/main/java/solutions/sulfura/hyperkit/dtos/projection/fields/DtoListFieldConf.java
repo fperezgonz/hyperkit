@@ -2,6 +2,8 @@ package solutions.sulfura.hyperkit.dtos.projection.fields;
 
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
+import java.util.Objects;
+
 /**
  * The purpose of this class is to specify the list operations allowed in the process related to this configuration
  * see {@link FieldConf}
@@ -20,6 +22,20 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
 
     public static <T extends DtoProjection<?>> DtoListFieldConf<T> valueOf(Presence presence, T dtoProjection) {
         return of(presence, dtoProjection);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        DtoListFieldConf<?> that = (DtoListFieldConf<?>) o;
+        return allowInsert == that.allowInsert
+                && allowDelete == that.allowDelete;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), allowInsert, allowDelete);
     }
 
     public static final class DtoListConfBuilder<T extends DtoProjection<?>> {

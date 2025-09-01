@@ -2,6 +2,8 @@ package solutions.sulfura.hyperkit.dtos.projection.fields;
 
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
+import java.util.Objects;
+
 /**
  * The purpose of this class is to define presence or absence of the field on processes that adhere to this configuration, such as database queries or request data
  * ¿How should it handle permissions? If a field is declared as mandatory but the context has no permissions over it, then the process should fail. If a field is declared as IGNORED, the field should be set with NONE and if the field is set with another value, its value should be ignored by the processes using this config and treat it as NONE
@@ -20,6 +22,19 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
     public static <T extends DtoProjection<?>> DtoFieldConf<T> valueOf(Presence presence, T dtoProjection) {
         return of(presence, dtoProjection);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        DtoFieldConf<?> that = (DtoFieldConf<?>) o;
+        return Objects.equals(dtoProjection, that.dtoProjection);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), dtoProjection);
     }
 
     public static final class DtoFieldConfBuilder<T extends DtoProjection<?>> {
