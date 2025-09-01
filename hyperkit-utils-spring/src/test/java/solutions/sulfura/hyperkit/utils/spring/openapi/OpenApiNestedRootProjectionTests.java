@@ -76,9 +76,17 @@ public class OpenApiNestedRootProjectionTests {
         String content = result.getResponse().getContentAsString();
 
         OpenAPI openAPI = parseOpenApiSpec(content);
+        PathItem pathItem = openAPI.getPaths().get("/test-single-dto-projection-response");
 
         // Then the OpenAPI spec should contain the projected model
-        Schema<?> schema = openAPI.getComponents().getSchemas().get("TestDto1_SingleDtoResponseBodyTestDto_TestDto");
+        Schema<?> schema = pathItem.getGet().getResponses().get("200")
+                .getContent()
+                .get("*/*")
+                .getSchema();
+
+
+        schema = SchemaBuilderUtils.findReferencedModel(openAPI, schema);
+        schema = schema.getProperties().get("data");
         assertNotNull(schema);
 
         //Verify the items schema

@@ -42,14 +42,14 @@ public class ArrayStackProcessor implements StackProcessor {
         Schema<?> itemsSchema = schema.getItems();
 
         if (itemsSchema == null) {
-            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
         if (itemsSchema.get$ref() == null
                 && (itemsSchema.getType() == null || itemsSchema.getType().isBlank())
                 && (itemsSchema.getTypes() == null || itemsSchema.getTypes().isEmpty())
         ) {
-            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
         Type itemsType = getItemsType(stackData.schemaTargetType);
@@ -61,12 +61,13 @@ public class ArrayStackProcessor implements StackProcessor {
                 stackData.projectedClass,
                 stackData.rootProjectionAnnotationInfo,
                 stackData.currentNamespace,
-                stackData.schemaProcessingCounts);
+                stackData.schemaProcessingCounts,
+                stackData.schemaCache);
 
         SchemaCreationResult replicatedItemsSchemaResult = buildSchemaForStack(itemsStack, stackProcessors);
 
-        if (replicatedItemsSchemaResult.resultingSchema == itemsSchema) {
-            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+        if (!replicatedItemsSchemaResult.schemaHasChanged) {
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
         Schema<?> result = new Schema<>();

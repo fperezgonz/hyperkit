@@ -52,7 +52,8 @@ public class TypeReferenceStackProcessor implements StackProcessor {
                 stackData.projectedClass,
                 stackData.rootProjectionAnnotationInfo,
                 stackData.currentNamespace,
-                stackData.schemaProcessingCounts);
+                stackData.schemaProcessingCounts,
+                stackData.schemaCache);
 
         return buildSchemaForStack(nextStack, stackProcessors);
 

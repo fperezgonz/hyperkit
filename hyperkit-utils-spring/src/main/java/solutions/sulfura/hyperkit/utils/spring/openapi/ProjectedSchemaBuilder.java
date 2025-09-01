@@ -19,14 +19,26 @@ public class ProjectedSchemaBuilder {
     @NonNull
     public static SchemaCreationResult buildSchemaForStack(StackData stackData, List<StackProcessor> stackProcessors) {
 
+        ProjectedSchemaBuilder.SchemaCacheKey schemaCacheKey = ProjectedSchemaBuilder.SchemaCacheKey.valueOf(stackData);
+        Schema<?> resultingSchema = stackData.schemaCache.get(schemaCacheKey);
+
+        // If there is a matching schema in the cache, return the cached result
+        if (resultingSchema != null) {
+            boolean schemaHasChanged = !resultingSchema.equals(stackData.schema);
+            return new SchemaCreationResult(resultingSchema, stackData.schemaProcessingCounts, schemaHasChanged);
+        }
+
         for (StackProcessor stackProcessor : stackProcessors) {
             if (stackProcessor.canProcess(stackData)) {
-                return stackProcessor.processStack(stackData, stackProcessors);
+                SchemaCreationResult result = stackProcessor.processStack(stackData, stackProcessors);
+                stackData.schemaCache.put(schemaCacheKey, result.resultingSchema);
+                return result;
             }
         }
 
-        // If it was not processed, return the original schema (no schema was replicated)
-        return new SchemaCreationResult(stackData.schema, stackData.schemaProcessingCounts);
+        // If it was not processed and there is no matching schema in the cache, return the original schema (no schema was replicated)
+        stackData.schemaCache.put(schemaCacheKey, stackData.schema);
+        return new SchemaCreationResult(stackData.schema, stackData.schemaProcessingCounts, false);
 
     }
 
@@ -38,7 +50,8 @@ public class ProjectedSchemaBuilder {
             Class<? extends Dto> projectedClass,
             String rootNamespace,
             ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> rootProjectionAnnotationInfo,
-            List<StackProcessor> stackProcessors) {
+            List<StackProcessor> stackProcessors,
+            Map<SchemaCacheKey, Schema<?>> schemaCache) {
 
         ProjectedSchemaBuilder.StackData firstStack = new StackData(openApi,
                 schema,
@@ -47,7 +60,8 @@ public class ProjectedSchemaBuilder {
                 projectedClass,
                 rootProjectionAnnotationInfo,
                 rootNamespace,
-                null);
+                null,
+                schemaCache);
 
         return buildSchemaForStack(firstStack, stackProcessors);
 
@@ -65,19 +79,32 @@ public class ProjectedSchemaBuilder {
          */
         public Set<Schema<?>> newAnonymousSchemas;
         /**
+         * True if any of the resulting schema is different from the original property schema
+         */
+        public boolean schemaHasChanged;
+        /**
          * Stores the number of times a type has been processed within the current shema. Used in naming strategies to avoid collisions
          */
         public Map<String, Integer> schemaProcessingCounts = new HashMap<>();
 
-        public SchemaCreationResult(Schema<?> resultingSchema, @NonNull Map<String, Schema<?>> newNamedSchemas, @NonNull Set<Schema<?>> newAnonymousSchemas, @NonNull Map<String, Integer> schemaProcessingCounts) {
+        public SchemaCreationResult(Schema<?> resultingSchema,
+                                    @NonNull Map<String, Schema<?>> newNamedSchemas,
+                                    @NonNull Set<Schema<?>> newAnonymousSchemas,
+                                    @NonNull Map<String, Integer> schemaProcessingCounts,
+                                    boolean schemaHasChanged) {
+
             this.resultingSchema = resultingSchema;
             this.newNamedSchemas = newNamedSchemas;
             this.newAnonymousSchemas = newAnonymousSchemas;
             this.schemaProcessingCounts = schemaProcessingCounts;
+            this.schemaHasChanged = schemaHasChanged;
+
         }
 
-        public SchemaCreationResult(@NonNull Schema<?> resultingSchema, @NonNull Map<String, Integer> schemaProcessingCounts) {
-            this(resultingSchema, new HashMap<>(), new HashSet<>(), schemaProcessingCounts);
+        public SchemaCreationResult(@NonNull Schema<?> resultingSchema,
+                                    @NonNull Map<String, Integer> schemaProcessingCounts,
+                                    boolean schemaHasChanged) {
+            this(resultingSchema, new HashMap<>(), new HashSet<>(), schemaProcessingCounts, schemaHasChanged);
         }
 
         public void importSchemaProcessingCounts(StackData stackData) {
@@ -124,6 +151,7 @@ public class ProjectedSchemaBuilder {
          * Stores the number of times a type has been processed within the current shema. Used in naming strategies to avoid collisions
          */
         public Map<String, Integer> schemaProcessingCounts = new HashMap<>();
+        public Map<SchemaCacheKey, Schema<?>> schemaCache = new HashMap<>();
 
         public StackData(@NonNull OpenAPI openApi,
                          @NonNull Schema<?> schema,
@@ -132,7 +160,9 @@ public class ProjectedSchemaBuilder {
                          @NonNull Class<? extends Dto> projectedClass,
                          @NonNull AnnotationInfo<Annotation, DtoProjectionSpec> rootProjectionAnnotationInfo,
                          @NonNull String currentNamespace,
-                         Map<String, Integer> schemaProcessingCounts) {
+                         Map<String, Integer> schemaProcessingCounts,
+                         @NonNull Map<SchemaCacheKey, Schema<?>> schemaCache) {
+
             this.openApi = openApi;
             this.schema = schema;
             this.schemaTargetType = schemaTargetType;
@@ -140,15 +170,56 @@ public class ProjectedSchemaBuilder {
             this.projectedClass = projectedClass;
             this.rootProjectionAnnotationInfo = rootProjectionAnnotationInfo;
             this.currentNamespace = currentNamespace;
+
             if (schemaProcessingCounts != null) {
                 this.schemaProcessingCounts.putAll(schemaProcessingCounts);
             }
+
+            this.schemaCache = schemaCache;
+
         }
 
         public void importSchemaProcessingCounts(StackData stackData) {
             this.schemaProcessingCounts.putAll(stackData.schemaProcessingCounts);
         }
 
+    }
+
+    public static class SchemaCacheKey {
+        String namespace;
+        Schema<?> schema;
+        Type schemaTargetType;
+        DtoProjection<?> projection;
+        Class<? extends Dto> projectedClass;
+
+        public SchemaCacheKey() {
+        }
+
+        public static SchemaCacheKey valueOf(StackData stackData) {
+            SchemaCacheKey result = new SchemaCacheKey();
+            result.namespace = stackData.currentNamespace;
+            result.schema = stackData.schema;
+            result.schemaTargetType = stackData.schemaTargetType;
+            result.projection = stackData.projection;
+            result.projectedClass = stackData.projectedClass;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            SchemaCacheKey that = (SchemaCacheKey) o;
+            return Objects.equals(namespace, that.namespace)
+                    && Objects.equals(schema, that.schema)
+                    && Objects.equals(schemaTargetType, that.schemaTargetType)
+                    && Objects.equals(projection, that.projection)
+                    && Objects.equals(projectedClass, that.projectedClass);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(namespace, schema, schemaTargetType, projection, projectedClass);
+        }
     }
 
     public interface StackProcessor {

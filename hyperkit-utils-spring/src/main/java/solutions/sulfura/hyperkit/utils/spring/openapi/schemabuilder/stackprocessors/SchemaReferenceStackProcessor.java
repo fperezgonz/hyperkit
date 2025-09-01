@@ -32,12 +32,14 @@ public class SchemaReferenceStackProcessor implements StackProcessor {
                 stackData.projectedClass,
                 stackData.rootProjectionAnnotationInfo,
                 stackData.currentNamespace,
-                stackData.schemaProcessingCounts);
+                stackData.schemaProcessingCounts,
+                stackData.schemaCache);
 
         var result = buildSchemaForStack(referencedStackData, stackProcessors);
 
-        if(result.newNamedSchemas.isEmpty() && result.newAnonymousSchemas.isEmpty()){
-            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+        // If the resulting schema is the same as the referenced schema, return the reference
+        if (!result.schemaHasChanged) {
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
         return result;

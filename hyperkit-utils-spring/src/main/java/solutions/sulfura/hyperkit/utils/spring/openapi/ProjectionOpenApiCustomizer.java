@@ -40,6 +40,7 @@ import static solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDef
 public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
 
     private final Map<String, Schema<?>> projectedSchemas = new HashMap<>();
+    private final Map<ProjectedSchemaBuilder.SchemaCacheKey, Schema<?>> schemaCache = new HashMap<>();
     private final Map<OperationMediaType, AnnotationInfo<Annotation, DtoProjectionSpec>> schemaProjectionsByOperationMediaType = new HashMap<>();
     private final Map<Parameter, AnnotationInfo<Annotation, DtoProjectionSpec>> schemaProjectionsByParameter = new HashMap<>();
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
@@ -426,7 +427,9 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
                 projectionSpec.projectedClass(),
                 projectedSchemaName,
                 rootProjectionAnnotationInfo,
-                stackProcessors);
+                stackProcessors,
+                schemaCache);
+
         projectedSchemas.putAll(schemaCreationResult.newNamedSchemas);
 
         return schemaCreationResult.resultingSchema;

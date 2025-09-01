@@ -20,10 +20,7 @@ import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,7 +70,7 @@ public class OpenApiTestControllers {
             TestDto nested6 = new TestDto(4L, "Test4", 25, null, null);
             NestedTestDto nested5 = new NestedTestDto(3L, nested6);
             TestDto nested4 = new TestDto(3L, "Test3", 25, ValueWrapper.of(nested5), null);
-            NestedTestDto nested3 =new NestedTestDto(2L, nested4);
+            NestedTestDto nested3 = new NestedTestDto(2L, nested4);
             TestDto nested2 = new TestDto(2L, "Test2", 25, ValueWrapper.of(nested3), null);
             NestedTestDto nested1 = new NestedTestDto(1L, nested2);
 
@@ -206,7 +203,7 @@ public class OpenApiTestControllers {
             public ErrorSource source;
         }
 
-        public static class ErrorSource{
+        public static class ErrorSource {
             public String id;
         }
 
@@ -266,7 +263,25 @@ public class OpenApiTestControllers {
                 dto.nestedDto = ProjectionUtils.getProjectedValue(dto.nestedDto, this.nestedDto);
                 dto.nestedDtoList = ProjectionUtils.getProjectedValue(dto.nestedDtoList, this.nestedDtoList);
             }
+
+            @Override
+            public boolean equals(Object o) {
+                if (o == null || getClass() != o.getClass()) return false;
+                Projection that = (Projection) o;
+                return Objects.equals(id, that.id)
+                        && Objects.equals(name, that.name)
+                        && Objects.equals(age, that.age)
+                        && Objects.equals(nestedDto, that.nestedDto)
+                        && Objects.equals(nestedDtoList, that.nestedDtoList);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(id, name, age, nestedDto, nestedDtoList);
+            }
+
         }
+
     }
 
     /**
@@ -298,6 +313,19 @@ public class OpenApiTestControllers {
             public void applyProjectionTo(NestedTestDto dto) {
                 dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
                 dto.nestedDto = ProjectionUtils.getProjectedValue(dto.nestedDto, this.nestedDto);
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (o == null || getClass() != o.getClass()) return false;
+                Projection that = (Projection) o;
+                return Objects.equals(id, that.id)
+                        && Objects.equals(nestedDto, that.nestedDto);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(id, nestedDto);
             }
         }
     }

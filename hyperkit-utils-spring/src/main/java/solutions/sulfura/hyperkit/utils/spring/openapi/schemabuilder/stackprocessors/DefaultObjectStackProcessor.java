@@ -53,7 +53,7 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
         Schema<?> schema = stackData.schema;
 
-        if(schema.getProperties() == null) {
+        if (schema.getProperties() == null) {
             throw new IllegalArgumentException("Schema " + schema.getName() + " has no properties");
         }
 
@@ -61,75 +61,77 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         BeanDescription beanDescription = Json.mapper().getSerializationConfig().introspect(Json.mapper().constructType(schemaTargetType));
         Map<String, BeanPropertyDefinition> beanProperties = beanDescription.findProperties().stream()
                 .collect(Collectors.toMap(BeanPropertyDefinition::getName, propDef -> propDef));
-        // New nested namespace for properties
-        String newNamespace = getNameForCurrentType(stackData, stackData.schemaProcessingCounts);
+
         Map<String, Integer> schemaProcessingCounts = new HashMap<>();
-
         HashMap<String, SchemaCreationResult> schemaCreationResults = new HashMap<>();
+        Set<String> removedProperties = new HashSet<>();
 
-        schema.getProperties().forEach((propertyName, oldFieldSchema) -> {
+        //noinspection rawtypes
+        for (Map.Entry<String, Schema> entry : schema.getProperties().entrySet()) {
 
-                    if (!beanProperties.containsKey(propertyName)) {
-                        return;
-                    }
+            String propertyName = entry.getKey();
+            Schema<?> oldFieldSchema = entry.getValue();
 
-                    BeanPropertyDefinition beanPropertyDefinition = beanProperties.get(propertyName);
-                    Member propertyPrimaryMember = beanPropertyDefinition.getPrimaryMember().getMember();
+            if (!beanProperties.containsKey(propertyName)) {
+                removedProperties.add(propertyName);
+                continue;
+            }
 
-                    Type propertyType = null;
+            BeanPropertyDefinition beanPropertyDefinition = beanProperties.get(propertyName);
+            Member propertyPrimaryMember = beanPropertyDefinition.getPrimaryMember().getMember();
 
-                    if ((propertyPrimaryMember instanceof Field field)) {
-                        propertyType = field.getGenericType();
-                    } else if (propertyPrimaryMember instanceof Method method) {
+            Type propertyType = null;
 
-                        //Getter
-                        if (method.getParameterCount() == 0) {
-                            propertyType = method.getGenericReturnType();
-                        }
+            if ((propertyPrimaryMember instanceof Field field)) {
+                propertyType = field.getGenericType();
+            } else if (propertyPrimaryMember instanceof Method method) {
 
-                        // Setter
-                        else if (method.getParameterCount() == 1) {
-                            propertyType = method.getGenericParameterTypes()[0];
-                        }
-
-                    }
-
-                    if (propertyType instanceof TypeVariable<?> ||
-                            (propertyType instanceof ParameterizedType && schemaTargetType instanceof ParameterizedType)
-                    ) {
-                        propertyType = SchemaBuilderUtils.resolveTypeForField(schemaTargetType, propertyPrimaryMember, propertyType);
-                    }
-
-                    if (propertyType == null) {
-                        throw new RuntimeException("Unsupported property " + propertyName + " on " + schemaTargetType);
-                    }
-
-                    StackData fieldStackData = new StackData(
-                            stackData.openApi,
-                            oldFieldSchema,
-                            propertyType,
-                            stackData.projection,
-                            stackData.projectedClass,
-                            stackData.rootProjectionAnnotationInfo,
-                            newNamespace,
-                            schemaProcessingCounts);
-
-                    var schemaCreationResult = buildSchemaForStack(fieldStackData, stackProcessors);
-                    schemaCreationResults.put(propertyName, schemaCreationResult);
-                    schemaProcessingCounts.putAll(schemaCreationResult.schemaProcessingCounts);
+                //Getter
+                if (method.getParameterCount() == 0) {
+                    propertyType = method.getGenericReturnType();
                 }
 
-        );
+                // Setter
+                else if (method.getParameterCount() == 1) {
+                    propertyType = method.getGenericParameterTypes()[0];
+                }
+
+            }
+
+            if (propertyType instanceof TypeVariable<?> ||
+                    (propertyType instanceof ParameterizedType && schemaTargetType instanceof ParameterizedType)
+            ) {
+                propertyType = SchemaBuilderUtils.resolveTypeForField(schemaTargetType, propertyPrimaryMember, propertyType);
+            }
+
+            if (propertyType == null) {
+                throw new RuntimeException("Unsupported property " + propertyName + " on " + schemaTargetType);
+            }
+
+            StackData fieldStackData = new StackData(
+                    stackData.openApi,
+                    oldFieldSchema,
+                    propertyType,
+                    stackData.projection,
+                    stackData.projectedClass,
+                    stackData.rootProjectionAnnotationInfo,
+                    stackData.currentNamespace,
+                    schemaProcessingCounts,
+                    stackData.schemaCache);
+
+            var schemaCreationResult = buildSchemaForStack(fieldStackData, stackProcessors);
+
+            schemaCreationResults.put(propertyName, schemaCreationResult);
+            schemaProcessingCounts.putAll(schemaCreationResult.schemaProcessingCounts);
+        }
 
         // Use stackData.schemaProcessingCounts to pop the namespace
-        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts);
+        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts, removedProperties);
 
     }
 
     protected SchemaCreationResult buildNewSchemaForTargetType(StackData stackData,
-                                                               Map<String, Schema<?>> propertiesSchemas,
-                                                               Map<String, Schema<?>> newNamedSchemas,
-                                                               Set<Schema<?>> newAnonymousSchemas,
+                                                               PropertySchemaCreationResult propertySchemaCreationResult,
                                                                Map<String, Integer> schemaProcessingCounts
     ) {
 
@@ -146,13 +148,22 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         projectedSchema.setName(projectedSchemaName);
 
         // Add properties to the new schema
-        propertiesSchemas.forEach(projectedSchema::addProperty);
+        for (Map.Entry<String, SchemaCreationResult> entry : propertySchemaCreationResult.propertySchemas.entrySet()) {
+
+            String propertyName = entry.getKey();
+            SchemaCreationResult scr = entry.getValue();
+            projectedSchema.addProperty(propertyName, scr.resultingSchema);
+
+        }
 
         // Build the schema creation result
         // Create a new schema with only the projected fields
-        SchemaCreationResult result = new SchemaCreationResult(projectedSchema, schemaProcessingCounts);
-        result.newNamedSchemas.putAll(newNamedSchemas);
-        result.newAnonymousSchemas.addAll(newAnonymousSchemas);
+        SchemaCreationResult result = new SchemaCreationResult(projectedSchema,
+                propertySchemaCreationResult.getNewNamedSchemas(),
+                propertySchemaCreationResult.getNewAnonymousSchemas(),
+                schemaProcessingCounts,
+                propertySchemaCreationResult.isAnyPropertySchemaHasChanged() || propertySchemaCreationResult.isAnyPropertyBeenRemoved());
+
         result.newNamedSchemas.put(projectedSchemaName, projectedSchema);
         result.increaseSchemaProcessingCount(schema.getName());
 
@@ -177,34 +188,21 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         Schema<?> schema = stackData.schema;
 
         // If there are no properties, return the original schema
-        if(schema.getProperties() == null || schema.getProperties().isEmpty() ) {
-            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+        if (schema.getProperties() == null || schema.getProperties().isEmpty()) {
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
-        PropertySchemaCreationResult propertySchemaCreationResult = buildPropertySchemas(stackData, stackProcessors);
-        var schemaCreationResults = propertySchemaCreationResult.propertySchemas;
+        var propertySchemaCreationResult = buildPropertySchemas(stackData, stackProcessors);
+        boolean anyPropertySchemaHasChanged = propertySchemaCreationResult.isAnyPropertySchemaHasChanged();
+        boolean propertiesHaveBeenRemoved = !propertySchemaCreationResult.removedProperties.isEmpty();
 
-        // Collect new schemas
-
-        Map<String, Schema<?>> newNamedSchemas = schemaCreationResults.values().stream()
-                .flatMap(schemaCreationResult -> schemaCreationResult.newNamedSchemas.entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        Set<Schema<?>> newAnonymousSchemas = schemaCreationResults.values().stream()
-                .flatMap(schemaCreationResult -> schemaCreationResult.newAnonymousSchemas.stream())
-                .collect(Collectors.toSet());
-
-        boolean newSchemasCreated = !newNamedSchemas.isEmpty() || !newAnonymousSchemas.isEmpty();
-        boolean propertiesRemoved = schema.getProperties().size() != schemaCreationResults.size();
-
-        if (!newSchemasCreated && !propertiesRemoved) {
-            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts);
+        if (!propertiesHaveBeenRemoved && !anyPropertySchemaHasChanged) {
+            return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
-        Map<String, Schema<?>> propertiesSchemas = schemaCreationResults.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().resultingSchema));
-
-        return buildNewSchemaForTargetType(stackData, propertiesSchemas, newNamedSchemas, newAnonymousSchemas, propertySchemaCreationResult.schemaProcessingCounts);
+        return buildNewSchemaForTargetType(stackData,
+                propertySchemaCreationResult,
+                propertySchemaCreationResult.schemaProcessingCounts);
 
     }
 
@@ -213,11 +211,37 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         Map<String, SchemaCreationResult> propertySchemas;
         @NonNull
         Map<String, Integer> schemaProcessingCounts;
+        @NonNull
+        Set<String> removedProperties;
 
-        public PropertySchemaCreationResult(@NonNull Map<String, SchemaCreationResult> propertySchemas, @NonNull Map<String, Integer> schemaProcessingCounts) {
+        public PropertySchemaCreationResult(@NonNull Map<String, SchemaCreationResult> propertySchemas,
+                                            @NonNull Map<String, Integer> schemaProcessingCounts,
+                                            @NonNull Set<String> removedProperties) {
             this.propertySchemas = propertySchemas;
             this.schemaProcessingCounts = schemaProcessingCounts;
+            this.removedProperties = removedProperties;
         }
+
+        public boolean isAnyPropertySchemaHasChanged() {
+            return propertySchemas.values().stream().anyMatch(scr -> scr.schemaHasChanged);
+        }
+
+        public boolean isAnyPropertyBeenRemoved() {
+            return !removedProperties.isEmpty();
+        }
+
+        public Map<String, Schema<?>> getNewNamedSchemas() {
+            return propertySchemas.values().stream()
+                    .flatMap(schemaCreationResult -> schemaCreationResult.newNamedSchemas.entrySet().stream())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+
+        public Set<Schema<?>> getNewAnonymousSchemas() {
+            return propertySchemas.values().stream()
+                    .flatMap(schemaCreationResult -> schemaCreationResult.newAnonymousSchemas.stream())
+                    .collect(Collectors.toSet());
+        }
+
     }
 
 }

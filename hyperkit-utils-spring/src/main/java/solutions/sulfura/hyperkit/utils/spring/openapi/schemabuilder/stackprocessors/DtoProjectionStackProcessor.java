@@ -15,8 +15,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass;
 import static solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder.buildSchemaForStack;
@@ -48,7 +50,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
         Class<? extends DtoProjection> projectionClass = findDefaultProjectionClass(projectedClass);
 
         if (projectionClass == null) {
-            return new PropertySchemaCreationResult(new HashMap<>(), schemaProcessingCounts);
+            return new PropertySchemaCreationResult(new HashMap<>(), schemaProcessingCounts, new HashSet<>());
             // TODO log warning or error
         }
 
@@ -108,9 +110,15 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
                         projectedClass,
                         stackData.rootProjectionAnnotationInfo,
                         newNamespace,
-                        schemaProcessingCounts);
+                        schemaProcessingCounts,
+                        stackData.schemaCache);
 
                 SchemaCreationResult fieldSchemaResult = buildSchemaForStack(fieldStackData, stackProcessors);
+
+                if (fieldSchemaResult.resultingSchema != oldFieldSchema) {
+                    fieldSchemaResult.schemaHasChanged = true;
+                }
+
                 schemaCreationResults.put(projectionField.getName(), fieldSchemaResult);
                 schemaProcessingCounts.putAll(fieldSchemaResult.schemaProcessingCounts);
 
@@ -120,8 +128,16 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
         }
 
+        HashSet<String> removedProperties = new HashSet<>();
+
+        if (schema.getProperties() != null) {
+            schema.getProperties().keySet().stream()
+                    .filter(key -> !schemaCreationResults.containsKey(key))
+                    .collect(Collectors.toCollection(() -> removedProperties));
+        }
+
         // Using again stackData.schemaProcessingCounts to pop the namespace
-        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts);
+        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts, removedProperties);
 
     }
 
