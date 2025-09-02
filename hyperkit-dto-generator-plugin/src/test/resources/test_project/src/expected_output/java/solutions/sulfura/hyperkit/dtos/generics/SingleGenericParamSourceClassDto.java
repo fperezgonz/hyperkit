@@ -93,6 +93,22 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
             dto.genericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.genericPropertyWithSetter, this.genericPropertyWithSetter);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return genericProperty.equals(that.genericProperty)
+                       && nestedGenericProperty.equals(that.nestedGenericProperty)
+                       && genericPropertyWithGetter.equals(that.genericPropertyWithGetter)
+                       && genericPropertyWithSetter.equals(that.genericPropertyWithSetter);
+
+        }
+
         public static class Builder {
 
             FieldConf genericProperty;

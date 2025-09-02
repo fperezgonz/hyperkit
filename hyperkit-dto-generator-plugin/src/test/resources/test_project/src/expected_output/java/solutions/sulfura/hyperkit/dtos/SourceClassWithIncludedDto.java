@@ -100,6 +100,23 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded> 
             dto.stringPropertyWithSetterAndCustomAnnotation = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetterAndCustomAnnotation, this.stringPropertyWithSetterAndCustomAnnotation);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return stringProperty.equals(that.stringProperty)
+                       && stringPropertyWithCustomAnnotation.equals(that.stringPropertyWithCustomAnnotation)
+                       && stringPropertyWithGetter.equals(that.stringPropertyWithGetter)
+                       && stringPropertyWithSetter.equals(that.stringPropertyWithSetter)
+                       && stringPropertyWithSetterAndCustomAnnotation.equals(that.stringPropertyWithSetterAndCustomAnnotation);
+
+        }
+
         public static class Builder {
 
             FieldConf stringProperty;

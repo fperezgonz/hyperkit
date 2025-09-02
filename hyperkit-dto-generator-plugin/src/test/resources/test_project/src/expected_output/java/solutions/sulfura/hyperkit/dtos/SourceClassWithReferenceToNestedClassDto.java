@@ -62,6 +62,19 @@ public class SourceClassWithReferenceToNestedClassDto implements Dto<SourceClass
             dto.nestedClassReference = ProjectionUtils.getProjectedValue(dto.nestedClassReference, this.nestedClassReference);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return nestedClassReference.equals(that.nestedClassReference);
+
+        }
+
         public static class Builder {
 
             FieldConf nestedClassReference;

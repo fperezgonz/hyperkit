@@ -95,6 +95,22 @@ public class SourceClassADto implements Dto<SourceClassA> {
             dto.genericPropertyArray = ProjectionUtils.getProjectedValue(dto.genericPropertyArray, this.genericPropertyArray);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return property.equals(that.property)
+                       && propertyArray.equals(that.propertyArray)
+                       && genericProperty.equals(that.genericProperty)
+                       && genericPropertyArray.equals(that.genericPropertyArray);
+
+        }
+
         public static class Builder {
 
             DtoFieldConf<SourceClassBDto.Projection> property;

@@ -125,6 +125,20 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
         #end
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return #foreach($field in ${projectionType.fields})#if($foreach.count!=1)$lb##
+                       && #end${field.simpleName}.equals(that.${field.simpleName})#end;
+
+        }
+
 ###     Projection Builder class
         public static class Builder {
 

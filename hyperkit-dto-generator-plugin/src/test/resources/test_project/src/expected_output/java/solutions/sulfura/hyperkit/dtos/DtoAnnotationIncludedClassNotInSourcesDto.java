@@ -48,6 +48,19 @@ public class DtoAnnotationIncludedClassNotInSourcesDto implements Dto<DtoAnnotat
         public void applyProjectionTo(DtoAnnotationIncludedClassNotInSourcesDto dto) throws DtoProjectionException {
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return ;
+
+        }
+
         public static class Builder {
 
 

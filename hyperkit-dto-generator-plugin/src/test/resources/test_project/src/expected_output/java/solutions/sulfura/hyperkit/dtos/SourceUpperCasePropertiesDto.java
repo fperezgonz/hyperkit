@@ -80,6 +80,21 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
             dto.uPPERCASE_GETTER_PROPERTY = ProjectionUtils.getProjectedValue(dto.uPPERCASE_GETTER_PROPERTY, this.uPPERCASE_GETTER_PROPERTY);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return UPPERCASE_FIELD_PROPERTY.equals(that.UPPERCASE_FIELD_PROPERTY)
+                       && PRESERVE_UPPERCASE_GETTER_PROPERTY.equals(that.PRESERVE_UPPERCASE_GETTER_PROPERTY)
+                       && uPPERCASE_GETTER_PROPERTY.equals(that.uPPERCASE_GETTER_PROPERTY);
+
+        }
+
         public static class Builder {
 
             FieldConf UPPERCASE_FIELD_PROPERTY;

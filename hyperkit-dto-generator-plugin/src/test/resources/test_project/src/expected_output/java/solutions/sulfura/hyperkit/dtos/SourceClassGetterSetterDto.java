@@ -80,6 +80,21 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> 
             dto.stringPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.stringPropertyWithSetter, this.stringPropertyWithSetter);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return stringPropertyWithGetter.equals(that.stringPropertyWithGetter)
+                       && stringPropertyWithGetterAndSetter.equals(that.stringPropertyWithGetterAndSetter)
+                       && stringPropertyWithSetter.equals(that.stringPropertyWithSetter);
+
+        }
+
         public static class Builder {
 
             FieldConf stringPropertyWithGetter;

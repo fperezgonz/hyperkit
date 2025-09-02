@@ -71,6 +71,20 @@ public class SourceClassReferencesClassesWithSameNameDto implements Dto<SourceCl
             dto.sqlDateProperty = ProjectionUtils.getProjectedValue(dto.sqlDateProperty, this.sqlDateProperty);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return dateProperty.equals(that.dateProperty)
+                       && sqlDateProperty.equals(that.sqlDateProperty);
+
+        }
+
         public static class Builder {
 
             FieldConf dateProperty;

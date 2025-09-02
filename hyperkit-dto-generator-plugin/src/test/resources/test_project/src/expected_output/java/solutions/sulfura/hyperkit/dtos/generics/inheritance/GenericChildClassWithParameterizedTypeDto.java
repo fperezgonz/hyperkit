@@ -153,6 +153,28 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
             dto.inheritedGenericPropertyWithSetter = ProjectionUtils.getProjectedValue(dto.inheritedGenericPropertyWithSetter, this.inheritedGenericPropertyWithSetter);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return genericProperty.equals(that.genericProperty)
+                       && nestedGenericProperty.equals(that.nestedGenericProperty)
+                       && genericPropertyWithGetter.equals(that.genericPropertyWithGetter)
+                       && genericPropertyWithSetter.equals(that.genericPropertyWithSetter)
+                       && inheritedGenericProperty.equals(that.inheritedGenericProperty)
+                       && inheritedNestedGenericProperty.equals(that.inheritedNestedGenericProperty)
+                       && overlappingGenericProperty.equals(that.overlappingGenericProperty)
+                       && overlappingNestedGenericProperty.equals(that.overlappingNestedGenericProperty)
+                       && inheritedGenericPropertyWithGetter.equals(that.inheritedGenericPropertyWithGetter)
+                       && inheritedGenericPropertyWithSetter.equals(that.inheritedGenericPropertyWithSetter);
+
+        }
+
         public static class Builder {
 
             FieldConf genericProperty;

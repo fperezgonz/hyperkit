@@ -113,6 +113,24 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes> {
             dto.booleanArrayProperty = ProjectionUtils.getProjectedValue(dto.booleanArrayProperty, this.booleanArrayProperty);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return stringProperty.equals(that.stringProperty)
+                       && longProperty.equals(that.longProperty)
+                       && booleanProperty.equals(that.booleanProperty)
+                       && doubleProperty.equals(that.doubleProperty)
+                       && stringArrayProperty.equals(that.stringArrayProperty)
+                       && booleanArrayProperty.equals(that.booleanArrayProperty);
+
+        }
+
         public static class Builder {
 
             FieldConf stringProperty;
