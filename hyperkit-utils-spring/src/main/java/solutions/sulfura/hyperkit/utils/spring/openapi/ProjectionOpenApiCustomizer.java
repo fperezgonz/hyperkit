@@ -61,6 +61,8 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
 
         schemaProjectionsByOperationMediaType.clear();
         schemaProjectionsByParameter.clear();
+        projectedSchemas.clear();
+        schemaCache.clear();
 
         // First, collect all operations and their requests, responses and parameters
         schemaProjectionsByOperationMediaType.putAll(collectAnnotationInfoForOperationMediaTypes(openApi));
