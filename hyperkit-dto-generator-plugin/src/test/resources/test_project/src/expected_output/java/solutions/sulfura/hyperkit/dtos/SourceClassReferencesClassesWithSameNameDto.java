@@ -11,6 +11,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.SourceClassReferencesClassesWithSameName;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SourceClassReferencesClassesWithSameName.class)
 public class SourceClassReferencesClassesWithSameNameDto implements Dto<SourceClassReferencesClassesWithSameName> {
@@ -83,6 +84,12 @@ public class SourceClassReferencesClassesWithSameNameDto implements Dto<SourceCl
             return dateProperty.equals(that.dateProperty)
                        && sqlDateProperty.equals(that.sqlDateProperty);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(dateProperty,
+                    sqlDateProperty);
         }
 
         public static class Builder {

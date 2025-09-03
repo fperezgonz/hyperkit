@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.dtos.SourceUpperCaseProperties;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SourceUpperCaseProperties.class)
 public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperties> {
@@ -93,6 +94,13 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
                        && PRESERVE_UPPERCASE_GETTER_PROPERTY.equals(that.PRESERVE_UPPERCASE_GETTER_PROPERTY)
                        && uPPERCASE_GETTER_PROPERTY.equals(that.uPPERCASE_GETTER_PROPERTY);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(UPPERCASE_FIELD_PROPERTY,
+                    PRESERVE_UPPERCASE_GETTER_PROPERTY,
+                    uPPERCASE_GETTER_PROPERTY);
         }
 
         public static class Builder {

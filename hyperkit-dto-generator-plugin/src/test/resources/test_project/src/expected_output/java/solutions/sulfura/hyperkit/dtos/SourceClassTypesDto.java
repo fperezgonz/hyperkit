@@ -13,6 +13,7 @@ import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SourceClassTypes.class)
 public class SourceClassTypesDto implements Dto<SourceClassTypes> {
@@ -129,6 +130,16 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes> {
                        && stringArrayProperty.equals(that.stringArrayProperty)
                        && booleanArrayProperty.equals(that.booleanArrayProperty);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(stringProperty,
+                    longProperty,
+                    booleanProperty,
+                    doubleProperty,
+                    stringArrayProperty,
+                    booleanArrayProperty);
         }
 
         public static class Builder {

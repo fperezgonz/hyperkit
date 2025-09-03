@@ -13,6 +13,7 @@ import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(GenericChildClassWithParameterizedType.class)
 public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChildClassWithParameterizedType> {
@@ -173,6 +174,20 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
                        && inheritedGenericPropertyWithGetter.equals(that.inheritedGenericPropertyWithGetter)
                        && inheritedGenericPropertyWithSetter.equals(that.inheritedGenericPropertyWithSetter);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(genericProperty,
+                    nestedGenericProperty,
+                    genericPropertyWithGetter,
+                    genericPropertyWithSetter,
+                    inheritedGenericProperty,
+                    inheritedNestedGenericProperty,
+                    overlappingGenericProperty,
+                    overlappingNestedGenericProperty,
+                    inheritedGenericPropertyWithGetter,
+                    inheritedGenericPropertyWithSetter);
         }
 
         public static class Builder {

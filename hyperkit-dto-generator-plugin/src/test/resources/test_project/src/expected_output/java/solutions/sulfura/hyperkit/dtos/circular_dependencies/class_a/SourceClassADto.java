@@ -15,6 +15,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SourceClassA.class)
 public class SourceClassADto implements Dto<SourceClassA> {
@@ -109,6 +110,14 @@ public class SourceClassADto implements Dto<SourceClassA> {
                        && genericProperty.equals(that.genericProperty)
                        && genericPropertyArray.equals(that.genericPropertyArray);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(property,
+                    propertyArray,
+                    genericProperty,
+                    genericPropertyArray);
         }
 
         public static class Builder {

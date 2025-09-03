@@ -8,6 +8,7 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(DtoAnnotationIncludedClassNotInSources.class)
 public class DtoAnnotationIncludedClassNotInSourcesDto implements Dto<DtoAnnotationIncludedClassNotInSources> {
@@ -59,6 +60,11 @@ public class DtoAnnotationIncludedClassNotInSourcesDto implements Dto<DtoAnnotat
 
             return ;
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash();
         }
 
         public static class Builder {

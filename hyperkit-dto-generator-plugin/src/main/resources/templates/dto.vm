@@ -38,6 +38,7 @@ package ${ctClass.package};
 import ${importQualName.replace("$", ".")};
     #end
 #end
+import java.util.Objects;
 
 ### Class annotations
 #set($annotations = $ctClass.annotations)
@@ -137,6 +138,11 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
             return #foreach($field in ${projectionType.fields})#if($foreach.count!=1)$lb##
                        && #end${field.simpleName}.equals(that.${field.simpleName})#end;
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(#foreach($field in ${projectionType.fields})#if($foreach.count!=1),$lb#indent(5, "")#end${field.simpleName}#end);
         }
 
 ###     Projection Builder class

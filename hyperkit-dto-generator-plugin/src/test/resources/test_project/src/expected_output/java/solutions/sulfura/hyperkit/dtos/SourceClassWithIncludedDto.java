@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.dtos.SourceClassWithIncluded;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SourceClassWithIncluded.class)
 public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded> {
@@ -115,6 +116,15 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded> 
                        && stringPropertyWithSetter.equals(that.stringPropertyWithSetter)
                        && stringPropertyWithSetterAndCustomAnnotation.equals(that.stringPropertyWithSetterAndCustomAnnotation);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(stringProperty,
+                    stringPropertyWithCustomAnnotation,
+                    stringPropertyWithGetter,
+                    stringPropertyWithSetter,
+                    stringPropertyWithSetterAndCustomAnnotation);
         }
 
         public static class Builder {

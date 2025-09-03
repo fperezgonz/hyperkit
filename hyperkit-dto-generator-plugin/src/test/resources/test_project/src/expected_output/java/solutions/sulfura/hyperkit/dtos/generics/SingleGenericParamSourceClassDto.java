@@ -13,6 +13,7 @@ import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.projection.fields.ListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SingleGenericParamSourceClass.class)
 public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamSourceClass> {
@@ -107,6 +108,14 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
                        && genericPropertyWithGetter.equals(that.genericPropertyWithGetter)
                        && genericPropertyWithSetter.equals(that.genericPropertyWithSetter);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(genericProperty,
+                    nestedGenericProperty,
+                    genericPropertyWithGetter,
+                    genericPropertyWithSetter);
         }
 
         public static class Builder {

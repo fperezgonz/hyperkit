@@ -12,6 +12,7 @@ import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
 @DtoFor(SourceClassWithReferenceToNestedClass.class)
 public class SourceClassWithReferenceToNestedClassDto implements Dto<SourceClassWithReferenceToNestedClass> {
@@ -73,6 +74,11 @@ public class SourceClassWithReferenceToNestedClassDto implements Dto<SourceClass
 
             return nestedClassReference.equals(that.nestedClassReference);
 
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(nestedClassReference);
         }
 
         public static class Builder {
