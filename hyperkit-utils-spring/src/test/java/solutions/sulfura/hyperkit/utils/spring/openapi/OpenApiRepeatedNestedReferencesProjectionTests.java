@@ -34,8 +34,8 @@ public class OpenApiRepeatedNestedReferencesProjectionTests {
     }
 
     @Test
-    @DisplayName("OpenApi should apply projection to the generated model")
-    public void testOpenApiShouldApplyProjectionsToGeneratedModel() throws Exception {
+    @DisplayName("OpenApi should apply projection when the root projection contains multiple identical projections")
+    public void testOpenApiShouldApplyProjectionsToRootProjectionWithMultipleIdenticalProjectionsGeneratedModel() throws Exception {
         // Given a controller with a projection annotation on a Dto
 
         // When we get the OpenAPI spec
