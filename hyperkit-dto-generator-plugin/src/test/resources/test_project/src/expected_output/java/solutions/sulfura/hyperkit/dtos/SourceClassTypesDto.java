@@ -123,12 +123,12 @@ public class SourceClassTypesDto implements Dto<SourceClassTypes> {
 
             Projection that = (Projection) o;
 
-            return stringProperty.equals(that.stringProperty)
-                       && longProperty.equals(that.longProperty)
-                       && booleanProperty.equals(that.booleanProperty)
-                       && doubleProperty.equals(that.doubleProperty)
-                       && stringArrayProperty.equals(that.stringArrayProperty)
-                       && booleanArrayProperty.equals(that.booleanArrayProperty);
+            return  Objects.equals(stringProperty, that.stringProperty)
+                       && Objects.equals(longProperty, that.longProperty)
+                       && Objects.equals(booleanProperty, that.booleanProperty)
+                       && Objects.equals(doubleProperty, that.doubleProperty)
+                       && Objects.equals(stringArrayProperty, that.stringArrayProperty)
+                       && Objects.equals(booleanArrayProperty, that.booleanArrayProperty);
 
         }
 

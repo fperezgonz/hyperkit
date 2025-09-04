@@ -56,9 +56,7 @@ public class DtoAnnotationIncludedClassNotInSourcesDto implements Dto<DtoAnnotat
                 return false;
             }
 
-            Projection that = (Projection) o;
-
-            return ;
+            return true;
 
         }
 

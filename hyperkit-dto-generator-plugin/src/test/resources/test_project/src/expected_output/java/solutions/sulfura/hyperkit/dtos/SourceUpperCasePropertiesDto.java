@@ -90,9 +90,9 @@ public class SourceUpperCasePropertiesDto implements Dto<SourceUpperCaseProperti
 
             Projection that = (Projection) o;
 
-            return UPPERCASE_FIELD_PROPERTY.equals(that.UPPERCASE_FIELD_PROPERTY)
-                       && PRESERVE_UPPERCASE_GETTER_PROPERTY.equals(that.PRESERVE_UPPERCASE_GETTER_PROPERTY)
-                       && uPPERCASE_GETTER_PROPERTY.equals(that.uPPERCASE_GETTER_PROPERTY);
+            return  Objects.equals(UPPERCASE_FIELD_PROPERTY, that.UPPERCASE_FIELD_PROPERTY)
+                       && Objects.equals(PRESERVE_UPPERCASE_GETTER_PROPERTY, that.PRESERVE_UPPERCASE_GETTER_PROPERTY)
+                       && Objects.equals(uPPERCASE_GETTER_PROPERTY, that.uPPERCASE_GETTER_PROPERTY);
 
         }
 

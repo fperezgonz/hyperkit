@@ -163,16 +163,16 @@ public class GenericChildClassWithParameterizedTypeDto implements Dto<GenericChi
 
             Projection that = (Projection) o;
 
-            return genericProperty.equals(that.genericProperty)
-                       && nestedGenericProperty.equals(that.nestedGenericProperty)
-                       && genericPropertyWithGetter.equals(that.genericPropertyWithGetter)
-                       && genericPropertyWithSetter.equals(that.genericPropertyWithSetter)
-                       && inheritedGenericProperty.equals(that.inheritedGenericProperty)
-                       && inheritedNestedGenericProperty.equals(that.inheritedNestedGenericProperty)
-                       && overlappingGenericProperty.equals(that.overlappingGenericProperty)
-                       && overlappingNestedGenericProperty.equals(that.overlappingNestedGenericProperty)
-                       && inheritedGenericPropertyWithGetter.equals(that.inheritedGenericPropertyWithGetter)
-                       && inheritedGenericPropertyWithSetter.equals(that.inheritedGenericPropertyWithSetter);
+            return  Objects.equals(genericProperty, that.genericProperty)
+                       && Objects.equals(nestedGenericProperty, that.nestedGenericProperty)
+                       && Objects.equals(genericPropertyWithGetter, that.genericPropertyWithGetter)
+                       && Objects.equals(genericPropertyWithSetter, that.genericPropertyWithSetter)
+                       && Objects.equals(inheritedGenericProperty, that.inheritedGenericProperty)
+                       && Objects.equals(inheritedNestedGenericProperty, that.inheritedNestedGenericProperty)
+                       && Objects.equals(overlappingGenericProperty, that.overlappingGenericProperty)
+                       && Objects.equals(overlappingNestedGenericProperty, that.overlappingNestedGenericProperty)
+                       && Objects.equals(inheritedGenericPropertyWithGetter, that.inheritedGenericPropertyWithGetter)
+                       && Objects.equals(inheritedGenericPropertyWithSetter, that.inheritedGenericPropertyWithSetter);
 
         }
 

@@ -110,11 +110,11 @@ public class SourceClassWithIncludedDto implements Dto<SourceClassWithIncluded> 
 
             Projection that = (Projection) o;
 
-            return stringProperty.equals(that.stringProperty)
-                       && stringPropertyWithCustomAnnotation.equals(that.stringPropertyWithCustomAnnotation)
-                       && stringPropertyWithGetter.equals(that.stringPropertyWithGetter)
-                       && stringPropertyWithSetter.equals(that.stringPropertyWithSetter)
-                       && stringPropertyWithSetterAndCustomAnnotation.equals(that.stringPropertyWithSetterAndCustomAnnotation);
+            return  Objects.equals(stringProperty, that.stringProperty)
+                       && Objects.equals(stringPropertyWithCustomAnnotation, that.stringPropertyWithCustomAnnotation)
+                       && Objects.equals(stringPropertyWithGetter, that.stringPropertyWithGetter)
+                       && Objects.equals(stringPropertyWithSetter, that.stringPropertyWithSetter)
+                       && Objects.equals(stringPropertyWithSetterAndCustomAnnotation, that.stringPropertyWithSetterAndCustomAnnotation);
 
         }
 

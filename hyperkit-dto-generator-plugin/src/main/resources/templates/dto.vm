@@ -133,10 +133,14 @@ public class ${ctClass.simpleName} implements #concatCollection($ctClass.superIn
                 return false;
             }
 
+            #if($projectionType.fields.size==0)
+            return true;
+            #else
             Projection that = (Projection) o;
 
             return #foreach($field in ${projectionType.fields})#if($foreach.count!=1)$lb##
-                       && #end${field.simpleName}.equals(that.${field.simpleName})#end;
+                       &&#end Objects.equals(${field.simpleName}, that.${field.simpleName})#end;
+            #end
 
         }
 

@@ -72,7 +72,7 @@ public class SourceClassWithReferenceToNestedClassDto implements Dto<SourceClass
 
             Projection that = (Projection) o;
 
-            return nestedClassReference.equals(that.nestedClassReference);
+            return  Objects.equals(nestedClassReference, that.nestedClassReference);
 
         }
 

@@ -81,8 +81,8 @@ public class SourceClassReferencesClassesWithSameNameDto implements Dto<SourceCl
 
             Projection that = (Projection) o;
 
-            return dateProperty.equals(that.dateProperty)
-                       && sqlDateProperty.equals(that.sqlDateProperty);
+            return  Objects.equals(dateProperty, that.dateProperty)
+                       && Objects.equals(sqlDateProperty, that.sqlDateProperty);
 
         }
 

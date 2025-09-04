@@ -105,10 +105,10 @@ public class SourceClassBDto implements Dto<SourceClassB> {
 
             Projection that = (Projection) o;
 
-            return property.equals(that.property)
-                       && propertyArray.equals(that.propertyArray)
-                       && genericProperty.equals(that.genericProperty)
-                       && genericPropertyArray.equals(that.genericPropertyArray);
+            return  Objects.equals(property, that.property)
+                       && Objects.equals(propertyArray, that.propertyArray)
+                       && Objects.equals(genericProperty, that.genericProperty)
+                       && Objects.equals(genericPropertyArray, that.genericPropertyArray);
 
         }
 

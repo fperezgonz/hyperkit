@@ -103,10 +103,10 @@ public class SingleGenericParamSourceClassDto implements Dto<SingleGenericParamS
 
             Projection that = (Projection) o;
 
-            return genericProperty.equals(that.genericProperty)
-                       && nestedGenericProperty.equals(that.nestedGenericProperty)
-                       && genericPropertyWithGetter.equals(that.genericPropertyWithGetter)
-                       && genericPropertyWithSetter.equals(that.genericPropertyWithSetter);
+            return  Objects.equals(genericProperty, that.genericProperty)
+                       && Objects.equals(nestedGenericProperty, that.nestedGenericProperty)
+                       && Objects.equals(genericPropertyWithGetter, that.genericPropertyWithGetter)
+                       && Objects.equals(genericPropertyWithSetter, that.genericPropertyWithSetter);
 
         }
 

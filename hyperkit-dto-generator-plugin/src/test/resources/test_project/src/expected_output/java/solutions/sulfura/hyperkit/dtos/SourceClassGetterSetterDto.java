@@ -90,9 +90,9 @@ public class SourceClassGetterSetterDto implements Dto<SourceClassGetterSetter> 
 
             Projection that = (Projection) o;
 
-            return stringPropertyWithGetter.equals(that.stringPropertyWithGetter)
-                       && stringPropertyWithGetterAndSetter.equals(that.stringPropertyWithGetterAndSetter)
-                       && stringPropertyWithSetter.equals(that.stringPropertyWithSetter);
+            return  Objects.equals(stringPropertyWithGetter, that.stringPropertyWithGetter)
+                       && Objects.equals(stringPropertyWithGetterAndSetter, that.stringPropertyWithGetterAndSetter)
+                       && Objects.equals(stringPropertyWithSetter, that.stringPropertyWithSetter);
 
         }
 
