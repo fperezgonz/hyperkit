@@ -136,7 +136,6 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
                     .collect(Collectors.toCollection(() -> removedProperties));
         }
 
-        // Using again stackData.schemaProcessingCounts to pop the namespace
         return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts, removedProperties);
 
     }

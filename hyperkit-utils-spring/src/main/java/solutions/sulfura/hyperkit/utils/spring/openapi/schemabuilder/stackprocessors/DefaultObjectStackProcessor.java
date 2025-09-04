@@ -62,7 +62,6 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         Map<String, BeanPropertyDefinition> beanProperties = beanDescription.findProperties().stream()
                 .collect(Collectors.toMap(BeanPropertyDefinition::getName, propDef -> propDef));
 
-        Map<String, Integer> schemaProcessingCounts = new HashMap<>();
         HashMap<String, SchemaCreationResult> schemaCreationResults = new HashMap<>();
         Set<String> removedProperties = new HashSet<>();
 
@@ -116,16 +115,15 @@ public class DefaultObjectStackProcessor implements StackProcessor {
                     stackData.projectedClass,
                     stackData.rootProjectionAnnotationInfo,
                     stackData.currentNamespace,
-                    schemaProcessingCounts,
+                    stackData.schemaProcessingCounts,
                     stackData.schemaCache);
 
             var schemaCreationResult = buildSchemaForStack(fieldStackData, stackProcessors);
 
             schemaCreationResults.put(propertyName, schemaCreationResult);
-            schemaProcessingCounts.putAll(schemaCreationResult.schemaProcessingCounts);
+            stackData.schemaProcessingCounts.putAll(schemaCreationResult.schemaProcessingCounts);
         }
 
-        // Use stackData.schemaProcessingCounts to pop the namespace
         return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts, removedProperties);
 
     }

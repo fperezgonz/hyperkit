@@ -18,10 +18,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {
-        OpenApiTestControllers.RepeatedNestedReferencesProjectionOnResponseTestController.class
+        OpenApiTestControllers.DifferentNestedProjectionOnResponseTestController.class
 })
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
-public class OpenApiRepeatedNestedReferencesProjectionTests {
+public class OpenApiDifferentNestedReferencesProjectionTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -34,9 +34,9 @@ public class OpenApiRepeatedNestedReferencesProjectionTests {
     }
 
     @Test
-    @DisplayName("OpenApi should apply projection when the root projection contains multiple identical projections")
-    public void testOpenApiShouldApplyProjectionsToRootProjectionWithMultipleIdenticalProjections() throws Exception {
-        // Given a controller with a projection annotation on a Dto that contains multiple identical projections
+    @DisplayName("OpenApi should apply projection when the namespace contains multiple different projections for the same type")
+    public void testOpenApiShouldApplyProjectionsToNamespaceWithMultipleDifferentProjections() throws Exception {
+        // Given a controller with a projection annotation on a Dto that contains multiple different projections at the same namespace level
 
         // When we get the OpenAPI spec
         MvcResult result = mockMvc.perform(get("/v3/api-docs"))
@@ -48,8 +48,8 @@ public class OpenApiRepeatedNestedReferencesProjectionTests {
         OpenAPI openAPI = parseOpenApiJson(content);
 
         // Then the OpenAPI spec should contain the projected model
-        Schema<?> schema = openAPI.getComponents().getSchemas().get("RepeatedNestedReferencesProjection_TestDto");
-        OpenApiTestControllers.verifyRepeatedNestedReferencesProjectionSchema(openAPI, schema);
+        Schema<?> schema = openAPI.getComponents().getSchemas().get("DifferentNestedReferencesProjection_TestDto");
+        OpenApiTestControllers.verifyDifferentNestedReferencesProjectionSchema(openAPI, schema);
 
     }
 
