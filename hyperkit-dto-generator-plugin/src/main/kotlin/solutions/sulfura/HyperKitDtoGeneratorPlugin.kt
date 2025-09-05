@@ -1,5 +1,6 @@
 package solutions.sulfura
 
+import org.apache.velocity.Template
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
@@ -14,12 +15,15 @@ import java.io.File
 import java.time.Instant
 
 interface HyperKitDtoGeneratorConfigurationExtension {
-    /*Paths of the input sources*/
+    /**Paths of the input sources*/
     val inputPaths: SetProperty<String>
+
     /** Output path for the generated sources*/
     val rootOutputPath: Property<String>
+
     /** Default package where the generated DTOs will be placed. Default: solutions.sulfura.hyperkit.dtos*/
     val defaultOutputPackage: Property<String?>
+
     /** Velocity template used for DTO code generation */
     val templatePath: Property<String?>
 
@@ -28,8 +32,8 @@ interface HyperKitDtoGeneratorConfigurationExtension {
 @Suppress("unused")
 class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, templatePath: String): String {
-        return SourceBuilder().buildClassSource(ctClass, dtoCtClass, templatePath)
+    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, classTemplate: Template): String {
+        return buildClassSource(ctClass, dtoCtClass, classTemplate)
     }
 
     override fun apply(project: Project) {
@@ -104,17 +108,48 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
                 logger.info("${Instant.now()} - Generating DTOs...")
 
-                classesToProcess.list<CtClass<*>>().parallelStream().forEach { ctClass: CtClass<*> ->
-                    createDtoSourceFile(
-                        ctClass,
-                        spoon,
-                        extension.defaultOutputPackage.get(),
-                        extension.rootOutputPath.get(),
-                        extension.templatePath.get(),
-                        className__ctClass,
-                        project,
-                        logger
-                    )
+                val classTemplate = velocityEngine.getTemplate(extension.templatePath.get())
+
+                classesToProcess.list<CtClass<*>>().parallelStream().map { ctClass: CtClass<*> ->
+
+                    try {
+
+                        return@map createDtoSourceFileData(
+                            ctClass,
+                            spoon,
+                            extension.defaultOutputPackage.get(),
+                            extension.rootOutputPath.get(),
+                            classTemplate,
+                            className__ctClass,
+                            project,
+                            logger
+                        )
+
+                    } catch (e: Exception) {
+
+                        logger.error(
+                            "${Instant.now()} - ERROR: Error while processing class ${ctClass.qualifiedName}",
+                            e
+                        )
+                        throw e
+                    }
+                }.toList().parallelStream().forEach { sourceFileData ->
+
+                    try {
+
+                        val outFile = File(sourceFileData.outFilePath)
+
+                        outFile.parentFile.mkdirs()
+                        outFile.writeText(sourceFileData.contents)
+
+                    } catch (e: Exception) {
+
+                        logger.error(
+                            "${Instant.now()} - ERROR: Error creating file ${sourceFileData.outFilePath}",
+                            e
+                        )
+                        throw e
+                    }
                 }
 
                 logger.info("${Instant.now()} - Generating DTOs... DONE")
@@ -123,52 +158,48 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         }
     }
 
-    fun createDtoSourceFile(
+    fun createDtoSourceFileData(
         ctClass: CtClass<*>,
         spoon: SpoonAPI,
         defaultOutputPackage: String,
         rootOutputPath: String,
-        templatePath: String,
+        classTemplate: Template,
         className__ctClass: MutableMap<String, CtClass<*>>,
         project: Project,
         logger: Logger
-    ) {
+    ): SourceFileData {
 
-        try {
+        val collectedProperties = collectProperties(ctClass.reference, spoon.factory)
+        val collectedAnnotations = collectAnnotations(ctClass, spoon)
+        val oldDtoClass =
+            sourceClassToDtoClassReference(ctClass, spoon.factory, defaultOutputPackage)
+        val dtoClassPackage = oldDtoClass.`package`.qualifiedName
+        val dtoClassSimpleName = oldDtoClass.simpleName
+        val dtoClassQualifiedName = oldDtoClass.qualifiedName
 
-            val collectedProperties = collectProperties(ctClass.reference, spoon.factory)
-            val collectedAnnotations = collectAnnotations(ctClass, spoon)
-            val oldDtoClass =
-                sourceClassToDtoClassReference(ctClass, spoon.factory, defaultOutputPackage)
-            val dtoClassPackage = oldDtoClass.`package`.qualifiedName
-            val dtoClassSimpleName = oldDtoClass.simpleName
-            val dtoClassQualifiedName = oldDtoClass.qualifiedName
+        val dtoClass = buildOutputClass(
+            ctClass,
+            dtoClassQualifiedName,
+            className__ctClass,
+            collectedAnnotations,
+            collectedProperties,
+            spoon.factory
+        )
 
-            val dtoClass = buildOutputClass(
-                ctClass,
-                dtoClassQualifiedName,
-                className__ctClass,
-                collectedAnnotations,
-                collectedProperties,
-                spoon.factory
-            )
+        val classSourceCode = generateClassSourceCode(dtoClass, ctClass, classTemplate)
+        val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
+        val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
 
-            val classSourceCode = generateClassSourceCode(dtoClass, ctClass, templatePath)
-            val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
-            val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
-            val outFile = File(project.file(outFilePath).absolutePath)
-
-            outFile.parentFile.mkdirs()
-            outFile.writeText(classSourceCode)
-
-        } catch (e: Exception) {
-            logger.error(
-                "${Instant.now()} - ERROR: Error while processing class ${ctClass.qualifiedName}",
-                e
-            )
-            throw e
-        }
+        return SourceFileData(
+            contents = classSourceCode,
+            outFilePath = project.file(outFilePath).absolutePath
+        )
 
     }
+
+    data class SourceFileData(
+        val contents: String,
+        val outFilePath: String,
+    )
 
 }
