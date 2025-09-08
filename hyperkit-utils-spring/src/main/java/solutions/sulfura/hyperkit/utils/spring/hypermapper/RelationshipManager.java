@@ -251,7 +251,7 @@ public class RelationshipManager {
         if (nonOwningPropertyDescriptor != null) {
 
             //The non-owner property might be a collection, in that case remove the owner from the collection
-            if (Collection.class.isAssignableFrom(nonOwningPropertyDescriptor.getFieldType())) {
+            if (Collection.class.isAssignableFrom(nonOwningPropertyDescriptor.getPropertyType())) {
                 removeFromCollectionProperty(nonOwningEntity, nonOwningPropertyDescriptor.getPropertyName(), owningEntity);
             } else {
                 HyperMapperPropertyUtils.setProperty(nonOwningEntity, nonOwningPropertyDescriptor.getPropertyName(), null);
