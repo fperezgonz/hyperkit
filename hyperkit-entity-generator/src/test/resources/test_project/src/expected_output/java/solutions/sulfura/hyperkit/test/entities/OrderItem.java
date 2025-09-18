@@ -142,12 +142,12 @@ public class OrderItem {
         }
 
         public Builder orders(Orders orders) {
-            instance.userPreferences = orders;
+            instance.orders = orders;
             return this;
         }
 
         public Builder product(Product product) {
-            instance.userPreferences = product;
+            instance.product = product;
             return this;
         }
 

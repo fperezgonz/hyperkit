@@ -92,7 +92,7 @@ public class ${className} {
         #end
         #foreach($fk in $foreignKeys)
         public Builder ${fk.fieldName.replaceAll("Id$", "")}(${fk.targetClassName} ${fk.fieldName.replaceAll("Id$", "")}) {
-            instance.userPreferences = ${fk.fieldName.replaceAll("Id$", "")};
+            instance.${fk.fieldName.replaceAll("Id$", "")} = ${fk.fieldName.replaceAll("Id$", "")};
             return this;
         }
 

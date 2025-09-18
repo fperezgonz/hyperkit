@@ -132,7 +132,7 @@ public class Orders {
         }
 
         public Builder appUser(AppUser appUser) {
-            instance.userPreferences = appUser;
+            instance.appUser = appUser;
             return this;
         }
 

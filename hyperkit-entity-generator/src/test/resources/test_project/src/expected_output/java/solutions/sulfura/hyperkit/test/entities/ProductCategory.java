@@ -108,12 +108,12 @@ public class ProductCategory {
         }
 
         public Builder category(Category category) {
-            instance.userPreferences = category;
+            instance.category = category;
             return this;
         }
 
         public Builder product(Product product) {
-            instance.userPreferences = product;
+            instance.product = product;
             return this;
         }
 
