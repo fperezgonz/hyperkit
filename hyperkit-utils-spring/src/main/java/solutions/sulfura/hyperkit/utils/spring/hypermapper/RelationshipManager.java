@@ -78,7 +78,7 @@ public class RelationshipManager {
      * @throws IllegalAccessException    If the property is not accessible.
      * @throws NoSuchMethodException     If the getter method for the property is missing.
      */
-    public static boolean oneToManyContains(Object entity, String collectionPropertyName, Object itemId) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public static boolean toManyContains(Object entity, String collectionPropertyName, Object itemId) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
         @SuppressWarnings("unchecked")
         Collection<Object> collection = ((Collection<Object>) HyperMapperPropertyUtils.getProperty(entity, collectionPropertyName));
@@ -122,6 +122,14 @@ public class RelationshipManager {
 
         }
 
+        // ManyToMany non-owning side (mappedBy set)
+        var manyToManyAnnotation = entityPropertyDescriptor.getAnnotation(ManyToMany.class);
+        if (manyToManyAnnotation != null) {
+            if (manyToManyAnnotation.mappedBy() != null && !manyToManyAnnotation.mappedBy().isEmpty()) {
+                return manyToManyAnnotation;
+            }
+        }
+
         return null;
 
     }
@@ -144,6 +152,15 @@ public class RelationshipManager {
                 return oneToOneAnnotation;
             }
 
+        }
+
+        // ManyToMany owning side (JoinTable present on field)
+        var manyToManyAnnotation = entity1PropertyDescriptor.getAnnotation(ManyToMany.class);
+        if (manyToManyAnnotation != null) {
+            // If mappedBy is empty, this side owns the relationship
+            if (manyToManyAnnotation.mappedBy() == null || manyToManyAnnotation.mappedBy().isEmpty()) {
+                return manyToManyAnnotation;
+            }
         }
 
         return null;
@@ -189,9 +206,15 @@ public class RelationshipManager {
             nonOwningEntity = entity1;
             nonOwningPropertyDescriptor = entity1PropertyDescriptor;
 
-            String mappedBy = nonOwnerAnnotation instanceof OneToMany ?
-                    ((OneToMany) nonOwnerAnnotation).mappedBy()
-                    : ((OneToOne) nonOwnerAnnotation).mappedBy();
+            String mappedBy;
+
+            if (nonOwnerAnnotation instanceof OneToMany) {
+                mappedBy = ((OneToMany) nonOwnerAnnotation).mappedBy();
+            } else if (nonOwnerAnnotation instanceof OneToOne) {
+                mappedBy = ((OneToOne) nonOwnerAnnotation).mappedBy();
+            } else { // ManyToMany inverse side
+                mappedBy = ((ManyToMany) nonOwnerAnnotation).mappedBy();
+            }
 
             owningEntity = entity2;
             owningPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity2, mappedBy);
@@ -209,24 +232,37 @@ public class RelationshipManager {
 
                 owningPropertyDescriptor = entity1PropertyDescriptor;
                 owningEntity = entity1;
+                final String owningPropertyName = owningPropertyDescriptor.getPropertyName();
 
-                //Look for a OneToMany or a OneToOne annotation on the properties of entity2 whose mappedBy field matches this property descriptor
-                Class<? extends Annotation> mappingAnnotationType = ownerAnnotation instanceof ManyToOne ? OneToMany.class : OneToOne.class;
-
+                //Look for a mapping annotation on entity2 whose mappedBy field matches this property descriptor
                 nonOwningPropertyDescriptor = HyperMapperPropertyUtils.getProperties(entity2.getClass()).stream()
                         .filter(propDesc -> {
 
-                            Annotation auxMappingAnnotation = propDesc.getAnnotation(mappingAnnotationType);
+                            Annotation auxMappingAnnotation = propDesc.getAnnotation(OneToMany.class);
+
+                            if(auxMappingAnnotation == null) {
+                                auxMappingAnnotation = propDesc.getAnnotation(OneToOne.class);
+                            }
+
+                            if(auxMappingAnnotation == null) {
+                                auxMappingAnnotation = propDesc.getAnnotation(ManyToMany.class);
+                            }
 
                             if (auxMappingAnnotation == null) {
                                 return false;
                             }
 
-                            String mappedBy = auxMappingAnnotation instanceof OneToMany ?
-                                    ((OneToMany) auxMappingAnnotation).mappedBy()
-                                    : ((OneToOne) auxMappingAnnotation).mappedBy();
+                            String mappedBy;
 
-                            return Objects.equals(propDesc.getPropertyName(), mappedBy);
+                            if (auxMappingAnnotation instanceof OneToMany) {
+                                mappedBy = ((OneToMany) auxMappingAnnotation).mappedBy();
+                            } else if (auxMappingAnnotation instanceof OneToOne) {
+                                mappedBy = ((OneToOne) auxMappingAnnotation).mappedBy();
+                            } else {
+                                mappedBy = ((ManyToMany) auxMappingAnnotation).mappedBy();
+                            }
+
+                            return Objects.equals(mappedBy, owningPropertyName);
 
                         }).findFirst()
                         .orElse(null);
@@ -240,11 +276,15 @@ public class RelationshipManager {
 
         }
 
-        // Nullify or remove references between the owning and non-owning entities from both sides of the relationship.
-
+        // Nullify or remove references between the owning and non-owning entities from both sides of the relationship
         if (owningPropertyDescriptor != null) {
 
-            HyperMapperPropertyUtils.setProperty(owningEntity, owningPropertyDescriptor.getPropertyName(), null);
+            // If owning side property is a collection (e.g., ManyToMany owner), remove the specific element
+            if (Collection.class.isAssignableFrom(owningPropertyDescriptor.getPropertyType())) {
+                removeFromCollectionProperty(owningEntity, owningPropertyDescriptor.getPropertyName(), entity2);
+            } else {
+                HyperMapperPropertyUtils.setProperty(owningEntity, owningPropertyDescriptor.getPropertyName(), null);
+            }
 
         }
 

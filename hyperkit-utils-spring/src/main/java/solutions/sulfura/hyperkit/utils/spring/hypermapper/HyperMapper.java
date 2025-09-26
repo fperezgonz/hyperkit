@@ -175,27 +175,28 @@ public class HyperMapper<C> {
                     throw new HyperMapperException("Unable to perform an UPDATE list operation, could not find the collection item on the repository");
                 }
 
-                boolean inCollection = oneToManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
+                boolean inCollection = toManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
 
                 if (!inCollection) {
                     throw new HyperMapperException("Unable to perform an UPDATE using the ListOperation value, could not find the value on the collection of the repository entity");
                 }
+
             }
 
-            //Case REMOVE: remove from the relationship on both sides
+            // Case REMOVE: remove from the relationship on both sides
             if (listOperation.getOperationType() == ListOperation.ListOperationType.REMOVE) {
 
                 if (itemId == null) {
                     throw new HyperMapperException("Unable to perform a REMOVE list operation, could not find the item on the repository");
                 }
 
-                boolean inCollection = oneToManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
+                boolean inCollection = toManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
 
                 if (!inCollection) {
                     throw new HyperMapperException("Unable to perform a REMOVE ListOperation, could not find the value on the collection of the repository entity");
                 }
 
-                // If not found in the repository throws an exception.
+                // Throws an exception if the entity is not in the repository
                 Object repositoryEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
                 removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), repositoryEntity);
 
