@@ -509,7 +509,7 @@ class HyperMapperTest {
         // Child1 removed
         boolean containsChild1 = persisted.manyToOneEntities.stream().anyMatch(e -> child1.id.equals(e.id));
         assertFalse(containsChild1, "Child1 should have been removed from the parent's set");
-        boolean right1HasParent = child1.oneToManyEntity.equals(persisted);
+        boolean right1HasParent = child1.oneToManyEntity != null;
         assertFalse(right1HasParent, "Parent should be removed from Child1");
 
         // Child2 updated
