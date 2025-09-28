@@ -14,7 +14,7 @@ public class ManyToManyRightEntity {
 
     @DtoProperty
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     public Long id;
 

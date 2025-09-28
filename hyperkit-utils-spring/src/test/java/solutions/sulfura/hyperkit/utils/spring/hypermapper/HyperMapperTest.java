@@ -1,5 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,16 +14,16 @@ import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
+import solutions.sulfura.hyperkit.utils.spring.TransactionUtils;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static solutions.sulfura.hyperkit.dtos.ListOperation.ListOperationType.ADD;
-import static solutions.sulfura.hyperkit.dtos.ListOperation.ItemOperationType.NONE;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static solutions.sulfura.hyperkit.dtos.ListOperation.ItemOperationType.NONE;
+import static solutions.sulfura.hyperkit.dtos.ListOperation.ListOperationType.ADD;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -29,9 +31,12 @@ class HyperMapperTest {
 
     @Autowired
     private HyperMapper<Object> dtoMapper;
-
     @Autowired
     private HyperRepositoryImpl<Object> hyperRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
+    @Autowired
+    private TransactionUtils transactionUtils;
 
     @Test
     @DisplayName("Should map Entities with list properties containing types that cannot be mapped to Dtos")
@@ -232,6 +237,88 @@ class HyperMapperTest {
 
     }
 
+    @Test
+    @DisplayName("Persists a graph consisting of transient entities, the root entity being the non-owning side of the relationship")
+    @Transactional
+    void testPersistGraphOfTransientEntitiesWithNonOwningRoot() {
+
+        // Given: Two entities in a OneToManyRelationship
+        Object userContextInfo = new Object();
+        OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
+        oneToManyDto.name = ValueWrapper.of("New OneToMany");
+        oneToManyDto.description = ValueWrapper.of("New OneToMany Description");
+
+        ManyToOneEntityDto manyToOneDto = new ManyToOneEntityDto();
+        manyToOneDto.name = ValueWrapper.of("New ManyToOne");
+        manyToOneDto.description = ValueWrapper.of("New ManyToOne Description");
+//        manyToOneDto.oneToManyEntity = ValueWrapper.of(oneToManyDto);
+
+        oneToManyDto.manyToOneEntities = ValueWrapper.of(new java.util.HashSet<>());
+        oneToManyDto.manyToOneEntities.get().add(ListOperation.valueOf(manyToOneDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.UPSERT));
+
+        // When: the DTO is mapped and persisted
+        OneToManyEntity oneToManyPersisted = dtoMapper.persistDtoToEntity(oneToManyDto, userContextInfo);
+
+        // Then
+        assertNotNull(oneToManyPersisted);
+        // The field "name" keeps the original value
+        assertEquals(oneToManyDto.name.get(), oneToManyPersisted.name);
+        assertEquals(oneToManyDto.description.get(), oneToManyPersisted.description);
+        var manyToOnePersisted = oneToManyPersisted.manyToOneEntities.iterator().next();
+        // The field "name" keeps the original value
+        assertEquals(manyToOneDto.name.get(), manyToOnePersisted.name);
+        // The field "description" has been overwritten with the values name the DTO
+        assertEquals(manyToOneDto.description.get(), manyToOnePersisted.description);
+        assertEquals(1, oneToManyPersisted.manyToOneEntities.size());
+        // The retrieved entities are the same entities that were persisted
+        assertEquals(manyToOneDto.name.get(), manyToOnePersisted.name);
+        assertEquals(oneToManyDto.name.get(), manyToOnePersisted.oneToManyEntity.name);
+
+        entityManager.refresh(manyToOnePersisted);
+
+        // The relationships are persisted correctly
+        assertTrue(oneToManyPersisted.manyToOneEntities.contains(manyToOnePersisted));
+        assertSame(manyToOnePersisted.oneToManyEntity, oneToManyPersisted);
+
+    }
+
+    @Test
+    @DisplayName("Persists a graph consisting of transient entities, the root entity being the owning side of the relationship")
+    @Transactional
+    void testPersistGraphOfTransientEntitiesWithOwningRoot() {
+        // Given: Two entities in a OneToManyRelationship
+        Object userContextInfo = new Object();
+        OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
+        oneToManyDto.name = ValueWrapper.of("New OneToMany");
+        oneToManyDto.description = ValueWrapper.of("New OneToMany Description");
+
+        ManyToOneEntityDto manyToOneDto = new ManyToOneEntityDto();
+        manyToOneDto.name = ValueWrapper.of("New ManyToOne");
+        manyToOneDto.description = ValueWrapper.of("New ManyToOne Description");
+        manyToOneDto.oneToManyEntity = ValueWrapper.of(oneToManyDto);
+
+        // When: the DTO is mapped and persisted
+        ManyToOneEntity manyToOne = dtoMapper.persistDtoToEntity(manyToOneDto, userContextInfo);
+
+        // Then
+        assertNotNull(manyToOne);
+        // The fields of the root entity are mapped correctly
+        assertEquals(manyToOneDto.name.get(), manyToOne.name);
+        assertEquals(manyToOneDto.description.get(), manyToOne.description);
+        var oneToManyPersisted = manyToOne.oneToManyEntity;
+        assertNotNull(oneToManyPersisted);
+        // The fields of the nested entity are mapped correctly
+        assertEquals(oneToManyDto.name.get(), oneToManyPersisted.name);
+        assertEquals(oneToManyDto.description.get(), oneToManyPersisted.description);
+        /* After refreshing, the non-owning side of the relationship contains the new entities
+           (it does not contain them before because the non-owning side gets serialized first to prevent errors due to saving entities that own relationships to transient entities)
+        */
+        entityManager.refresh(oneToManyPersisted);
+        assertEquals(1, oneToManyPersisted.manyToOneEntities.size());
+        assertEquals(manyToOne, oneToManyPersisted.manyToOneEntities.iterator().next());
+
+    }
+
 
     /**
      * Test to verify that a nested ManyToOneEntity is saved correctly when included in a OneToManyEntityDto.
@@ -239,7 +326,7 @@ class HyperMapperTest {
     @Test
     @Transactional
     void testSaveOneToManyFromDto() {
-        // Arrange
+        // Given: Two entities in a OneToManyRelationship
         OneToManyEntity oneToMany = new OneToManyEntity();
         oneToMany.name = "OneToManyEntity";
         oneToMany.manyToOneEntities = new java.util.HashSet<>();
@@ -393,7 +480,6 @@ class HyperMapperTest {
         assertEquals(manyToOne2.id, remainingEntity.id);
     }
 
-
     /**
      * Test to verify mapping ManyToMany entities from Entity to DTO.
      */
@@ -449,7 +535,6 @@ class HyperMapperTest {
 
     @Test
     @DisplayName("Should persist Set modifications via ListOperation when using persistDtoToEntity")
-    @Transactional
     void testPersistSetModificationsWithListOperation() {
         // Given: a parent entity with two children
         OneToManyEntity parent = new OneToManyEntity();
@@ -499,33 +584,82 @@ class HyperMapperTest {
         parentDto.manyToOneEntities = ValueWrapper.of(ops);
 
         // When: persisting DTO to entity
-        OneToManyEntity persisted = dtoMapper.persistDtoToEntity(parentDto, null);
+        transactionUtils.runOnNewTransaction(() -> {
 
-        // Then: the relationship set reflects REMOVE/UPDATE/ADD
-        assertNotNull(persisted);
-        assertEquals(parent.id, persisted.id);
-        assertEquals(2, persisted.manyToOneEntities.size(), "Parent should have exactly two children after modifications");
+            OneToManyEntity persisted = dtoMapper.persistDtoToEntity(parentDto, null);
 
-        // Assert child1 has been removed
-        boolean containsChild1 = persisted.manyToOneEntities.stream().anyMatch(e -> child1.id.equals(e.id));
-        assertFalse(containsChild1, "Child1 should have been removed from the parent's set");
-        boolean right1HasParent = child1.oneToManyEntity != null;
-        assertFalse(right1HasParent, "Parent should be removed from Child1");
+            // Then: the relationship set reflects REMOVE/UPDATE/ADD
+            assertNotNull(persisted);
+            assertEquals(parent.id, persisted.id);
+            assertEquals(2, persisted.manyToOneEntities.size(), "Parent should have exactly two children after modifications");
 
-        // Assert child2 has been updated
-        ManyToOneEntity persistedChild2 = persisted.manyToOneEntities.stream()
-                .filter(e -> child2.id.equals(e.id))
-                .findFirst()
-                .orElse(null);
-        assertNotNull(persistedChild2, "Child2 should still be present");
-        assertEquals("Child2-updated", persistedChild2.description, "Child2 description should be updated");
-        assertNotNull(persistedChild2.oneToManyEntity);
-        assertEquals(parent.id, persistedChild2.oneToManyEntity.id);
+            // Child1 has been removed
+            boolean containsChild1 = persisted.manyToOneEntities.stream().anyMatch(e -> child1.id.equals(e.id));
+            assertFalse(containsChild1, "Child1 should have been removed from the parent's set");
+            var persistedChild1 = hyperRepository.findById(ManyToOneEntity.class, child1.id, null).orElseThrow();
+            boolean right1HasParent = persistedChild1.oneToManyEntity != null;
+            assertFalse(right1HasParent, "Parent should be removed from Child1");
 
-        // Assert child 3 has been added
-        boolean containsChild3 = persisted.manyToOneEntities.stream()
-                .anyMatch(e -> child3Dto.name.get().equals(e.name));
-        assertTrue(containsChild3, "Child3 should have been added to the parent's set");
+            // Child2 has been updated
+            ManyToOneEntity persistedChild2 = persisted.manyToOneEntities.stream()
+                    .filter(e -> child2.id.equals(e.id))
+                    .findFirst()
+                    .orElse(null);
+            assertNotNull(persistedChild2, "Child2 should still be present");
+            assertEquals("Child2-updated", persistedChild2.description, "Child2 description should be updated");
+            assertNotNull(persistedChild2.oneToManyEntity);
+            assertEquals(parent.id, persistedChild2.oneToManyEntity.id);
+
+            // Child 3 has been added
+            boolean containsChild3 = persisted.manyToOneEntities.stream()
+                    .anyMatch(e -> child3Dto.name.get().equals(e.name));
+            assertTrue(containsChild3, "Child3 should have been added to the parent's set");
+
+            // There are no other children
+            assertEquals(2, persisted.manyToOneEntities.size());
+
+            return null;
+
+        });
+
+        // Double check that after the transaction was commited everything is still fine
+        transactionUtils.runOnNewTransaction(() -> {
+
+            OneToManyEntity persisted = hyperRepository.findById(OneToManyEntity.class, parent.id, null).orElseThrow();
+
+            // Then: the relationship set reflects REMOVE/UPDATE/ADD
+            assertNotNull(persisted);
+            assertEquals(parent.id, persisted.id);
+            assertEquals(2, persisted.manyToOneEntities.size(), "Parent should have exactly two children after modifications");
+
+            // Assert child1 has been removed
+            boolean containsChild1 = persisted.manyToOneEntities.stream().anyMatch(e -> child1.id.equals(e.id));
+            assertFalse(containsChild1, "Child1 should have been removed from the parent's set");
+            var persistedChild1 = hyperRepository.findById(ManyToOneEntity.class, child1.id, null).orElseThrow();
+            boolean right1HasParent = persistedChild1.oneToManyEntity != null;
+            assertFalse(right1HasParent, "Parent should be removed from Child1");
+
+            // Assert child2 has been updated
+            ManyToOneEntity persistedChild2 = persisted.manyToOneEntities.stream()
+                    .filter(e -> child2.id.equals(e.id))
+                    .findFirst()
+                    .orElse(null);
+            assertNotNull(persistedChild2, "Child2 should still be present");
+            assertEquals("Child2-updated", persistedChild2.description, "Child2 description should be updated");
+            assertNotNull(persistedChild2.oneToManyEntity);
+            assertEquals(parent.id, persistedChild2.oneToManyEntity.id);
+
+            // Assert child 3 has been added
+            boolean containsChild3 = persisted.manyToOneEntities.stream()
+                    .anyMatch(e -> child3Dto.name.get().equals(e.name));
+            assertTrue(containsChild3, "Child3 should have been added to the parent's set");
+
+            // There are no other children
+            assertEquals(2, persisted.manyToOneEntities.size());
+
+            return null;
+
+        });
 
     }
 

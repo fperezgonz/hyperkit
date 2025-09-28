@@ -1,7 +1,9 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PersistenceContext;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import solutions.sulfura.hyperkit.dtos.Dto;
@@ -27,6 +29,8 @@ import static solutions.sulfura.hyperkit.utils.spring.hypermapper.RelationshipMa
 public class HyperMapper<C> {
 
     private final HyperRepository<C> hyperRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
     public HyperMapper(final HyperRepository<C> hyperRepository) {
@@ -69,6 +73,12 @@ public class HyperMapper<C> {
             hyperRepository.save(toEntityResult.persistenceQueue.get(i), contextInfo);
         }
 
+        entityManager.flush();
+
+        for (int i = 0; i < toEntityResult.persistenceQueue.size(); i++) {
+            entityManager.refresh(toEntityResult.persistenceQueue.get(i));
+        }
+
         return toEntityResult.entity;
 
     }
@@ -89,6 +99,12 @@ public class HyperMapper<C> {
 
             result.add(toEntityResult.entity);
 
+        }
+
+        entityManager.flush();
+
+        for (var entity : result) {
+            entityManager.refresh(entity);
         }
 
         return result;
@@ -414,14 +430,24 @@ public class HyperMapper<C> {
                     continue;
                 }
 
+
+                boolean isOwner = RelationshipManager.isRelationshipOwner(entity, propertyDescriptor.getPropertyName());
+
                 //Collections
                 if (unwrappedValue instanceof Collection<?> collectionValue) {
 
                     List<ToEntityResult<?>> listOperationsResult =
                             mapListOperations(entity, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
 
-                    for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
-                        result.persistenceQueue.addAll(0, listOperationsResultItem.getPersistenceQueue());
+                    //Non-owners have to be serialized first, or there will be serialization errors because of null ids on the owner columns
+                    if (isOwner) {
+                        for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
+                            prioritySerializationQueue.addAll(listOperationsResultItem.getPersistenceQueue());
+                        }
+                    } else {
+                        for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
+                            result.persistenceQueue.addAll(0, listOperationsResultItem.getPersistenceQueue());
+                        }
                     }
 
                     //Non-collections
@@ -433,11 +459,11 @@ public class HyperMapper<C> {
                         ToEntityResult<?> toEntityResult = mapDtoToEntity(dtoAux, contextInfo, visitedEntities);
                         unwrappedValue = toEntityResult.entity;
 
-                        //Non-owners have to be serialized first or there will be serialization errors because of null ids on the owner columns
-                        if (!RelationshipManager.isRelationshipOwner(entity, propertyDescriptor.getPropertyName())) {
-                            result.persistenceQueue.addAll(0, toEntityResult.persistenceQueue);
-                        } else {
+                        //Non-owners have to be serialized first, or there will be serialization errors because of null ids on the owner columns
+                        if (isOwner) {
                             prioritySerializationQueue.addAll(toEntityResult.persistenceQueue);
+                        } else {
+                            result.persistenceQueue.addAll(0, toEntityResult.persistenceQueue);
                         }
 
                     }

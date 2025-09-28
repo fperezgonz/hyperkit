@@ -171,8 +171,10 @@ public class RelationshipManager {
 
         PropertyDescriptor propertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity, fieldName);
 
+        // Owning side if it has a Column/JoinColumn/JoinTable annotation
         return propertyDescriptor.getAnnotation(Column.class) != null
-                || propertyDescriptor.getAnnotation(JoinColumn.class) != null;
+                || propertyDescriptor.getAnnotation(JoinColumn.class) != null
+                || propertyDescriptor.getAnnotation(JoinTable.class) != null;
 
     }
 
@@ -240,11 +242,11 @@ public class RelationshipManager {
 
                             Annotation auxMappingAnnotation = propDesc.getAnnotation(OneToMany.class);
 
-                            if(auxMappingAnnotation == null) {
+                            if (auxMappingAnnotation == null) {
                                 auxMappingAnnotation = propDesc.getAnnotation(OneToOne.class);
                             }
 
-                            if(auxMappingAnnotation == null) {
+                            if (auxMappingAnnotation == null) {
                                 auxMappingAnnotation = propDesc.getAnnotation(ManyToMany.class);
                             }
 
