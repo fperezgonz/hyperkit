@@ -394,7 +394,6 @@ class HyperMapperTest {
     }
 
 
-
     /**
      * Test to verify mapping ManyToMany entities from Entity to DTO.
      */
@@ -452,7 +451,7 @@ class HyperMapperTest {
     @DisplayName("Should persist Set modifications via ListOperation when using persistDtoToEntity")
     @Transactional
     void testPersistSetModificationsWithListOperation() {
-        // Given: parent with two children
+        // Given: a parent entity with two children
         OneToManyEntity parent = new OneToManyEntity();
         parent.name = "Parent";
         parent.manyToOneEntities = new java.util.HashSet<>();
@@ -474,7 +473,7 @@ class HyperMapperTest {
         hyperRepository.save(child1, null);
         hyperRepository.save(child2, null);
 
-        // And a DTO that removes child1, updates child2, and adds child3
+        // The corresponding DTOs
         OneToManyEntityDto parentDto = new OneToManyEntityDto();
         parentDto.id = ValueWrapper.of(parent.id);
 
@@ -486,12 +485,13 @@ class HyperMapperTest {
         child2Dto.description = ValueWrapper.of("Child2-updated");
         child2Dto.oneToManyEntity = ValueWrapper.of(parentDto);
 
+        // A DTO for a new entity
         ManyToOneEntityDto child3Dto = new ManyToOneEntityDto();
         child3Dto.name = ValueWrapper.of("Child3");
         child3Dto.description = ValueWrapper.of("Child3");
         child3Dto.oneToManyEntity = ValueWrapper.of(parentDto);
 
-        // Remove child1, update child2, add child3
+        // A List of operations that remove child1, update child2 and add child3
         java.util.Set<ListOperation<ManyToOneEntityDto>> ops = new java.util.HashSet<>();
         ops.add(ListOperation.valueOf(child1Dto, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE));
         ops.add(ListOperation.valueOf(child2Dto, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
@@ -506,27 +506,34 @@ class HyperMapperTest {
         assertEquals(parent.id, persisted.id);
         assertEquals(2, persisted.manyToOneEntities.size(), "Parent should have exactly two children after modifications");
 
-        // Child1 removed
+        // Assert child1 has been removed
         boolean containsChild1 = persisted.manyToOneEntities.stream().anyMatch(e -> child1.id.equals(e.id));
         assertFalse(containsChild1, "Child1 should have been removed from the parent's set");
         boolean right1HasParent = child1.oneToManyEntity != null;
         assertFalse(right1HasParent, "Parent should be removed from Child1");
 
-        // Child2 updated
-        ManyToOneEntity persistedChild2 = persisted.manyToOneEntities.stream().filter(e -> child2.id.equals(e.id)).findFirst().orElse(null);
+        // Assert child2 has been updated
+        ManyToOneEntity persistedChild2 = persisted.manyToOneEntities.stream()
+                .filter(e -> child2.id.equals(e.id))
+                .findFirst()
+                .orElse(null);
         assertNotNull(persistedChild2, "Child2 should still be present");
         assertEquals("Child2-updated", persistedChild2.description, "Child2 description should be updated");
         assertNotNull(persistedChild2.oneToManyEntity);
         assertEquals(parent.id, persistedChild2.oneToManyEntity.id);
 
-        // Implicitly, the second element is the newly added child; size assertion above verifies ADD was applied.
+        // Assert child 3 has been added
+        boolean containsChild3 = persisted.manyToOneEntities.stream()
+                .anyMatch(e -> child3Dto.name.get().equals(e.name));
+        assertTrue(containsChild3, "Child3 should have been added to the parent's set");
+
     }
 
     @Test
     @DisplayName("Should persist ManyToMany modifications via ListOperation when using persistDtoToEntity")
     @Transactional
     void testPersistManyToManyModificationsWithListOperation() {
-        // Given: left with two rights
+        // Given: A left entity with two right entities
         ManyToManyLeftEntity left = new ManyToManyLeftEntity();
         left.name = "L";
 
@@ -544,12 +551,11 @@ class HyperMapperTest {
         right2.lefts = new java.util.HashSet<>();
         right2.lefts.add(left);
 
-        // persist initial graph
         hyperRepository.save(right1, null);
         hyperRepository.save(right2, null);
         hyperRepository.save(left, null);
 
-        // Build DTO with REMOVE right1, UPDATE right2 (label), ADD right3
+        // The corresponding DTOs
         ManyToManyLeftEntityDto leftDto = new ManyToManyLeftEntityDto();
         leftDto.id = ValueWrapper.of(left.id);
 
@@ -563,27 +569,37 @@ class HyperMapperTest {
         ManyToManyRightEntityDto right3Dto = new ManyToManyRightEntityDto();
         right3Dto.label = ValueWrapper.of("Right3");
 
-        // Remove right1, update right2, add right3
+        // A List of operations that remove right1, update right2 and add right3
         java.util.Set<ListOperation<ManyToManyRightEntityDto>> ops = new java.util.HashSet<>();
         ops.add(ListOperation.valueOf(right1Dto, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE));
         ops.add(ListOperation.valueOf(right2Dto, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
         ops.add(ListOperation.valueOf(right3Dto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT));
         leftDto.rights = ValueWrapper.of(ops);
 
-        // When: persist DTO to entity
+        // When: persisting the DTO to entity
         ManyToManyLeftEntity persisted = dtoMapper.persistDtoToEntity(leftDto, null);
 
-        // Then: left has two rights: updated right2 and new right3; right1 has been removed
+        // Then: right1 has been removed, right2 has been updated, and right3 was added
         assertNotNull(persisted);
         assertEquals(left.id, persisted.id);
         assertEquals(2, persisted.rights.size());
 
-        boolean hasRight1 = persisted.rights.stream().anyMatch(x -> x.id != null && x.id.equals(right1.id));
+        boolean hasRight1 = persisted.rights.stream()
+                .anyMatch(x -> x.id != null && x.id.equals(right1.id));
         assertFalse(hasRight1, "Right1 should be removed from left.rights");
         boolean right1HasParent = right1.lefts.contains(persisted);
         assertFalse(right1HasParent, "Parent should be removed from Right1");
 
-        ManyToManyRightEntity persistedRight2 = persisted.rights.stream().filter(x -> x.id != null && x.id.equals(right2.id)).findFirst().orElse(null);
+        ManyToManyRightEntity persistedRight2 = persisted.rights.stream()
+                .filter(x -> x.id != null && x.id.equals(right2.id))
+                .findFirst().orElse(null);
+        assertNotNull(persistedRight2, "Right2 should remain related to left");
+        assertEquals("Right2-updated", persistedRight2.label, "Right2 label should be updated");
+
+        ManyToManyRightEntity persistedRight3 = persisted.rights.stream()
+                .filter(x -> x.label != null && x.label.equals(right3Dto.label.get()))
+                .findFirst()
+                .orElse(null);
         assertNotNull(persistedRight2, "Right2 should remain related to left");
         assertEquals("Right2-updated", persistedRight2.label, "Right2 label should be updated");
 
