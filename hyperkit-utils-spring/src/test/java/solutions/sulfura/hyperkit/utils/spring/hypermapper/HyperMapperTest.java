@@ -734,8 +734,48 @@ class HyperMapperTest {
                 .filter(x -> x.label != null && x.label.equals(right3Dto.label.get()))
                 .findFirst()
                 .orElse(null);
-        assertNotNull(persistedRight2, "Right2 should remain related to left");
-        assertEquals("Right2-updated", persistedRight2.label, "Right2 label should be updated");
+        assertNotNull(persistedRight3, "Right3 should be related to left now");
+        assertEquals("Right3", persistedRight3.label, "Right3 entity should be added");
 
+    }
+
+    @Test
+    @DisplayName("Should map and persist entities with persistence annotations on private fields")
+    @Transactional
+    void testMappingOfEntityAnnotationsOnPrivateFields() {
+
+        // Given: an entity with annotations on private fields and a corresponding DTO
+        PrivateFieldsEntityDto dto = new PrivateFieldsEntityDto();
+        dto.name = ValueWrapper.of("New Entity");
+
+        // When: mapping and persisting
+        PrivateFieldsEntity entity = dtoMapper.persistDtoToEntity(dto, null);
+        hyperRepository.save(entity, null);
+
+        // Then: The entity is persisted with the right name
+        assertNotNull(entity.getId());
+        assertEquals("New Entity", entity.getName());
+
+        // When: map entity to DTO and verify fields
+        var projection = PrivateFieldsEntityDto.Projection.Builder.newInstance()
+                .id(FieldConf.of(FieldConf.Presence.MANDATORY))
+                .name(FieldConf.of(FieldConf.Presence.MANDATORY))
+                .build();
+
+        PrivateFieldsEntityDto mappedDto = dtoMapper.mapEntityToDto(entity, PrivateFieldsEntityDto.class, projection);
+
+        // Then: The DTO has been mapped correctly
+        assertEquals(entity.getId(), mappedDto.id.get());
+        assertEquals("New Entity", mappedDto.name.get());
+
+        // When: Updating the entity name through a DTO
+        PrivateFieldsEntityDto updateDto = new PrivateFieldsEntityDto();
+        updateDto.id = ValueWrapper.of(entity.getId());
+        updateDto.name = ValueWrapper.of("Updated Entity");
+        PrivateFieldsEntity updated = dtoMapper.persistDtoToEntity(updateDto, null);
+
+        // Then: The entity name has been updated
+        assertEquals(entity.getId(), updated.getId());
+        assertEquals("Updated Entity", updated.getName());
     }
 }

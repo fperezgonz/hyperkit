@@ -264,7 +264,8 @@ public class HyperMapperPropertyUtils {
             Field field = null;
 
             try {
-                field = declaringType.getField(propertyName);
+                field = declaringType.getDeclaredField(propertyName);
+                field.setAccessible(true);
             } catch (NoSuchFieldException ignore) {
             }
 
