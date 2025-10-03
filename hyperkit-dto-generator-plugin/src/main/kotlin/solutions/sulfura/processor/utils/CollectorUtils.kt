@@ -96,6 +96,7 @@ fun collectProperties(typeReference: CtTypeReference<*>, factory: Factory): List
 
     val dtoAnnotation = typeReference.typeDeclaration.getAnnotation<Dto>(Dto::class.java)
 
+    @Suppress("IfThenToElvis")
     val includedAnnotations =
         if (dtoAnnotation == null) {
             mutableSetOf<Any>()

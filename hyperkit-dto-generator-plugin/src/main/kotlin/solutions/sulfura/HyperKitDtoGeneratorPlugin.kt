@@ -3,16 +3,10 @@ package solutions.sulfura
 import org.apache.velocity.Template
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import solutions.sulfura.processor.utils.*
-import spoon.Launcher
-import spoon.SpoonAPI
-import spoon.compiler.Environment
+import org.gradle.kotlin.dsl.register
 import spoon.reflect.declaration.CtClass
-import java.io.File
-import java.time.Instant
 
 interface HyperKitDtoGeneratorConfigurationExtension {
     /**Paths of the input sources*/
@@ -42,7 +36,10 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
             "hyperKitDtoGenerator",
             HyperKitDtoGeneratorConfigurationExtension::class.java
         )
-        extension.inputPaths.convention(mutableSetOf("src/main/java/"))
+        val sourceSets = project.extensions.getByType(org.gradle.api.tasks.SourceSetContainer::class.java)
+        extension.inputPaths.convention(
+            sourceSets.flatMap { it.allJava.sourceDirectories }
+                .map { it.absolutePath })
         extension.rootOutputPath.convention("src/main/java/")
         extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
         extension.templatePath.convention("templates/dto.vm")
@@ -63,143 +60,24 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
 
         }
 
-        project.task("generateDtos") {
+        project.tasks.register<GenerateDtosTask>("generateDtos") {
 
             group = "hyperkit"
+            description = "Generate DTOs from source classes"
+            templatePath.set(extension.templatePath)
+            rootOutputPath.set(project.file(extension.rootOutputPath).absolutePath)
+            defaultOutputPackage.set(extension.defaultOutputPackage)
+            inputFiles.setFrom(extension.inputPaths)
 
-            doFirst {
-                val spoon: SpoonAPI = Launcher()
-                spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
-
-                logger.info("${Instant.now()} - Setting up input files...")
-                for (path in extension.inputPaths.get()) {
-                    spoon.addInputResource(project.file(path).absolutePath)
+            // Add the project classpath to Spoon's analysis classpath
+            project.plugins.withType(org.gradle.api.plugins.JavaBasePlugin::class.java) {
+                val sourceSets = project.extensions.getByType(org.gradle.api.tasks.SourceSetContainer::class.java)
+                sourceSets.findByName(org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME)?.let { mainSourceSet ->
+                    spoonSourcesClasspath.from(mainSourceSet.compileClasspath)
                 }
-                logger.info("${Instant.now()} - Setting up input files... DONE")
-
-                logger.info("${Instant.now()} - Setting up classPath...")
-                val classpath = project.configurations.getByName("compileClasspath").files
-                    .map { it.absolutePath }
-                    .toTypedArray()
-
-                logger.info("Classpath: $classpath")
-                spoon.environment.sourceClasspath = classpath
-                logger.info("${Instant.now()} - Setting up classPath... DONE")
-
-                logger.info("${Instant.now()} - Building model...")
-                val model = spoon.buildModel()
-                logger.info("# ${Instant.now()} - Building model... DONE")
-                logger.info("${Instant.now()} - Collecting classes to process...")
-                val classesToProcess = collectClasses(model, spoon.factory)
-                logger.info("${Instant.now()} - Collecting classes to process... DONE")
-                //A map of references from the source class name to the dto class
-                //Used on dto properties to replace the source class references with references to the dto classes
-                val className__ctClass = mutableMapOf<String, CtClass<*>>()
-
-                classesToProcess.list<CtClass<*>>().associateTo(className__ctClass) { el ->
-                    el.qualifiedName to sourceClassToDtoClassReference(
-                        el,
-                        spoon.factory,
-                        extension.defaultOutputPackage.get()
-                    )
-                }
-
-                logger.info("Classes to process: ${classesToProcess.list<CtClass<*>>().map { it.qualifiedName }}")
-
-                logger.info("${Instant.now()} - Generating DTOs...")
-
-                val classTemplate = velocityEngine.getTemplate(extension.templatePath.get())
-
-                classesToProcess.list<CtClass<*>>().parallelStream().map { ctClass: CtClass<*> ->
-
-                    try {
-
-                        return@map createDtoSourceFileData(
-                            ctClass,
-                            spoon,
-                            extension.defaultOutputPackage.get(),
-                            extension.rootOutputPath.get(),
-                            classTemplate,
-                            className__ctClass,
-                            project,
-                            logger
-                        )
-
-                    } catch (e: Exception) {
-
-                        logger.error(
-                            "${Instant.now()} - ERROR: Error while processing class ${ctClass.qualifiedName}",
-                            e
-                        )
-                        throw e
-                    }
-                }.toList().parallelStream().forEach { sourceFileData ->
-
-                    try {
-
-                        val outFile = File(sourceFileData.outFilePath)
-
-                        outFile.parentFile.mkdirs()
-                        outFile.writeText(sourceFileData.contents)
-
-                    } catch (e: Exception) {
-
-                        logger.error(
-                            "${Instant.now()} - ERROR: Error creating file ${sourceFileData.outFilePath}",
-                            e
-                        )
-                        throw e
-                    }
-                }
-
-                logger.info("${Instant.now()} - Generating DTOs... DONE")
-
             }
+
         }
     }
-
-    fun createDtoSourceFileData(
-        ctClass: CtClass<*>,
-        spoon: SpoonAPI,
-        defaultOutputPackage: String,
-        rootOutputPath: String,
-        classTemplate: Template,
-        className__ctClass: MutableMap<String, CtClass<*>>,
-        project: Project,
-        logger: Logger
-    ): SourceFileData {
-
-        val collectedProperties = collectProperties(ctClass.reference, spoon.factory)
-        val collectedAnnotations = collectAnnotations(ctClass, spoon)
-        val oldDtoClass =
-            sourceClassToDtoClassReference(ctClass, spoon.factory, defaultOutputPackage)
-        val dtoClassPackage = oldDtoClass.`package`.qualifiedName
-        val dtoClassSimpleName = oldDtoClass.simpleName
-        val dtoClassQualifiedName = oldDtoClass.qualifiedName
-
-        val dtoClass = buildOutputClass(
-            ctClass,
-            dtoClassQualifiedName,
-            className__ctClass,
-            collectedAnnotations,
-            collectedProperties,
-            spoon.factory
-        )
-
-        val classSourceCode = generateClassSourceCode(dtoClass, ctClass, classTemplate)
-        val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
-        val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
-
-        return SourceFileData(
-            contents = classSourceCode,
-            outFilePath = project.file(outFilePath).absolutePath
-        )
-
-    }
-
-    data class SourceFileData(
-        val contents: String,
-        val outFilePath: String,
-    )
 
 }
