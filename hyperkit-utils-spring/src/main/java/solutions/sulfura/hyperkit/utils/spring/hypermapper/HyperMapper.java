@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static solutions.sulfura.hyperkit.dtos.ListOperation.ItemOperationType.*;
 import static solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUtils.getIdPropertyDescriptor;
 import static solutions.sulfura.hyperkit.utils.spring.hypermapper.RelationshipManager.*;
 
@@ -136,7 +137,9 @@ public class HyperMapper<C> {
             return result;
         }
 
-        // If it is not a collection of dtos that are entities
+        /* If it is not a collection of dtos that are entities, list operations do not make sense:
+         * replace the entity collection with the contents of the list operations except the remove operations
+         */
         if (!Dto.class.isAssignableFrom(dtoPropertyDescriptor.getContainedType())
                 || dtoPropertyDescriptor.getContainedType().getAnnotation(Entity.class) != null) {
 
@@ -179,17 +182,39 @@ public class HyperMapper<C> {
             var itemIdWrapper = HyperMapperPropertyUtils.getProperty(value, listValueIdPropertyDescriptor.getPropertyName());
             Serializable itemId = (Serializable) (itemIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.getOrNull() : itemIdWrapper);
 
+            var effectiveItemOperationType = listOperation.getItemOperationType();
+
+            if (effectiveItemOperationType == UPSERT) {
+                if (itemId == null) {
+                    effectiveItemOperationType = INSERT;
+                } else {
+                    effectiveItemOperationType = UPDATE;
+                }
+            }
+
+            if (listOperation.getOperationType() == ListOperation.ListOperationType.NONE && effectiveItemOperationType == NONE) {
+                continue;
+            }
+
+            if (listOperation.getOperationType() == ListOperation.ListOperationType.REMOVE && effectiveItemOperationType != NONE) {
+                throw new HyperMapperException("Unable to perform list operation " + ListOperation.ListOperationType.REMOVE + " with an item operation type of " + effectiveItemOperationType + ", the item operation type must be NONE");
+            }
+
+            if (listOperation.getOperationType() == ListOperation.ListOperationType.NONE && effectiveItemOperationType != UPDATE) {
+                throw new HyperMapperException("Unable to perform operation " + effectiveItemOperationType + " with a list operation type of NONE, the item operation type must be UPDATE or NONE");
+            }
+
             // Case INSERT; ensure the item does not have an ID.
-            if (listOperation.getItemOperationType() == ListOperation.ItemOperationType.INSERT && itemId != null) {
+            if (effectiveItemOperationType == INSERT && itemId != null) {
                 throw new HyperMapperException("Unable to insert with an INSERT list operation, the collection item is already on the repository");
             }
 
-            // Case UPDATE; ensure the item has an ID and is currently present in the collection
-            if (listOperation.getItemOperationType() == ListOperation.ItemOperationType.UPDATE) {
+            if (effectiveItemOperationType != INSERT && itemId == null) {
+                throw new HyperMapperException("Unable to perform  " + effectiveItemOperationType + " list operation, the item does not have an ID");
+            }
 
-                if (itemId == null) {
-                    throw new HyperMapperException("Unable to perform an UPDATE list operation, could not find the collection item on the repository");
-                }
+            // Case UPDATE; ensure the item has an ID and is currently present in the collection
+            if (effectiveItemOperationType == UPDATE) {
 
                 boolean inCollection = toManyContains(entity, dtoPropertyDescriptor.getPropertyName(), itemId);
 
@@ -224,12 +249,29 @@ public class HyperMapper<C> {
                 continue;
             }
 
-            if (listOperation.getItemOperationType() == ListOperation.ItemOperationType.NONE) {
-                continue;
+            ToEntityResult toEntityResult;
+
+            if (effectiveItemOperationType == NONE) {
+
+                Class entityClass = value.getSourceClass();
+
+                //Entities MUST always have an @Id, so this MUST never be null
+                PropertyDescriptor entityIdPropDesc = getIdPropertyDescriptor(entityClass);
+
+                if (entityIdPropDesc == null) {
+                    throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + entityClass.getName());
+                }
+
+                toEntityResult = new ToEntityResult<>();
+                toEntityResult.entity = hyperRepository.findById(entityClass, itemId, contextInfo).orElseThrow();
+                toEntityResult.persistenceQueue.add(toEntityResult.entity);
+
+            } else {
+
+                toEntityResult = mapDtoToEntity(value, contextInfo, visitedEntities);
+
             }
 
-            //Retrieve or build the entity
-            ToEntityResult<?> toEntityResult = mapDtoToEntity((Dto<?>) value, contextInfo, visitedEntities);
             Object childEntity = toEntityResult.getEntity();
 
             var itemEntityResult = new ToEntityResult<>();
@@ -237,16 +279,19 @@ public class HyperMapper<C> {
             itemEntityResult.persistenceQueue.addAll(0, toEntityResult.getPersistenceQueue());
             result.add(itemEntityResult);
 
-            //Set the parent on the new entity
-            OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
-            String mappedBy = oneToManyAnnotation == null ? null : oneToManyAnnotation.mappedBy();
-            if (mappedBy != null) {
-                HyperMapperPropertyUtils.setProperty(childEntity, mappedBy, entity);
-            }
-
             // Case ADD: Add the new or updated entity to the collection property of the parent entity.
             if (listOperation.getOperationType() == ListOperation.ListOperationType.ADD) {
+
+                //Set the parent on the child entity
+                OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
+                String mappedBy = oneToManyAnnotation == null ? null : oneToManyAnnotation.mappedBy();
+
+                if (mappedBy != null) {
+                    HyperMapperPropertyUtils.setProperty(childEntity, mappedBy, entity);
+                }
+
                 addToCollectionProperty(entity, dtoPropertyDescriptor.getPropertyName(), childEntity);
+
             }
 
         }

@@ -19,6 +19,7 @@ import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -664,6 +665,48 @@ class HyperMapperTest {
     }
 
     @Test
+    @DisplayName("Should persist add to collections items added via ListOperation when using persistDtoToEntity and the item operation type is NONE")
+    @Transactional
+    void testAddToCollectionItemOperationsOfTypeNone() {
+        // Given: A left entity with two right entities
+        ManyToManyLeftEntity left = new ManyToManyLeftEntity();
+        left.name = "L";
+
+        ManyToManyRightEntity right1 = new ManyToManyRightEntity();
+        right1.label = "Right1";
+
+        hyperRepository.save(left, null);
+        hyperRepository.save(right1, null);
+
+        // The corresponding DTOs
+        ManyToManyLeftEntityDto leftDto = new ManyToManyLeftEntityDto();
+        leftDto.id = ValueWrapper.of(left.id);
+
+        ManyToManyRightEntityDto right1Dto = new ManyToManyRightEntityDto();
+        right1Dto.id = ValueWrapper.of(right1.id);
+
+        // A List of operations that remove right1, update right2 and add right3
+        HashSet<ListOperation<ManyToManyRightEntityDto>> ops = new HashSet<>();
+        ops.add(ListOperation.valueOf(right1Dto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.NONE));
+        leftDto.rights = ValueWrapper.of(ops);
+
+        // When: persisting the DTO to entity
+        ManyToManyLeftEntity persisted = dtoMapper.persistDtoToEntity(leftDto, null);
+
+        // Then: right1 has been added
+        assertNotNull(persisted);
+        assertEquals(left.id, persisted.id);
+        assertEquals(1, persisted.rights.size());
+
+        ManyToManyRightEntity persistedRight1 = persisted.rights.stream()
+                .findFirst()
+                .orElse(null);
+        assertNotNull(persistedRight1);
+        assertEquals("Right1", persistedRight1.label, "Right1 should have been added to left");
+
+    }
+
+    @Test
     @DisplayName("Should persist ManyToMany modifications via ListOperation when using persistDtoToEntity")
     @Transactional
     void testPersistManyToManyModificationsWithListOperation() {
@@ -676,13 +719,13 @@ class HyperMapperTest {
         ManyToManyRightEntity right2 = new ManyToManyRightEntity();
         right2.label = "Right2";
 
-        left.rights = new java.util.HashSet<>();
+        left.rights = new HashSet<>();
         left.rights.add(right1);
         left.rights.add(right2);
 
-        right1.lefts = new java.util.HashSet<>();
+        right1.lefts = new HashSet<>();
         right1.lefts.add(left);
-        right2.lefts = new java.util.HashSet<>();
+        right2.lefts = new HashSet<>();
         right2.lefts.add(left);
 
         hyperRepository.save(right1, null);
@@ -704,7 +747,7 @@ class HyperMapperTest {
         right3Dto.label = ValueWrapper.of("Right3");
 
         // A List of operations that remove right1, update right2 and add right3
-        java.util.Set<ListOperation<ManyToManyRightEntityDto>> ops = new java.util.HashSet<>();
+        java.util.Set<ListOperation<ManyToManyRightEntityDto>> ops = new HashSet<>();
         ops.add(ListOperation.valueOf(right1Dto, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE));
         ops.add(ListOperation.valueOf(right2Dto, ListOperation.ListOperationType.NONE, ListOperation.ItemOperationType.UPDATE));
         ops.add(ListOperation.valueOf(right3Dto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT));
