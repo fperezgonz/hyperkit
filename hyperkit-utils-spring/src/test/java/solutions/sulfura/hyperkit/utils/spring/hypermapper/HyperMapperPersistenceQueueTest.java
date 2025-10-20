@@ -47,13 +47,13 @@ class HyperMapperPersistenceQueueTest {
         // Create a DTO with a new ManyToOneEntity to be added
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
         oneToManyDto.id = ValueWrapper.of(oneToMany.id);
-        
+
         ManyToOneEntityDto newManyToOneDto = new ManyToOneEntityDto();
         newManyToOneDto.name = ValueWrapper.of("Added entity");
-        
+
         oneToManyDto.manyToOneEntities = ValueWrapper.of(new HashSet<>());
         oneToManyDto.manyToOneEntities.get().add(
-            ListOperation.valueOf(newManyToOneDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT)
+                ListOperation.valueOf(newManyToOneDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT)
         );
 
         // When the dto is mapped to an entity
@@ -65,8 +65,8 @@ class HyperMapperPersistenceQueueTest {
 
         boolean foundNewEntity = false;
         for (Object obj : persistenceQueue) {
-            if (obj instanceof ManyToOneEntity manyToOne && 
-                "Added entity".equals(manyToOne.name)) {
+            if (obj instanceof ManyToOneEntity manyToOne &&
+                    "Added entity".equals(manyToOne.name)) {
                 foundNewEntity = true;
                 break;
             }
@@ -87,25 +87,25 @@ class HyperMapperPersistenceQueueTest {
         OneToManyEntity oneToMany = new OneToManyEntity();
         oneToMany.name = "Root";
         oneToMany.manyToOneEntities = new HashSet<>();
-        
+
         ManyToOneEntity existingManyToOne = new ManyToOneEntity();
         existingManyToOne.name = "Existing ManyToOneEntity";
         existingManyToOne.oneToManyEntity = oneToMany;
-        
+
         oneToMany.manyToOneEntities.add(existingManyToOne);
-        
+
         hyperRepository.save(oneToMany, null);
         hyperRepository.save(existingManyToOne, null);
 
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
         oneToManyDto.id = ValueWrapper.of(oneToMany.id);
-        
+
         ManyToOneEntityDto updateManyToOneDto = new ManyToOneEntityDto();
         updateManyToOneDto.id = ValueWrapper.of(existingManyToOne.id);
-        
+
         oneToManyDto.manyToOneEntities = ValueWrapper.of(new HashSet<>());
         oneToManyDto.manyToOneEntities.get().add(
-            ListOperation.valueOf(updateManyToOneDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.UPDATE)
+                ListOperation.valueOf(updateManyToOneDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.UPDATE)
         );
 
         // When mapping the dto to an entity
@@ -114,12 +114,12 @@ class HyperMapperPersistenceQueueTest {
         // Then the UPDATE item should be on the persistence queue
         List<Object> persistenceQueue = result.getPersistenceQueue();
         assertFalse(persistenceQueue.isEmpty(), "Persistence queue should not be empty");
-        
+
         // The updated ManyToOneEntity should be in the persistence queue
         boolean foundUpdatedEntity = false;
         for (Object obj : persistenceQueue) {
-            if (obj instanceof ManyToOneEntity manyToOne && 
-                existingManyToOne.id.equals(manyToOne.id)) {
+            if (obj instanceof ManyToOneEntity manyToOne &&
+                    existingManyToOne.id.equals(manyToOne.id)) {
                 foundUpdatedEntity = true;
                 break;
             }
@@ -138,27 +138,27 @@ class HyperMapperPersistenceQueueTest {
         OneToManyEntity oneToMany = new OneToManyEntity();
         oneToMany.name = "Root";
         oneToMany.manyToOneEntities = new HashSet<>();
-        
+
         ManyToOneEntity manyToOne = new ManyToOneEntity();
         manyToOne.name = "ManyToOneEntity";
         manyToOne.description = "Description";
         manyToOne.oneToManyEntity = oneToMany;
-        
+
         oneToMany.manyToOneEntities.add(manyToOne);
-        
+
         hyperRepository.save(oneToMany, null);
         hyperRepository.save(manyToOne, null);
 
         // Create a DTO to remove the ManyToOneEntity from
         OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
         oneToManyDto.id = ValueWrapper.of(oneToMany.id);
-        
+
         ManyToOneEntityDto removeManyToOneDto = new ManyToOneEntityDto();
         removeManyToOneDto.id = ValueWrapper.of(manyToOne.id);
-        
+
         oneToManyDto.manyToOneEntities = ValueWrapper.of(new HashSet<>());
         oneToManyDto.manyToOneEntities.get().add(
-            ListOperation.valueOf(removeManyToOneDto, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE)
+                ListOperation.valueOf(removeManyToOneDto, ListOperation.ListOperationType.REMOVE, ListOperation.ItemOperationType.NONE)
         );
 
         // When mapping the dto to an entity
@@ -167,16 +167,49 @@ class HyperMapperPersistenceQueueTest {
         // Then
         List<Object> persistenceQueue = result.getPersistenceQueue();
         assertFalse(persistenceQueue.isEmpty(), "Persistence queue should not be empty");
-        
+
         // The removed ManyToOneEntity should be in the persistence queue
         boolean foundRemovedEntity = false;
         for (Object obj : persistenceQueue) {
-            if (obj instanceof ManyToOneEntity manyToOneEntity && 
-                manyToOne.id.equals(manyToOneEntity.id)) {
+            if (obj instanceof ManyToOneEntity manyToOneEntity &&
+                    manyToOne.id.equals(manyToOneEntity.id)) {
                 foundRemovedEntity = true;
                 break;
             }
         }
         assertTrue(foundRemovedEntity, "The removed ManyToOneEntity should be in the persistence queue");
     }
+
+    /**
+     * Test to verify that dtos containing multiple references to the same entity in the graph are mapped to the same entity
+     */
+    @Test
+    @DisplayName("Multiple references to the same entity are mapped to the same entity")
+    @Transactional
+    void testMapMultipleReferencesToSameEntity() {
+
+        Company company = new Company();
+
+        hyperRepository.save(company, null);
+
+        CompanyDto companyDto = new CompanyDto();
+        companyDto.id = ValueWrapper.of(company.getId());
+        CompanyDto companyDto2 = new CompanyDto();
+        companyDto2.id = ValueWrapper.of(company.getId());
+
+        ManyToOneEntityDto manyToOneDto = new ManyToOneEntityDto();
+        manyToOneDto.company = ValueWrapper.of(companyDto);
+
+        OneToManyEntityDto oneToManyDto = new OneToManyEntityDto();
+        var oneToManySet = new HashSet<ListOperation<ManyToOneEntityDto>>();
+        oneToManySet.add(ListOperation.valueOf(manyToOneDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT));
+        oneToManyDto.manyToOneEntities = ValueWrapper.of(oneToManySet);
+        oneToManyDto.company = ValueWrapper.of(companyDto);
+
+        // When mapping the dto to an entity
+        HyperMapper.ToEntityResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
+        assertNotNull(result.getEntity().company);
+        assertEquals(result.getEntity().company.getId(), company.getId());
+    }
+
 }

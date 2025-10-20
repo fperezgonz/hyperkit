@@ -821,4 +821,77 @@ class HyperMapperTest {
         assertEquals(entity.getId(), updated.getId());
         assertEquals("Updated Entity", updated.getName());
     }
+
+    /**
+     * Test to verify that backreferences are mapped to the same entity instance
+     */
+    @Test
+    @DisplayName("Backreferences should be mapped to the same entity instance")
+    @Transactional
+    void testMapBackReferences() {
+        // Given
+        OneToManyEntity oneToMany = new OneToManyEntity();
+        oneToMany.name = "Parent";
+        oneToMany.manyToOneEntities = new HashSet<>();
+        hyperRepository.save(oneToMany, null);
+
+        // Create DTOs with bidirectional relationships
+        OneToManyEntityDto parentDto = new OneToManyEntityDto();
+        parentDto.id = ValueWrapper.of(oneToMany.id);
+
+        ManyToOneEntityDto childDto = new ManyToOneEntityDto();
+        childDto.name = ValueWrapper.of("Child");
+        childDto.oneToManyEntity = ValueWrapper.of(parentDto);
+
+        // Add the child to the parent's collection
+        parentDto.manyToOneEntities = ValueWrapper.of(new HashSet<>());
+        parentDto.manyToOneEntities.get().add(
+                ListOperation.valueOf(childDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT)
+        );
+
+        // When mapping the dto to an entity
+        OneToManyEntity result = dtoMapper.mapDtoToEntity(parentDto, null).getEntity();
+
+        // Then the nested entity is the same as the root entity
+        assertEquals(1, result.manyToOneEntities.size(), "Parent should have one child entity");
+        ManyToOneEntity childEntity = result.manyToOneEntities.iterator().next();
+        assertEquals("Child", childEntity.name, "Child name should match");
+        assertEquals(result, childEntity.oneToManyEntity, "Child should reference the same parent instance");
+    }
+
+    /**
+     * Test to verify that backreferences are mapped to the same entity instance
+     */
+    @Test
+    @DisplayName("Backreferences should be mapped to the same entity instance")
+    @Transactional
+    void testMapBackReferencesToNewEntity() {
+        // Given
+        OneToManyEntity oneToMany = new OneToManyEntity();
+        oneToMany.name = "Parent";
+        oneToMany.manyToOneEntities = new HashSet<>();
+
+        // Create DTOs with bidirectional relationships
+        OneToManyEntityDto parentDto = new OneToManyEntityDto();
+        parentDto.id = ValueWrapper.of(oneToMany.id);
+
+        ManyToOneEntityDto childDto = new ManyToOneEntityDto();
+        childDto.name = ValueWrapper.of("Child");
+        childDto.oneToManyEntity = ValueWrapper.of(parentDto);
+
+        // Add the child to the parent's collection
+        parentDto.manyToOneEntities = ValueWrapper.of(new HashSet<>());
+        parentDto.manyToOneEntities.get().add(
+                ListOperation.valueOf(childDto, ListOperation.ListOperationType.ADD, ListOperation.ItemOperationType.INSERT)
+        );
+
+        // When mapping the dto to an entity
+        OneToManyEntity result = dtoMapper.mapDtoToEntity(parentDto, null).getEntity();
+
+        // Then the nested entity is the same as the root entity
+        assertEquals(1, result.manyToOneEntities.size(), "Parent should have one child entity");
+        ManyToOneEntity childEntity = result.manyToOneEntities.iterator().next();
+        assertEquals("Child", childEntity.name, "Child name should match");
+        assertEquals(result, childEntity.oneToManyEntity, "Child should reference the same parent instance");
+    }
 }

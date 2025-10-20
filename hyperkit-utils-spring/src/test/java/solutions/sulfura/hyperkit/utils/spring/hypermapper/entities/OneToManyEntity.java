@@ -9,7 +9,7 @@ import java.util.Set;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_one_to_many")
-@Dto(destPackageName = "cloud.sulfura.time.r.generated.temp.dto")
+@Dto
 public class OneToManyEntity {
 
     @DtoProperty
@@ -26,5 +26,9 @@ public class OneToManyEntity {
     @DtoProperty
     @OneToMany(mappedBy = "oneToManyEntity")
     public Set<ManyToOneEntity> manyToOneEntities;
+    @DtoProperty
+    @ManyToOne
+    @JoinColumn(name = "companyId")
+    public Company company;
 }
 

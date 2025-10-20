@@ -29,9 +29,9 @@ import static solutions.sulfura.hyperkit.utils.spring.hypermapper.RelationshipMa
 @Service
 public class HyperMapper<C> {
 
-    private final HyperRepository<C> hyperRepository;
+    protected final HyperRepository<C> hyperRepository;
     @PersistenceContext
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
 
 
     public HyperMapper(final HyperRepository<C> hyperRepository) {
@@ -50,7 +50,7 @@ public class HyperMapper<C> {
      * @throws HyperMapperException if the entity is not found in the repository
      */
     @NonNull
-    private <T, I extends Serializable> T findEntityInRepository(@NonNull Class<T> entityClass, @NonNull I entityId, C contextInfo) {
+    protected <T, I extends Serializable> T findEntityInRepository(@NonNull Class<T> entityClass, @NonNull I entityId, C contextInfo) {
         return hyperRepository.findById(entityClass, entityId, contextInfo)
                 .orElseThrow(() -> new HyperMapperException("Entity of type " + entityClass + " with id " + entityId + " not found in repository"));
     }
@@ -120,7 +120,7 @@ public class HyperMapper<C> {
      * @param dtoPropertyDescriptor The property descriptor for the property that is being mapped
      * @param collection            The collection with the {@link ListOperation} elements
      * @param contextInfo           Extra contextual information for repository access
-     * @param visitedEntities       A hash set for tracking entities already processed
+     * @param visitedEntities       A hash map for tracking entities already processed and the results of processing them, to avoid recursion problems and act as a result cache
      * @return A list of ToEntityResult<?> objects representing updated or created entities
      */
     @NonNull
@@ -128,7 +128,7 @@ public class HyperMapper<C> {
                                                       @NonNull PropertyDescriptor dtoPropertyDescriptor,
                                                       @NonNull Collection<?> collection,
                                                       C contextInfo,
-                                                      @NonNull HashSet<Object> visitedEntities) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+                                                      @NonNull HashMap<Object, Object> visitedEntities) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
         List<ToEntityResult<?>> result = new ArrayList<>();
 
@@ -160,10 +160,6 @@ public class HyperMapper<C> {
 
         // Iterate over each item in the collection and perform corresponding operations.
         for (Object item : collection) {
-
-            if (visitedEntities.contains(item)) {
-                continue;
-            }
 
             if (!(item instanceof ListOperation<?> listOperation)) {
                 throw new HyperMapperException("Dto collections must not contain elements that are not of type ListOperation");
@@ -238,12 +234,21 @@ public class HyperMapper<C> {
                 }
 
                 // Throws an exception if the entity is not in the repository
-                Object repositoryEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
-                removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), repositoryEntity);
+                Object childEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
+
+                // If it is on the stack but hasn't been processed yet, it means this is a recursive call, so it should be ignored
+                if (visitedEntities.containsKey(item)) {
+                    childEntity = visitedEntities.get(item);
+                } else {
+                    // Throws an exception if the entity is not in the repository
+                    childEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
+                }
+
+                removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), childEntity);
 
                 var itemEntityResult = new ToEntityResult<>();
-                itemEntityResult.entity = repositoryEntity;
-                itemEntityResult.persistenceQueue.add(repositoryEntity);
+                itemEntityResult.entity = childEntity;
+                itemEntityResult.persistenceQueue.add(childEntity);
                 result.add(itemEntityResult);
 
                 continue;
@@ -263,8 +268,15 @@ public class HyperMapper<C> {
                 }
 
                 toEntityResult = new ToEntityResult<>();
-                toEntityResult.entity = hyperRepository.findById(entityClass, itemId, contextInfo).orElseThrow();
-                toEntityResult.persistenceQueue.add(toEntityResult.entity);
+
+                // If it is on the stack but hasn't been processed yet, it means this is a recursive call, so it should be ignored
+                if (visitedEntities.containsKey(item)) {
+                    toEntityResult.entity = visitedEntities.get(item);
+                } else {
+                    // Throws an exception if the entity is not in the repository
+                    toEntityResult.entity = hyperRepository.findById(entityClass, itemId, contextInfo).orElseThrow();
+                    toEntityResult.persistenceQueue.add(toEntityResult.entity);
+                }
 
             } else {
 
@@ -312,7 +324,7 @@ public class HyperMapper<C> {
      */
     @NonNull
     public <T> ToEntityResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo) {
-        return mapDtoToEntity(dto, contextInfo, new HashSet<>());
+        return mapDtoToEntity(dto, contextInfo, new HashMap<>());
     }
 
     @NonNull
@@ -324,7 +336,7 @@ public class HyperMapper<C> {
         return result;
     }
 
-    protected <T> T mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashSet<Object> visitedEntities) {
+    protected <T> T mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
         Class<T> sourceClass = (Class<T>) dto.getSourceClass();
         T result = null;
 
@@ -392,7 +404,14 @@ public class HyperMapper<C> {
      * @return a ToEntityResult containing the mapped entity and the serialization queue in the order they should be serialized
      */
     @NonNull
-    public <T> ToEntityResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo, @NonNull HashSet<Object> visitedEntities) {
+    public <T> ToEntityResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+
+        // If it has already been processed, return the cached value
+        if (visitedEntities.containsKey(dto)) {
+            ToEntityResult<T> entityResult = new ToEntityResult<>();
+            entityResult.entity = (T) visitedEntities.get(dto);
+            return entityResult;
+        }
 
         Class<Dto<T>> dtoClass = (Class<Dto<T>>) dto.getClass();
         //A Dto's generic parameter MUST always match its DtoFor annotation value, an invalid cast will always be a programming error
@@ -414,8 +433,6 @@ public class HyperMapper<C> {
             throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + entityClass.getName());
         }
 
-        visitedEntities.add(dto);
-
         T entity = null;
 
         try {
@@ -430,9 +447,11 @@ public class HyperMapper<C> {
             }
 
             if (dtoId == null) {
-                //Create new entity instance
+                //Create a new entity instance
                 entity = entityClass.getDeclaredConstructor().newInstance();
             }
+
+            visitedEntities.put(dto, entity);
 
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                  InstantiationException e) {
@@ -469,13 +488,6 @@ public class HyperMapper<C> {
 
                 Object unwrappedValue = valWrapper.get();
 
-                //TODO It should not be ignored, the mapped result should be used and set on the property before continuing to the next entity
-                //If the entity has already been processed, ignore it
-                if (visitedEntities.contains(unwrappedValue)) {
-                    continue;
-                }
-
-
                 boolean isOwner = RelationshipManager.isRelationshipOwner(entity, propertyDescriptor.getPropertyName());
 
                 //Collections
@@ -498,9 +510,14 @@ public class HyperMapper<C> {
                     //Non-collections
                 } else {
 
-                    //If the value is a Dto, map it to an entity and handle the relationships
-                    if (unwrappedValue instanceof Dto<?> dtoAux) {
+                    // If it has already been processed, use the cached value
+                    if (visitedEntities.containsKey(unwrappedValue)) {
 
+                        unwrappedValue = visitedEntities.get(unwrappedValue);
+
+                    } else if (unwrappedValue instanceof Dto<?> dtoAux) {
+
+                        //If the value is a Dto, map it to an entity and handle the relationships
                         ToEntityResult<?> toEntityResult = mapDtoToEntity(dtoAux, contextInfo, visitedEntities);
                         unwrappedValue = toEntityResult.entity;
 

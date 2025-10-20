@@ -6,9 +6,10 @@ import solutions.sulfura.hyperkit.dtos.annotations.DtoProperty;
 
 import java.io.Serializable;
 
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_many_to_one")
-@Dto(destPackageName = "cloud.sulfura.time.r.generated.temp.dto")
+@Dto
 public class ManyToOneEntity implements Serializable {
 
     @DtoProperty
@@ -26,5 +27,9 @@ public class ManyToOneEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "one_to_many_id")
     public OneToManyEntity oneToManyEntity;
+    @DtoProperty
+    @ManyToOne
+    @JoinColumn(name = "companyId")
+    public Company company;
 
 }
