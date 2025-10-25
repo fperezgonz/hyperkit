@@ -1,8 +1,21 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
+tasks.register<Exec>("npm-install") {
+    workingDir = project.projectDir
+    group = "verification"
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd", "/c", "npm", "install")
+    } else {
+        commandLine("npm", "install")
+    }
+
+}
+
 tasks.register<Exec>("test") {
     workingDir = project.projectDir
     group = "verification"
+    dependsOn("npm-install")
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine("cmd", "/c", "npm", "run", "test")
