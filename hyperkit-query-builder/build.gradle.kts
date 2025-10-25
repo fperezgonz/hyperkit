@@ -43,15 +43,16 @@ tasks.register<Exec>("build") {
 
 }
 
-tasks.register<Exec>("publish") {
-    workingDir = project.projectDir
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd", "/c", "npm", "publish")
-    } else {
-        commandLine("npm", "publish")
-    }
-
-    dependsOn("build")
-
-}
+// Publishing npm packages will be done manually for now
+//tasks.register<Exec>("publish") {
+//    workingDir = project.projectDir
+//
+//    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+//        commandLine("cmd", "/c", "npm", "publish")
+//    } else {
+//        commandLine("npm", "publish")
+//    }
+//
+//    dependsOn("build")
+//
+//}
