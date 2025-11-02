@@ -1,6 +1,16 @@
-import {And, type Criterion, Equals, In, Not, NotEqual, Or, Out} from "./query-builder";
+import {
+    And,
+    type Criterion,
+    Equals, GreaterOrEqual,
+    GreaterThan,
+    In, LowerOrEqual, LowerThan,
+    Not,
+    NotEqual,
+    Or,
+    Out
+} from "../criteria-builder/criteria-builder";
 
-export class RsqlQueryBuilder {
+export class RsqlCriteriaBuilder {
 
     buildQuery(criterion: Criterion): string {
 
@@ -12,6 +22,14 @@ export class RsqlQueryBuilder {
             return `${criterion.fieldName}=='${criterion.value}'`
         } else if (criterion instanceof NotEqual) {
             return `${criterion.fieldName}!='${criterion.value}'`
+        } else if (criterion instanceof GreaterThan) {
+            return `${criterion.fieldName}=gt='${criterion.value}'`
+        } else if (criterion instanceof GreaterOrEqual) {
+            return `${criterion.fieldName}=ge='${criterion.value}'`
+        } else if (criterion instanceof LowerThan) {
+            return `${criterion.fieldName}=lt='${criterion.value}'`
+        } else if (criterion instanceof LowerOrEqual) {
+            return `${criterion.fieldName}=le='${criterion.value}'`
         } else if (criterion instanceof In) {
             return `${criterion.fieldName}=in=(${criterion.values.map(v => `'${v}'`).join(",")})`
         } else if (criterion instanceof Out) {

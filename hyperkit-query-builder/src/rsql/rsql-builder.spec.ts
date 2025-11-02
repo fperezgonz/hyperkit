@@ -4,62 +4,111 @@ import {
     and,
     contains,
     endsWith,
-    equals,
+    equals, ge, gt,
     isIn,
-    isNotIn,
+    isNotIn, le, lt,
     not,
     notEqual,
     or,
     startsWith
-} from './query-builder';
-import {RsqlQueryBuilder} from "./rsql-query-builder";
+} from '../criteria-builder/criteria-builder';
+import {RsqlCriteriaBuilder} from "./rsql-criteria-builder";
 
 describe('RSQL predicates', () => {
 
     it('equals', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             equals("field", "value")
         )).toBe("field=='value'");
     });
 
     it('notEquals', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             notEqual("field", "value")
         )).toBe("field!='value'");
     });
 
     it('startsWith', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             startsWith("field", "value")
         )).toBe("field=='value*'");
     });
 
     it('endsWith', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             endsWith("field", "value")
         )).toBe("field=='*value'");
     });
 
     it('contains', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             contains("field", "value")
         )).toBe("field=='*value*'");
     });
 
     it('isIn', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             isIn("field", "v1", "v2", "v3")
         )).toBe("field=in=('v1','v2','v3')");
     });
 
     it('isNotIn', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             isNotIn("field", "v1", "v2", "v3")
         )).toBe("field=out=('v1','v2','v3')");
     });
 
+    it('greaterThan', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            gt("field", "value")
+        )).toBe("field=gt='value'");
+    });
+
+    it('greaterOrEqual', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            ge("field", "value")
+        )).toBe("field=ge='value'");
+    });
+
+    it('lowerThan', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            lt("field", "value")
+        )).toBe("field=lt='value'");
+    });
+
+    it('lowerOrEqual', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            le("field", "value")
+        )).toBe("field=le='value'");
+    });
+
+    it('not greaterThan', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            not(gt("field", "value"))
+        )).toBe("field=le='value'");
+    });
+
+    it('not greaterOrEqual', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            not(ge("field", "value"))
+        )).toBe("field=lt='value'");
+    });
+
+    it('not lowerThan', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            not(lt("field", "value"))
+        )).toBe("field=ge='value'");
+    });
+
+    it('not lowerOrEqual', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(
+            not(le("field", "value"))
+        )).toBe("field=gt='value'");
+    });
+
+
     it('not Equals', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 equals("field", "v1")
             )
@@ -67,7 +116,7 @@ describe('RSQL predicates', () => {
     });
 
     it('not In', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 isIn("field", "v1", "v2", "v3")
             )
@@ -75,7 +124,7 @@ describe('RSQL predicates', () => {
     });
 
     it('not startsWith', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 startsWith("field", "value")
             )
@@ -83,7 +132,7 @@ describe('RSQL predicates', () => {
     });
 
     it('not endsWith', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 endsWith("field", "value")
             )
@@ -91,7 +140,7 @@ describe('RSQL predicates', () => {
     });
 
     it('not contains', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 contains("field", "value")
             )
@@ -99,7 +148,7 @@ describe('RSQL predicates', () => {
     });
 
     it('and', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             and(
                 equals("field1", "value1"),
                 equals("field2", "value2")
@@ -107,7 +156,7 @@ describe('RSQL predicates', () => {
     });
 
     it('or', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             or(
                 equals("field1", "value1"),
                 equals("field2", "value2")
@@ -116,7 +165,7 @@ describe('RSQL predicates', () => {
     });
 
     it('not and', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 and(
                     equals("field1", "value1"),
@@ -127,7 +176,7 @@ describe('RSQL predicates', () => {
     });
 
     it('not or', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             not(
                 or(
                     equals("field1", "value1"),
@@ -138,7 +187,7 @@ describe('RSQL predicates', () => {
     });
 
     it('nested not and/or', () => {
-        expect(new RsqlQueryBuilder().buildQuery(
+        expect(new RsqlCriteriaBuilder().buildQuery(
             and(
                 equals("andf", "andv"),
                 not(
@@ -163,6 +212,5 @@ describe('RSQL predicates', () => {
                 )
             ))).toBe("(andf=='andv';(orf!='orv';orf2!='orv2';(and2f!='and2v',and2f2!='and2v2');(or2f=='or2v',or2f2=='or2v2'));(and3f=='and3v';and3f2=='and3v2';and3f3=='and3v3'))");
     });
-
 
 });

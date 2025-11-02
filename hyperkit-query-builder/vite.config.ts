@@ -4,8 +4,7 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
     build: {
         lib: {
-            // Entry point of your library
-            entry: 'src/query-builder.ts',
+            entry: 'src/index.ts',
             name: 'hyperkit-query-builder',
             fileName: (format) => `hyperkit-query-builder.${format}.js`,
         },
@@ -22,7 +21,8 @@ export default defineConfig({
     },
     plugins: [
         dts({
-            insertTypesEntry: true, // creates a `types` entry in package.json
+            // creates a `types` entry in package.json
+            insertTypesEntry: true,
         }),
     ],
 });
