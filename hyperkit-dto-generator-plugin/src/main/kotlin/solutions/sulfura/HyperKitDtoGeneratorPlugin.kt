@@ -16,10 +16,10 @@ interface HyperKitDtoGeneratorConfigurationExtension {
     val rootOutputPath: Property<String>
 
     /** Default package where the generated DTOs will be placed. Default: solutions.sulfura.hyperkit.dtos*/
-    val defaultOutputPackage: Property<String?>
+    val defaultOutputPackage: Property<String>
 
     /** Velocity template used for DTO code generation */
-    val templatePath: Property<String?>
+    val templatePath: Property<String>
 
 }
 

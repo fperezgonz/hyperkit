@@ -5,8 +5,7 @@ plugins {
     id("org.springframework.boot") version "3.4.6"
     id("io.spring.dependency-management") version "1.1.7"
     `kotlin-dsl`
-    `java-gradle-plugin`
-    id("com.gradle.plugin-publish") version "1.3.1"
+    id("com.gradle.plugin-publish") version "2.0.0"
 }
 
 repositories {
@@ -22,7 +21,7 @@ configurations.all {
 gradlePlugin {
     website = "https://sulfura.solutions"
     plugins {
-        create("hyperkit-entity-generator-plugin") {
+        register("hyperkit-entity-generator-plugin") {
             id = "solutions.sulfura.hyperkit-entity-generator-plugin"
             displayName = "HyperKit Entity Generator Plugin"
             description = "A plugin that generates entity classes from database metadata"
@@ -73,8 +72,6 @@ dependencies {
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
 tasks.test {
