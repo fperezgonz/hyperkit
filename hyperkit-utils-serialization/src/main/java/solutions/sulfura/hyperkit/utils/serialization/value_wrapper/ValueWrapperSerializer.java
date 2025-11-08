@@ -41,6 +41,7 @@ public class ValueWrapperSerializer extends JsonSerializer {
         return value != null && adapter.isEmpty(value);
     }
 
+    @Deprecated
     @Override
     public boolean isEmpty(Object value) {
         return value != null && adapter.isEmpty(value);
