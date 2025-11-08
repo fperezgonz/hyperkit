@@ -28,9 +28,17 @@ subprojects {
 }
 
 tasks.register("publish") {
-    dependsOn(subprojects.map { it.tasks.named("publish") })
+    dependsOn(subprojects.filter {
+        it.tasks.findByName("publish") != null
+    }.map {
+        it.tasks.named("publish")
+    })
 }
 
 tasks.register("publishMavenPublicationToMavenLocal") {
-    dependsOn(subprojects.map { it.tasks.named("publishMavenPublicationToMavenLocal") })
+    dependsOn(subprojects.filter {
+        it.tasks.findByName("publishMavenPublicationToMavenLocal") != null
+    }.map {
+        it.tasks.named("publishMavenPublicationToMavenLocal")
+    })
 }

@@ -15,12 +15,13 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 import java.util.Set;
 
 @DtoFor(OneToManyEntity.class)
-public class OneToManyEntityDto implements Dto<OneToManyEntity>{
+public class OneToManyEntityDto implements Dto<OneToManyEntity> {
 
     public ValueWrapper<Long> id = ValueWrapper.empty();
     public ValueWrapper<String> name = ValueWrapper.empty();
     public ValueWrapper<String> description = ValueWrapper.empty();
     public ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities = ValueWrapper.empty();
+    public ValueWrapper<CompanyDto> company = ValueWrapper.empty();
 
     public OneToManyEntityDto() {
     }
@@ -29,45 +30,51 @@ public class OneToManyEntityDto implements Dto<OneToManyEntity>{
         return OneToManyEntity.class;
     }
 
-    public static class Builder{
+    public static class Builder {
 
         ValueWrapper<Long> id = ValueWrapper.empty();
         ValueWrapper<String> name = ValueWrapper.empty();
         ValueWrapper<String> description = ValueWrapper.empty();
         ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities = ValueWrapper.empty();
+        ValueWrapper<CompanyDto> company = ValueWrapper.empty();
 
-        public static  Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
-        public Builder id(final ValueWrapper<Long> id){
+        public Builder id(final ValueWrapper<Long> id) {
             this.id = id == null ? ValueWrapper.empty() : id;
             return this;
         }
 
-        public Builder name(final ValueWrapper<String> name){
+        public Builder name(final ValueWrapper<String> name) {
             this.name = name == null ? ValueWrapper.empty() : name;
             return this;
         }
 
-        public Builder description(final ValueWrapper<String> description){
+        public Builder description(final ValueWrapper<String> description) {
             this.description = description == null ? ValueWrapper.empty() : description;
             return this;
         }
 
-        public Builder manyToOneEntities(final ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities){
+        public Builder manyToOneEntities(final ValueWrapper<Set<ListOperation<ManyToOneEntityDto>>> manyToOneEntities) {
             this.manyToOneEntities = manyToOneEntities == null ? ValueWrapper.empty() : manyToOneEntities;
             return this;
         }
 
+        public Builder company(final ValueWrapper<CompanyDto> company) {
+            this.company = company == null ? ValueWrapper.empty() : company;
+            return this;
+        }
 
-        public OneToManyEntityDto build(){
+        public OneToManyEntityDto build() {
 
             OneToManyEntityDto instance = new OneToManyEntityDto();
             instance.id = id;
             instance.name = name;
             instance.description = description;
             instance.manyToOneEntities = manyToOneEntities;
+            instance.company = company;
 
             return instance;
 
@@ -82,6 +89,7 @@ public class OneToManyEntityDto implements Dto<OneToManyEntity>{
         public FieldConf name;
         public FieldConf description;
         public DtoListFieldConf<ManyToOneEntityDto.Projection> manyToOneEntities;
+        public solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf<CompanyDto.Projection> company;
 
         public Projection() {
         }
@@ -91,66 +99,79 @@ public class OneToManyEntityDto implements Dto<OneToManyEntity>{
             dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
             dto.description = ProjectionUtils.getProjectedValue(dto.description, this.description);
             dto.manyToOneEntities = ProjectionUtils.getProjectedValue(dto.manyToOneEntities, this.manyToOneEntities);
+            dto.company = ProjectionUtils.getProjectedValue(dto.company, this.company);
         }
 
-        public static class Builder{
+        public static class Builder {
 
             FieldConf id;
             FieldConf name;
             FieldConf description;
             DtoListFieldConf<ManyToOneEntityDto.Projection> manyToOneEntities;
+            solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf<CompanyDto.Projection> company;
 
-            public static  Builder newInstance(){
+            public static Builder newInstance() {
                 return new Builder();
             }
 
-            public Builder id(final FieldConf id){
+            public Builder id(final FieldConf id) {
                 this.id = id;
                 return this;
             }
 
-            public Builder id(final Presence presence){
+            public Builder id(final Presence presence) {
                 id = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder name(final FieldConf name){
+            public Builder name(final FieldConf name) {
                 this.name = name;
                 return this;
             }
 
-            public Builder name(final Presence presence){
+            public Builder name(final Presence presence) {
                 name = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder description(final FieldConf description){
+            public Builder description(final FieldConf description) {
                 this.description = description;
                 return this;
             }
 
-            public Builder description(final Presence presence){
+            public Builder description(final Presence presence) {
                 description = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder manyToOneEntities(final DtoListFieldConf<ManyToOneEntityDto.Projection> manyToOneEntities){
+            public Builder manyToOneEntities(final DtoListFieldConf<ManyToOneEntityDto.Projection> manyToOneEntities) {
                 this.manyToOneEntities = manyToOneEntities;
                 return this;
             }
 
-            public Builder manyToOneEntities(final Presence presence, final ManyToOneEntityDto.Projection projection){
+            public Builder manyToOneEntities(final Presence presence, final ManyToOneEntityDto.Projection projection) {
                 manyToOneEntities = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
-            public Projection build(){
+            public Builder company(final solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf<CompanyDto.Projection> company) {
+                this.company = company;
+                return this;
+            }
+
+            public Builder company(final Presence presence, final CompanyDto.Projection projection) {
+                company = solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf.of(presence, projection);
+                return this;
+            }
+
+            public Projection build() {
 
                 Projection instance = new Projection();
                 instance.id = id;
                 instance.name = name;
                 instance.description = description;
                 instance.manyToOneEntities = manyToOneEntities;
+                instance.company = company;
 
                 return instance;
 
@@ -160,12 +181,13 @@ public class OneToManyEntityDto implements Dto<OneToManyEntity>{
 
     }
 
-    public static class DtoModel{
+    public static class DtoModel {
 
         public static final String _id = "id";
         public static final String _name = "name";
         public static final String _description = "description";
         public static final String _manyToOneEntities = "manyToOneEntities";
+        public static final String _company = "company";
 
     }
 
