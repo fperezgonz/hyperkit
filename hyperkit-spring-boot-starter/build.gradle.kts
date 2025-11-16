@@ -52,6 +52,7 @@ dependencies {
     // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.5")
     testImplementation("com.h2database:h2:2.2.224")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
