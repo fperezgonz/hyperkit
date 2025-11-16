@@ -41,8 +41,8 @@ dependencies {
     implementation(project(":hyperkit-projections-dsl"))
     compileOnly("org.jspecify:jspecify:1.0.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
