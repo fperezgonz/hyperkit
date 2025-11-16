@@ -77,6 +77,13 @@ dependencies {
 tasks.test {
 //    testLogging.showStandardStreams = true
     useJUnitPlatform()
+    // Remove files created by the test project
+    doLast {
+        delete(
+            layout.buildDirectory.dir("resources/test/test_project/.gradle"),
+            layout.buildDirectory.dir("resources/test/test_project/src/out")
+        )
+    }
 }
 
 tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
@@ -84,14 +91,6 @@ tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
         if (path.contains("kotlin-stdlib")) {
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         }
-    }
-}
-
-// Remove entity source files generated in previous test runs to avoid false positives
-tasks.named<Copy>("processTestResources") {
-    outputs.upToDateWhen { false }
-    doFirst {
-        delete("${layout.buildDirectory}/resources/test")
     }
 }
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 publishing {
-    repositories{
+    repositories {
         maven {
             url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
             name = "GitLab"
@@ -48,16 +48,15 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    // Remove files created by the test project
+    doLast {
+        delete(
+            layout.buildDirectory.dir("resources/test/test_project/.gradle"),
+            layout.buildDirectory.dir("resources/test/test_project/src/out")
+        )
+    }
 }
 
 kotlin {
     jvmToolchain(17)
-}
-
-// Remove dto source files generated in previous test runs to avoid false positives
-tasks.named<Copy>("processTestResources") {
-    outputs.upToDateWhen { false }
-    doFirst {
-        delete("${layout.buildDirectory}/resources/test")
-    }
 }
