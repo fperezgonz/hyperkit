@@ -58,7 +58,7 @@ dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 
     // Velocity
-    implementation("org.apache.velocity:velocity-engine-core:2.3")
+    implementation("org.apache.velocity:velocity-engine-core:2.4.1")
 
     // Database drivers
     implementation("com.h2database:h2:2.3.232")
