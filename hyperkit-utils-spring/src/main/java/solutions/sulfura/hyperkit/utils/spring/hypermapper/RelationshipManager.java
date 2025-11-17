@@ -84,6 +84,10 @@ public class RelationshipManager {
         Collection<Object> collection = ((Collection<Object>) HyperMapperPropertyUtils.getProperty(entity, collectionPropertyName));
         PropertyDescriptor entityIdPropDesc = null;
 
+        if (collection == null) {
+            return false;
+        }
+
         for (Object collectionElement : collection) {
 
             entityIdPropDesc = entityIdPropDesc != null ? entityIdPropDesc : getIdPropertyDescriptor(collectionElement.getClass());
