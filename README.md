@@ -27,13 +27,20 @@ To use Hyperkit in your Spring Boot project, add the hyperkit-spring-boot-starte
 ```kotlin
 
 plugins {
-    // ...Other plugins
+    // Other plugins...
     id("solutions.sulfura.hyperkit-dto-generator-plugin") version "latest.version"
     id("solutions.sulfura.hyperkit-entity-generator-plugin") version "latest.version"
 }
 
+repositories {
+    // Other repositories... 
+    maven {
+        url = uri("https://public-package-registry.sulfura.solutions/")
+    }
+}
+
 dependencies {
-    // ...Other dependencies
+    // Other dependencies...
     implementation('solutions.sulfura:hyperkit-spring-boot-starter:latest.version')
 }
 ```
