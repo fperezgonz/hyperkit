@@ -27,21 +27,21 @@ To use Hyperkit in your Spring Boot project, add the hyperkit-spring-boot-starte
 ```kotlin
 
 plugins {
-    // Other plugins...
     id("solutions.sulfura.hyperkit-dto-generator-plugin") version "latest.version"
     id("solutions.sulfura.hyperkit-entity-generator-plugin") version "latest.version"
+    // Other plugins...
 }
 
 repositories {
-    // Other repositories... 
     maven {
         url = uri("https://public-package-registry.sulfura.solutions/")
     }
+    // Other repositories... 
 }
 
 dependencies {
-    // Other dependencies...
     implementation('solutions.sulfura:hyperkit-spring-boot-starter:latest.version')
+    // Other dependencies...
 }
 ```
 
@@ -77,7 +77,7 @@ hyperKitEntityGenerator {
 - Annotate the entity classes whose Dtos you want to generate with `@Dto`
 - Annotate the fields that will be included for the generated Dtos with `@DtoProperty`
 ```java
-@Dto
+@Dto(include = DtoProperty.class)
 @Entity
 public class User {
     @Id
