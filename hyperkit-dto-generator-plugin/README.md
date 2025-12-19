@@ -12,11 +12,35 @@ The Hyperkit DTO Generator Plugin is a Gradle plugin that automatically generate
 
 ### Adding the Plugin
 
-Add the plugin to your Gradle build script:
+Add the plugin repository to your Gradle settings file:
+```kotlin
+pluginManagement {
+    repositories {
+        maven{
+            url = uri("https://public-package-registry.sulfura.solutions/")
+        }
+        // Other repositories...
+    }
+}
+```
 
-```gradle
+Add the dependencies repository, the dependencies and the plugin to your Gradle build script:
+
+```kotlin
 plugins {
     id("solutions.sulfura.hyperkit-dto-generator-plugin") version "latest.version"
+}
+
+repositories {
+    maven {
+        url = uri("https://public-package-registry.sulfura.solutions/")
+    }
+    // Other repositories... 
+}
+
+dependencies {
+    implementation("solutions.sulfura:hyperkit-dto-api:6.2.0-SNAPSHOT")
+    // Other dependencies...
 }
 ```
 
@@ -24,7 +48,7 @@ plugins {
 
 Configure the plugin using the `hyperKitDtoGenerator` extension:
 
-```gradle
+```kotlin
 hyperKitDtoGenerator {
     // Paths to the input source files (default: ["src/main/java/"])
     inputPaths = setOf("src/main/java/")
@@ -34,6 +58,21 @@ hyperKitDtoGenerator {
 
     // Default package where the generated DTOs will be placed (default: "solutions.sulfura.hyperkit.dtos")
     defaultOutputPackage = "solutions.sulfura.hyperkit.dtos"
+}
+```
+
+### Annotating Source Classes
+
+Annotate the classes to be processed by the plugin with `@Dto`
+
+```java
+@Dto
+public class User {
+    public Long id;
+    public String name;
+    public String email;
+    public Set<AuthRole> roles;
+
 }
 ```
 
@@ -49,49 +88,102 @@ This will process all classes annotated with `@Dto` and generate the correspondi
 
 ## Example
 
-Given a domain class annotated with `@Dto`, that contains properties annotated with @DtoProperty:
+Given a domain class annotated with `@Dto`:
 
 ```java
+package solutions.sulfura.hyperkit.examples.app;
+
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
-import solutions.sulfura.hyperkit.dtos.annotations.DtoProperty;
+
+import java.util.Set;
 
 @Dto
 public class User {
-    @DtoProperty
-    public String username;    
-    @DtoProperty
-    public String emailAddress;
-    private String password;
-    
-    // Getters and setters...
+    public Long id;
+    public String name;
+    public String email;
+    public Set<AuthRole> roles;
+
 }
+
 ```
 
-The plugin will generate a `UserDto` class similar to:
+The plugin will generate a `UserDto` class similar to this:
 
 ```java
 package solutions.sulfura.hyperkit.dtos;
-// imports...
+
+import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import solutions.sulfura.hyperkit.examples.app.User;
+
+import java.util.Objects;
+import java.util.Set;
 
 @DtoFor(User.class)
-public class UserDto extends Dto<User> {
-    public String username = ValueWrapper.empty();
-    public String emailAddress = ValueWrapper.empty();
-    
-    // Constructors, builders, equals, hashCode, toString methods...
-    
-    public static class Projection{
-        public FieldConf username;
-        public FieldConf emailAddress;
-        
-    }
-    
-    public Projection(){}
+public class UserDto implements Dto<User> {
 
-    public void applyProjectionTo(UserDto dto) throws DtoProjectionException {
-        dto.username = ProjectionUtils.getProjectedValue(dto.username, this.username);
-        dto.emailAddress = ProjectionUtils.getProjectedValue(dto.emailAddress, this.emailAddress);
+    public ValueWrapper<Long> id = ValueWrapper.empty();
+    public ValueWrapper<String> name = ValueWrapper.empty();
+    public ValueWrapper<String> email = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<AuthRoleDto>>> roles = ValueWrapper.empty();
+
+    // Constructor, getters and setters, builder...
+
+    @ProjectionFor(UserDto.class)
+    public static class Projection extends DtoProjection<UserDto> {
+
+        public FieldConf id;
+        public FieldConf name;
+        public FieldConf email;
+        public DtoListFieldConf<AuthRoleDto.Projection> roles;
+
+        public Projection() {
+        }
+
+        public void applyProjectionTo(UserDto dto) throws DtoProjectionException {
+            dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
+            dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
+            dto.email = ProjectionUtils.getProjectedValue(dto.email, this.email);
+            dto.roles = ProjectionUtils.getProjectedValue(dto.roles, this.roles);
+        }
+
+        // Hashcode, equals and Builder...
+
     }
+
+    public static class DtoModel {
+
+        public static final String _id = "id";
+        public static final String _name = "name";
+        public static final String _email = "email";
+        public static final String _roles = "roles";
+
+    }
+
+}
+```
+
+
+
+If you only want to generate a subset of the properties of a class, you can configure the @Dto to include only properties with specific annotations:
+
+Example: this would generate a Dto that only has the `id` and `roles` properties:
+```java
+@Dto(include = DtoProperty.class)
+public class User {
+    @DtoProperty
+    public Long id;
+    public String name;
+    public String email;
+    @DtoProperty
+    public Set<AuthRole> roles;
 
 }
 ```
