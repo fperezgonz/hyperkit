@@ -42,6 +42,15 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
         }
 
         val spoon: SpoonAPI = Launcher()
+
+        logger.info(
+            "Spoon factory environment: \n" +
+                    "- Compliance level: ${spoon.factory.environment.complianceLevel}\n" +
+                    "- Source classpath: ${spoon.factory.environment.sourceClasspath}\n" +
+                    "- Log Level: ${spoon.factory.environment.level}\n"
+
+        )
+
         spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
 
         logger.info("${Instant.now()} - Setting up input files...")
