@@ -85,7 +85,7 @@ public class HyperMapper<C> {
     }
 
     @NonNull
-    public <T> List<T> persistDtosToEntities(@NonNull List<Dto<T>> dtos, C contextInfo) {
+    public <T> List<T> persistDtosToEntities(@NonNull List<? extends Dto<T>> dtos, C contextInfo) {
 
         List<T> result = new ArrayList<>();
         List<ToEntityResult<T>> toEntityResults = mapDtosToEntities(dtos, contextInfo);
@@ -328,7 +328,7 @@ public class HyperMapper<C> {
     }
 
     @NonNull
-    public <T> List<ToEntityResult<T>> mapDtosToEntities(@NonNull List<Dto<T>> dtos, C contextInfo) {
+    public <T> List<ToEntityResult<T>> mapDtosToEntities(@NonNull List<? extends Dto<T>> dtos, C contextInfo) {
         List<ToEntityResult<T>> result = new ArrayList<>();
         for (Dto<T> dto : dtos) {
             result.add(mapDtoToEntity(dto, contextInfo));
