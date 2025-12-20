@@ -11,13 +11,14 @@ plugins {
 }
 
 rootProject.name = "hyperkit"
-include("hyperkit-dto-generator-plugin")
 include("hyperkit-dto-api")
-include("hyperkit-projections-dsl")
-include("hyperkit-utils-spring")
-include("hyperkit-utils-serialization")
-include("hyperkit-spring-boot-starter")
+include("hyperkit-dto-generator-plugin")
 include("hyperkit-entity-generator")
+include("hyperkit-projections-dsl")
 include("hyperkit-query-builder")
-includeBuild("hyperkit-examples/spring-boot-controller-example")
+include("hyperkit-spring-boot-starter")
+include("hyperkit-utils-serialization")
+include("hyperkit-utils-spring")
+includeBuild("hyperkit-examples/dto-generation-example")
 includeBuild("hyperkit-examples/entity-generation-example")
+includeBuild("hyperkit-examples/spring-boot-controller-example")
