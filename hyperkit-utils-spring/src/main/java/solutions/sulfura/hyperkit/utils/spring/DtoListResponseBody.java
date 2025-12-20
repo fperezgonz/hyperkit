@@ -23,14 +23,42 @@ public class DtoListResponseBody<D extends Dto<?>> implements ProjectableHolder<
     }
 
     public void setData(List<D> data) {
+
         this.data.clear();
+
+        if (data == null) {
+            return;
+        }
+
         this.data.addAll(data);
+
     }
 
     @Override
     @NonNull
     public List<D> listProjectables() {
         return List.copyOf(data);
+    }
+
+    public static class Builder<D extends Dto<?>> {
+
+        private List<D> data = new ArrayList<>();
+
+        public static <D extends Dto<?>> Builder<D> newInstance() {
+            return new Builder<>();
+        }
+
+        public Builder<D> data(List<D> data) {
+            this.data = data;
+            return this;
+        }
+
+        public DtoListResponseBody<D> build() {
+            DtoListResponseBody<D> instance = new DtoListResponseBody<>();
+            instance.setData(data);
+            return instance;
+        }
+
     }
 
 }

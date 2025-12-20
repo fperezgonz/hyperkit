@@ -1,40 +1,32 @@
 package solutions.sulfura.hyperkit.dtos;
 
-import solutions.sulfura.hyperkit.dtos.Dto;
-import java.util.Set;
-import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.examples.app.AuthRole;
+import solutions.sulfura.hyperkit.examples.model.AuthRole;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
-import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.dtos.PermissionDto;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 import java.util.Objects;
 
-@DtoFor(AuthRole.class)
-public class AuthRoleDto implements Dto<AuthRole> {
+@DtoFor(AuthRole.Permission.class)
+public class PermissionDto implements Dto<AuthRole.Permission> {
 
     public ValueWrapper<Long> id = ValueWrapper.empty();
     public ValueWrapper<String> name = ValueWrapper.empty();
-    public ValueWrapper<Set<ListOperation<PermissionDto>>> permissions = ValueWrapper.empty();
 
-    public AuthRoleDto() {
+    public PermissionDto() {
     }
 
-    public Class<AuthRole> getSourceClass() {
-        return AuthRole.class;
+    public Class<AuthRole.Permission> getSourceClass() {
+        return AuthRole.Permission.class;
     }
 
     public static class Builder {
 
         ValueWrapper<Long> id = ValueWrapper.empty();
         ValueWrapper<String> name = ValueWrapper.empty();
-        ValueWrapper<Set<ListOperation<PermissionDto>>> permissions = ValueWrapper.empty();
 
         public static Builder newInstance() {
             return new Builder();
@@ -50,18 +42,12 @@ public class AuthRoleDto implements Dto<AuthRole> {
             return this;
         }
 
-        public Builder permissions(final ValueWrapper<Set<ListOperation<PermissionDto>>> permissions){
-            this.permissions = permissions == null ? ValueWrapper.empty() : permissions;
-            return this;
-        }
 
+        public PermissionDto build() {
 
-        public AuthRoleDto build() {
-
-            AuthRoleDto instance = new AuthRoleDto();
+            PermissionDto instance = new PermissionDto();
             instance.id = id;
             instance.name = name;
-            instance.permissions = permissions;
 
             return instance;
 
@@ -69,20 +55,18 @@ public class AuthRoleDto implements Dto<AuthRole> {
 
     }
 
-    @ProjectionFor(AuthRoleDto.class)
-    public static class Projection extends DtoProjection<AuthRoleDto> {
+    @ProjectionFor(PermissionDto.class)
+    public static class Projection extends DtoProjection<PermissionDto> {
 
         public FieldConf id;
         public FieldConf name;
-        public DtoListFieldConf<PermissionDto.Projection> permissions;
 
         public Projection() {
         }
 
-        public void applyProjectionTo(AuthRoleDto dto) throws DtoProjectionException {
+        public void applyProjectionTo(PermissionDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
             dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
-            dto.permissions = ProjectionUtils.getProjectedValue(dto.permissions, this.permissions);
         }
 
         @Override
@@ -95,23 +79,20 @@ public class AuthRoleDto implements Dto<AuthRole> {
             Projection that = (Projection) o;
 
             return  Objects.equals(id, that.id)
-                       && Objects.equals(name, that.name)
-                       && Objects.equals(permissions, that.permissions);
+                       && Objects.equals(name, that.name);
 
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(id,
-                    name,
-                    permissions);
+                    name);
         }
 
         public static class Builder {
 
             FieldConf id;
             FieldConf name;
-            DtoListFieldConf<PermissionDto.Projection> permissions;
 
             public static Builder newInstance() {
                 return new Builder();
@@ -137,22 +118,11 @@ public class AuthRoleDto implements Dto<AuthRole> {
                 return this;
             }
 
-            public Builder permissions(final DtoListFieldConf<PermissionDto.Projection> permissions){
-                this.permissions = permissions;
-                return this;
-            }
+            public PermissionDto.Projection build() {
 
-            public Builder permissions(final Presence presence, final PermissionDto.Projection projection){
-                permissions = DtoListFieldConf.of(presence, projection);
-                return this;
-            }
-
-            public AuthRoleDto.Projection build() {
-
-                AuthRoleDto.Projection instance = new AuthRoleDto.Projection();
+                PermissionDto.Projection instance = new PermissionDto.Projection();
                 instance.id = id;
                 instance.name = name;
-                instance.permissions = permissions;
 
                 return instance;
 
@@ -166,7 +136,6 @@ public class AuthRoleDto implements Dto<AuthRole> {
 
         public static final String _id = "id";
         public static final String _name = "name";
-        public static final String _permissions = "permissions";
 
     }
 

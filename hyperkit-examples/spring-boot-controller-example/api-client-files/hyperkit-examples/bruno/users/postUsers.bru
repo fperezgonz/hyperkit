@@ -1,0 +1,20 @@
+meta {
+  name: postUsers
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/users/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "data":[{
+      "name":"User 1",
+      "email":"test.email@test.test"
+    }]
+  }
+}

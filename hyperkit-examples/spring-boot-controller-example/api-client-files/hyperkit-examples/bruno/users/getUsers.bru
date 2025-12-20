@@ -1,0 +1,17 @@
+meta {
+  name: getUsers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/
+  body: none
+  auth: none
+}
+
+params:query {
+  ~filter: 
+  ~page.size: 
+  ~page.number: 
+}

@@ -91,7 +91,7 @@ This will process all classes annotated with `@Dto` and generate the correspondi
 Given a domain class annotated with `@Dto`:
 
 ```java
-package solutions.sulfura.hyperkit.examples.app;
+package solutions.sulfura.hyperkit.examples.model;
 
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
 
@@ -121,9 +121,8 @@ import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
-import solutions.sulfura.hyperkit.examples.app.User;
+import solutions.sulfura.hyperkit.examples.model.User;
 
-import java.util.Objects;
 import java.util.Set;
 
 @DtoFor(User.class)

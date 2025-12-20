@@ -1,0 +1,25 @@
+meta {
+  name: patchUser
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/:userId
+  body: json
+  auth: none
+}
+
+params:path {
+  userId: 1
+}
+
+body:json {
+  {
+    "data":{
+      "id": "1",
+      "name":"Patched User 1",
+      "email":"test.email@test.test"
+    }
+  }
+}
