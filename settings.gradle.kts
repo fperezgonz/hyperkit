@@ -2,9 +2,6 @@ pluginManagement {
     repositories {
         mavenLocal()
         gradlePluginPortal()
-        maven{
-            url = uri("https://public-package-registry.sulfura.solutions/")
-        }
     }
 }
 
@@ -22,4 +19,5 @@ include("hyperkit-utils-serialization")
 include("hyperkit-spring-boot-starter")
 include("hyperkit-entity-generator")
 include("hyperkit-query-builder")
-include("hyperkit-examples:spring-boot-controller-example")
+includeBuild("hyperkit-examples/spring-boot-controller-example")
+includeBuild("hyperkit-examples/entity-generation-example")
