@@ -31,10 +31,6 @@ abstract class GenerateDtosTask : DefaultTask() {
     @get:Input
     abstract val templatePath: Property<String>
 
-    /** Max heap size for the forked process */
-    @get:Input
-    abstract val maxHeapSize: Property<String>
-
     @get:Classpath
     abstract val spoonSourcesClasspath: ConfigurableFileCollection
 
@@ -44,11 +40,22 @@ abstract class GenerateDtosTask : DefaultTask() {
     @TaskAction
     fun generate() {
 
+        logger.info("Worker classpath: ${workerClasspath.files.joinToString(", ")}")
+
+        val filteredClassPath = spoonSourcesClasspath.files.filter {
+
+            val exclude = it.name.startsWith("ecj-") && it.path.contains("org.eclipse.jdt")
+
+            if (exclude) {
+                logger.warn("The sources classpath contains an ecj compiler artifact `${it.absolutePath}`. It will be excluded from the classpath to avoid conflicts with spoon's own ecj compiler version")
+            }
+            return@filter !exclude
+        }
+
         // Configure classloader isolation to avoid errors due to conflicts with other plugins when processing the input sources with Spoon
-        val workQueue: WorkQueue = workerExecutor.processIsolation {
+        val workQueue: WorkQueue = workerExecutor.classLoaderIsolation {
+            classpath.from(filteredClassPath)
             classpath.from(workerClasspath)
-            forkOptions.maxHeapSize = this@GenerateDtosTask.maxHeapSize.getOrElse("1g")// Add UTF-8 encoding to handle non-ASCII characters in paths
-            forkOptions.jvmArgs("-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8")
         }
 
         workQueue.submit(DtoGeneratorWorkAction::class.java) {

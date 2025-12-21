@@ -21,9 +21,6 @@ interface HyperKitDtoGeneratorConfigurationExtension {
     /** Velocity template used for DTO code generation */
     val templatePath: Property<String>
 
-    /** Max heap size for the DTO generation process. Default: 1g */
-    val maxHeapSize: Property<String>
-
 }
 
 @Suppress("unused")
@@ -46,7 +43,6 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
         extension.rootOutputPath.convention("src/main/java/")
         extension.defaultOutputPackage.convention("solutions.sulfura.hyperkit.dtos")
         extension.templatePath.convention("templates/dto.vm")
-        extension.maxHeapSize.convention("1g")
 
         val templatePathAux = project.findProperty("hyperkit.dtoGenerator.templatePath")?.toString()
 
@@ -69,7 +65,6 @@ class HyperKitDtoGeneratorPlugin : Plugin<Project> {
             group = "hyperkit"
             description = "Generate DTOs from source classes"
             templatePath.set(extension.templatePath)
-            maxHeapSize.set(extension.maxHeapSize)
             rootOutputPath.set(project.file(extension.rootOutputPath).absolutePath)
             defaultOutputPackage.set(extension.defaultOutputPackage)
             inputFiles.setFrom(extension.inputPaths)
