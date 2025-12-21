@@ -47,7 +47,8 @@ abstract class GenerateDtosTask : DefaultTask() {
         // Configure classloader isolation to avoid errors due to conflicts with other plugins when processing the input sources with Spoon
         val workQueue: WorkQueue = workerExecutor.processIsolation {
             classpath.from(workerClasspath)
-            forkOptions.maxHeapSize = this@GenerateDtosTask.maxHeapSize.getOrElse("1g")
+            forkOptions.maxHeapSize = this@GenerateDtosTask.maxHeapSize.getOrElse("1g")// Add UTF-8 encoding to handle non-ASCII characters in paths
+            forkOptions.jvmArgs("-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8")
         }
 
         workQueue.submit(DtoGeneratorWorkAction::class.java) {
