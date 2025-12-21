@@ -31,6 +31,10 @@ abstract class GenerateDtosTask : DefaultTask() {
     @get:Input
     abstract val templatePath: Property<String>
 
+    /** Max heap size for the forked process */
+    @get:Input
+    abstract val maxHeapSize: Property<String>
+
     @get:Classpath
     abstract val spoonSourcesClasspath: ConfigurableFileCollection
 
@@ -44,6 +48,7 @@ abstract class GenerateDtosTask : DefaultTask() {
         val workQueue: WorkQueue = workerExecutor.processIsolation {
             classpath.from(spoonSourcesClasspath)
             classpath.from(workerClasspath)
+            forkOptions.maxHeapSize = this@GenerateDtosTask.maxHeapSize.getOrElse("1g")
         }
 
         workQueue.submit(DtoGeneratorWorkAction::class.java) {

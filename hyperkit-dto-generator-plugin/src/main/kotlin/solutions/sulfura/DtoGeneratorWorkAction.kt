@@ -41,38 +41,38 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
             throw Exception("Parameters not set")
         }
 
-        val spoon: SpoonAPI = Launcher()
+        val spoonApi: SpoonAPI = Launcher()
 
         logger.info(
             "Spoon factory environment: \n" +
-                    "- Compliance level: ${spoon.factory.environment.complianceLevel}\n" +
-                    "- Source classpath: ${spoon.factory.environment.sourceClasspath}\n" +
-                    "- Log Level: ${spoon.factory.environment.level}\n"
+                    "- Compliance level: ${spoonApi.factory.environment.complianceLevel}\n" +
+                    "- Source classpath: ${spoonApi.factory.environment.sourceClasspath}\n" +
+                    "- Log Level: ${spoonApi.factory.environment.level}\n"
 
         )
 
-        spoon.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
+        spoonApi.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
 
         logger.info("${Instant.now()} - Setting up input files...")
         logger.debug("absoluteInputPaths: {}", parameters.absoluteInputPaths.get())
         for (path in parameters.absoluteInputPaths.get()) {
-            spoon.addInputResource(path)
+            spoonApi.addInputResource(path)
         }
         logger.info("${Instant.now()} - Setting up input files... DONE")
 
         logger.info("${Instant.now()} - Setting up classPath...")
         logger.debug("classpath: {}", parameters.spoonSourcesClasspath.get())
 
-        spoon.environment.sourceClasspath = parameters.spoonSourcesClasspath.get().toTypedArray()
+        spoonApi.environment.sourceClasspath = parameters.spoonSourcesClasspath.get().toTypedArray()
 
         logger.info("${Instant.now()} - Setting up classPath... DONE")
 
         logger.info("${Instant.now()} - Building model...")
-        val model = spoon.buildModel()
+        val model = spoonApi.buildModel()
         logger.info("# ${Instant.now()} - Building model... DONE")
 
         logger.info("${Instant.now()} - Collecting classes to process...")
-        val classesToProcess = collectClasses(model, spoon.factory)
+        val classesToProcess = collectClasses(model, spoonApi.factory)
         logger.info("${Instant.now()} - Collecting classes to process... DONE")
 
         //A map of references from the source class name to the dto class
@@ -82,7 +82,7 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
         classesToProcess.list<CtClass<*>>().associateTo(ctClassByClassName) { el ->
             el.qualifiedName to sourceClassToDtoClassReference(
                 el,
-                spoon.factory,
+                spoonApi.factory,
                 parameters.defaultOutputPackage.get()
             )
         }
@@ -101,7 +101,7 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
 
                 return@map createDtoSourceFileData(
                     ctClass,
-                    spoon,
+                    spoonApi,
                     parameters.defaultOutputPackage.get(),
                     parameters.rootOutputPath.get(),
                     classTemplate,
