@@ -1,6 +1,7 @@
 package solutions.sulfura
 
 import org.apache.velocity.Template
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
@@ -22,7 +23,7 @@ interface DtoGeneratorParameters : WorkParameters {
     /** Absolute paths of the input sources to be processed (files or folders) */
     val absoluteInputPaths: SetProperty<String>
     /** Classpath files for spoon */
-    val spoonSourcesClasspath: SetProperty<String>
+    val spoonSourcesClasspath: ListProperty<String>
     /** Root path for the generated sources */
     val rootOutputPath: Property<String>
     /** Default package where the generated DTOs will be placed*/

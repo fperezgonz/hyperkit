@@ -46,7 +46,6 @@ abstract class GenerateDtosTask : DefaultTask() {
 
         // Configure classloader isolation to avoid errors due to conflicts with other plugins when processing the input sources with Spoon
         val workQueue: WorkQueue = workerExecutor.processIsolation {
-            classpath.from(spoonSourcesClasspath)
             classpath.from(workerClasspath)
             forkOptions.maxHeapSize = this@GenerateDtosTask.maxHeapSize.getOrElse("1g")
         }
