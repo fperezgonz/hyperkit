@@ -48,6 +48,11 @@ publishing {
     }
 }
 
+// Configuration used to set up mockito instrumentation to support running the tests using Gradle with JDK 21+ (https://javadoc.io/static/org.mockito/mockito-core/5.14.2/org/mockito/Mockito.html#0.3)
+val mockitoAgent: Configuration by configurations.creating {
+    isTransitive = false
+}
+
 dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter:3.4.6")
@@ -72,9 +77,11 @@ dependencies {
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    mockitoAgent("org.mockito:mockito-core")
 }
 
 tasks.test {
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
 //    testLogging.showStandardStreams = true
     useJUnitPlatform()
     // Remove files created by the test project

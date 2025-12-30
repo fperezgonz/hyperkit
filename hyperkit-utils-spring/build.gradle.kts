@@ -1,6 +1,8 @@
 plugins {
     `java-library`
     `maven-publish`
+    id("org.springframework.boot") version "3.4.6"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 java {
@@ -35,21 +37,27 @@ publishing {
     }
 }
 
+// Configuration used to set up mockito instrumentation to support running the tests using Gradle with JDK 21+ (https://javadoc.io/static/org.mockito/mockito-core/5.14.2/org/mockito/Mockito.html#0.3)
+val mockitoAgent: Configuration by configurations.creating {
+    isTransitive = false
+}
+
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
     implementation(project(":hyperkit-utils-serialization"))
     implementation("org.springframework.boot:spring-boot-starter-web:3.4.6")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.6")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.9")
     compileOnly("org.jspecify:jspecify:1.0.0")
-    testImplementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
     testImplementation("org.hsqldb:hsqldb:2.7.1")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.5")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    mockitoAgent("org.mockito:mockito-core")
 }
 
 tasks.test {
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
     useJUnitPlatform()
 }
