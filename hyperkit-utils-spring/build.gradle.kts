@@ -1,7 +1,6 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("org.springframework.boot") version "3.4.6"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -42,12 +41,18 @@ val mockitoAgent: Configuration by configurations.creating {
     isTransitive = false
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.6")
+    }
+}
+
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
     implementation(project(":hyperkit-utils-serialization"))
-    implementation("org.springframework.boot:spring-boot-starter-web:3.4.6")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.6")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.9")
     compileOnly("org.jspecify:jspecify:1.0.0")
