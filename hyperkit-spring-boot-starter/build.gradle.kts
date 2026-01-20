@@ -15,6 +15,31 @@ publishing {
         create<MavenPublication>("maven") {
             artifactId = "hyperkit-spring-boot-starter"
             from(components["java"])
+
+            pom {
+                name = "HyperKit Dto API"
+                description = "A spring boot starter that autoconfigures Hyperkit components on Spring Boot applications"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-boot-starter"
+                inceptionYear = "2023"
+                licenses {
+                    license {
+                        name = "Apache-2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "fperezgonz@gmail.com"
+                        name = "Francisco José Pérez Gonzalez"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://gitlab.com/sulfura/hyperkit.git"
+                    developerConnection = "scm:git:ssh://gitlab.com:sulfura/hyperkit.git"
+                    url = "https://gitlab.com/sulfura/hyperkit"
+                }
+            }
+
         }
     }
     repositories {

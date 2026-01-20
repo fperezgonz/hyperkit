@@ -19,6 +19,31 @@ publishing {
         create<MavenPublication>("maven") {
             artifactId = "hyperkit-utils-spring"
             from(components["java"])
+
+            pom {
+                name = "HyperKit Spring utils"
+                description = "Tools to simplify the usage of Hyperkit DTOs with Spring"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-utils-spring"
+                inceptionYear = "2023"
+                licenses {
+                    license {
+                        name = "Apache-2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "fperezgonz@gmail.com"
+                        name = "Francisco José Pérez Gonzalez"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://gitlab.com/sulfura/hyperkit.git"
+                    developerConnection = "scm:git:ssh://gitlab.com:sulfura/hyperkit.git"
+                    url = "https://gitlab.com/sulfura/hyperkit"
+                }
+            }
+
         }
     }
     repositories {

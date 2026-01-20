@@ -21,6 +21,31 @@ publishing {
         create<MavenPublication>("maven") {
             artifactId = "hyperkit-projections-dsl"
             from(components["java"])
+
+            pom {
+                name = "HyperKit Projections DSL"
+                description = "Tools for parsing and applying projections to dtos generated with hyperkit, using a simple dsl"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-projections-dsl"
+                inceptionYear = "2023"
+                licenses {
+                    license {
+                        name = "Apache-2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "fperezgonz@gmail.com"
+                        name = "Francisco José Pérez Gonzalez"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://gitlab.com/sulfura/hyperkit.git"
+                    developerConnection = "scm:git:ssh://gitlab.com:sulfura/hyperkit.git"
+                    url = "https://gitlab.com/sulfura/hyperkit"
+                }
+            }
+
         }
     }
     repositories {
