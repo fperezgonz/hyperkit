@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation("solutions.sulfura:hyperkit-dto-api:6.2.0-SNAPSHOT")
+    implementation("solutions.sulfura:hyperkit-dto-api:6.2.1-SNAPSHOT")
     // Other dependencies...
 }
 ```

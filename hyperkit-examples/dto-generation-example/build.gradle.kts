@@ -1,6 +1,6 @@
 plugins {
     java
-    id("solutions.sulfura.hyperkit-dto-generator-plugin") version "6.2.0-SNAPSHOT"
+    id("solutions.sulfura.hyperkit-dto-generator-plugin") version "6.2.1-SNAPSHOT"
 }
 
 
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
-    implementation("solutions.sulfura:hyperkit-spring-boot-starter:6.2.0-SNAPSHOT")
+    implementation("solutions.sulfura:hyperkit-spring-boot-starter:6.2.1-SNAPSHOT")
 }
 
 hyperKitDtoGenerator {
