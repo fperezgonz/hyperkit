@@ -11,9 +11,9 @@ import java.util.Collection;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ProjectionUtils {
     /**
-     * Searches within a {@link Dto} class for a nested class that extends {@link DtoProjection}.
-     * <p>
      * Expects the {@link Dto} class to contain an inner {@link DtoProjection} class similar to the one defined in the default template for generating Dtos
+     * @param dtoClass the class of the Dto for which to find the projection class
+     * @return a class nested in {@code dtoClass} that extends {@link DtoProjection}
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Class<? extends DtoProjection> findDefaultProjectionClass(Class<?> dtoClass) {
