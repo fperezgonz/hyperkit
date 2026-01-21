@@ -5,7 +5,7 @@ plugins {
     id("org.springframework.boot") version "3.4.6"
     id("io.spring.dependency-management")
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "2.0.0"
+    id("com.gradle.plugin-publish")
 }
 
 repositories {

@@ -15,10 +15,6 @@ hyperKitEntityGenerator {
 
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://public-package-registry.sulfura.solutions/")
-    }
-    mavenLocal()
 }
 
 java {
@@ -38,7 +34,7 @@ application {
 //}
 
 dependencies {
-    implementation("solutions.sulfura:hyperkit-spring-boot-starter:6.2.1-SNAPSHOT")
+    implementation("solutions.sulfura:hyperkit-spring-boot-starter:6.2.1-RELEASE")
     implementation("org.hsqldb:hsqldb:2.7.1")
     implementation("org.jspecify:jspecify:1.0.0")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")

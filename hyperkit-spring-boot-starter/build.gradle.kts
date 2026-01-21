@@ -12,6 +12,8 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -81,7 +83,7 @@ jreleaser {
     gitRootSearch = true
 
     signing {
-        active = Active.SNAPSHOT
+        active = Active.ALWAYS
 
         val isSecretKeySet = System.getenv("MAVEN_SIGNING_SECRET_KEY_B64") != null
         val isPublicKeySet = System.getenv("MAVEN_SIGNING_PUBLIC_KEY_B64") != null
@@ -105,16 +107,17 @@ jreleaser {
     deploy {
         maven {
             nexus2 {
-                create("snapshot-deploy") {
+                create("maven-central") {
+                    stagingProfileId = "${project.name.get()}_${project.version.get()}"
                     url = "https://ossrh-staging-api.central.sonatype.com/service/local/"
                     username = System.getenv("SONATYPE_TOKEN_USERNAME")
                     password = System.getenv("SONATYPE_TOKEN_PASSWORD")
-                    active = Active.SNAPSHOT
+                    active = Active.ALWAYS
                     snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots/"
                     applyMavenCentralRules = true
                     snapshotSupported = true
                     closeRepository = true
-                    releaseRepository = true
+                    releaseRepository = false
 
                     stagingRepository("build/staging-deploy-$version")
                 }
