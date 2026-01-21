@@ -46,17 +46,17 @@ publishing {
     }
 
     repositories {
-//        maven {
-//            name = "Gitlab"
-//            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
-//            credentials(HttpHeaderCredentials::class) {
-//                name = "Job-Token"
-//                value = System.getenv("CI_JOB_TOKEN")
-//            }
-//            authentication {
-//                create<HttpHeaderAuthentication>("header")
-//            }
-//        }
+        maven {
+            name = "Gitlab"
+            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
+            credentials(HttpHeaderCredentials::class) {
+                name = "Job-Token"
+                value = System.getenv("CI_JOB_TOKEN")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
         // Staging repository to prepare deployments to Maven Central
         maven {
             name = "MavenCentralStaging"
@@ -77,14 +77,7 @@ jreleaser {
 
     // Prevent the "release.gitlab.token must not be blank" error
     yolo = true
-
-    release {
-        gitlab {
-            // Sulfura public Gitlab Maven repo
-            repoUrl = "https://gitlab.com/api/v4/projects/67836497/packages/maven"
-            token = System.getenv("CI_JOB_TOKEN")
-        }
-    }
+    gitRootSearch = true
 
     signing {
         active = Active.SNAPSHOT
@@ -92,19 +85,18 @@ jreleaser {
         val isSecretKeySet = System.getenv("MAVEN_SIGNING_SECRET_KEY_B64") != null
         val isPublicKeySet = System.getenv("MAVEN_SIGNING_PUBLIC_KEY_B64") != null
 
-        if (!isSecretKeySet) {
-            logger.warn("MAVEN_SIGNING_SECRET_KEY_B64 environment variable is not set. Some JReleaser tasks will fail")
-            return@signing
-        }
-        if (!isPublicKeySet) {
-            logger.warn("MAVEN_SIGNING_PUBLIC_KEY_B64 environment variable is not set. Some JReleaser tasks will fail")
-            return@signing
-        }
-
         pgp {
             armored = true
-            secretKey = String(Base64.decode(System.getenv("MAVEN_SIGNING_SECRET_KEY_B64")))
-            publicKey = String(Base64.decode(System.getenv("MAVEN_SIGNING_PUBLIC_KEY_B64")))
+            secretKey = if (!isSecretKeySet) {
+                null
+            } else {
+                String(Base64.decode(System.getenv("MAVEN_SIGNING_SECRET_KEY_B64")))
+            }
+            publicKey = if (!isPublicKeySet) {
+                null
+            } else {
+                String(Base64.decode(System.getenv("MAVEN_SIGNING_PUBLIC_KEY_B64")))
+            }
             passphrase = System.getenv("MAVEN_SIGNING_SECRET_KEY_PASSPHRASE")
         }
     }
@@ -116,7 +108,6 @@ jreleaser {
                     url = "https://ossrh-staging-api.central.sonatype.com/service/local/"
                     username = System.getenv("SONATYPE_TOKEN_USERNAME")
                     password = System.getenv("SONATYPE_TOKEN_PASSWORD")
-                    gitRootSearch = true
                     active = Active.SNAPSHOT
                     snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots/"
                     applyMavenCentralRules = true
@@ -129,6 +120,7 @@ jreleaser {
             }
         }
     }
+
 }
 
 dependencies {

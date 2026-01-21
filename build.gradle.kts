@@ -35,6 +35,14 @@ tasks.register("publish") {
     })
 }
 
+tasks.register("jreleaserFullRelease") {
+    dependsOn(subprojects.filter {
+        it.tasks.findByName("jreleaserFullRelease") != null
+    }.map {
+        it.tasks.named("jreleaserFullRelease")
+    })
+}
+
 tasks.register("publishMavenPublicationToMavenLocal") {
     dependsOn(subprojects.filter {
         it.tasks.findByName("publishMavenPublicationToMavenLocal") != null
