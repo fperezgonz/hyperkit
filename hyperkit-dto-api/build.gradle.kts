@@ -46,17 +46,17 @@ publishing {
     }
 
     repositories {
-        maven {
-            name = "Gitlab"
-            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
-            credentials(HttpHeaderCredentials::class) {
-                name = "Job-Token"
-                value = System.getenv("CI_JOB_TOKEN")
-            }
-            authentication {
-                create<HttpHeaderAuthentication>("header")
-            }
-        }
+//        maven {
+//            name = "Gitlab"
+//            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
+//            credentials(HttpHeaderCredentials::class) {
+//                name = "Job-Token"
+//                value = System.getenv("CI_JOB_TOKEN")
+//            }
+//            authentication {
+//                create<HttpHeaderAuthentication>("header")
+//            }
+//        }
         // Staging repository to prepare deployments to Maven Central
         maven {
             name = "MavenCentralStaging"
@@ -78,15 +78,13 @@ jreleaser {
     // Prevent the "release.gitlab.token must not be blank" error
     yolo = true
 
-//    release {
-//        enabled = false
-//        // Prevent the "release.gitlab.token must not be blank" error
-//        gitlab {
-//
-//            skipRelease = true
-//            token = "no-token"
-//        }
-//    }
+    release {
+        gitlab {
+            // Sulfura public Gitlab Maven repo
+            repoUrl = "https://gitlab.com/api/v4/projects/67836497/packages/maven"
+            token = System.getenv("CI_JOB_TOKEN")
+        }
+    }
 
     signing {
         active = Active.SNAPSHOT
