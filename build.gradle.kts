@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = "solutions.sulfura"
-    version = "6.2.1-RELEASE"
+    version = "6.2.2-SNAPSHOT"
 }
 
 subprojects {

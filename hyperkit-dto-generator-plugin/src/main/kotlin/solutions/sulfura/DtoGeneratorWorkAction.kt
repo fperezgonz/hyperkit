@@ -44,6 +44,15 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
 
         val spoonApi: SpoonAPI = Launcher()
 
+        if (spoonApi.factory.environment.complianceLevel > 23) {
+            spoonApi.factory.environment.complianceLevel = 23
+            logger.warn(
+                "Specified compliance level is higher than the maximum supported by the current spoon version.\n" +
+                        "Maximum compliance level supported by the current version is 23.\n" +
+                        "Setting compliance level to 23.\n"
+            )
+        }
+
         logger.info(
             "Spoon factory environment: \n" +
                     "- Compliance level: ${spoonApi.factory.environment.complianceLevel}\n" +
