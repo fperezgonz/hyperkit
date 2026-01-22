@@ -4,8 +4,8 @@ plugins {
     application
     id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
-    id("solutions.sulfura.hyperkit-dto-generator-plugin") version "6.2.1-SNAPSHOT"
-    id("solutions.sulfura.hyperkit-entity-generator-plugin") version "6.2.1-SNAPSHOT"
+    id("solutions.sulfura.hyperkit-dto-generator-plugin") version "6.2.1-RELEASE"
+    id("solutions.sulfura.hyperkit-entity-generator-plugin") version "6.2.1-RELEASE"
 }
 
 hyperKitEntityGenerator {
