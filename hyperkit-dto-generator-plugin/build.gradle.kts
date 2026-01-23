@@ -22,14 +22,14 @@ publishing {
 }
 
 gradlePlugin {
-    website = "https://sulfura.cloud"
-    vcsUrl = "https://sulfura.cloud"
+    website = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-dto-generator-plugin"
+    vcsUrl = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-dto-generator-plugin"
     plugins {
-        create("hyperkit-dto-generator-plugin") {
-            id = "solutions.sulfura.hyperkit-dto-generator-plugin"
-            displayName = "HyperKit Dto Generator Plugin"
-            description = "A plugin that generates DTO classes based on annotations"
-            tags = listOf("testing", "integrationTesting", "compatibility")
+        register("hyperkitDtoGenerator") {
+            id = "solutions.sulfura.hyperkit-dto-generator"
+            displayName = "HyperKit Dto Generator"
+            description = "A plugin that generates DTO classes based on annotated classes"
+            tags = listOf("java", "hyperkit", "generator", "dto")
             implementationClass = "solutions.sulfura.HyperKitDtoGeneratorPlugin"
         }
     }
