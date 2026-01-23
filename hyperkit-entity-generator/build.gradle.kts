@@ -18,20 +18,6 @@ configurations.all {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
 }
 
-gradlePlugin {
-    website = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
-    vcsUrl = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
-    plugins {
-        register("hyperkit-entity-generator") {
-            id = "solutions.sulfura.hyperkit-entity-generator"
-            displayName = "HyperKit Entity Generator"
-            description = "Generates entity classes from database metadata"
-            tags = listOf("generator", "java", "entity", "jpa", "database")
-            implementationClass = "solutions.sulfura.hyperkit.generators.entity.plugin.HyperKitEntityGeneratorPlugin"
-        }
-    }
-}
-
 publishing {
     repositories {
         maven {
@@ -47,6 +33,26 @@ publishing {
             }
         }
     }
+}
+
+gradlePlugin {
+    website = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
+    vcsUrl = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
+    plugins {
+        register("hyperkit-entity-generator") {
+            id = "solutions.sulfura.hyperkit-entity-generator"
+            displayName = "HyperKit Entity Generator"
+            description = "Generates entity classes from database metadata"
+            tags = listOf("hyperkit", "generator", "entity", "jpa", "database")
+            implementationClass = "solutions.sulfura.hyperkit.generators.entity.plugin.HyperKitEntityGeneratorPlugin"
+        }
+    }
+}
+
+// To be able to publish, the default jar task must be enabled
+tasks.named<Jar>("jar") {
+    enabled = true
+    archiveClassifier.set("")
 }
 
 // Configuration used to set up mockito instrumentation to support running the tests using Gradle with JDK 21+ (https://javadoc.io/static/org.mockito/mockito-core/5.14.2/org/mockito/Mockito.html#0.3)
