@@ -3,7 +3,7 @@ import java.io.FileReader
 import org.h2.tools.RunScript
 
 plugins {
-    id("solutions.sulfura.hyperkit-entity-generator-plugin")
+    id("solutions.sulfura.hyperkit-entity-generator")
     java
 }
 

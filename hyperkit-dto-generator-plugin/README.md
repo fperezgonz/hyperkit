@@ -28,7 +28,7 @@ Add the dependencies repository, the dependencies and the plugin to your Gradle 
 
 ```kotlin
 plugins {
-    id("solutions.sulfura.hyperkit-dto-generator-plugin") version "latest.version"
+    id("solutions.sulfura.hyperkit-dto-generator") version "latest.version"
 }
 
 repositories {

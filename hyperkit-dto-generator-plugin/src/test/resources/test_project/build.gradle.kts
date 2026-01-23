@@ -1,6 +1,6 @@
 plugins{
     java
-    id("solutions.sulfura.hyperkit-dto-generator-plugin")
+    id("solutions.sulfura.hyperkit-dto-generator")
 }
 
 hyperKitDtoGenerator {
