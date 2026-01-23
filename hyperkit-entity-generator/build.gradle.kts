@@ -49,9 +49,16 @@ gradlePlugin {
     }
 }
 
-// To be able to publish, the default jar task must be enabled
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    archiveBaseName.set("hyperkit-entity-generator-cli")
+    // Set the name for the command line jar
+    archiveClassifier.set("cli")
+}
+
+// To be able to publish to the Gradle plugin portal, the default jar task must be enabled and the generated jar must be the "main" unclassified jar
 tasks.named<Jar>("jar") {
     enabled = true
+    // Ensure it is the “main” unclassified jar
     archiveClassifier.set("")
 }
 
