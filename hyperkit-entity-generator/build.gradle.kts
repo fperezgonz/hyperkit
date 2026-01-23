@@ -19,13 +19,14 @@ configurations.all {
 }
 
 gradlePlugin {
-    website = "https://sulfura.solutions"
+    website = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
+    vcsUrl = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
     plugins {
-        register("hyperkit-entity-generator-plugin") {
-            id = "solutions.sulfura.hyperkit-entity-generator-plugin"
-            displayName = "HyperKit Entity Generator Plugin"
-            description = "A plugin that generates entity classes from database metadata"
-            tags = listOf("entity", "jpa", "database")
+        register("hyperkit-entity-generator") {
+            id = "solutions.sulfura.hyperkit-entity-generator"
+            displayName = "HyperKit Entity Generator"
+            description = "Generates entity classes from database metadata"
+            tags = listOf("generator", "java", "entity", "jpa", "database")
             implementationClass = "solutions.sulfura.hyperkit.generators.entity.plugin.HyperKitEntityGeneratorPlugin"
         }
     }
