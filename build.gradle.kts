@@ -34,19 +34,31 @@ subprojects {
 }
 
 tasks.register("publish") {
+
+    val isSnapshotVersion = version.toString().endsWith("-SNAPSHOT")
+
     dependsOn(subprojects.filter {
         it.tasks.findByName("publish") != null
     }.map {
         it.tasks.named("publish")
     })
-}
 
-tasks.register("jreleaserFullRelease") {
     dependsOn(subprojects.filter {
         it.tasks.findByName("jreleaserFullRelease") != null
     }.map {
         it.tasks.named("jreleaserFullRelease")
     })
+
+    if (!isSnapshotVersion) {
+
+        dependsOn(subprojects.filter {
+            it.tasks.findByName("publishPlugins") != null
+        }.map {
+            it.tasks.named("publishPlugins")
+        })
+
+    }
+
 }
 
 tasks.register("publishMavenPublicationToMavenLocal") {
