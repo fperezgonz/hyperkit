@@ -1,12 +1,10 @@
 package solutions.sulfura
 
-import org.apache.velocity.Template
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.register
-import spoon.reflect.declaration.CtClass
 
 interface HyperKitDtoGeneratorConfigurationExtension {
     /**Paths of the input sources*/
@@ -25,10 +23,6 @@ interface HyperKitDtoGeneratorConfigurationExtension {
 
 @Suppress("unused")
 class HyperKitDtoGeneratorPlugin : Plugin<Project> {
-
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, classTemplate: Template): String {
-        return buildClassSource(ctClass, dtoCtClass, classTemplate)
-    }
 
     override fun apply(project: Project) {
 

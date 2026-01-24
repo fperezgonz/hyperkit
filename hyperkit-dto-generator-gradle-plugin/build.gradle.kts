@@ -40,9 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation("fr.inria.gforge.spoon:spoon-core:11.3.0")
-    implementation("org.apache.velocity:velocity-engine-core:2.4.1")
-    implementation(project(":hyperkit-dto-api"))
+    implementation(project(":hyperkit-dto-generator-core"))
     testImplementation(kotlin("test"))
 }
 

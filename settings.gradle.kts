@@ -12,7 +12,9 @@ plugins {
 
 rootProject.name = "hyperkit"
 include("hyperkit-dto-api")
-include("hyperkit-dto-generator-plugin")
+include("hyperkit-dto-generator-core")
+include("hyperkit-dto-generator-gradle-plugin")
+include("hyperkit-dto-generator-maven-plugin")
 include("hyperkit-entity-generator")
 include("hyperkit-projections-dsl")
 include("hyperkit-query-builder")

@@ -1,11 +1,6 @@
 package solutions.sulfura
 
 import org.apache.velocity.Template
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
-import org.gradle.workers.WorkAction
-import org.gradle.workers.WorkParameters
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import solutions.sulfura.processor.utils.*
@@ -16,32 +11,17 @@ import spoon.reflect.declaration.CtClass
 import java.io.File
 import java.time.Instant
 
-private val logger = LoggerFactory.getLogger(DtoGeneratorWorkAction::class.java)
+private val logger = LoggerFactory.getLogger(DtoGenerator::class.java)
 
-interface DtoGeneratorParameters : WorkParameters {
+class DtoGenerator(
+    private val absoluteInputPaths: Set<String>,
+    private val spoonSourcesClasspath: List<String>,
+    private val rootOutputPath: String,
+    private val defaultOutputPackage: String,
+    private val templatePath: String
+) {
 
-    /** Absolute paths of the input sources to be processed (files or folders) */
-    val absoluteInputPaths: SetProperty<String>
-    /** Classpath files for spoon */
-    val spoonSourcesClasspath: ListProperty<String>
-    /** Root path for the generated sources */
-    val rootOutputPath: Property<String>
-    /** Default package where the generated DTOs will be placed*/
-    val defaultOutputPackage: Property<String>
-    /** Velocity template used for DTO code generation */
-    val templatePath: Property<String>
-
-}
-
-
-abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
-
-    override fun execute() {
-
-        if (this.parameters == null) {
-            throw Exception("Parameters not set")
-        }
-
+    fun generate() {
         val spoonApi: SpoonAPI = Launcher()
 
         if (spoonApi.factory.environment.complianceLevel > 23) {
@@ -64,16 +44,16 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
         spoonApi.factory.environment.prettyPrintingMode = Environment.PRETTY_PRINTING_MODE.AUTOIMPORT
 
         logger.info("${Instant.now()} - Setting up input files...")
-        logger.debug("absoluteInputPaths: {}", parameters.absoluteInputPaths.get())
-        for (path in parameters.absoluteInputPaths.get()) {
+        logger.debug("absoluteInputPaths: {}", absoluteInputPaths)
+        for (path in absoluteInputPaths) {
             spoonApi.addInputResource(path)
         }
         logger.info("${Instant.now()} - Setting up input files... DONE")
 
         logger.info("${Instant.now()} - Setting up classPath...")
-        logger.debug("classpath: {}", parameters.spoonSourcesClasspath.get())
+        logger.debug("classpath: {}", spoonSourcesClasspath)
 
-        spoonApi.environment.sourceClasspath = parameters.spoonSourcesClasspath.get().toTypedArray()
+        spoonApi.environment.sourceClasspath = spoonSourcesClasspath.toTypedArray()
 
         logger.info("${Instant.now()} - Setting up classPath... DONE")
 
@@ -93,7 +73,7 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
             el.qualifiedName to sourceClassToDtoClassReference(
                 el,
                 spoonApi.factory,
-                parameters.defaultOutputPackage.get()
+                defaultOutputPackage
             )
         }
 
@@ -101,7 +81,7 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
 
         logger.info("${Instant.now()} - Generating DTOs...")
 
-        val classTemplate = velocityEngine.getTemplate(parameters.templatePath.get())
+        val classTemplate = velocityEngine.getTemplate(templatePath)
 
         classesToProcess.list<CtClass<*>>().parallelStream().map { ctClass: CtClass<*> ->
 
@@ -112,8 +92,8 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
                 return@map createDtoSourceFileData(
                     ctClass,
                     spoonApi,
-                    parameters.defaultOutputPackage.get(),
-                    parameters.rootOutputPath.get(),
+                    defaultOutputPackage,
+                    rootOutputPath,
                     classTemplate,
                     ctClassByClassName,
                     logger
@@ -151,8 +131,7 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
         logger.info("${Instant.now()} - Generating DTOs... DONE")
     }
 
-
-    fun createDtoSourceFileData(
+    private fun createDtoSourceFileData(
         ctClass: CtClass<*>,
         spoon: SpoonAPI,
         defaultOutputPackage: String,
@@ -181,7 +160,7 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
             spoon.factory
         )
 
-        val classSourceCode = generateClassSourceCode(dtoClass, ctClass, classTemplate)
+        val classSourceCode = buildClassSource(dtoClass, ctClass, classTemplate)
         val outDirPath = "${rootOutputPath}/${dtoClassPackage.replace(".", "/")}/"
         val outFilePath = "$outDirPath/${dtoClassSimpleName}.java"
 
@@ -192,14 +171,8 @@ abstract class DtoGeneratorWorkAction : WorkAction<DtoGeneratorParameters> {
 
     }
 
-    fun generateClassSourceCode(ctClass: CtClass<*>, dtoCtClass: CtClass<*>, classTemplate: Template): String {
-        return buildClassSource(ctClass, dtoCtClass, classTemplate)
-    }
-
-    data class SourceFileData(
+    private data class SourceFileData(
         val contents: String,
         val outFilePath: String,
     )
-
-
 }
