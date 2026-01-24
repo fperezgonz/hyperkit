@@ -75,7 +75,7 @@ val publishPlugins by tasks.registering {
 }
 
 val publish by tasks.registering {
-    dependsOn("runSubprojectPublishTasks", "publishPlugins", "publishMavenPublicationToMavenLocal")
+    dependsOn("runSubprojectPublishTasks", "publishPlugins", "jreleaserFullRelease")
 }
 
 val publishMavenPublicationToMavenLocal by tasks.registering {
