@@ -33,9 +33,7 @@ subprojects {
     }
 }
 
-tasks.register("publish") {
-
-    val isSnapshotVersion = version.toString().endsWith("-SNAPSHOT")
+val runSubprojectPublishTasks by tasks.registering {
 
     dependsOn(subprojects.filter {
         it.tasks.findByName("publish") != null
@@ -43,25 +41,44 @@ tasks.register("publish") {
         it.tasks.named("publish")
     })
 
+}
+
+val jreleaserFullRelease by tasks.registering {
+
+    mustRunAfter(runSubprojectPublishTasks)
+
     dependsOn(subprojects.filter {
         it.tasks.findByName("jreleaserFullRelease") != null
     }.map {
         it.tasks.named("jreleaserFullRelease")
     })
 
-    if (!isSnapshotVersion) {
+}
 
-        dependsOn(subprojects.filter {
-            it.tasks.findByName("publishPlugins") != null
-        }.map {
-            it.tasks.named("publishPlugins")
-        })
+val publishPlugins by tasks.registering {
 
+    mustRunAfter(runSubprojectPublishTasks)
+
+    val isSnapshotVersion = version.toString().endsWith("-SNAPSHOT")
+
+    if (isSnapshotVersion) {
+        logger.info("Snapshot version $version, skipping plugin publishing")
+        return@registering
     }
+
+    dependsOn(subprojects.filter {
+        it.tasks.findByName("publishPlugins") != null
+    }.map {
+        it.tasks.named("publishPlugins")
+    })
 
 }
 
-tasks.register("publishMavenPublicationToMavenLocal") {
+val publish by tasks.registering {
+    dependsOn("runSubprojectPublishTasks", "publishPlugins", "publishMavenPublicationToMavenLocal")
+}
+
+val publishMavenPublicationToMavenLocal by tasks.registering {
     dependsOn(subprojects.filter {
         it.tasks.findByName("publishMavenPublicationToMavenLocal") != null
     }.map {
