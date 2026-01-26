@@ -28,7 +28,7 @@ gradlePlugin {
         register("hyperkitDtoGenerator") {
             id = "solutions.sulfura.hyperkit-dto-generator"
             displayName = "HyperKit Dto Generator"
-            description = "A plugin that generates DTO classes based on annotated classes"
+            description = "Generates DTO classes based on annotated classes"
             tags = listOf("hyperkit", "generator", "dto")
             implementationClass = "solutions.sulfura.HyperKitDtoGeneratorPlugin"
         }

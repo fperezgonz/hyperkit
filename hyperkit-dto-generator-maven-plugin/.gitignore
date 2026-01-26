@@ -1,0 +1,4 @@
+# The pom is automatically built from the template every time, before publishing, it makes no sense to add it to the vcs
+pom.xml
+target
+src/test/resources/test_project/src/out/java/solutions/sulfura/hyperkit/dtos/UserDto.java

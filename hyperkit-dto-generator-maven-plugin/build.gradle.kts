@@ -1,34 +1,65 @@
-plugins {
-    `kotlin-dsl`
-    `java-library`
-    `maven-publish`
-}
+import org.apache.tools.ant.taskdefs.condition.Os
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(project(":hyperkit-dto-generator-core"))
-    implementation("org.apache.maven:maven-plugin-api:3.9.6")
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:3.11.0")
-    implementation("org.apache.maven:maven-project:2.2.1")
-
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.apache.maven.plugin-testing:maven-plugin-testing-harness:3.3.0")
-    testImplementation("org.apache.maven:maven-core:3.9.6")
-    testImplementation("org.apache.maven:maven-compat:3.9.6")
-    testImplementation("org.apache.maven:maven-model:3.9.6")
-    testImplementation("org.apache.maven:maven-settings:3.9.6")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
-    testImplementation(kotlin("test"))
+    project(":hyperkit-dto-generator-core")
 }
 
-tasks.test {
-    useJUnitPlatform()
+val generatePomFromTemplate by tasks.registering() {
+    group = "build"
+    description = "Uses pom.xml.templ as a template to create the pom.xml file that will be used to run the plugin building tasks"
+
+    val templateFile = layout.projectDirectory.file("pom.xml.templ")
+    val outputFile = layout.projectDirectory.file("pom.xml")
+
+    // Declare inputs/outputs for Gradle up-to-date checks
+    inputs.file(templateFile)
+    outputs.file(outputFile)
+
+    // Template variables
+    val propsProvider = providers.provider {
+        mapOf(
+            "hyperkit.version" to project.version.toString()
+        )
+    }
+
+    val props = propsProvider.get()
+    inputs.properties(props)
+
+    doLast {
+
+        val template = templateFile.asFile.readText(Charsets.UTF_8)
+
+        val rendered = props.entries.fold(template) { acc, (k, v) ->
+            acc.replace("{{$k}}", v)
+        }
+
+        val out = outputFile.asFile
+        out.parentFile.mkdirs()
+        out.writeText(rendered, Charsets.UTF_8)
+
+    }
 }
 
-kotlin {
-    jvmToolchain(17)
+val buildWithMaven by tasks.registering(Exec::class) {
+    group = "build"
+    workingDir = project.projectDir
+
+    dependsOn(generatePomFromTemplate)
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd",
+            "/c",
+            "./mvnw",
+            "test"
+        )
+    } else {
+        commandLine("./mvnw",
+            "test",
+            "test"
+        )
+    }
 }
