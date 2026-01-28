@@ -49,6 +49,7 @@ val buildWithMaven by tasks.registering(Exec::class) {
     workingDir = project.projectDir
 
     dependsOn(generatePomFromTemplate)
+    dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine("cmd",

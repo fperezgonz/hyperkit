@@ -1,10 +1,9 @@
 plugins {
-    kotlin("jvm") version "2.0.21"
-    kotlin("plugin.spring") version "2.0.21"
-    kotlin("plugin.serialization") version "2.0.21"
+    `kotlin-dsl`
+    kotlin("plugin.spring") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
     id("org.springframework.boot") version "3.4.6"
     id("io.spring.dependency-management")
-    `kotlin-dsl`
     id("com.gradle.plugin-publish")
 }
 
@@ -87,7 +86,7 @@ dependencies {
     implementation("org.hsqldb:hsqldb:2.7.2")
 
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")

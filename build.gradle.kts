@@ -7,7 +7,12 @@ import org.gradle.api.publish.PublishingExtension
 plugins {
     id("org.jreleaser") version "1.22.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
+    kotlin("jvm") version "2.2.21" apply false
     id("com.gradle.plugin-publish") version "2.0.0" apply false
+}
+
+repositories {
+    mavenCentral()
 }
 
 allprojects {
