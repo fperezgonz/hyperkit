@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>Maven Central</id>
+            <username>${sonatype_token_username}</username>
+            <password>${sonatype_token_password}</password>
+        </server>
+    </servers>
+</settings>

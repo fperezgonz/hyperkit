@@ -44,7 +44,7 @@ val generatePomFromTemplate by tasks.registering() {
     }
 }
 
-val buildWithMaven by tasks.registering(Exec::class) {
+val compile by tasks.registering(Exec::class) {
     group = "build"
     workingDir = project.projectDir
 
@@ -55,12 +55,53 @@ val buildWithMaven by tasks.registering(Exec::class) {
         commandLine("cmd",
             "/c",
             "./mvnw",
+            "compile"
+        )
+    } else {
+        commandLine("./mvnw",
+            "compile"
+        )
+    }
+}
+
+val test by tasks.registering(Exec::class) {
+    group = "build"
+    workingDir = project.projectDir
+
+    dependsOn(compile)
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd",
+            "/c",
+            "./mvnw",
             "test"
         )
     } else {
         commandLine("./mvnw",
-            "test",
             "test"
+        )
+    }
+}
+
+val deploy by tasks.registering(Exec::class) {
+    group = "publishing"
+    workingDir = project.projectDir
+
+    dependsOn(test)
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd",
+            "/c",
+            "./mvnw",
+            "deploy",
+            "-Dsonatype_token_username=${System.getenv("SONATYPE_TOKEN_USERNAME")}",
+            "-Dsonatype_token_password=${System.getenv("SONATYPE_TOKEN_PASSWORD")}"
+        )
+    } else {
+        commandLine("./mvnw",
+            "deploy",
+            "-Dsonatype_token_username=${System.getenv("SONATYPE_TOKEN_USERNAME")}",
+            "-Dsonatype_token_password=${System.getenv("SONATYPE_TOKEN_PASSWORD")}"
         )
     }
 }
