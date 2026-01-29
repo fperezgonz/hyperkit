@@ -94,14 +94,12 @@ val deploy by tasks.registering(Exec::class) {
             "/c",
             "./mvnw",
             "deploy",
-            "-Dsonatype_token_username=${System.getenv("SONATYPE_TOKEN_USERNAME")}",
-            "-Dsonatype_token_password=${System.getenv("SONATYPE_TOKEN_PASSWORD")}"
+            "-s", "settings.xml",
         )
     } else {
         commandLine("./mvnw",
             "deploy",
-            "-Dsonatype_token_username=${System.getenv("SONATYPE_TOKEN_USERNAME")}",
-            "-Dsonatype_token_password=${System.getenv("SONATYPE_TOKEN_PASSWORD")}"
+            "-s", "settings.xml",
         )
     }
 }
