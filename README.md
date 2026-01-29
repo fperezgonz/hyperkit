@@ -2,7 +2,7 @@
 
 ## Overview
 Hyperkit is a set of tools for developing applications in Java, providing features for entity generation from database tables,
-DTO generation, applying projections to projections and spring tools to facilitate development of spring applications using these features
+DTO generation, applying projections to dtos using a simple DSL and spring tools to facilitate development of spring applications using these features
 
 ## Project Structure
 The project is organized into several modules, each with its own documentation:
