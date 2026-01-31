@@ -83,6 +83,25 @@ val test by tasks.registering(Exec::class) {
     }
 }
 
+val install by tasks.registering(Exec::class) {
+    group = "publishing"
+    workingDir = project.projectDir
+
+    dependsOn(test)
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd",
+            "/c",
+            "./mvnw",
+            "install"
+        )
+    } else {
+        commandLine("./mvnw",
+            "install"
+        )
+    }
+}
+
 val deploy by tasks.registering(Exec::class) {
     group = "publishing"
     workingDir = project.projectDir

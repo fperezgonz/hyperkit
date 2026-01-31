@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -89,4 +90,46 @@ val publishMavenPublicationToMavenLocal by tasks.registering {
     }.map {
         it.tasks.named("publishMavenPublicationToMavenLocal")
     })
+}
+
+// Tasks to run dto generation maven example tasks
+val compileDtoGenerationMavenExample by tasks.registering(Exec::class) {
+    group = "build"
+    workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
+    dependsOn(":hyperkit-dto-generator-maven-plugin:install")
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd",
+            "/c",
+            "./mvnw",
+            "compile",
+            "-Dhyperkit.version=$version"
+        )
+    } else {
+        commandLine("./mvnw",
+            "compile",
+            "-Dhyperkit.version=$version"
+        )
+    }
+}
+
+val testDtoGenerationMavenExample by tasks.registering(Exec::class) {
+    group = "verification"
+    workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
+
+    dependsOn(compileDtoGenerationMavenExample)
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine("cmd",
+            "/c",
+            "./mvnw",
+            "test",
+            "-Dhyperkit.version=$version"
+        )
+    } else {
+        commandLine("./mvnw",
+            "test",
+            "-Dhyperkit.version=$version"
+        )
+    }
 }

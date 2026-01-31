@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+    <groupId>solutions.sulfura</groupId>
+    <artifactId>dto-generation-maven-example</artifactId>
+    <version>${hyperkit.version}</version>
+
+    <name>dto-generation-maven-example</name>
+    <description>Generates DTO classes based on annotated classes</description>
+    <url>https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-examples/dto-generation-maven-example</url>
+    <inceptionYear>2025</inceptionYear>
+    <packaging>jar</packaging>
+
+
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>fperezgonz@gmail.com</id>
+            <name>Francisco José Pérez González</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://gitlab.com/sulfura/hyperkit.git</connection>
+        <developerConnection>scm:git:ssh://gitlab.com:sulfura/hyperkit.git</developerConnection>
+        <url>https://gitlab.com/sulfura/hyperkit</url>
+    </scm>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+        <maven-plugin-tools.version>3.15.2</maven-plugin-tools.version>
+        <kotlin.version>2.2.21</kotlin.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.13.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>solutions.sulfura</groupId>
+            <artifactId>hyperkit-dto-api</artifactId>
+            <version>${hyperkit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>solutions.sulfura</groupId>
+                <artifactId>hyperkit-dto-generator-maven-plugin</artifactId>
+                <version>${hyperkit.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>generate-dtos</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>hyperkit-dto-generator-maven-plugin</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
