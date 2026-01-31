@@ -1,5 +1,3 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-
 repositories {
     mavenCentral()
 }
@@ -10,7 +8,8 @@ dependencies {
 
 val generatePomFromTemplate by tasks.registering() {
     group = "build"
-    description = "Uses pom.xml.templ as a template to create the pom.xml file that will be used to run the plugin building tasks"
+    description =
+        "Uses pom.xml.templ as a template to create the pom.xml file that will be used to run the plugin building tasks"
 
     val templateFile = layout.projectDirectory.file("pom.xml.templ")
     val outputFile = layout.projectDirectory.file("pom.xml")
@@ -44,81 +43,42 @@ val generatePomFromTemplate by tasks.registering() {
     }
 }
 
-val compile by tasks.registering(Exec::class) {
+val clean by tasks.registering(MavenExec::class) {
     group = "build"
     workingDir = project.projectDir
+    mavenGoal = "clean"
+    args("-Dhyperkit.version=$version")
+}
 
+val compile by tasks.registering(MavenExec::class) {
+    group = "build"
+    workingDir = project.projectDir
+    mavenGoal = "compile"
+    args("-Dhyperkit.version=$version")
     dependsOn(generatePomFromTemplate)
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd",
-            "/c",
-            "./mvnw",
-            "compile"
-        )
-    } else {
-        commandLine("./mvnw",
-            "compile"
-        )
-    }
 }
 
-val test by tasks.registering(Exec::class) {
+val test by tasks.registering(MavenExec::class) {
     group = "build"
     workingDir = project.projectDir
-
+    mavenGoal = "test"
+    args("-Dhyperkit.version=$version")
     dependsOn(compile)
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd",
-            "/c",
-            "./mvnw",
-            "test"
-        )
-    } else {
-        commandLine("./mvnw",
-            "test"
-        )
-    }
 }
 
-val install by tasks.registering(Exec::class) {
+val install by tasks.registering(MavenExec::class) {
     group = "publishing"
     workingDir = project.projectDir
-
+    mavenGoal = "install"
+    args("-Dhyperkit.version=$version")
     dependsOn(test)
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd",
-            "/c",
-            "./mvnw",
-            "install"
-        )
-    } else {
-        commandLine("./mvnw",
-            "install"
-        )
-    }
 }
 
-val deploy by tasks.registering(Exec::class) {
+val deploy by tasks.registering(MavenExec::class) {
     group = "publishing"
     workingDir = project.projectDir
-
-    dependsOn(test)
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd",
-            "/c",
-            "./mvnw",
-            "deploy",
-            "-s", "settings.xml",
-        )
-    } else {
-        commandLine("./mvnw",
-            "deploy",
-            "-s", "settings.xml",
-        )
-    }
+    mavenGoal = "deploy"
+    args("-Dhyperkit.version=$version")
+    args = mutableListOf("-s", "settings.xml")
 }

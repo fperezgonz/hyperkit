@@ -6,7 +6,7 @@
 
     <groupId>solutions.sulfura</groupId>
     <artifactId>dto-generation-maven-example</artifactId>
-    <version>${hyperkit.version}</version>
+    <version>1.0.0</version>
 
     <name>dto-generation-maven-example</name>
     <description>Generates DTO classes based on annotated classes</description>

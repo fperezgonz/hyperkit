@@ -1,10 +1,3 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.publish.PublishingExtension
-
 plugins {
     id("org.jreleaser") version "1.22.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
@@ -39,26 +32,30 @@ subprojects {
     }
 }
 
-val runSubprojectPublishTasks by tasks.registering {
-
-    dependsOn(subprojects.filter {
-        it.tasks.findByName("publish") != null
+fun findTasksInSubprojectsByName(name: String): List<TaskProvider<*>> {
+    return subprojects.filter {
+        it.tasks.findByName(name) != null
     }.map {
-        it.tasks.named("publish")
-    })
+        it.tasks.named(name)
+    }
+}
 
+fun findTasksInIncludedBuildsByName(name: String): List<TaskReference> {
+    return gradle.includedBuilds.filter {
+        it.task(name) != null
+    }.map {
+        it.task(name)
+    }
+}
+
+val runSubprojectPublishTasks by tasks.registering {
+    dependsOn()
+    dependsOn(findTasksInSubprojectsByName("publish"))
 }
 
 val jreleaserFullRelease by tasks.registering {
-
     mustRunAfter(runSubprojectPublishTasks)
-
-    dependsOn(subprojects.filter {
-        it.tasks.findByName("jreleaserFullRelease") != null
-    }.map {
-        it.tasks.named("jreleaserFullRelease")
-    })
-
+    dependsOn(findTasksInSubprojectsByName("jreleaserFullRelease"))
 }
 
 val publishPlugins by tasks.registering {
@@ -72,11 +69,7 @@ val publishPlugins by tasks.registering {
         return@registering
     }
 
-    dependsOn(subprojects.filter {
-        it.tasks.findByName("publishPlugins") != null
-    }.map {
-        it.tasks.named("publishPlugins")
-    })
+    dependsOn(findTasksInSubprojectsByName("publishPlugins"))
 
 }
 
@@ -85,51 +78,51 @@ val publish by tasks.registering {
 }
 
 val publishMavenPublicationToMavenLocal by tasks.registering {
-    dependsOn(subprojects.filter {
-        it.tasks.findByName("publishMavenPublicationToMavenLocal") != null
-    }.map {
-        it.tasks.named("publishMavenPublicationToMavenLocal")
-    })
+    dependsOn(findTasksInSubprojectsByName("publishMavenPublicationToMavenLocal"))
 }
 
-// Tasks to run dto generation maven example tasks
-val compileDtoGenerationMavenExample by tasks.registering(Exec::class) {
+// Tasks to run "dto-generation-maven-example" tasks
+
+val cleanDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
     group = "build"
     workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
-    dependsOn(":hyperkit-dto-generator-maven-plugin:install")
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd",
-            "/c",
-            "./mvnw",
-            "compile",
-            "-Dhyperkit.version=$version"
-        )
-    } else {
-        commandLine("./mvnw",
-            "compile",
-            "-Dhyperkit.version=$version"
-        )
-    }
+    mavenGoal = "clean"
+    args("-Dhyperkit.version=$version")
 }
 
-val testDtoGenerationMavenExample by tasks.registering(Exec::class) {
+val compileDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
+    group = "build"
+    workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
+    mavenGoal = "compile"
+    args("-Dhyperkit.version=$version")
+    dependsOn(":hyperkit-dto-generator-maven-plugin:install")
+}
+
+val testDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
     group = "verification"
     workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
-
+    mavenGoal = "test"
+    args("-Dhyperkit.version=$version")
     dependsOn(compileDtoGenerationMavenExample)
+}
 
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine("cmd",
-            "/c",
-            "./mvnw",
-            "test",
-            "-Dhyperkit.version=$version"
-        )
-    } else {
-        commandLine("./mvnw",
-            "test",
-            "-Dhyperkit.version=$version"
-        )
-    }
+val clean by tasks.registering(DefaultTask::class) {
+    group = "build"
+    dependsOn(findTasksInIncludedBuildsByName(":clean"))
+    dependsOn(findTasksInSubprojectsByName("clean"))
+    dependsOn(cleanDtoGenerationMavenExample)
+}
+
+val test by tasks.registering(Test::class) {
+    group = "verification"
+    dependsOn(findTasksInIncludedBuildsByName(":test"))
+    dependsOn(findTasksInSubprojectsByName("test"))
+    dependsOn(testDtoGenerationMavenExample)
+}
+
+val check by tasks.registering(Test::class) {
+    group = "verification"
+    dependsOn(findTasksInIncludedBuildsByName(":check"))
+    dependsOn(findTasksInSubprojectsByName("check"))
+    dependsOn(testDtoGenerationMavenExample)
 }
