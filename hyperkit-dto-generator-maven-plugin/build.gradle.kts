@@ -64,7 +64,7 @@ val test by tasks.registering(MavenExec::class) {
     workingDir = project.projectDir
     mavenGoal = "test"
     args("-Dhyperkit.version=$version")
-    dependsOn(compile)
+    dependsOn(generatePomFromTemplate)
 }
 
 val install by tasks.registering(MavenExec::class) {
@@ -72,7 +72,7 @@ val install by tasks.registering(MavenExec::class) {
     workingDir = project.projectDir
     mavenGoal = "install"
     args("-Dhyperkit.version=$version")
-    dependsOn(test)
+    dependsOn(generatePomFromTemplate)
 }
 
 val deploy by tasks.registering(MavenExec::class) {
@@ -80,5 +80,6 @@ val deploy by tasks.registering(MavenExec::class) {
     workingDir = project.projectDir
     mavenGoal = "deploy"
     args("-Dhyperkit.version=$version")
+    dependsOn(generatePomFromTemplate)
     args = mutableListOf("-s", "settings.xml")
 }
