@@ -78,7 +78,7 @@ class DtoGenerator(
         }
 
         logger.info("Classes to process: ${classesToProcess.list<CtClass<*>>().map { it.qualifiedName }}")
-
+        logger.info("rootOutputPath: $rootOutputPath")
         logger.info("${Instant.now()} - Generating DTOs...")
 
         val classTemplate = velocityEngine.getTemplate(templatePath)

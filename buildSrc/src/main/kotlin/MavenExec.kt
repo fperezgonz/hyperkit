@@ -27,6 +27,12 @@ abstract class MavenExec : Exec() {
         }
 
         commandLineArgs.add("./mvnw")
+
+        if (logger.isDebugEnabled || logger.isTraceEnabled) {
+            // Set Maven debug level
+            commandLineArgs.add("-X")
+        }
+
         commandLineArgs.add(mavenGoal.get())
         commandLineArgs.addAll(args)
 
