@@ -83,6 +83,7 @@ val publishMavenPublicationToMavenLocal by tasks.registering {
 
 val cleanDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
     group = "build"
+    dependsOn(":hyperkit-dto-generator-maven-plugin:generatePomFromTemplate")
     workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
     mavenGoal = "clean"
     args("-Dhyperkit.version=$version")
