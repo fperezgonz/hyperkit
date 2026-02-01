@@ -114,6 +114,7 @@ class DtoGenerator(
                 val outFile = File(sourceFileData.outFilePath)
 
                 logger.debug("Writing file ${outFile.absolutePath}")
+                println("Writing file ${outFile.absolutePath}")
 
                 outFile.parentFile.mkdirs()
                 outFile.writeText(sourceFileData.contents)
