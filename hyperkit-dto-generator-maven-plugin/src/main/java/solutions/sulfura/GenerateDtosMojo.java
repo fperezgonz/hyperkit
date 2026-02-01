@@ -48,6 +48,9 @@ public class GenerateDtosMojo extends AbstractMojo {
                         return it.getFile().getAbsolutePath();})
                     .collect(Collectors.toList());
 
+        getLog().info("project.basedir=" + project.getBasedir());
+        getLog().info("rootOutputPath=" + rootOutputPath);
+
         var generator = new DtoGenerator(resolvedInputPaths,
                 classpathElements,
                 rootOutputPath,
