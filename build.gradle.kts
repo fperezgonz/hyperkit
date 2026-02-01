@@ -40,10 +40,8 @@ fun findTasksInSubprojectsByName(name: String): List<TaskProvider<*>> {
     }
 }
 
-fun findTasksInIncludedBuildsByName(name: String): List<TaskReference> {
-    return gradle.includedBuilds.filter {
-        it.task(name) != null
-    }.map {
+fun createTaskReferencesInIncludedBuildsByName(name: String): List<TaskReference> {
+    return gradle.includedBuilds.map {
         it.task(name)
     }
 }
