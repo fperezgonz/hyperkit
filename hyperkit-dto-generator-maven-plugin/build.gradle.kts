@@ -58,6 +58,7 @@ val compile by tasks.registering(MavenExec::class) {
     mavenGoal = "compile"
     args("-Dhyperkit.version=$version")
     dependsOn(generatePomFromTemplate)
+    dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
 }
 
@@ -67,6 +68,7 @@ val test by tasks.registering(MavenExec::class) {
     mavenGoal = "test"
     args("-Dhyperkit.version=$version")
     dependsOn(generatePomFromTemplate)
+    dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
 }
 
@@ -76,6 +78,7 @@ val install by tasks.registering(MavenExec::class) {
     mavenGoal = "install"
     args("-Dhyperkit.version=$version")
     dependsOn(generatePomFromTemplate)
+    dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
 }
 
@@ -85,6 +88,7 @@ val deploy by tasks.registering(MavenExec::class) {
     mavenGoal = "deploy"
     args("-Dhyperkit.version=$version")
     dependsOn(generatePomFromTemplate)
+    dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
     args = mutableListOf("-s", "settings.xml")
 }
