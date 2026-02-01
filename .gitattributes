@@ -6,5 +6,5 @@
 
 # These are Windows script files and should use crlf
 *.bat           text eol=crlf
-# Se tup line ending handling at the project level
+# Setup line ending handling at the project level
 *        text=auto
