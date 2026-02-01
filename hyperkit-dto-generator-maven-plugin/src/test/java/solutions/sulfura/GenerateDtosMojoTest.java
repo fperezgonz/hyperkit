@@ -27,7 +27,11 @@ public class GenerateDtosMojoTest {
     @InjectMojo(goal = "hyperkit-dto-generator-maven-plugin")
     public void testGenerateDtos(GenerateDtosMojo mojo) throws URISyntaxException {
 
-        String testProjectFolderPath = Objects.requireNonNull(this.getClass().getResource(testProjectPath)).toURI().getPath();
+        String testProjectFolderPath = "src/test/resources/test_project/";
+
+        // Remove the file generated on previous runs to avoid false positives
+        var oldFile = new File(testProjectFolderPath + outputSourcesPath +testDtoPackagePath + "UserDto.java");
+        oldFile.delete();
 
         mojo.execute();
 
