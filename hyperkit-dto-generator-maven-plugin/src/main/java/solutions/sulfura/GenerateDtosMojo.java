@@ -7,6 +7,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,24 +44,36 @@ public class GenerateDtosMojo extends AbstractMojo {
                 inputPaths;
 
         List<String> classpathElements = null;
-            classpathElements = project.getArtifacts().stream()
-                    .map( it-> {
-                        System.out.println(it.getArtifactId());
-                        return it.getFile().getAbsolutePath();})
-                    .collect(Collectors.toList());
+        classpathElements = project.getArtifacts().stream()
+                .map(it -> {
+                    System.out.println(it.getArtifactId());
+                    return it.getFile().getAbsolutePath();
+                })
+                .collect(Collectors.toList());
 
-        getLog().info("project.basedir=" + project.getBasedir());
-        getLog().info("rootOutputPath=" + rootOutputPath);
+        // If the rootOutput path is relative, resolve it against the project base directory
+
+        Path out = Paths.get(rootOutputPath);
+
+        if (!out.isAbsolute()) {
+            out = project.getBasedir().toPath().resolve(out).normalize();
+        }
+
+        String resolvedRootOutputPath = out.toString();
+
+        getLog().debug("project.basedir=" + project.getBasedir().getAbsolutePath());
+        getLog().debug("rootOutputPath(raw)=" + rootOutputPath);
+        getLog().debug("rootOutputPath(resolved)=" + resolvedRootOutputPath);
 
         var generator = new DtoGenerator(resolvedInputPaths,
                 classpathElements,
-                rootOutputPath,
+                resolvedRootOutputPath,
                 defaultOutputPackage,
                 templatePath
         );
 
         generator.generate();
 
-        project.addCompileSourceRoot(rootOutputPath);
+        project.addCompileSourceRoot(resolvedRootOutputPath);
     }
 }
