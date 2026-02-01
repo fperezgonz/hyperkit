@@ -106,21 +106,21 @@ val testDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
 
 val clean by tasks.registering(DefaultTask::class) {
     group = "build"
-    dependsOn(findTasksInIncludedBuildsByName(":clean"))
+    dependsOn(createTaskReferencesInIncludedBuildsByName(":clean"))
     dependsOn(findTasksInSubprojectsByName("clean"))
     dependsOn(cleanDtoGenerationMavenExample)
 }
 
 val test by tasks.registering(Test::class) {
     group = "verification"
-    dependsOn(findTasksInIncludedBuildsByName(":test"))
+    dependsOn(createTaskReferencesInIncludedBuildsByName(":test"))
     dependsOn(findTasksInSubprojectsByName("test"))
     dependsOn(testDtoGenerationMavenExample)
 }
 
 val check by tasks.registering(Test::class) {
     group = "verification"
-    dependsOn(findTasksInIncludedBuildsByName(":check"))
+    dependsOn(createTaskReferencesInIncludedBuildsByName(":check"))
     dependsOn(findTasksInSubprojectsByName("check"))
     dependsOn(testDtoGenerationMavenExample)
 }
