@@ -558,6 +558,7 @@ public class OpenApiTestControllers {
         nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
 
         Schema<?> nestedDtoListSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDtoList");
+        assertTrue(SchemaBuilderUtils.isArrayType(nestedDtoListSchema));
         Schema<?> nestedDtoListItemsSchema = nestedDtoListSchema.getItems();
 
         // The nested schemas should be the same
@@ -610,6 +611,7 @@ public class OpenApiTestControllers {
         nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
 
         Schema<?> nestedDtoListSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDtoList");
+        assertTrue(SchemaBuilderUtils.isArrayType(nestedDtoListSchema));
         Schema<?> nestedDtoListItemsSchema = nestedDtoListSchema.getItems();
 
         // nestedDto and nestedDtoList projected schemas should be different

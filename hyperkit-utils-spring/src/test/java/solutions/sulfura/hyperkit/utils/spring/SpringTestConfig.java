@@ -100,12 +100,4 @@ public class SpringTestConfig implements WebMvcConfigurer {
         return new ValueWrapperModelConverter();
     }
 
-    @Bean
-    public SpringDocConfigProperties springDocConfigProperties() {
-        SpringDocConfigProperties result = new SpringDocConfigProperties();
-        // Recursive object references are not working well with OpenApi 3.1 https://github.com/springdoc/springdoc-openapi/issues/3040
-        result.getApiDocs().setVersion(SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_0);
-        return result;
-    }
-
 }

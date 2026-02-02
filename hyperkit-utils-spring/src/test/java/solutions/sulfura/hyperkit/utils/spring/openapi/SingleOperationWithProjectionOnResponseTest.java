@@ -13,13 +13,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
+import solutions.sulfura.hyperkit.utils.spring.SpringTestConfigOpenApi_3_0;
+import solutions.sulfura.hyperkit.utils.spring.SpringTestConfigOpenApi_3_1;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = OpenApiTestControllers.ProjectionOnResponseTestController1.class)
-@Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class})
-public class SingleOperationWithProjectionOnResponseTest {
+public abstract class SingleOperationWithProjectionOnResponseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,4 +51,16 @@ public class SingleOperationWithProjectionOnResponseTest {
 
     }
 
+}
+
+@WebMvcTest(controllers = OpenApiTestControllers.ProjectionOnResponseTestController1.class)
+@Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SpringTestConfigOpenApi_3_0.class})
+@SuppressWarnings("NewClassNamingConvention")
+class OpenApi_3_0_SingleOperationWithProjectionOnResponseTest extends SingleOperationWithProjectionOnResponseTest {
+}
+
+@WebMvcTest(controllers = OpenApiTestControllers.ProjectionOnResponseTestController1.class)
+@Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SpringTestConfigOpenApi_3_1.class})
+@SuppressWarnings("NewClassNamingConvention")
+class OpenApi_3_1_SingleOperationWithProjectionOnResponseTest extends SingleOperationWithProjectionOnResponseTest {
 }
