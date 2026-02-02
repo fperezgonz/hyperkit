@@ -149,7 +149,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.9")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.15")
     compileOnly("org.jspecify:jspecify:1.0.0")
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

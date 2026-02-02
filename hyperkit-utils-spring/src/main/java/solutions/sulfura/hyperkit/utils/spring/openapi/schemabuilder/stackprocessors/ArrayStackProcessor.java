@@ -73,6 +73,7 @@ public class ArrayStackProcessor implements StackProcessor {
         Schema<?> result = new Schema<>();
 
         result.setType(schema.getType());
+        result.setTypes(schema.getTypes());
         result.setFormat(schema.getFormat());
         result.setItems(replicatedItemsSchemaResult.resultingSchema);
 
