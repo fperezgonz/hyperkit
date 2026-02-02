@@ -115,7 +115,7 @@ jreleaser {
                     applyMavenCentralRules = true
                     snapshotSupported = true
                     closeRepository = true
-                    releaseRepository = false
+                    releaseRepository = true
 
                     stagingRepository("build/staging-deploy-$version")
                 }
