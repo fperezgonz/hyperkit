@@ -1,3 +1,5 @@
+import kotlin.io.encoding.Base64
+
 repositories {
     mavenCentral()
 }
@@ -72,14 +74,30 @@ val test by tasks.registering(MavenExec::class) {
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
 }
 
+val check by tasks.registering(DefaultTask::class) {
+    group = "build"
+    dependsOn(test)
+}
+
+fun getDecodedSecretKey(): String? {
+    val secretKeyB64 = System.getenv("MAVEN_SIGNING_SECRET_KEY_B64")
+    return secretKeyB64?.let { String(Base64.decode(secretKeyB64)) }
+}
+
 val install by tasks.registering(MavenExec::class) {
     group = "publishing"
     workingDir = project.projectDir
     mavenGoal = "install"
     args("-Dhyperkit.version=$version", "-s", "settings.xml")
-    dependsOn(generatePomFromTemplate)
+    val decodedSecretKey = getDecodedSecretKey()
+    if (decodedSecretKey != null) {
+        environment("MAVEN_SIGNING_SECRET_KEY", decodedSecretKey)
+    }
+    println(System.getenv("MAVEN_SIGNING_SECRET_KEY"))
+    dependsOn(check)
     dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
+    mustRunAfter(check)
 }
 
 val deploy by tasks.registering(MavenExec::class) {
@@ -87,6 +105,10 @@ val deploy by tasks.registering(MavenExec::class) {
     workingDir = project.projectDir
     mavenGoal = "deploy"
     args("-Dhyperkit.version=$version", "-s", "settings.xml")
+    val decodedSecretKey = getDecodedSecretKey()
+    if (decodedSecretKey != null) {
+        environment("MAVEN_SIGNING_SECRET_KEY", decodedSecretKey)
+    }
     dependsOn(generatePomFromTemplate)
     dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")

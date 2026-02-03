@@ -73,6 +73,7 @@ val publishPlugins by tasks.registering {
     }
 
     dependsOn(findTasksInSubprojectsByName("publishPlugins"))
+    dependsOn(":hyperkit-dto-generator-maven-plugin:deploy")
 
 }
 

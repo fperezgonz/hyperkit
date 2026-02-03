@@ -120,7 +120,9 @@
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>3.2.8</version>
                 <configuration>
-                    <keyEnvName>MAVEN_SIGNING_SECRET_KEY_B64</keyEnvName>
+                    <bestPractices>true</bestPractices>
+                    <signer>bc</signer>
+                    <keyEnvName>MAVEN_SIGNING_SECRET_KEY</keyEnvName>
                     <keyFingerprintEnvName>MAVEN_SIGNING_KEY_FINGERPRINT</keyFingerprintEnvName>
                     <passphraseEnvName>MAVEN_SIGNING_SECRET_KEY_PASSPHRASE</passphraseEnvName>
                 </configuration>
@@ -129,23 +131,23 @@
                         <id>sign-artifacts</id>
                         <phase>verify</phase>
                         <goals>
-                        <goal>sign</goal>
+                            <goal>sign</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-source-plugin</artifactId>
-              <version>3.4.0</version>
-              <executions>
-                <execution>
-                  <id>attach-sources</id>
-                  <goals>
-                    <goal>jar-no-fork</goal>
-                  </goals>
-                </execution>
-              </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
