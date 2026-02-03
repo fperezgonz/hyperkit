@@ -1,3 +1,5 @@
+import publishPlugins
+
 plugins {
     id("org.jreleaser") version "1.22.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
@@ -47,16 +49,19 @@ fun createTaskReferencesInIncludedBuildsByName(name: String): List<TaskReference
 }
 
 val runSubprojectPublishTasks by tasks.registering {
+    group = "publishing"
     dependsOn()
     dependsOn(findTasksInSubprojectsByName("publish"))
 }
 
 val jreleaserFullRelease by tasks.registering {
+    group = "publishing"
     mustRunAfter(runSubprojectPublishTasks)
     dependsOn(findTasksInSubprojectsByName("jreleaserFullRelease"))
 }
 
 val publishPlugins by tasks.registering {
+    group = "publishing"
 
     mustRunAfter(runSubprojectPublishTasks)
 
@@ -71,11 +76,20 @@ val publishPlugins by tasks.registering {
 
 }
 
+tasks.findByPath(":hyperkit-dto-generator-maven-plugin:deploy")?.mustRunAfter(jreleaserFullRelease)
+
 val publish by tasks.registering {
-    dependsOn("runSubprojectPublishTasks", "publishPlugins", "jreleaserFullRelease")
+    group = "publishing"
+    dependsOn(
+        runSubprojectPublishTasks,
+        jreleaserFullRelease,
+        publishPlugins,
+        ":hyperkit-dto-generator-maven-plugin:deploy"
+    )
 }
 
 val publishMavenPublicationToMavenLocal by tasks.registering {
+    group = "publishing"
     dependsOn(findTasksInSubprojectsByName("publishMavenPublicationToMavenLocal"))
 }
 

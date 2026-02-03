@@ -109,13 +109,23 @@ jreleaser {
 
     deploy {
         maven {
+            mavenCentral {
+                create("release-deploy") {
+                    deploymentId = "${project.name.get()}_${project.version.get()}"
+                    active = Active.RELEASE
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    username = System.getenv("SONATYPE_TOKEN_USERNAME")
+                    password = System.getenv("SONATYPE_TOKEN_PASSWORD")
+                    stagingRepository("build/staging-deploy-$version")
+
+                }
+            }
             nexus2 {
-                create("maven-central") {
-                    stagingProfileId = "${project.name.get()}_${project.version.get()}"
+                create("snapshot-deploy") {
                     url = "https://ossrh-staging-api.central.sonatype.com/service/local/"
                     username = System.getenv("SONATYPE_TOKEN_USERNAME")
                     password = System.getenv("SONATYPE_TOKEN_PASSWORD")
-                    active = Active.ALWAYS
+                    active = Active.SNAPSHOT
                     snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots/"
                     applyMavenCentralRules = true
                     snapshotSupported = true
