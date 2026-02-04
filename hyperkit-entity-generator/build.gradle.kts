@@ -36,7 +36,7 @@ publishing {
 
 gradlePlugin {
     website = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
-    vcsUrl = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-entity-generator"
+    vcsUrl = "https://gitlab.com/sulfura/hyperkit/"
     plugins {
         register("hyperkit-entity-generator") {
             id = "solutions.sulfura.hyperkit-entity-generator"

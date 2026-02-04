@@ -23,7 +23,7 @@ publishing {
 
 gradlePlugin {
     website = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-dto-generator-gradle-plugin"
-    vcsUrl = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-dto-generator-gradle-plugin"
+    vcsUrl = "https://gitlab.com/sulfura/hyperkit/"
     plugins {
         register("hyperkitDtoGenerator") {
             id = "solutions.sulfura.hyperkit-dto-generator"
