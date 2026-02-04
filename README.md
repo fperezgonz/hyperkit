@@ -32,13 +32,6 @@ plugins {
     // Other plugins...
 }
 
-repositories {
-    maven {
-        url = uri("https://public-package-registry.sulfura.solutions/")
-    }
-    // Other repositories... 
-}
-
 dependencies {
     implementation('solutions.sulfura:hyperkit-spring-boot-starter:latest.version')
     // Other dependencies...

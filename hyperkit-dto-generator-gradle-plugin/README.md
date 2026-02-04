@@ -24,18 +24,11 @@ pluginManagement {
 }
 ```
 
-Add the dependencies repository, the dependencies and the plugin to your Gradle build script:
+Add the plugin and the dependencies of the generated classes to your Gradle build script:
 
 ```kotlin
 plugins {
     id("solutions.sulfura.hyperkit-dto-generator") version "latest.version"
-}
-
-repositories {
-    maven {
-        url = uri("https://public-package-registry.sulfura.solutions/")
-    }
-    // Other repositories... 
 }
 
 dependencies {
@@ -46,7 +39,7 @@ dependencies {
 
 ### Configuring the Plugin
 
-Configure the plugin using the `hyperKitDtoGenerator` extension:
+In your Gradle build script, configure the plugin using the `hyperKitDtoGenerator` extension:
 
 ```kotlin
 hyperKitDtoGenerator {
@@ -170,7 +163,6 @@ public class UserDto implements Dto<User> {
 ```
 
 
-
 If you only want to generate a subset of the properties of a class, you can configure the @Dto to include only properties with specific annotations:
 
 Example: this would generate a Dto that only has the `id` and `roles` properties:
@@ -187,6 +179,8 @@ public class User {
 }
 ```
 
+## Sample projects:
+- [dto-generation-gradle-example](../hyperkit-examples/dto-generation-gradle-example)
 
 ## Related Modules
 - [hyperkit-dto-api](../hyperkit-dto-api/README.md): Core API for DTOs, including annotations used by this plugin
