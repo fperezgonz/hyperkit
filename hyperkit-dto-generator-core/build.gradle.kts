@@ -140,10 +140,15 @@ dependencies {
     api("org.apache.velocity:velocity-engine-core:2.4.1")
     implementation(project(":hyperkit-dto-api"))
     implementation("org.slf4j:slf4j-api:2.0.12")
+    testImplementation(kotlin("test"))
 }
 
 kotlin {
     jvmToolchain(17)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 java {

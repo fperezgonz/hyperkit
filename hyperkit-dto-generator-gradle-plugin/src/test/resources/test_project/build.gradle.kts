@@ -5,7 +5,7 @@ plugins{
 
 hyperKitDtoGenerator {
     inputPaths = setOf("src/test_input_sources/")
-    rootOutputPath = "src/out/java"
+    rootOutputPath = "src/generated/java"
 }
 
 repositories {

@@ -20,7 +20,7 @@ class DtoGeneratorPluginCustomTemplateTest {
     @Test
     fun customTemplateTest() {
         // Given: A test project directory with a custom template
-        val outputDir = File(testProjectFolder, "${outputSourcesPath}java/${testDtoPackagePath}")
+        val outputDir = File( "${generatedSourcesPath}${testDtoPackagePath}")
         
         // Clean the output directory to avoid interference with previous tests
         outputDir.deleteRecursively()
@@ -41,9 +41,9 @@ class DtoGeneratorPluginCustomTemplateTest {
 
         // Then: The generated file should contain the content of the custom template
         val generatedFile = File(outputDir, "SourceClassTypesDto.java")
-        Assertions.assertTrue(generatedFile.exists(), "Generated file does not exist")
+        Assertions.assertTrue(generatedFile.exists(), "Generated file ${generatedFile.path} does not exist")
         Assertions.assertEquals("test-template", generatedFile.readText(), 
-            "Generated file does not contain the expected content from the custom template")
+            "Generated file ${generatedFile.path} does not contain the expected content from the custom template")
     }
 
 }
