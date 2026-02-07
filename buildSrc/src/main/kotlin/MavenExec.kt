@@ -26,7 +26,7 @@ abstract class MavenExec : Exec() {
             logger.error("mvnw not found in the working directory specified for the task '${workingDir.path}'")
         }
 
-        commandLineArgs.add("./mvnw")
+        commandLineArgs.add("mvnw")
 
         if (logger.isDebugEnabled || logger.isTraceEnabled) {
             // Set Maven debug level
