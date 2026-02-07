@@ -18,7 +18,7 @@ class DtoGenerator(
     private val spoonSourcesClasspath: List<String>,
     private val rootOutputPath: String,
     private val defaultOutputPackage: String,
-    private val templatePath: String
+    private val templatePath: String = "templates/dto.vm"
 ) {
 
     fun generate() {
