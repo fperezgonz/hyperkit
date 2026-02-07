@@ -104,7 +104,7 @@ val deploy by tasks.registering(MavenExec::class) {
     group = "publishing"
     workingDir = project.projectDir
     mavenGoal = "deploy"
-    args("-Dhyperkit.version=$version", "-s", "settings.xml")
+    args("-Dhyperkit.version=$version", "-s", "settings.xml", "-DpublishArtifacts=true")
     val decodedSecretKey = getDecodedSecretKey()
     if (decodedSecretKey != null) {
         environment("MAVEN_SIGNING_SECRET_KEY", decodedSecretKey)
