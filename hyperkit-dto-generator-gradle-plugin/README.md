@@ -12,18 +12,6 @@ The Hyperkit DTO Generator Plugin is a Gradle plugin that automatically generate
 
 ### Adding the Plugin
 
-Add the plugin repository to your Gradle settings file:
-```kotlin
-pluginManagement {
-    repositories {
-        maven{
-            url = uri("https://public-package-registry.sulfura.solutions/")
-        }
-        // Other repositories...
-    }
-}
-```
-
 Add the plugin and the dependencies of the generated classes to your Gradle build script:
 
 ```kotlin

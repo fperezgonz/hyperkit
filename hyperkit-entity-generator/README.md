@@ -44,30 +44,12 @@ generator.generate()
 
 ### Gradle Plugin Usage
 
-The entity generator can also be used as a Gradle plugin. First you have to add the plugin repository to your settings.gradle file
+The entity generator can also be used as a Gradle plugin
 
-```kotlin
-pluginManagement {
-    repositories {
-        maven{
-            url = uri("https://public-package-registry.sulfura.solutions/")
-        }
-        // Other repositories...
-    }
-}
-```
-
-Then add the plugin to your Gradle build script and configure the database connection:
+Add the plugin to your Gradle build script and configure the database connection:
 ```gradle
 plugins {
     id("solutions.sulfura.hyperkit-entity-generator") version "latest.version"
-}
-
-repositories {
-    maven {
-        url = uri("https://public-package-registry.sulfura.solutions/")
-    }
-    // Other repositories... 
 }
 
 //Assuming the properties "databaseUrl", "databaseUsername" and "databasePassword" have been declared in gradle.properties
