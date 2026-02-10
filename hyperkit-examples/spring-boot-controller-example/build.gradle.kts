@@ -4,8 +4,8 @@ plugins {
     application
     id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
-    id("solutions.sulfura.hyperkit-dto-generator-plugin") version "6.2.1-RELEASE"
-    id("solutions.sulfura.hyperkit-entity-generator-plugin") version "6.2.1-RELEASE"
+    id("solutions.sulfura.hyperkit-dto-generator") version "6.2.2-RELEASE"
+    id("solutions.sulfura.hyperkit-entity-generator") version "6.2.2-RELEASE"
 }
 
 hyperKitEntityGenerator {
@@ -25,16 +25,16 @@ java {
 }
 
 application {
-    // Define the main class for the application.
     mainClass = "solutions.sulfura.hyperkit.examples.App"
 }
 
+// Configure the plugin in this block
 //hyperKitDtoGenerator {
 //    rootOutputPath = "src/main/java/"
 //}
 
 dependencies {
-    implementation("solutions.sulfura:hyperkit-spring-boot-starter:6.2.1-RELEASE")
+    implementation("solutions.sulfura:hyperkit-spring-boot-starter:6.2.2-RELEASE")
     implementation("org.hsqldb:hsqldb:2.7.1")
     implementation("org.jspecify:jspecify:1.0.0")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.26")

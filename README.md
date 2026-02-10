@@ -9,7 +9,9 @@ The project is organized into several modules, each with its own documentation:
 
 - [hyperkit-entity-generator](hyperkit-entity-generator/README.md): Tool for generating JPA entity classes from database schemas. Available as a command line tool and as a Gradle plugin
 - [hyperkit-dto-api](hyperkit-dto-api/README.md): Core API for DTOs, including annotations for DTO generation and property customization
-- [hyperkit-dto-generator-plugin](hyperkit-dto-generator-plugin/README.md): Gradle plugin for generating DTOs from annotated classes
+- [hyperkit-dto-generator-core](hyperkit-dto-generator-core/README.md): library with the main logic used by the dto generator plugins
+- [hyperkit-dto-generator-gradle-plugin](hyperkit-dto-generator-gradle-plugin/README.md): Gradle plugin for generating DTOs from annotated classes
+- [hyperkit-dto-generator-maven-plugin](hyperkit-dto-generator-gradle-plugin/README.md): Maven plugin for generating DTOs from annotated classes
 - [hyperkit-projections-dsl](hyperkit-projections-dsl/README.md): DSL for defining projections on DTOs
 - [hyperkit-utils-serialization](hyperkit-utils-serialization/README.md): Utilities for serialization
 - [hyperkit-utils-spring](hyperkit-utils-spring/README.md): Spring-specific utilities including HyperRepository and HyperMapper
@@ -28,7 +30,7 @@ To use Hyperkit in your Spring Boot project, add the hyperkit-spring-boot-starte
 
 plugins {
     id("solutions.sulfura.hyperkit-dto-generator") version "latest.version"
-    id("solutions.sulfura.hyperkit-entity-generator-plugin") version "latest.version"
+    id("solutions.sulfura.hyperkit-entity-generator") version "latest.version"
     // Other plugins...
 }
 

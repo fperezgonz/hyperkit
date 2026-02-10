@@ -124,4 +124,3 @@ public class User {
 
 ## Related Modules
 - [hyperkit-dto-api](../hyperkit-dto-api/README.md): Core API for DTOs that can be used with generated entities
-- [hyperkit-dto-generator-plugin](../hyperkit-dto-generator-plugin/README.md): Plugin for generating DTOs from the entities created by this generator

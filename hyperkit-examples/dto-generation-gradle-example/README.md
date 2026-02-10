@@ -1,6 +1,6 @@
 # Dto Generation Example
 
-This project demonstrates how to use the `hyperkit-dto-generator-plugin` to generate dto classes for annotated classes
+This project shows how to generate dto classes with the Gradle version of the `hyperkit-dto-generator-plugin`.
 
 ## Overview
 

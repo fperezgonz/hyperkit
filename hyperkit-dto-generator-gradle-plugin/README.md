@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation("solutions.sulfura:hyperkit-dto-api:6.2.1-RELEASE")
+    implementation("solutions.sulfura:hyperkit-dto-api:6.2.2-RELEASE")
     // Other dependencies...
 }
 ```

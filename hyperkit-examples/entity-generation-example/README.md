@@ -1,6 +1,6 @@
 # Entity Generation Example
 
-This project demonstrates how to use the `hyperkit-entity-generator-plugin` to generate JPA entity classes from an existing database schema.
+This project shows how to generate JPA entity classes from an existing database schema, using the `hyperkit-entity-generator-plugin`.
 
 ## Overview
 

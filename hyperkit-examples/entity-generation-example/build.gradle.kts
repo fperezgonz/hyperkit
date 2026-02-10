@@ -1,5 +1,5 @@
 plugins {
-    id("solutions.sulfura.hyperkit-entity-generator-plugin") version "6.2.1-RELEASE"
+    id("solutions.sulfura.hyperkit-entity-generator") version "6.2.2-RELEASE"
     java
 }
 
