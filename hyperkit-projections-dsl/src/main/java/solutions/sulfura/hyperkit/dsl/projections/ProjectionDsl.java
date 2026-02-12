@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.dsl.projections;
 
+import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
@@ -46,10 +47,33 @@ public class ProjectionDsl {
                     || c == '{'
                     || c == '}'
                     || c == '@'
+                    || c == ':'
                     || c == Character.MIN_VALUE;
         }
 
-        protected FieldConf createFieldConfForProperty(String propertyName, FieldConf.Presence presence, boolean allowInsert, boolean allowDelete, DtoProjection nestedProjection) {
+        protected ParseResult<String> skipNonTerminatingWhiteSpace(CharacterStream characterStream) {
+
+            ParseResult<String> result = new ParseResult<>();
+            result.charactersRead = 0;
+            if (characterStream.currentChar == null) {
+                return result;
+            }
+
+            while (characterStream.currentChar != '\n' && Character.isWhitespace(characterStream.currentChar) && characterStream.next() != null) {
+                result.charactersRead++;
+            }
+
+            return result;
+
+        }
+
+        protected FieldConf createFieldConfForProperty(String propertyName,
+                                                       FieldConf.Presence presence,
+                                                       boolean allowInsert,
+                                                       boolean allowDelete,
+                                                       @Nullable String fieldAlias,
+                                                       @Nullable String projectionTypeAlias,
+                                                       DtoProjection nestedProjection) {
 
             FieldConf result = null;
             Field f = null;
@@ -65,7 +89,7 @@ public class ProjectionDsl {
                 if (nestedProjection != null) {
                     throw new RuntimeException("Illegal declaration of projection on property " + propertyName + " in Type " + rootType);
                 }
-                result = FieldConf.FieldConfBuilder.of(presence)
+                result = FieldConf.FieldConfBuilder.of(presence, fieldAlias)
                         .build();
             } else if (fConfType == DtoFieldConf.class) {
                 if (nestedProjection == null) {
@@ -74,6 +98,8 @@ public class ProjectionDsl {
                 result = DtoFieldConf.DtoFieldConfBuilder.newInstance()
                         .presence(presence)
                         .dtoProjection(nestedProjection)
+                        .fieldAlias(fieldAlias)
+                        .projectionTypeAlias(projectionTypeAlias)
                         .build();
             } else if (fConfType == ListFieldConf.class) {
                 if (nestedProjection != null) {
@@ -83,6 +109,7 @@ public class ProjectionDsl {
                         .presence(presence)
                         .allowInsert(allowInsert)
                         .allowDelete(allowDelete)
+                        .alias(fieldAlias)
                         .build();
             } else if (fConfType == DtoListFieldConf.class) {
                 if (nestedProjection == null) {
@@ -93,6 +120,8 @@ public class ProjectionDsl {
                         .allowInsert(allowInsert)
                         .allowDelete(allowDelete)
                         .dtoProjection(nestedProjection)
+                        .alias(fieldAlias)
+                        .projectionTypeAlias(projectionTypeAlias)
                         .build();
             }
 
@@ -102,19 +131,199 @@ public class ProjectionDsl {
 
         protected ParseResult<String> parsePropertyName(CharacterStream characterStream) {
 
-            int charsRead = 0;
+            StringBuilder currentToken = new StringBuilder();
+            currentToken.setLength(0);
+
+            long charsRead = skipNonTerminatingWhiteSpace(characterStream).charactersRead;
+
+            for (Character c = characterStream.currentChar; c != null && !isTokenTerminator(c); c = characterStream.next(), charsRead++) {
+                if (c != '\\') {
+                    currentToken.append(c);
+                    continue;
+                }
+
+                ParseResult<String> escapeCharResult = handleEscapeCharacter(characterStream);
+                currentToken.append(escapeCharResult.parsedValue);
+                charsRead += escapeCharResult.charactersRead;
+            }
+
+            return ParseResult.valueOf(charsRead, currentToken.toString());
+
+        }
+
+        protected ParseResult<String> parseAsKeyword(CharacterStream characterStream) {
+            StringBuilder currentToken = new StringBuilder();
+            currentToken.setLength(0);
+
+            long charsRead = skipNonTerminatingWhiteSpace(characterStream).charactersRead;
+
+            if (characterStream.currentChar == null) {
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            if ((characterStream.currentChar != 'a' && characterStream.currentChar != 'A')
+                    || (characterStream.nextChar != 's' && characterStream.nextChar != 'S')) {
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            characterStream.next();
+
+            if (characterStream.nextChar == null || !Character.isWhitespace(characterStream.nextChar)) {
+                characterStream.previous();
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            characterStream.next();
+            charsRead += 2;
+
+            return ParseResult.valueOf(charsRead, currentToken.toString());
+
+        }
+
+        protected ParseResult<String> handleEscapeCharacter(CharacterStream characterStream) {
+            StringBuilder currentToken = new StringBuilder();
+            currentToken.setLength(0);
+
+            if (characterStream.currentChar != '\\') {
+                throw new RuntimeException("Expected opening '\\'");
+            }
+
+            if (characterStream.nextChar == '`') {
+                characterStream.next();
+                currentToken.append('`');
+            } else if (characterStream.nextChar == '\\') {
+                characterStream.next();
+                currentToken.append('\\');
+            } else {
+                throw new RuntimeException("Escape character \\ reserved to escape '`' and '\\' in literals");
+            }
+
+            return ParseResult.valueOf(1, currentToken.toString());
+        }
+
+        protected ParseResult<String> parseLiteral(CharacterStream characterStream) {
+
+            StringBuilder currentToken = new StringBuilder();
+            currentToken.setLength(0);
+
+            if (characterStream.currentChar != '`') {
+                throw new RuntimeException("Expected opening '`' literal");
+            }
+
+            characterStream.next();
+            long charsRead = 1;
+
+            for (Character c = characterStream.currentChar; c != null && c != '`'; c = characterStream.next(), charsRead++) {
+                if (c != '\\') {
+                    currentToken.append(c);
+                    continue;
+                }
+
+                ParseResult<String> escapeCharResult = handleEscapeCharacter(characterStream);
+                currentToken.append(escapeCharResult.parsedValue);
+                charsRead += escapeCharResult.charactersRead;
+
+            }
+
+            if (characterStream.currentChar == null) {
+                throw new RuntimeException("Expected closing '`' literal");
+            }
+
+            characterStream.next();
+            charsRead++;
+
+            return ParseResult.valueOf(charsRead, currentToken.toString());
+
+        }
+
+        protected ParseResult<String> parseFieldAlias(CharacterStream characterStream) {
+
+            long charsRead = skipNonTerminatingWhiteSpace(characterStream).charactersRead;
+
+            if (characterStream.currentChar == null) {
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            if (characterStream.currentChar == '`') {
+                ParseResult<String> literalResult = parseLiteral(characterStream);
+                charsRead += literalResult.charactersRead;
+                return ParseResult.valueOf(charsRead, literalResult.parsedValue);
+            }
+
             StringBuilder currentToken = new StringBuilder();
             currentToken.setLength(0);
 
             for (Character c = characterStream.currentChar; c != null && !isTokenTerminator(c); c = characterStream.next(), charsRead++) {
-                currentToken.append(c);
+
+                if (c == '`') {
+                    throw new RuntimeException("Projection type alias cannot contain '`'");
+                }
+
+                if (c != '\\') {
+                    currentToken.append(c);
+                    continue;
+                }
+
+                ParseResult<String> escapeCharResult = handleEscapeCharacter(characterStream);
+                currentToken.append(escapeCharResult.parsedValue);
+                charsRead += escapeCharResult.charactersRead;
             }
 
             ParseResult<String> result = new ParseResult<>();
-            result.parsedValue = currentToken.toString();
-            result.charactersRead = charsRead;
+            result.parsedValue = currentToken.isEmpty() ? null : currentToken.toString();
 
             return result;
+
+        }
+
+        protected ParseResult<String> parseProjectionTypeAlias(CharacterStream characterStream) {
+
+            StringBuilder currentToken = new StringBuilder();
+            currentToken.setLength(0);
+
+            long charsRead = skipNonTerminatingWhiteSpace(characterStream).charactersRead;
+
+            if (characterStream.currentChar == null) {
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            if (characterStream.currentChar != ':') {
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            characterStream.next();
+            charsRead++;
+
+            charsRead += skipNonTerminatingWhiteSpace(characterStream).charactersRead;
+
+            if (characterStream.currentChar == null) {
+                return ParseResult.valueOf(charsRead, null);
+            }
+
+            if (characterStream.currentChar == '`') {
+                ParseResult<String> literalResult = parseLiteral(characterStream);
+                charsRead += literalResult.charactersRead;
+                return ParseResult.valueOf(charsRead, literalResult.parsedValue);
+            }
+
+            for (Character c = characterStream.currentChar; c != null && !isTokenTerminator(c); c = characterStream.next(), charsRead++) {
+
+                if (c == '`') {
+                    throw new RuntimeException("Projection type alias cannot contain '`'");
+                }
+
+                if (c != '\\') {
+                    currentToken.append(c);
+                    continue;
+                }
+
+                ParseResult<String> escapeCharResult = handleEscapeCharacter(characterStream);
+                currentToken.append(escapeCharResult.parsedValue);
+                charsRead += escapeCharResult.charactersRead;
+            }
+
+            return ParseResult.valueOf(charsRead, currentToken.toString());
+
         }
 
         protected ParseResult<String> parseModifier(CharacterStream characterStream) {
@@ -141,6 +350,34 @@ public class ProjectionDsl {
             String propertyName = null;
             FieldConf.Presence presence = FieldConf.Presence.OPTIONAL;
             DtoProjection<?> nestedDtoProjection = null;
+            String fieldAlias = null;
+            String projectionTypeAlias = null;
+
+            ParseResult<String> propertyNameResult = parsePropertyName(characterStream);
+            charsRead += propertyNameResult.charactersRead;
+            propertyName = propertyNameResult.parsedValue;
+
+            ParseResult<String> asResult = parseAsKeyword(characterStream);
+            charsRead += asResult.charactersRead;
+
+            ParseResult<String> fieldAliasResult = parseFieldAlias(characterStream);
+            charsRead += fieldAliasResult.charactersRead;
+            fieldAlias = fieldAliasResult.parsedValue;
+
+            ParseResult<String> projectionTypeAliasResult = parseProjectionTypeAlias(characterStream);
+            charsRead += projectionTypeAliasResult.charactersRead;
+            projectionTypeAlias = projectionTypeAliasResult.parsedValue;
+
+            ParseResult<String> wsResult = skipNonTerminatingWhiteSpace(characterStream);
+            charsRead += wsResult.charactersRead;
+            if (characterStream.currentChar != null
+                    && characterStream.currentChar != ','
+                    && characterStream.currentChar != '\n'
+                    && characterStream.currentChar != '}'
+                    && characterStream.currentChar != '{'
+                    && characterStream.currentChar != '@') {
+                throw new RuntimeException("Illegal character '" + characterStream.currentChar + "' at pos " + characterStream.getPos());
+            }
 
             while (characterStream.currentChar != null
                     && characterStream.currentChar != ','
@@ -148,7 +385,7 @@ public class ProjectionDsl {
                     && characterStream.currentChar != '}') {
 
                 char c = characterStream.currentChar;
-                //Perform actions for the end of the current state (if applicable) and determine new state
+                // Perform actions for the end of the current state (if applicable) and determine the new state
                 {
 
                     //Was not parsing a token
@@ -164,12 +401,6 @@ public class ProjectionDsl {
                             case ProjectionDsl.ALLOW_REMOVE -> allowDelete = true;
                         }
 
-                    } else if (Character.isLetterOrDigit(c)) {
-
-                        ParseResult<String> parseResult = parsePropertyName(characterStream);
-                        charsRead += parseResult.charactersRead;
-                        propertyName = parseResult.parsedValue;
-
                     } else if (c == '{') {
 
                         //nested projections
@@ -181,8 +412,8 @@ public class ProjectionDsl {
                         if (rootDtoPropertyType instanceof ParameterizedType pType) {
                             ParameterizedType listOperationType = (ParameterizedType) pType.getActualTypeArguments()[0];
                             nestedDtoClass = (Class) listOperationType.getActualTypeArguments()[0];
-                        } else if (rootDtoPropertyType instanceof Class){
-                            nestedDtoClass= (Class) rootDtoPropertyType;
+                        } else if (rootDtoPropertyType instanceof Class) {
+                            nestedDtoClass = (Class) rootDtoPropertyType;
                         }
 
                         Class<DtoProjection> propertyProjectionClass = null;
@@ -209,7 +440,13 @@ public class ProjectionDsl {
 
             PropertyParseResult result = new PropertyParseResult();
             result.propertyName = propertyName;
-            result.parsedValue = createFieldConfForProperty(propertyName, presence, allowInsert, allowDelete, nestedDtoProjection);
+            result.parsedValue = createFieldConfForProperty(propertyName,
+                    presence,
+                    allowInsert,
+                    allowDelete,
+                    fieldAlias,
+                    projectionTypeAlias,
+                    nestedDtoProjection);
             result.charactersRead = charsRead;
 
             return result;
@@ -294,6 +531,13 @@ public class ProjectionDsl {
 
             T parsedValue = null;
             long charactersRead = 0;
+
+            static <T> ParseResult<T> valueOf(long charactersRead, T parsedValue) {
+                ParseResult<T> result = new ParseResult<>();
+                result.charactersRead = charactersRead;
+                result.parsedValue = parsedValue;
+                return result;
+            }
 
         }
 

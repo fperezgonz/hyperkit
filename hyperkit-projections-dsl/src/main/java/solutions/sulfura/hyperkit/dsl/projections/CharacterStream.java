@@ -42,4 +42,16 @@ public class CharacterStream {
 
         return currentChar;
     }
+
+    public Character previous() {
+
+        nextChar = currentChar;
+        currentChar = previousChar;
+        if (pos >= 0) {
+            pos--;
+            previousChar = pos > 0 ? streamData[pos - 1] : null;
+        }
+
+        return currentChar;
+    }
 }
