@@ -15,9 +15,14 @@ public class FieldConf {
     public enum Presence {MANDATORY, IGNORED, OPTIONAL}
 
     protected Presence presence = Presence.IGNORED;
+    protected String fieldAlias;
 
     public Presence getPresence() {
         return presence;
+    }
+
+    public String getFieldAlias() {
+        return fieldAlias;
     }
 
     public static FieldConf of(Presence presence) {
@@ -26,16 +31,23 @@ public class FieldConf {
         return fieldConf;
     }
 
+    public static FieldConf of(Presence presence, String fieldAlias) {
+        FieldConf fieldConf = new FieldConf();
+        fieldConf.presence = presence;
+        fieldConf.fieldAlias = fieldAlias;
+        return fieldConf;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         FieldConf fieldConf = (FieldConf) o;
-        return presence == fieldConf.presence;
+        return presence == fieldConf.presence && Objects.equals(fieldAlias, fieldConf.fieldAlias);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(presence);
+        return Objects.hash(presence, fieldAlias);
     }
 
     public static FieldConf valueOf(Presence presence) {
@@ -44,6 +56,7 @@ public class FieldConf {
 
     public static final class FieldConfBuilder {
         private Presence presence = Presence.IGNORED;
+        private String fieldAlias;
 
         private FieldConfBuilder() {
         }
@@ -53,11 +66,22 @@ public class FieldConf {
         }
 
         public static FieldConfBuilder of(Presence presence) {
-            return FieldConfBuilder.newInstance().presence(presence);
+            return FieldConfBuilder.newInstance()
+                    .presence(presence);
+        }
+
+        public static FieldConfBuilder of(Presence presence, String fieldAlias) {
+            return FieldConfBuilder.newInstance()
+                    .presence(presence)
+                    .fieldAlias(fieldAlias);
         }
 
         public static FieldConfBuilder valueOf(Presence presence) {
-            return FieldConfBuilder.newInstance().presence(presence);
+            return of(presence);
+        }
+
+        public static FieldConfBuilder valueOf(Presence presence, String fieldAlias) {
+            return of(presence, fieldAlias);
         }
 
         public FieldConfBuilder presence(Presence presence) {
@@ -65,9 +89,15 @@ public class FieldConf {
             return this;
         }
 
+        public FieldConfBuilder fieldAlias(String fieldAlias) {
+            this.fieldAlias = fieldAlias;
+            return this;
+        }
+
         public FieldConf build() {
             FieldConf fieldConf = new FieldConf();
             fieldConf.presence = this.presence;
+            fieldConf.fieldAlias = this.fieldAlias;
             return fieldConf;
         }
     }

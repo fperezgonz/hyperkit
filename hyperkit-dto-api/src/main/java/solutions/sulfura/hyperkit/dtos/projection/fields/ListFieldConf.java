@@ -18,8 +18,19 @@ public class ListFieldConf extends FieldConf {
         return fieldConf;
     }
 
+    public static ListFieldConf of(Presence presence, String fieldAlias) {
+        ListFieldConf fieldConf = new ListFieldConf();
+        fieldConf.presence = presence;
+        fieldConf.fieldAlias = fieldAlias;
+        return fieldConf;
+    }
+
     public static ListFieldConf valueOf(Presence presence) {
         return of(presence);
+    }
+
+    public static ListFieldConf valueOf(Presence presence, String fieldAlias) {
+        return of(presence, fieldAlias);
     }
 
     @Override
@@ -40,6 +51,7 @@ public class ListFieldConf extends FieldConf {
         private Presence presence = Presence.IGNORED;
         private boolean allowInsert;
         private boolean allowDelete;
+        private String fieldAlias;
 
         private ListConfBuilder() {
         }
@@ -71,11 +83,17 @@ public class ListFieldConf extends FieldConf {
             return this;
         }
 
+        public ListConfBuilder alias(String alias) {
+            this.fieldAlias = alias;
+            return this;
+        }
+
         public ListConfBuilder but() {
             return newInstance()
                     .presence(presence)
                     .allowInsert(allowInsert)
-                    .allowDelete(allowDelete);
+                    .allowDelete(allowDelete)
+                    .alias(fieldAlias);
         }
 
         public ListFieldConf build() {
@@ -83,6 +101,7 @@ public class ListFieldConf extends FieldConf {
             listConf.presence = this.presence;
             listConf.allowInsert = this.allowInsert;
             listConf.allowDelete = this.allowDelete;
+            listConf.fieldAlias = this.fieldAlias;
             return listConf;
         }
     }

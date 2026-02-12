@@ -5,13 +5,20 @@ import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import java.util.Objects;
 
 /**
- * The purpose of this class is to define the presence or absence of the field on processes that adhere to this configuration, such as database queries or request data
+ * The purpose of this class is to define the presence or absence of the field on processes that adhere to this configuration, such as database queries or request data, and the projection to be applied to that field
  * How should it handle permissions? If a field is declared as mandatory but the context has no permissions over it, then the process should fail. If a field is declared as IGNORED, the field should be set with NONE and if the field is set with another value, its value should be ignored by the processes using this config and treat it as NONE
  * If a field is not defined as MANDATORY or IGNORED its presence or absence should be determined by the context permissions
  */
 public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
+    /**
+     * The projection that will be applied to the field targeted by this configuration
+     */
     public T dtoProjection;
+    /**
+     * Alias for this projection instance, in systems where a particular projection represents a type (such as the ProjectionOpenApiCustomizer in hyperkit-spring-utils)
+     **/
+    public String projectionTypeAlias;
 
     public static <T extends DtoProjection<?>> DtoFieldConf<T> of(Presence presence, T dtoProjection) {
         DtoFieldConf<T> fieldConf = new DtoFieldConf<>();
@@ -20,8 +27,27 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
         return fieldConf;
     }
 
+    public static <T extends DtoProjection<?>> DtoFieldConf<T> of(Presence presence,
+                                                                  T dtoProjection,
+                                                                  String fieldAlias,
+                                                                  String projectionTypeAlias) {
+        DtoFieldConf<T> fieldConf = new DtoFieldConf<>();
+        fieldConf.presence = presence;
+        fieldConf.dtoProjection = dtoProjection;
+        fieldConf.fieldAlias = fieldAlias;
+        fieldConf.projectionTypeAlias = projectionTypeAlias;
+        return fieldConf;
+    }
+
     public static <T extends DtoProjection<?>> DtoFieldConf<T> valueOf(Presence presence, T dtoProjection) {
         return of(presence, dtoProjection);
+    }
+
+    public static <T extends DtoProjection<?>> DtoFieldConf<T> valueOf(Presence presence,
+                                                                       T dtoProjection,
+                                                                       String fieldAlias,
+                                                                       String projectionTypeAlias) {
+        return of(presence, dtoProjection, fieldAlias, projectionTypeAlias);
     }
 
     @Override
@@ -40,6 +66,8 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
     public static final class DtoFieldConfBuilder<T extends DtoProjection<?>> {
         private T dtoProjection;
         private Presence presence = Presence.IGNORED;
+        private String fieldAlias;
+        private String projectionTypeAlias;
 
         private DtoFieldConfBuilder() {
         }
@@ -69,10 +97,22 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
             return this;
         }
 
+        public DtoFieldConfBuilder<T> fieldAlias(String fieldAlias) {
+            this.fieldAlias = fieldAlias;
+            return this;
+        }
+
+        public DtoListFieldConf.DtoFieldConfBuilder<T> projectionTypeAlias(String projectionTypeAlias) {
+            this.projectionTypeAlias = projectionTypeAlias;
+            return this;
+        }
+
         public DtoFieldConf<T> build() {
             DtoFieldConf<T> dtoFieldConf = new DtoFieldConf<>();
             dtoFieldConf.dtoProjection = this.dtoProjection;
             dtoFieldConf.presence = this.presence;
+            dtoFieldConf.fieldAlias = this.fieldAlias;
+            dtoFieldConf.projectionTypeAlias = this.projectionTypeAlias;
             return dtoFieldConf;
         }
     }
