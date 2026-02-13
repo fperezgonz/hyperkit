@@ -6,6 +6,13 @@ plugins {
     `java-library`
     `maven-publish`
     id("org.jreleaser")
+    id("solutions.sulfura.hyperkit-dto-generator") version "6.2.2-RELEASE"
+}
+
+hyperKitDtoGenerator{
+    inputPaths = setOf("src/test/java")
+    rootOutputPath = "src/test/java"
+    defaultOutputPackage = "solutions.sulfura.hyperkit.utils.serialization.projection.dtos"
 }
 
 java {
