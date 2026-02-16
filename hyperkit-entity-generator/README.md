@@ -30,11 +30,10 @@ val properties = EntityGeneratorProperties().apply {
     databaseUrl = "jdbc:mysql://localhost:3306/mydb"
     databaseUsername = "user"
     databasePassword = "pass"
-    outputDirectory = "src/main/java"
+    outputPath = "src/main/java"
     basePackage = "com.example.entities"
-    generateJpaAnnotations = true
-    generateLombokAnnotations = true
-    tableNamePattern = "app_%"  // Only process tables with names starting with "app_"
+    // Include only tables that start with "app_"
+    tableNamePattern = "app_%"
     excludeTables = listOf("app_audit_log", "app_temp")
 }
 
@@ -47,7 +46,7 @@ generator.generate()
 The entity generator can also be used as a Gradle plugin
 
 Add the plugin to your Gradle build script and configure the database connection:
-```gradle
+```kotlin
 plugins {
     id("solutions.sulfura.hyperkit-entity-generator") version "latest.version"
 }
@@ -57,8 +56,12 @@ hyperKitEntityGenerator {
     databaseUrl.set(project.property("databaseUrl").toString())
     databaseUsername.set(project.property("databaseUsername").toString())
     databasePassword.set(project.property("databasePassword").toString())
+    // Allowed values: org.h2.Driver, org.postgresql.Driver, org.mariadb.jdbc.Driver, com.mysql.cj.jdbc.Driver
     databaseDriver.set("org.h2.Driver")
+    outputPath.set("${projectDir}/src/main/java")
     basePackage.set("solutions.sulfura.hyperkit.test.entities")
+    // Include only tables that start with "app_"
+    tableNamePattern.set("app_%")
 }
 ```
 

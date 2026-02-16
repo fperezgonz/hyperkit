@@ -54,8 +54,12 @@ hyperKitEntityGenerator {
     databaseUrl.set(dbUrl)
     databaseUsername.set(dbUser)
     databasePassword.set(dbPassword)
+    // Allowed values: org.h2.Driver, org.postgresql.Driver, org.mariadb.jdbc.Driver, com.mysql.cj.jdbc.Driver
     databaseDriver.set("org.hsqldb.jdbc.JDBCDriver")
     // Include only tables that start with APP_
     tableNamePattern.set("APP_%")
     outputPath.set("${projectDir}/src/main/java")
+    basePackage.set("solutions.sulfura.hyperkit.test.entities")
+    // Only process tables with names starting with "app_"
+    tableNamePattern.set("app_%")
 }
