@@ -40,13 +40,34 @@ dependencies {
 }
 ```
 
-### Maven (no support for entity and dto generation)
+### Maven
 ```xml
+<!--Other pom.xml contents-->
 <dependency>
     <groupId>solutions.sulfura</groupId>
     <artifactId>hyperkit-spring-boot-starter</artifactId>
     <version>latest.version</version>
 </dependency>
+
+<build>
+<plugins>
+    <plugin>
+        <groupId>solutions.sulfura</groupId>
+        <artifactId>hyperkit-dto-generator-maven-plugin</artifactId>
+        <version>${hyperkit.version}</version>
+        <executions>
+            <execution>
+                <id>generate-dtos</id>
+                <phase>generate-sources</phase>
+                <goals>
+                    <goal>hyperkit-dto-generator-maven-plugin</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+</plugins>
+</build>
+<!--Other pom.xml contents-->
 ```
 
 ### Entity Generation (Gradle only)
@@ -67,7 +88,7 @@ hyperKitEntityGenerator {
 - Run the Gradle task hyperkit/GenerateEntities to generate the entity classes
 - The task output can be modified by specifying a custom velocity template for the generated code using the property `templatePath`
 
-### DTO Generation (Gradle only)
+### DTO Generation
 
 - Annotate the entity classes whose Dtos you want to generate with `@Dto`
 - Annotate the fields that will be included for the generated Dtos with `@DtoProperty`
@@ -88,7 +109,7 @@ public class User {
 }
 ```
 - The task output can be modified by specifying a custom velocity template for the generated code using the property `templatePath`
-- Run the Gradle task hyperkit/generateDtos to generate the DTOs
+- To generate the DTOs, run the Gradle task hyperkit/generateDtos or the Maven plugin with `mvn generate-sources` or `mvn compile`
 
 ### Projections and mapping between entities and DTOs
 - Use the Dtos in your controllers and apply projections to them using the `@DtoProjectionSpec` annotation
@@ -146,7 +167,7 @@ that provides syntax highlighting, code completion and quick access to the dto p
 - Generates entity classes from database schemas
 - The code generation can be customized by providing a custom Velocity template
 
-### DTO Generation (Gradle only)
+### DTO Generation
 - Generates Dtos from entity classes
 - The code generation can be customized by providing a custom Velocity template
 
