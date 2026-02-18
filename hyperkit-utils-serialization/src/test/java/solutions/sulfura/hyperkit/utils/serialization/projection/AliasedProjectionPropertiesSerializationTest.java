@@ -43,7 +43,6 @@ public class AliasedProjectionPropertiesSerializationTest {
                 .name(ValueWrapper.of("AdminAuth"))
                 .build();
 
-        // TODO setup dto values
         // When
         String result = objectMapper.writer().withAttribute("hyperkit-projection", projection).writeValueAsString(dto);
         // Then
@@ -64,7 +63,7 @@ public class AliasedProjectionPropertiesSerializationTest {
         String result = objectMapper.writer().withAttribute("hyperkit-projection", projection).writeValueAsString(dto);
         // Then
         assertEquals("""
-                {"rl":{"name":"AdminRole"}""", result);
+                {"rl":{"name":"AdminRole"}}""", result);
     }
 
     @Test
@@ -74,7 +73,7 @@ public class AliasedProjectionPropertiesSerializationTest {
         AuthorizationDto dto = AuthorizationDto.Builder.newInstance()
                 .resourceReferences(ValueWrapper.of(Set.of(ListOperation.valueOf(
                         ResourceReferenceDto.Builder.newInstance()
-                                .id(ValueWrapper.of("MainResource"))
+                                .name(ValueWrapper.of("MainResource"))
                                 .build()
                 ))))
                 .build();
@@ -83,7 +82,7 @@ public class AliasedProjectionPropertiesSerializationTest {
         // Then
         // Then
         assertEquals("""
-                {"resources":[{"name":"MainResource"}]}""", result);
+                {"resources":[{"operationType":"NONE","itemOperationType":"NONE","value":{"name":"MainResource"}}]}""", result);
     }
 
     @Test
@@ -99,7 +98,7 @@ public class AliasedProjectionPropertiesSerializationTest {
         String result = objectMapper.writer().withAttribute("hyperkit-projection", projection).writeValueAsString(dto);
         // Then
         assertEquals("""
-                {"role":{"code":"AdminRole"}""", result);
+                {"role":{"code":"AdminRole"}}""", result);
     }
 
     @Test
@@ -118,7 +117,7 @@ public class AliasedProjectionPropertiesSerializationTest {
         String result = objectMapper.writer().withAttribute("hyperkit-projection", projection).writeValueAsString(dto);
         // Then
         assertEquals("""
-                {"authorizations":{"rl":{"name":"AdminRole"}}}""", result);
+                {"authorizations":[{"operationType":"NONE","itemOperationType":"NONE","value":{"rl":{"name":"AdminRole"}}}]}""", result);
     }
 
     @Test
@@ -138,7 +137,7 @@ public class AliasedProjectionPropertiesSerializationTest {
         String result = objectMapper.writer().withAttribute("hyperkit-projection", projection).writeValueAsString(dto);
         // Then
         assertEquals("""
-                {"role":{"perms":[{"id":"Users$READ"}]}}""", result);
+                {"role":{"perms":[{"operationType":"NONE","itemOperationType":"NONE","value":{"id":"Users$READ"}}]}}""", result);
     }
 
 
