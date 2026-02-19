@@ -8,14 +8,12 @@ import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
+import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.*;
-import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for serialization and deserialization of projected dtos with field name aliasing.
@@ -23,16 +21,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class AliasedProjectionPropertiesSerializationTest {
 
     private ObjectMapper objectMapper;
-    private ValueWrapperAdapterImpl adapter;
 
     @BeforeEach
     void setUp() {
-        adapter = new ValueWrapperAdapterImpl();
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new ValueWrapperJacksonModule(adapter));
         objectMapper.registerModule(new DtoJacksonModule());
-        fail("ProjectedDtoJacksonModule does not exist yet");
-//        objectMapper.registerModule(new ProjectedDtoJacksonModule());
+        objectMapper.registerModule(new ProjectedDtoJacksonModule());
     }
 
     @Test
