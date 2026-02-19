@@ -75,17 +75,17 @@ public class AliasBeanPropertyWriter extends BeanPropertyWriter {
             return;
         }
 
-        // Propagate nested projections before serializing a nested dto
-        if (fieldConf instanceof DtoFieldConf<?> dtoFieldConf) {
-            DtoProjection<?> nestedProjection = null;
-            nestedProjection = dtoFieldConf.dtoProjection;
-
-            if (nestedProjection != null) {
-                prov.setAttribute("hyperkit-projection", nestedProjection);
-            }
-        }
-
         try {
+            // Propagate nested projections before serializing a nested dto
+            if (fieldConf instanceof DtoFieldConf<?> dtoFieldConf) {
+                DtoProjection<?> nestedProjection = null;
+                nestedProjection = dtoFieldConf.dtoProjection;
+
+                if (nestedProjection != null) {
+                    prov.setAttribute("hyperkit-projection", nestedProjection);
+                }
+            }
+
             gen.writeFieldName(serializedName);
             JsonSerializer<Object> ser = getSerializer();
             if (ser == null) {
