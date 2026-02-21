@@ -89,7 +89,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean
     public ValueWrapperJacksonModule valueWrapperJacksonModule() {
-        return new ValueWrapperJacksonModule(new ValueWrapperAdapterImpl());
+        return new ValueWrapperJacksonModule();
     }
 
     @Bean

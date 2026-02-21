@@ -39,7 +39,7 @@ public class SpringTestConfig implements WebMvcConfigurer {
 
     @Bean
     public ValueWrapperJacksonModule valueWrapperJacksonModule() {
-        return new ValueWrapperJacksonModule(new ValueWrapperAdapterImpl());
+        return new ValueWrapperJacksonModule();
     }
 
     @Bean
