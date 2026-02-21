@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
+package solutions.sulfura.hyperkit.utils.serialization.value_wrapper.deserialization;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class ValueWrapperDeserializers extends Deserializers.Base{
 

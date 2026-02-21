@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
+package solutions.sulfura.hyperkit.utils.serialization.value_wrapper.deserialization;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;

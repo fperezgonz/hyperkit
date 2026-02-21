@@ -1,6 +1,5 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
-import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +11,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectionOpenApiCustomizer;

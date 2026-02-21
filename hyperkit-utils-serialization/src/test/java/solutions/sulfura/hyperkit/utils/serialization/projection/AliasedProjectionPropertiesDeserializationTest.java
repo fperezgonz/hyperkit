@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.AuthorizationDto;
 import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.UserDto;
@@ -24,7 +23,6 @@ public class AliasedProjectionPropertiesDeserializationTest {
 
     @BeforeEach
     void setUp() {
-        ValueWrapperAdapterImpl adapter = new ValueWrapperAdapterImpl();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new DtoJacksonModule());
         objectMapper.registerModule(new ValueWrapperJacksonModule());

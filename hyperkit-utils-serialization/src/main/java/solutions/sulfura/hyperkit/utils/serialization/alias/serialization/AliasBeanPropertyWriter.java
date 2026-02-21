@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.serialization.alias;
+package solutions.sulfura.hyperkit.utils.serialization.alias.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.utils.serialization.alias.FieldAliasUtils;
 
 public class AliasBeanPropertyWriter extends BeanPropertyWriter {
 

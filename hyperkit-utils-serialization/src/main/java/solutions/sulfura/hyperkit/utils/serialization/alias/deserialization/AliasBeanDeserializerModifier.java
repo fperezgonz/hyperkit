@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.serialization.alias;
+package solutions.sulfura.hyperkit.utils.serialization.alias.deserialization;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;

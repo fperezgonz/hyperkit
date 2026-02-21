@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
 import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.UserDto;
 import solutions.sulfura.hyperkit.utils.serialization.projection.model.User;
 

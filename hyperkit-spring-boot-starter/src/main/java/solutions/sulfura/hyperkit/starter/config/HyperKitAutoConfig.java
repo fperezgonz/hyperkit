@@ -14,7 +14,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;

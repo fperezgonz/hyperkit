@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
+package solutions.sulfura.hyperkit.utils.serialization.value_wrapper.serialization;
 
 
 import com.fasterxml.jackson.core.JsonGenerator;
