@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapterImpl;
+import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.UserDto;
+import solutions.sulfura.hyperkit.utils.serialization.projection.model.User;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,6 +28,7 @@ public class ValueWrapperSerializationTest {
         adapter = new ValueWrapperAdapterImpl();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new ValueWrapperJacksonModule(adapter));
+        objectMapper.registerModule(new DtoJacksonModule());
     }
 
     @Test
@@ -109,6 +113,23 @@ public class ValueWrapperSerializationTest {
 
         // Then the resulting JSON must be an empty string
         assertEquals("", json);
+    }
+
+    @Test
+    void testSerializeEmptyFields() throws IOException {
+        // Given an object with empty ValueWrapper fields
+        UserDto dto = new UserDto();
+        dto.id = ValueWrapper.of("1");
+        dto.name = ValueWrapper.empty();
+        dto.email = ValueWrapper.empty();
+        dto.authorizations = ValueWrapper.empty();
+
+        // When serializing the empty wrapper into JSON format
+        String json = objectMapper.writeValueAsString(dto);
+
+        // Then the resulting JSON only shows the id field
+        assertEquals("""
+                {"id":"1"}""", json);
     }
 
     @Test
