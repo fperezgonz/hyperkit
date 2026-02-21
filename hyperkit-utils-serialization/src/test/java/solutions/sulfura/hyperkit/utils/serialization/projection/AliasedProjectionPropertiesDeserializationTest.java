@@ -27,7 +27,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
         ValueWrapperAdapterImpl adapter = new ValueWrapperAdapterImpl();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new DtoJacksonModule());
-        objectMapper.registerModule(new ValueWrapperJacksonModule(adapter));
+        objectMapper.registerModule(new ValueWrapperJacksonModule());
         objectMapper.registerModule(new ProjectedDtoJacksonModule());
     }
 
@@ -116,6 +116,8 @@ public class AliasedProjectionPropertiesDeserializationTest {
         // Then
         assertEquals("Users$READ", result.role.get().actions.get().iterator().next().getValue().id.get());
     }
+
+    // TODO Add tests for objects that are not dtos to verify this does not break normal serialization
 
 
 }

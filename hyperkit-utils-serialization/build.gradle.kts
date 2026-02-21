@@ -156,7 +156,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-
+    testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
+    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
 }
 
 tasks.test {

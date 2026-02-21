@@ -7,11 +7,8 @@ import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class ValueWrapperJacksonModule extends SimpleModule {
 
-    private final ValueWrapperAdapter<?> adapter;
-
-    public ValueWrapperJacksonModule(ValueWrapperAdapter<?> adapter) {
+    public ValueWrapperJacksonModule() {
         super();
-        this.adapter = adapter;
     }
 
     @Override
@@ -27,14 +24,13 @@ public class ValueWrapperJacksonModule extends SimpleModule {
     @Override
     public void setupModule(SetupContext context) {
 
-        context.addBeanSerializerModifier(new ValueWrapperBeanSerializerModifier(adapter));
-
         SimpleSerializers serializers = new SimpleSerializers();
-        serializers.addSerializer(new ValueWrapperSerializer(adapter));
+        serializers.addSerializer(new ValueWrapperSerializer());
         context.addSerializers(serializers);
+        context.appendAnnotationIntrospector(new EmptyValueWrapperSuppressorIntrospector());
 
-        context.addDeserializers(new ValueWrapperDeserializers(adapter));
-        context.addTypeModifier(new ValueWrapperTypeModifier(adapter));
+        context.addDeserializers(new ValueWrapperDeserializers());
+        context.addTypeModifier(new ValueWrapperTypeModifier());
 
     }
 

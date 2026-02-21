@@ -6,47 +6,42 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.ReferenceTypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 
-public class ValueWrapperDeserializer extends ReferenceTypeDeserializer<Object> {
+public class ValueWrapperDeserializer extends ReferenceTypeDeserializer<ValueWrapper<?>> {
 
-    @SuppressWarnings("rawtypes")
-    private final ValueWrapperAdapter adapter;
-
-    public ValueWrapperDeserializer(JavaType fullType, ValueInstantiator vi, TypeDeserializer typeDeser, JsonDeserializer<?> deser, ValueWrapperAdapter<?> adapter) {
+    public ValueWrapperDeserializer(JavaType fullType, ValueInstantiator vi, TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
         super(fullType, vi, typeDeser, deser);
-        this.adapter = adapter;
     }
 
     @Override
-    protected ReferenceTypeDeserializer<Object> withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
-        return new ValueWrapperDeserializer(_fullType, _valueInstantiator, typeDeser, valueDeser, adapter);
+    protected ReferenceTypeDeserializer<ValueWrapper<?>> withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+        return new ValueWrapperDeserializer(_fullType, _valueInstantiator, typeDeser, valueDeser);
     }
 
     @Override
-    public Object getNullValue(DeserializationContext ctxt) {
-        return adapter.wrap(null);
+    public ValueWrapper<?> getNullValue(DeserializationContext ctxt) {
+        return ValueWrapper.of(null);
     }
 
     @Override
-    public Object referenceValue(Object contents) {
-        return adapter.wrap(contents);
+    public ValueWrapper<?> referenceValue(Object contents) {
+        return ValueWrapper.of(contents);
     }
 
     @Override
-    public Object updateReference(Object reference, Object contents) {
-        return adapter.wrap(contents);
+    public ValueWrapper<?> updateReference(ValueWrapper<?> reference, Object contents) {
+        return ValueWrapper.of(contents);
     }
 
     @Override
-    public Object getReferenced(Object reference) {
-        //noinspection unchecked
-        return adapter.unwrap(reference);
+    public Object getReferenced(ValueWrapper<?> reference) {
+        return reference.get();
     }
 
     @Override
     public Object getAbsentValue(DeserializationContext ctxt) {
-        return adapter.empty();
+        return ValueWrapper.empty();
     }
 
 }

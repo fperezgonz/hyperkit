@@ -7,15 +7,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
 
 public class ValueWrapperDeserializers extends Deserializers.Base{
 
-    private final ValueWrapperAdapter<?> adapter;
-
-    public ValueWrapperDeserializers(ValueWrapperAdapter<?> adapter) {
+    public ValueWrapperDeserializers() {
         super();
-        this.adapter = adapter;
     }
 
     @Override
@@ -23,8 +21,8 @@ public class ValueWrapperDeserializers extends Deserializers.Base{
                                                          DeserializationConfig config, BeanDescription beanDesc,
                                                          TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer) throws JsonMappingException {
 
-        if(adapter.isSupportedWrapperType(refType.getRawClass())){
-            return new ValueWrapperDeserializer(refType, null, contentTypeDeserializer,contentDeserializer, adapter);
+        if(ValueWrapper.class.isAssignableFrom(refType.getRawClass())){
+            return new ValueWrapperDeserializer(refType, null, contentTypeDeserializer,contentDeserializer);
         }
 
         return super.findReferenceDeserializer(refType, config, beanDesc, contentTypeDeserializer, contentDeserializer);

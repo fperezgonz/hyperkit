@@ -1,6 +1,9 @@
 package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
@@ -10,7 +13,10 @@ import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.UserDto;
 import solutions.sulfura.hyperkit.utils.serialization.projection.model.User;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,14 +27,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ValueWrapperSerializationTest {
 
     private ObjectMapper objectMapper;
-    private ValueWrapperAdapterImpl adapter;
 
     @BeforeEach
     void setUp() {
-        adapter = new ValueWrapperAdapterImpl();
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new ValueWrapperJacksonModule(adapter));
+        objectMapper.registerModule(new ValueWrapperJacksonModule());
         objectMapper.registerModule(new DtoJacksonModule());
+        // Add Jackson standard modules to test compatibility issues
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new ParameterNamesModule());
     }
 
     @Test
@@ -109,10 +117,11 @@ public class ValueWrapperSerializationTest {
         ValueWrapper<Object> wrapper = ValueWrapper.empty();
 
         // When serializing the empty wrapper into JSON format
-        String json = objectMapper.writeValueAsString(wrapper);
+        String emptyWrapperJson = objectMapper.writeValueAsString(wrapper);
 
-        // Then the resulting JSON must be an empty string
-        assertEquals("", json);
+        // Then the resulting JSON must be the same as serializing a null value
+        String nullJson = objectMapper.writeValueAsString(null);
+        assertEquals("null", nullJson);
     }
 
     @Test
@@ -133,6 +142,21 @@ public class ValueWrapperSerializationTest {
     }
 
     @Test
+    void testSerializeEmptyArrayElements() throws IOException {
+        // Given a set with an empty ValueWrapper field
+        Set<ValueWrapper<User>> setOfEmptyValueWrappers = Set.of(ValueWrapper.empty());
+        Set<User> setOfNull = new HashSet<>();
+        setOfNull.add(null);
+
+        // When serializing the empty wrapper into JSON format
+        String setOfEmptyValueWrappersJson = objectMapper.writeValueAsString(setOfEmptyValueWrappers);
+
+        // Then the resulting JSON matches the json of a set with a null element
+        String setOfNullJson = objectMapper.writeValueAsString(setOfNull);
+        assertEquals(setOfNullJson, setOfEmptyValueWrappersJson);
+    }
+
+    @Test
     void testSerializeComplex() throws IOException {
         // Given a wrapper containing a TestPerson
         TestPerson person = new TestPerson("John", 30);
@@ -142,7 +166,7 @@ public class ValueWrapperSerializationTest {
         String json = objectMapper.writeValueAsString(wrapper);
 
         // Then the resulting JSON must represent the TestPerson object
-        assertEquals("{\"name\":\"John\",\"age\":30}", json);
+        assertEquals("{\"name\":\"John\",\"age\":30,\"email\":null}", json);
     }
 
 
@@ -301,6 +325,7 @@ public class ValueWrapperSerializationTest {
     private static class TestPerson {
         private String name;
         private int age;
+        private Optional<String> email = Optional.empty();
 
         public TestPerson() {
             // Default constructor for Jackson
@@ -309,6 +334,12 @@ public class ValueWrapperSerializationTest {
         public TestPerson(String name, int age) {
             this.name = name;
             this.age = age;
+        }
+
+        public TestPerson(String name, int age, Optional<String> email) {
+            this.name = name;
+            this.age = age;
+            this.email = email;
         }
 
         public String getName() {
@@ -325,6 +356,14 @@ public class ValueWrapperSerializationTest {
 
         public void setAge(int age) {
             this.age = age;
+        }
+
+        public Optional<String> getEmail() {
+            return email;
+        }
+
+        public void setEmail(Optional<String> email) {
+            this.email = email;
         }
     }
 }

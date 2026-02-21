@@ -4,46 +4,43 @@ package solutions.sulfura.hyperkit.utils.serialization.value_wrapper;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import solutions.sulfura.hyperkit.utils.serialization.ValueWrapperAdapter;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 
 import java.io.IOException;
 
 @SuppressWarnings("unchecked")
-public class ValueWrapperSerializer extends JsonSerializer {
+public class ValueWrapperSerializer extends JsonSerializer<ValueWrapper<?>> {
 
-    @SuppressWarnings("rawtypes")
-    private final ValueWrapperAdapter adapter;
-
-    public ValueWrapperSerializer(ValueWrapperAdapter<?> adapter) {
+    public ValueWrapperSerializer() {
         super();
-        this.adapter = adapter;
     }
 
     @Override
-    public void serialize(Object objects, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ValueWrapper<?> objects, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
 
-        if (objects != null && adapter.isEmpty(objects)) {
+        if (objects == null || objects.isEmpty()) {
+            jsonGenerator.writeNull();
             return;
         }
 
-        jsonGenerator.writeObject(adapter.unwrap(objects));
+        jsonGenerator.writeObject(objects.get());
 
     }
 
     @Override
     public Class handledType() {
-        return adapter.getWrapperClass();
+        return ValueWrapper.class;
     }
 
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, Object value) {
-        return value != null && adapter.isEmpty(value);
+    public boolean isEmpty(SerializerProvider provider, ValueWrapper<?> value) {
+        return value == null || value.isEmpty();
     }
 
     @Deprecated
     @Override
-    public boolean isEmpty(Object value) {
-        return value != null && adapter.isEmpty(value);
+    public boolean isEmpty(ValueWrapper<?> value) {
+        return value == null || value.isEmpty();
     }
 }

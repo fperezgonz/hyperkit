@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.*;
+import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 
 import java.util.Set;
 
@@ -26,6 +27,7 @@ public class AliasedProjectionPropertiesSerializationTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new DtoJacksonModule());
+        objectMapper.registerModule(new ValueWrapperJacksonModule());
         objectMapper.registerModule(new ProjectedDtoJacksonModule());
     }
 
