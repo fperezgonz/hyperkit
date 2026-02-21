@@ -27,43 +27,48 @@ public class FieldAliasUtils {
 
     }
 
-    public static FieldConf findFieldConfForPropertyByFieldAlias(DtoProjection<?> projection, String fieldName) {
+    public static FieldConfData findFieldConfForPropertyByFieldAlias(DtoProjection<?> projection, String fieldName) {
 
-        FieldConf fieldConf = null;
+        FieldConfData fieldConfData = null;
 
         // TODO Search by property instead of field
         // TODO Use a cache to improve performance
 
         // If the field name matches another property's field alias, use that property
-        fieldConf = Arrays.stream(projection.getClass().getFields())
+        fieldConfData = Arrays.stream(projection.getClass().getFields())
                 // Only FieldConf fields
                 .filter(field -> FieldConf.class.isAssignableFrom(field.getType()))
                 .map(f -> {
                     try {
-                        return ((FieldConf) f.get(projection));
+                        return new FieldConfData(f.getName(), (FieldConf) f.get(projection));
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
                 })
                 // Filter by alias matching property name
-                .filter(dtoFieldConf -> dtoFieldConf != null && Objects.equals(dtoFieldConf.getFieldAlias(), fieldName))
+                .filter(fcData -> fcData.fieldConf != null && Objects.equals(fcData.fieldConf.getFieldAlias(), fieldName))
                 .findFirst()
                 .orElse(null);
 
-        if (fieldConf != null) {
-            return fieldConf;
+        if (fieldConfData != null) {
+            return fieldConfData;
         }
 
+        // If there are no matches by alias, try matching by property name
+
         try {
-            fieldConf = (FieldConf) projection.getClass().getField(fieldName).get(projection);
+            fieldConfData = new FieldConfData(fieldName, (FieldConf) projection.getClass().getField(fieldName).get(projection));
         } catch (Exception ignored) {
         }
 
-        if (fieldConf != null && (fieldConf.getFieldAlias() == null || Objects.equals(fieldConf.getFieldAlias(), fieldName))) {
-            return fieldConf;
+        if (fieldConfData != null && (fieldConfData.fieldConf.getFieldAlias() == null || Objects.equals(fieldConfData.fieldConf.getFieldAlias(), fieldName))) {
+            return fieldConfData;
         }
 
         return null;
 
     }
+
+    public record FieldConfData(String fieldName, FieldConf fieldConf) { }
+
 }

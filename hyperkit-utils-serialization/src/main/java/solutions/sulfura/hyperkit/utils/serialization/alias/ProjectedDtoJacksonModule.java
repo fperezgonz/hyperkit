@@ -11,7 +11,7 @@ public class ProjectedDtoJacksonModule extends SimpleModule {
     @Override
     public void setupModule(SetupContext context) {
         context.addBeanSerializerModifier(new AliasBeanSerializerModifier());
-//        context.addBeanDeserializerModifier(new AliasBeanDeserializerModifier());
+        context.addBeanDeserializerModifier(new AliasBeanDeserializerModifier());
     }
 
 }
