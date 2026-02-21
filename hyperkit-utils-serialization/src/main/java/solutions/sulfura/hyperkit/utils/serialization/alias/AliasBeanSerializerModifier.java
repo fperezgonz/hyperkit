@@ -15,10 +15,8 @@ public class AliasBeanSerializerModifier extends BeanSerializerModifier {
         if (!Dto.class.isAssignableFrom(beanDesc.getBeanClass())) {
             return beanProperties;
         }
-        System.out.println(beanDesc.getBeanClass());
 
         beanProperties.replaceAll(AliasBeanPropertyWriter::new);
-        System.out.println(beanProperties.getFirst().getClass());
 
         return beanProperties;
     }

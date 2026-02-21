@@ -46,7 +46,6 @@ public class GenerateDtosMojo extends AbstractMojo {
         List<String> classpathElements = null;
         classpathElements = project.getArtifacts().stream()
                 .map(it -> {
-                    System.out.println(it.getArtifactId());
                     return it.getFile().getAbsolutePath();
                 })
                 .collect(Collectors.toList());
