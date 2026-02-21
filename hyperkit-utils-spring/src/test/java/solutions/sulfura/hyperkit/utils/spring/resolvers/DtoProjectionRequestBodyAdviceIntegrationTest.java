@@ -12,7 +12,7 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
 import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,6 +54,7 @@ public class DtoProjectionRequestBodyAdviceIntegrationTest {
         DtoListResponseBody<TestDto> parsedResponse = objectMapper.readValue(content, stdDtoResponseBodyTypeRef);
 
         // Check that the response contains the projected values
+        assertFalse(content.contains("sourceClass"));
         assertEquals(1, parsedResponse.getData().size());
         assertEquals(ValueWrapper.empty(), parsedResponse.getData().getFirst().id);
         assertEquals(testDtoRequestBody.getData().getFirst().age, parsedResponse.getData().getFirst().age);
@@ -75,6 +76,7 @@ public class DtoProjectionRequestBodyAdviceIntegrationTest {
         DtoListResponseBody<TestDto> parsedResponse = objectMapper.readValue(content, stdDtoResponseBodyTypeRef);
 
         // Check that the response contains the property names
+        assertFalse(content.contains("sourceClass"));
         assertEquals(1, parsedResponse.getData().size());
         assertEquals(1L, parsedResponse.getData().getFirst().id.get());
         assertEquals("Test Dto", parsedResponse.getData().getFirst().name.get());
