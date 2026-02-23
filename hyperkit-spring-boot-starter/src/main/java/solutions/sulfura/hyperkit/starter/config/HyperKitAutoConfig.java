@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.starter.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -14,9 +15,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
+import solutions.sulfura.hyperkit.utils.spring.ProjectionAwareJacksonConverter;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectionOpenApiCustomizer;
@@ -30,6 +33,8 @@ import java.util.List;
 @AutoConfiguration
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class HyperKitAutoConfig implements WebMvcConfigurer {
+
+    ProjectionAwareJacksonConverter projectionAwareJacksonConverter;
 
     @Bean
     @ConditionalOnMissingBean
@@ -95,6 +100,17 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     public DtoJacksonModule dtoJacksonModule() {
         return new DtoJacksonModule();
+    }
+
+    @Bean
+    public ProjectedDtoJacksonModule projectedDtoJacksonModule() {
+        return new ProjectedDtoJacksonModule();
+    }
+
+    @Bean
+    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper) {
+        projectionAwareJacksonConverter =  new ProjectionAwareJacksonConverter(objectMapper);
+        return projectionAwareJacksonConverter;
     }
 
     @Override

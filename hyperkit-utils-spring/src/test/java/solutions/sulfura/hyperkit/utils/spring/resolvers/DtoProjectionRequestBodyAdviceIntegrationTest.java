@@ -6,9 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
 import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
@@ -22,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests that SortArgumentResolver and SortConverter are properly registered and can resolve Sort parameters in controller methods.
  */
 @WebMvcTest(TestController.class)
+@Import(SpringTestConfig.class)
 public class DtoProjectionRequestBodyAdviceIntegrationTest {
 
     static TypeReference<DtoListResponseBody<TestDto>> stdDtoResponseBodyTypeRef = new TypeReference<>() {
@@ -81,6 +85,44 @@ public class DtoProjectionRequestBodyAdviceIntegrationTest {
         assertEquals(1L, parsedResponse.getData().getFirst().id.get());
         assertEquals("Test Dto", parsedResponse.getData().getFirst().name.get());
         assertEquals(ValueWrapper.empty(), parsedResponse.getData().getFirst().age);
+    }
+
+    @Test
+    @DisplayName("Should resolve StdResponse return value with aliased properties")
+    public void testShouldResolveStdResponseReturnValueWithAliasedProperties() throws Exception {
+        // Given a GET request to /test/test-dtos/
+
+        // When the request is executed
+        MvcResult result = mockMvc.perform(get("/test/test-aliased-dtos/"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Then the response should contain a Dto with the method projection applied
+        String content = result.getResponse().getContentAsString();
+
+        assertEquals("""
+                {"data":[{"code":1,"name":"Test Dto"}]}""", content);
+    }
+
+    @Test
+    @DisplayName("Should resolve StdRequest value with aliased properties")
+    public void testShouldResolveStdRequestValueWithAliasedProperties() throws Exception {
+        // Given a POST request to /test/test-dtos/
+        var requestBody = """
+                {"data":[{"code":1,"name":"Test Dto","age":25}]}""";
+        // When the request is executed
+        MvcResult result = mockMvc.perform(
+                        post("/test/test-aliased-dtos/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Then the response should contain a Dto with the method projection applied
+        String content = result.getResponse().getContentAsString();
+
+        assertEquals("""
+                {"data":[{"id":1,"age":25}]}""", content);
     }
 
 }

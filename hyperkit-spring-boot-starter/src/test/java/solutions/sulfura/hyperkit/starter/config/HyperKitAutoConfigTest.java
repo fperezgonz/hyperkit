@@ -6,8 +6,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
+import solutions.sulfura.hyperkit.utils.spring.ProjectionAwareJacksonConverter;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectionOpenApiCustomizer;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ValueWrapperModelConverter;
@@ -35,6 +37,7 @@ public class HyperKitAutoConfigTest {
             ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule"));
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule"));
+            assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule"));
             assertNotNull(context.getBean(ObjectMapper.class));
             assertNotNull(context.getBean(DtoProjectionRequestBodyAdvice.class));
             assertNotNull(context.getBean(DtoProjectionResponseBodyAdvice.class));
@@ -44,6 +47,8 @@ public class HyperKitAutoConfigTest {
             assertNotNull(context.getBean(HyperMapper.class));
             assertNotNull(context.getBean(ValueWrapperJacksonModule.class));
             assertNotNull(context.getBean(DtoJacksonModule.class));
+            assertNotNull(context.getBean(ProjectedDtoJacksonModule.class));
+            assertNotNull(context.getBean(ProjectionAwareJacksonConverter.class));
             assertNotNull(context.getBean(ProjectionOpenApiCustomizer.class));
             assertNotNull(context.getBean(ValueWrapperModelConverter.class));
         });

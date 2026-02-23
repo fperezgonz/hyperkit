@@ -74,4 +74,35 @@ public class TestController {
         return new HttpEntity<>(testDtoResponseBody);
 
     }
+
+    /**
+     * Applies a projection {id as code, age} to the request body and returns the result
+     */
+    @PostMapping("/test/test-aliased-dtos/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testProjectionRequestWithFieldAlias(
+            @DtoProjectionSpec(projectedClass = TestDto.class, value = "id as code, age")
+            @RequestBody
+            StdDtoRequestBody<TestDto> testDtoRequestBody) {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(testDtoRequestBody.getData());
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * Applies a projection {id as code, name} to the result
+     */
+    @GetMapping("/test/test-aliased-dtos/")
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id as code, name")
+    public HttpEntity<DtoListResponseBody<TestDto>> testProjectionResponseWithFieldAlias() {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(List.of(new TestDto(1L, "Test Dto", 25)));
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
 }

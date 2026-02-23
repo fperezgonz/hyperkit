@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,8 @@ import java.util.List;
 
 @SpringBootApplication
 public class SpringTestConfig implements WebMvcConfigurer {
+
+    ProjectionAwareJacksonConverter projectionAwareJacksonConverter;
 
     @Bean
     @ConditionalOnMissingBean
@@ -68,6 +71,12 @@ public class SpringTestConfig implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice() {
         return new DtoProjectionRequestBodyAdvice();
+    }
+
+    @Bean
+    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper) {
+        projectionAwareJacksonConverter =  new ProjectionAwareJacksonConverter(objectMapper);
+        return projectionAwareJacksonConverter;
     }
 
     @Override

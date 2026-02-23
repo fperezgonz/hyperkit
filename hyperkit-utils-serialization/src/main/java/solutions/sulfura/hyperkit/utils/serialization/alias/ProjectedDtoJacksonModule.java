@@ -7,7 +7,7 @@ import solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasB
 public class ProjectedDtoJacksonModule extends SimpleModule {
 
     public ProjectedDtoJacksonModule() {
-        super("ProjectedDtoJacksonModule");
+        super();
     }
 
     @Override
