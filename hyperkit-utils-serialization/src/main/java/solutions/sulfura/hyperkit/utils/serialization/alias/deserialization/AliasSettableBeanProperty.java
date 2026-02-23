@@ -11,6 +11,8 @@ import solutions.sulfura.hyperkit.utils.serialization.alias.FieldAliasUtils;
 import java.io.IOException;
 import java.util.Objects;
 
+import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+
 public class AliasSettableBeanProperty extends SettableBeanProperty.Delegating {
 
     public AliasSettableBeanProperty(SettableBeanProperty delegate) {
@@ -24,7 +26,7 @@ public class AliasSettableBeanProperty extends SettableBeanProperty.Delegating {
 
     @Override
     public void deserializeAndSet(JsonParser parser, DeserializationContext deserializationContext, Object instance) throws IOException {
-        DtoProjection<?> currentProjection = (DtoProjection<?>) deserializationContext.getAttribute("hyperkit-projection");
+        DtoProjection<?> currentProjection = (DtoProjection<?>) deserializationContext.getAttribute(HYPERKIT_PROJECTION_ATTR_KEY);
         if (currentProjection == null) {
             super.deserializeAndSet(parser, deserializationContext, instance);
             return;
@@ -57,18 +59,18 @@ public class AliasSettableBeanProperty extends SettableBeanProperty.Delegating {
 
         try {
             if (nestedProjection != null) {
-                deserializationContext.setAttribute("hyperkit-projection", nestedProjection);
+                deserializationContext.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, nestedProjection);
             }
 
             super.deserializeAndSet(parser, deserializationContext, instance);
         } finally {
-            deserializationContext.setAttribute("hyperkit-projection", currentProjection);
+            deserializationContext.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, currentProjection);
         }
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance) throws IOException {
-        DtoProjection<?> currentProjection = (DtoProjection<?>) ctxt.getAttribute("hyperkit-projection");
+        DtoProjection<?> currentProjection = (DtoProjection<?>) ctxt.getAttribute(HYPERKIT_PROJECTION_ATTR_KEY);
         FieldConf fieldConf = null;
         if (currentProjection != null) {
             try {
@@ -87,11 +89,11 @@ public class AliasSettableBeanProperty extends SettableBeanProperty.Delegating {
 
         try {
             if (nestedProjection != null) {
-                ctxt.setAttribute("hyperkit-projection", nestedProjection);
+                ctxt.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, nestedProjection);
             }
             return super.deserializeSetAndReturn(p, ctxt, instance);
         } finally {
-            ctxt.setAttribute("hyperkit-projection", currentProjection);
+            ctxt.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, currentProjection);
         }
     }
 }

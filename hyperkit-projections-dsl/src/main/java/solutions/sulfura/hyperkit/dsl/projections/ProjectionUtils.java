@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.dsl.projections;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
@@ -15,7 +16,13 @@ public class ProjectionUtils {
         return result == null ? null : result.targetAnnotation;
     }
 
-    public static <T extends Annotation> AnnotationInfo<Annotation, T> getFirstMetaAnnotatedAnnotationInfo(AnnotatedType annotatedType, Annotation[] annotations, Class<T> metaAnnotationClass) {
+    /**
+     * @return the {@link AnnotationInfo} for the first annotation found meta-annotated with the specified meta-annotation, or null if none was found
+     */
+    @Nullable
+    public static <T extends Annotation> AnnotationInfo<Annotation, T> getFirstMetaAnnotatedAnnotationInfo(@NonNull AnnotatedType annotatedType,
+                                                                                                           @NonNull Annotation[] annotations,
+                                                                                                           @NonNull Class<T> metaAnnotationClass) {
 
         for (var annotation : annotations) {
             var projectionAnnotation = annotation.annotationType().getAnnotation(metaAnnotationClass);

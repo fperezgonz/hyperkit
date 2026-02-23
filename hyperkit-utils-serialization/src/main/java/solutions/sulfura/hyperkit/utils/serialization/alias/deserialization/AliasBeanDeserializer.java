@@ -11,6 +11,8 @@ import solutions.sulfura.hyperkit.utils.serialization.alias.FieldAliasUtils;
 
 import java.io.IOException;
 
+import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+
 public class AliasBeanDeserializer extends BeanDeserializer {
 
     public AliasBeanDeserializer(BeanDeserializer base) {
@@ -19,7 +21,7 @@ public class AliasBeanDeserializer extends BeanDeserializer {
 
     @Override
     public Object deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        DtoProjection<?> projection = (DtoProjection<?>) deserializationContext.getAttribute("hyperkit-projection");
+        DtoProjection<?> projection = (DtoProjection<?>) deserializationContext.getAttribute(HYPERKIT_PROJECTION_ATTR_KEY);
         if (projection == null) {
             return super.deserialize(parser, deserializationContext);
         }
@@ -39,14 +41,14 @@ public class AliasBeanDeserializer extends BeanDeserializer {
                 try {
                     // Push the nested projection to the deserialization context
                     if (resolved.nestedProjection != null) {
-                        deserializationContext.setAttribute("hyperkit-projection", resolved.nestedProjection);
+                        deserializationContext.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, resolved.nestedProjection);
                     }
                     resolved.property.deserializeAndSet(parser, deserializationContext, bean);
                 } catch (Exception e) {
                     wrapAndThrow(e, bean, propName, deserializationContext);
                 } finally {
                     // Restore the initial projection to the deserialization context
-                    deserializationContext.setAttribute("hyperkit-projection", projection);
+                    deserializationContext.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection);
                 }
             } else {
                 handleUnknownVanilla(parser, deserializationContext, bean, propName);

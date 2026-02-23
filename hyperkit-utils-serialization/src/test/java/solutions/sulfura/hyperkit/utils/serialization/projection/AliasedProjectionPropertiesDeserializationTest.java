@@ -13,6 +13,7 @@ import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapper
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 /**
  * Tests for serialization and deserialization of projected dtos with field name aliasing.
@@ -38,7 +39,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
 
 
         // When
-        AuthorizationDto result = objectMapper.reader().withAttribute("hyperkit-projection", projection).readValue(sourceJson, AuthorizationDto.class);
+        AuthorizationDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, AuthorizationDto.class);
 
         // Then
         assertEquals("AdminAuth", result.name.get());
@@ -52,7 +53,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
                 {"rl":{"name":"AdminRole"}}""";
 
         // When
-        AuthorizationDto result = objectMapper.reader().withAttribute("hyperkit-projection", projection).readValue(sourceJson, AuthorizationDto.class);
+        AuthorizationDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, AuthorizationDto.class);
 
         // Then
         assertEquals("AdminRole", result.role.get().name.get());
@@ -66,7 +67,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
                 {"resources":[{"operationType":"NONE","itemOperationType":"NONE","value":{"name":"MainResource"}}]}""";
 
         // When
-        AuthorizationDto result = objectMapper.reader().withAttribute("hyperkit-projection", projection).readValue(sourceJson, AuthorizationDto.class);
+        AuthorizationDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, AuthorizationDto.class);
 
         // Then
         assertEquals("MainResource", result.resourceReferences.get().iterator().next().getValue().name.get());
@@ -81,7 +82,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
                 {"role":{"code":"AdminRole"}}""";
 
         // When
-        AuthorizationDto result = objectMapper.reader().withAttribute("hyperkit-projection", projection).readValue(sourceJson, AuthorizationDto.class);
+        AuthorizationDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, AuthorizationDto.class);
 
         // Then
         assertEquals("AdminRole", result.role.get().name.get());
@@ -95,7 +96,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
                 {"authorizations":[{"operationType":"NONE","itemOperationType":"NONE","value":{"rl":{"name":"AdminRole"}}}]}""";
 
         // When
-        UserDto result = objectMapper.reader().withAttribute("hyperkit-projection", projection).readValue(sourceJson, UserDto.class);
+        UserDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, UserDto.class);
 
         // Then
         assertEquals("AdminRole", result.authorizations.get().stream().findFirst().get().getValue().role.get().name.get());
@@ -109,7 +110,7 @@ public class AliasedProjectionPropertiesDeserializationTest {
                 {"role":{"perms":[{"operationType":"NONE","itemOperationType":"NONE","value":{"id":"Users$READ"}}]}}""";
 
         // When
-        AuthorizationDto result = objectMapper.reader().withAttribute("hyperkit-projection", projection).readValue(sourceJson, AuthorizationDto.class);
+        AuthorizationDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, AuthorizationDto.class);
 
         // Then
         assertEquals("Users$READ", result.role.get().actions.get().iterator().next().getValue().id.get());

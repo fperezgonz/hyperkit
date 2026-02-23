@@ -14,6 +14,8 @@ import solutions.sulfura.hyperkit.utils.serialization.alias.FieldAliasUtils;
 
 public class AliasBeanPropertyWriter extends BeanPropertyWriter {
 
+    public static String HYPERKIT_PROJECTION_ATTR_KEY = "hyperkit-projection";
+
     public AliasBeanPropertyWriter(BeanPropertyWriter base) {
         super(base);
     }
@@ -38,7 +40,7 @@ public class AliasBeanPropertyWriter extends BeanPropertyWriter {
 
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
-        DtoProjection<?> currentProjection = (DtoProjection<?>) prov.getAttribute("hyperkit-projection");
+        DtoProjection<?> currentProjection = (DtoProjection<?>) prov.getAttribute(HYPERKIT_PROJECTION_ATTR_KEY);
 
         Object value = get(bean);
 
@@ -83,7 +85,7 @@ public class AliasBeanPropertyWriter extends BeanPropertyWriter {
                 nestedProjection = dtoFieldConf.dtoProjection;
 
                 if (nestedProjection != null) {
-                    prov.setAttribute("hyperkit-projection", nestedProjection);
+                    prov.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, nestedProjection);
                 }
             }
 
@@ -97,7 +99,7 @@ public class AliasBeanPropertyWriter extends BeanPropertyWriter {
 
         } finally {
             // Restore projection
-            prov.setAttribute("hyperkit-projection", currentProjection);
+            prov.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, currentProjection);
         }
     }
 }
