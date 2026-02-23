@@ -46,6 +46,20 @@ public class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
+    void deserializeDtoWithAliasedSimplePropertyAndPropertyWithoutConfigInProjection() throws IOException {
+        // Given
+        AuthorizationDto.Projection projection = ProjectionDsl.parse("name", AuthorizationDto.Projection.class);
+        String sourceJson = """
+                {"id":"1", "name":"AdminAuth"}""";
+
+        // When
+        AuthorizationDto result = objectMapper.reader().withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection).readValue(sourceJson, AuthorizationDto.class);
+
+        // Then
+        assertEquals("AdminAuth", result.name.get());
+    }
+
+    @Test
     void deserializeDtoWithAliasedDtoProperty() throws IOException {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("role as rl { name }", AuthorizationDto.Projection.class);

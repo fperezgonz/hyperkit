@@ -1,5 +1,7 @@
 package solutions.sulfura.hyperkit.utils.serialization.alias;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 
@@ -27,7 +29,8 @@ public class FieldAliasUtils {
 
     }
 
-    public static FieldConfData findFieldConfForPropertyByFieldAlias(DtoProjection<?> projection, String fieldName) {
+    @Nullable
+    public static FieldConfData findFieldConfForPropertyByFieldAlias(@NonNull DtoProjection<?> projection, @NonNull String fieldName) {
 
         FieldConfData fieldConfData = null;
 
@@ -61,7 +64,11 @@ public class FieldAliasUtils {
         } catch (Exception ignored) {
         }
 
-        if (fieldConfData != null && (fieldConfData.fieldConf.getFieldAlias() == null || Objects.equals(fieldConfData.fieldConf.getFieldAlias(), fieldName))) {
+        if (fieldConfData == null || fieldConfData.fieldConf == null) {
+            return null;
+        }
+
+        if (fieldConfData.fieldConf.getFieldAlias() == null || Objects.equals(fieldConfData.fieldConf.getFieldAlias(), fieldName)) {
             return fieldConfData;
         }
 
@@ -69,6 +76,7 @@ public class FieldAliasUtils {
 
     }
 
-    public record FieldConfData(String fieldName, FieldConf fieldConf) { }
+    public record FieldConfData(@NonNull String fieldName, @Nullable FieldConf fieldConf) {
+    }
 
 }
