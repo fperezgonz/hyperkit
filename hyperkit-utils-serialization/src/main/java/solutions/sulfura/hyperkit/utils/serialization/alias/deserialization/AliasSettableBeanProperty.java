@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
-import solutions.sulfura.hyperkit.utils.serialization.alias.FieldAliasUtils;
+import solutions.sulfura.hyperkit.dsl.projections.FieldAliasUtils;
 
 import java.io.IOException;
 import java.util.Objects;

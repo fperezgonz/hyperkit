@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfigOpenApi_3_0;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfigOpenApi_3_1;
-import solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils;
 import solutions.sulfura.hyperkit.utils.spring.openapi.model.TestDto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static solutions.sulfura.hyperkit.utils.spring.openapi.field_alias.DtoProjectionOnRequestTestController.verifyTestDtoProjection1Schema;
+import static solutions.sulfura.hyperkit.utils.spring.SchemaVerificationUtils.verifySchemaMatchesProjection;
 
 public abstract class FieldAliasOnRequestTest {
 
@@ -55,13 +55,14 @@ public abstract class FieldAliasOnRequestTest {
 
         // Parse the OpenAPI JSON response and get the Schema for the controller under test
         OpenAPI openAPI = parseOpenApiSpec(content);
-        PathItem pathItem = openAPI.getPaths().get("/test-dto-projection-body");
+        PathItem pathItem = openAPI.getPaths().get("/test-field-alias-on-request");
         Schema<?> schema = pathItem
                 .getPost()
                 .getRequestBody().getContent().get("application/json").getSchema();
 
         // Then the schema for the parameter should match expectations
-        verifyTestDtoProjection1Schema(openAPI, schema);
+        DtoProjection<?> projection = ProjectionDsl.parse(TestDtoProjection.class.getAnnotation(DtoProjectionSpec.class));
+        verifySchemaMatchesProjection(openAPI, schema, projection);
 
     }
 
@@ -80,11 +81,11 @@ class OpenApi_3_1_Field_AliasOnRequestTest extends FieldAliasOnRequestTest {
 }
 
 @DtoProjectionSpec(projectedClass = TestDto.class, value = """
-            name as code
-            age
-            nestedDto{id}
-            nestedDtoList{id}
-            """)
+        name as code
+        age
+        nestedDto{id}
+        nestedDtoList{id}
+        """)
 @Retention(RetentionPolicy.RUNTIME)
 @interface TestDtoProjection {
 }
@@ -95,52 +96,11 @@ class OpenApi_3_1_Field_AliasOnRequestTest extends FieldAliasOnRequestTest {
  */
 @RestController
 class DtoProjectionOnRequestTestController {
-    @PostMapping("/test-dto-projection-body")
+    @PostMapping("/test-field-alias-on-request")
     public HttpEntity<TestDto> postTestDto(
             @TestDtoProjection
             @RequestBody TestDto testDto) {
         return new HttpEntity<>(testDto);
     }
 
-    public static void verifyTestDtoProjection1Schema(OpenAPI openAPI, Schema<?> testDtoProjection1Schema) {
-
-        testDtoProjection1Schema = SchemaBuilderUtils.findReferencedModel(openAPI, testDtoProjection1Schema);
-        // Should contain
-        assertNotNull(testDtoProjection1Schema);
-        assertTrue(testDtoProjection1Schema.getProperties().containsKey("code"));
-        assertTrue(testDtoProjection1Schema.getProperties().containsKey("age"));
-        assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDto"));
-        assertTrue(testDtoProjection1Schema.getProperties().containsKey("nestedDtoList"));
-        // Should not contain
-        assertFalse(testDtoProjection1Schema.getProperties().containsKey("id"));
-
-        // NestedDto
-        {
-            Schema<?> nestedDtoSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDto");
-            nestedDtoSchema = SchemaBuilderUtils.findReferencedModel(openAPI, nestedDtoSchema);
-
-            assertNotNull(nestedDtoSchema);
-            assertTrue(nestedDtoSchema.getProperties().containsKey("id"));
-            // Should not contain
-            assertFalse(nestedDtoSchema.getProperties().containsKey("nestedDto"));
-        }
-
-        // NestedDto list
-        {
-            Schema<?> nestedDtoListSchema = (Schema<?>) testDtoProjection1Schema.getProperties().get("nestedDtoList");
-
-            assertNotNull(nestedDtoListSchema);
-            Schema<?> itemsSchema = nestedDtoListSchema.getItems();
-            // It is a ListOperation, find the value
-            itemsSchema = SchemaBuilderUtils.findReferencedModel(openAPI, itemsSchema);
-            itemsSchema = itemsSchema.getProperties().get("value");
-
-            itemsSchema = SchemaBuilderUtils.findReferencedModel(openAPI, itemsSchema);
-            assertTrue(itemsSchema.getProperties().containsKey("id"));
-            // Should not contain
-            assertFalse(itemsSchema.getProperties().containsKey("nestedDto"));
-
-        }
-
-    }
 }

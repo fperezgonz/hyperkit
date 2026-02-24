@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.serialization.alias;
+package solutions.sulfura.hyperkit.dsl.projections;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

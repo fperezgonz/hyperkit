@@ -3,6 +3,7 @@ package solutions.sulfura.hyperkit.dsl.projections;
 import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
@@ -29,6 +30,11 @@ public class ProjectionDsl {
 
     public static <P extends DtoProjection> P parse(DtoProjectionSpec annotation, Class<P> rootType) {
         return ProjectionDsl.parse(annotation.value(), rootType);
+    }
+
+    public static DtoProjection parse(DtoProjectionSpec annotation) {
+        Class<? extends DtoProjection> projectionClass = ProjectionUtils.findDefaultProjectionClass(annotation.projectedClass());
+        return ProjectionDsl.parse(annotation, projectionClass);
     }
 
     @SuppressWarnings("unchecked")
