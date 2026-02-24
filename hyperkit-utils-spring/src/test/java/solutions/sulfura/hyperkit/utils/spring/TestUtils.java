@@ -1,9 +1,12 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
@@ -13,10 +16,30 @@ import solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils;
 import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class SchemaVerificationUtils {
+public class TestUtils {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SchemaVerificationUtils.class);
+    protected static final Logger logger = LoggerFactory.getLogger(TestUtils.class);
+
+    public static OpenAPI getOpenApi(MockMvc mockMvc) throws Exception {
+        MvcResult result = mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String json = result.getResponse().getContentAsString();
+        return Json.mapper().readValue(json, OpenAPI.class);
+    }
+
+
+    public static Schema<?> getSchemaForPath(OpenAPI openAPI, String path) {
+        if (openAPI.getPaths() == null || openAPI.getPaths().get(path) == null) {
+            throw new RuntimeException("Path " + path + " not found in OpenAPI spec. Paths: " + (openAPI.getPaths() == null ? "null" : openAPI.getPaths().keySet()));
+        }
+        return openAPI.getPaths().get(path)
+                .getPost()
+                .getRequestBody().getContent().get("application/json").getSchema();
+    }
 
     /**
      * Verifies that the given OpenAPI schema structure matches the projection specification.

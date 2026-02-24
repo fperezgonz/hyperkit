@@ -1,8 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring.openapi.field_alias;
 
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,18 +25,12 @@ import solutions.sulfura.hyperkit.utils.spring.openapi.model.TestDto;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static solutions.sulfura.hyperkit.utils.spring.SchemaVerificationUtils.verifySchemaMatchesProjection;
+import static solutions.sulfura.hyperkit.utils.spring.TestUtils.*;
 
 public abstract class FieldAliasOnRequestTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private OpenAPI parseOpenApiSpec(String json) throws Exception {
-        return Json.mapper().readValue(json, OpenAPI.class);
-    }
 
     @Test
     @DisplayName("OpenApi generation should apply projection to request body parameter model")
@@ -47,22 +38,12 @@ public abstract class FieldAliasOnRequestTest {
         // Given a controller with a projection annotation on a Dto
 
         // When we get the OpenAPI spec
-        MvcResult result = mockMvc.perform(get("/v3/api-docs"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String content = result.getResponse().getContentAsString();
-
-        // Parse the OpenAPI JSON response and get the Schema for the controller under test
-        OpenAPI openAPI = parseOpenApiSpec(content);
-        PathItem pathItem = openAPI.getPaths().get("/test-field-alias-on-request");
-        Schema<?> schema = pathItem
-                .getPost()
-                .getRequestBody().getContent().get("application/json").getSchema();
+        OpenAPI openApi = getOpenApi(mockMvc);
+        Schema<?> schema = getSchemaForPath(openApi, "/test-field-alias-on-request");
 
         // Then the schema for the parameter should match expectations
         DtoProjection<?> projection = ProjectionDsl.parse(TestDtoProjection.class.getAnnotation(DtoProjectionSpec.class));
-        verifySchemaMatchesProjection(openAPI, schema, projection);
+        verifySchemaMatchesProjection(openApi, schema, projection);
 
     }
 
