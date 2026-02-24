@@ -39,6 +39,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
         // New nested namespace for properties
         String newNamespace = getNameForCurrentType(stackData, stackData.schemaProcessingCounts);
         Map<String, Integer> schemaProcessingCounts = new HashMap<>();
+        Map<String, String> renamedProperties = new HashMap<>();
         //noinspection unchecked
         Class<? extends Dto<?>> projectedClass = (Class<? extends Dto<?>>) getRawType(projectedType);
 
@@ -75,6 +76,15 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
                 if (fieldConf == null || fieldConf.getPresence() == FieldConf.Presence.IGNORED) {
                     continue;
+                }
+
+                String fieldAlias = fieldConf.getFieldAlias();
+
+                if(fieldAlias != null && !fieldAlias.equals(projectionField.getName())) {
+                    if(renamedProperties.containsKey(fieldAlias)){
+                        throw new RuntimeException("Field alias '" + fieldAlias + "' is already used");
+                    }
+                    renamedProperties.put(projectionField.getName(), fieldAlias);
                 }
 
                 Schema<?> oldFieldSchema = getSchemaForField(schema, projectionField.getName());
@@ -136,7 +146,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
                     .collect(Collectors.toCollection(() -> removedProperties));
         }
 
-        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts, removedProperties);
+        return new PropertySchemaCreationResult(schemaCreationResults, stackData.schemaProcessingCounts, removedProperties, renamedProperties);
 
     }
 

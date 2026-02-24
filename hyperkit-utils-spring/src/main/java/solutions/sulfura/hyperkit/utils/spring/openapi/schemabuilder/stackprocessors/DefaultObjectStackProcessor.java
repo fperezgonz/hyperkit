@@ -130,7 +130,8 @@ public class DefaultObjectStackProcessor implements StackProcessor {
 
     protected SchemaCreationResult buildNewSchemaForTargetType(StackData stackData,
                                                                PropertySchemaCreationResult propertySchemaCreationResult,
-                                                               Map<String, Integer> schemaProcessingCounts
+                                                               Map<String, Integer> schemaProcessingCounts,
+                                                               Map<String, String> renamedProperties
     ) {
 
         Schema<?> schema = stackData.schema;
@@ -149,6 +150,11 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         for (Map.Entry<String, SchemaCreationResult> entry : propertySchemaCreationResult.propertySchemas.entrySet()) {
 
             String propertyName = entry.getKey();
+            System.out.println(propertyName + " -> " + entry.getValue().resultingSchema.getName());
+            if (renamedProperties.containsKey(propertyName)) {
+                System.out.println("Renaming property " + propertyName + " to " + renamedProperties.get(propertyName));
+                propertyName = renamedProperties.get(propertyName);
+            }
             SchemaCreationResult scr = entry.getValue();
             projectedSchema.addProperty(propertyName, scr.resultingSchema);
 
@@ -193,14 +199,16 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         var propertySchemaCreationResult = buildPropertySchemas(stackData, stackProcessors);
         boolean anyPropertySchemaHasChanged = propertySchemaCreationResult.isAnyPropertySchemaHasChanged();
         boolean propertiesHaveBeenRemoved = !propertySchemaCreationResult.removedProperties.isEmpty();
+        boolean propertiesHaveBeenRenamed = propertySchemaCreationResult.isAnyPropertyBeenRenamed();
 
-        if (!propertiesHaveBeenRemoved && !anyPropertySchemaHasChanged) {
+        if (!propertiesHaveBeenRemoved && !anyPropertySchemaHasChanged && !propertiesHaveBeenRenamed) {
             return new SchemaCreationResult(schema, stackData.schemaProcessingCounts, false);
         }
 
         return buildNewSchemaForTargetType(stackData,
                 propertySchemaCreationResult,
-                propertySchemaCreationResult.schemaProcessingCounts);
+                propertySchemaCreationResult.schemaProcessingCounts,
+                propertySchemaCreationResult.getRenamedProperties());
 
     }
 
@@ -211,6 +219,11 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         Map<String, Integer> schemaProcessingCounts;
         @NonNull
         Set<String> removedProperties;
+        /**
+         * key: old property name, value: new property name
+         */
+        @NonNull
+        Map<String, String> renamedProperties = new HashMap<>();
 
         public PropertySchemaCreationResult(@NonNull Map<String, SchemaCreationResult> propertySchemas,
                                             @NonNull Map<String, Integer> schemaProcessingCounts,
@@ -220,12 +233,24 @@ public class DefaultObjectStackProcessor implements StackProcessor {
             this.removedProperties = removedProperties;
         }
 
+        public PropertySchemaCreationResult(@NonNull Map<String, SchemaCreationResult> propertySchemas,
+                                            @NonNull Map<String, Integer> schemaProcessingCounts,
+                                            @NonNull Set<String> removedProperties,
+                                            @NonNull Map<String, String> renamedProperties) {
+            this(propertySchemas, schemaProcessingCounts, removedProperties);
+            this.renamedProperties = renamedProperties;
+        }
+
         public boolean isAnyPropertySchemaHasChanged() {
             return propertySchemas.values().stream().anyMatch(scr -> scr.schemaHasChanged);
         }
 
         public boolean isAnyPropertyBeenRemoved() {
             return !removedProperties.isEmpty();
+        }
+
+        public boolean isAnyPropertyBeenRenamed() {
+            return !renamedProperties.isEmpty();
         }
 
         public Map<String, Schema<?>> getNewNamedSchemas() {
@@ -238,6 +263,10 @@ public class DefaultObjectStackProcessor implements StackProcessor {
             return propertySchemas.values().stream()
                     .flatMap(schemaCreationResult -> schemaCreationResult.newAnonymousSchemas.stream())
                     .collect(Collectors.toSet());
+        }
+
+        public @NonNull Map<String, String> getRenamedProperties() {
+            return renamedProperties;
         }
 
     }
