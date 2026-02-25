@@ -32,8 +32,8 @@ public abstract class FieldAliasOnResponseTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("OpenApi generation should apply projection to response body model")
-    public void testOpenApiShouldApplyProjectionToResponseBodyModel() throws Exception {
+    @DisplayName("OpenApi generation should apply projection aliases to response body model")
+    public void testOpenApiShouldApplyProjectionAliasesToResponseBodyModel() throws Exception {
         // Given a controller with a projection annotation on a method returning a Dto
 
         // When we get the OpenAPI spec
