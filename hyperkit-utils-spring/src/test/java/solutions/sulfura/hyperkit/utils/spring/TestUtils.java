@@ -36,9 +36,22 @@ public class TestUtils {
         if (openAPI.getPaths() == null || openAPI.getPaths().get(path) == null) {
             throw new RuntimeException("Path " + path + " not found in OpenAPI spec. Paths: " + (openAPI.getPaths() == null ? "null" : openAPI.getPaths().keySet()));
         }
-        return openAPI.getPaths().get(path)
-                .getPost()
-                .getRequestBody().getContent().get("application/json").getSchema();
+        if (openAPI.getPaths().get(path).getPost() != null && openAPI.getPaths().get(path).getPost().getRequestBody() != null) {
+            return openAPI.getPaths().get(path)
+                    .getPost()
+                    .getRequestBody().getContent().get("application/json").getSchema();
+        } else if (openAPI.getPaths().get(path).getGet() != null && openAPI.getPaths().get(path).getGet().getResponses().get("200") != null) {
+            Schema<?> schema = null;
+            if (openAPI.getPaths().get(path).getGet().getResponses().get("200").getContent().get("application/json") != null) {
+                schema = openAPI.getPaths().get(path).getGet().getResponses().get("200").getContent().get("application/json").getSchema();
+            } else if (openAPI.getPaths().get(path).getGet().getResponses().get("200").getContent().get("*/*") != null) {
+                schema = openAPI.getPaths().get(path).getGet().getResponses().get("200").getContent().get("*/*").getSchema();
+            }
+            if (schema != null) {
+                return schema;
+            }
+        }
+        throw new RuntimeException("Could not find a schema for path " + path);
     }
 
     /**
