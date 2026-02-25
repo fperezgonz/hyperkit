@@ -39,7 +39,7 @@ public abstract class FieldAliasOnRequestTest {
 
         // When we get the OpenAPI spec
         OpenAPI openApi = getOpenApi(mockMvc);
-        Schema<?> schema = getSchemaForPath(openApi, "/test-field-alias-on-request");
+        Schema<?> schema = getSchemaForPath(openApi, "/field-alias/test-field-alias-on-request");
 
         // Then the schema for the parameter should match expectations
         DtoProjection<?> projection = ProjectionDsl.parse(TestDtoProjection.class.getAnnotation(DtoProjectionSpec.class));
@@ -77,7 +77,7 @@ class OpenApi_3_1_Field_AliasOnRequestTest extends FieldAliasOnRequestTest {
  */
 @RestController
 class DtoProjectionOnRequestTestController {
-    @PostMapping("/test-field-alias-on-request")
+    @PostMapping("/field-alias/test-field-alias-on-request")
     public HttpEntity<TestDto> postTestDto(
             @TestDtoProjection
             @RequestBody TestDto testDto) {
