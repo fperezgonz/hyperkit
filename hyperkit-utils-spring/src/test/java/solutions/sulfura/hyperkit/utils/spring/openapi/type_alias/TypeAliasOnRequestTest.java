@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.spring.openapi.field_alias;
+package solutions.sulfura.hyperkit.utils.spring.openapi.type_alias;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
@@ -11,12 +11,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
-import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfig;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfigOpenApi_3_0;
 import solutions.sulfura.hyperkit.utils.spring.SpringTestConfigOpenApi_3_1;
@@ -25,61 +24,71 @@ import solutions.sulfura.hyperkit.utils.spring.openapi.model.TestDto;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static solutions.sulfura.hyperkit.utils.spring.TestUtils.*;
 
-public abstract class FieldAliasOnRequestTest {
+public abstract class TypeAliasOnRequestTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("OpenApi generation should apply projection aliases to request body parameter model")
-    public void testOpenApiShouldApplyProjectionAliasesToRequestBodyParameterModel() throws Exception {
+    @DisplayName("OpenApi generation should apply type aliases to types in the openapi model")
+    public void testOpenApiShouldApplyTypeAliasToModel() throws Exception {
         // Given a controller with a projection annotation on a Dto
 
         // When we get the OpenAPI spec
         OpenAPI openApi = getOpenApi(mockMvc);
-        Schema<?> schema = getSchemaForPath(openApi, "/field-alias/test-field-alias-on-request");
 
-        // Then the schema for the parameter should match expectations
-        DtoProjection<?> projection = ProjectionDsl.parse(TestDtoProjection.class.getAnnotation(DtoProjectionSpec.class));
-        verifySchemaMatchesProjection(openApi, schema, projection);
+        // Then the model aliases should show up on the openApi spec
+        Schema<?> aliasedModelSchema = openApi.getComponents().getSchemas().get("Aliased_TestDto_AliasedModel");
+        assertNotNull(aliasedModelSchema, "Aliased_AliasedModel schema should be present in OpenAPI spec");
+        Schema<?> aliasedItemModelSchema = openApi.getComponents().getSchemas().get("Aliased_TestDto_AliasedItemModel");
+        assertNotNull(aliasedItemModelSchema, "Aliased_AliasedItemModel schema should be present in OpenAPI spec");
+
+        // Then the model name for the parameter should match the alias
+        Schema<?> schema = getSchemaForPath(openApi, "/type-alias/test-type-alias-on-request");
+        //TODO
+        fail();
 
     }
 
 }
 
-@WebMvcTest(controllers = FieldAliasDtoProjectionOnRequestTestController.class)
+@WebMvcTest(controllers = TypeAliasDtoProjectionOnRequestTestController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SpringTestConfigOpenApi_3_0.class})
 @SuppressWarnings("NewClassNamingConvention")
-class OpenApi_3_0_Field_AliasOnRequestTest extends FieldAliasOnRequestTest {
+class OpenApi_3_0_Type_AliasOnRequestTest extends TypeAliasOnRequestTest {
 }
 
-@WebMvcTest(controllers = FieldAliasDtoProjectionOnRequestTestController.class)
+@WebMvcTest(controllers = TypeAliasDtoProjectionOnRequestTestController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SpringTestConfigOpenApi_3_1.class})
 @SuppressWarnings("NewClassNamingConvention")
-class OpenApi_3_1_Field_AliasOnRequestTest extends FieldAliasOnRequestTest {
+class OpenApi_3_1_Type_AliasOnRequestTest extends TypeAliasOnRequestTest {
 }
 
-@DtoProjectionSpec(projectedClass = TestDto.class, value = """
+@DtoProjectionSpec(projectedClass = TestDto.class, namespace = "Aliased", value = """
         name as code
         age
-        nestedDto{id}
-        nestedDtoList{id}
+        nestedDto:AliasedModel{id}
+        nestedDtoList:AliasedItemModel{id}
         """)
 @Retention(RetentionPolicy.RUNTIME)
-@interface TestDtoProjection {
+@interface AliasedTypeProjection {
 }
 
 
 /**
- * Uses projection {@link TestDtoProjection}.
+ * Uses projection {@link AliasedTypeProjection}.
  */
 @RestController
-class FieldAliasDtoProjectionOnRequestTestController {
-    @PostMapping("/field-alias/test-field-alias-on-request")
+class TypeAliasDtoProjectionOnRequestTestController {
+    @PostMapping("/type-alias/test-type-alias-on-request")
     public HttpEntity<TestDto> postTestDto(
-            @TestDtoProjection
+            @AliasedTypeProjection
             @RequestBody TestDto testDto) {
         return new HttpEntity<>(testDto);
     }

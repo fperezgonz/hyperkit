@@ -46,13 +46,13 @@ public abstract class FieldAliasOnResponseTest {
     }
 }
 
-@WebMvcTest(controllers = DtoProjectionOnResponseTestController.class)
+@WebMvcTest(controllers = FieldAliasDtoProjectionOnResponseTestController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SpringTestConfigOpenApi_3_0.class})
 @SuppressWarnings("NewClassNamingConvention")
 class OpenApi_3_0_Field_AliasOnResponseTest extends FieldAliasOnResponseTest {
 }
 
-@WebMvcTest(controllers = DtoProjectionOnResponseTestController.class)
+@WebMvcTest(controllers = FieldAliasDtoProjectionOnResponseTestController.class)
 @Import({SpringTestConfig.class, SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SpringTestConfigOpenApi_3_1.class})
 @SuppressWarnings("NewClassNamingConvention")
 class OpenApi_3_1_Field_AliasOnResponseTest extends FieldAliasOnResponseTest {
@@ -69,7 +69,7 @@ class OpenApi_3_1_Field_AliasOnResponseTest extends FieldAliasOnResponseTest {
 }
 
 @RestController
-class DtoProjectionOnResponseTestController {
+class FieldAliasDtoProjectionOnResponseTestController {
     @GetMapping("/field-alias/test-field-alias-on-response")
     @TestDtoProjectionOnResponse
     public HttpEntity<TestDto> getTestDto() {
