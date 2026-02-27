@@ -30,6 +30,26 @@ import static solutions.sulfura.hyperkit.utils.spring.openapi.SchemaBuilderUtils
 public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
     @Override
+    protected String getNameForCurrentType(StackData stackData, Map<String, Integer> schemaProcessingCounts) {
+        DtoProjection<?> projection = stackData.projection;
+        if (projection == null || projection.projectionTypeAlias() == null) {
+            return super.getNameForCurrentType(stackData, schemaProcessingCounts);
+        }
+
+        String projectedSchemaName = projection.projectionTypeAlias();
+
+        if (!stackData.currentNamespace.isBlank()) {
+            projectedSchemaName = stackData.currentNamespace + "_" + projectedSchemaName;
+        }
+
+        if (schemaProcessingCounts.getOrDefault(projectedSchemaName, 0) > 0) {
+            projectedSchemaName += "_" + schemaProcessingCounts.get(projectedSchemaName);
+        }
+
+        return projectedSchemaName;
+    }
+
+    @Override
     @NonNull
     protected PropertySchemaCreationResult buildPropertySchemas(StackData stackData, List<StackProcessor> stackProcessors) {
 
@@ -80,8 +100,8 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
 
                 String fieldAlias = fieldConf.getFieldAlias();
 
-                if(fieldAlias != null && !fieldAlias.equals(projectionField.getName())) {
-                    if(renamedProperties.containsKey(fieldAlias)){
+                if (fieldAlias != null && !fieldAlias.equals(projectionField.getName())) {
+                    if (renamedProperties.containsKey(fieldAlias)) {
                         throw new RuntimeException("Field alias '" + fieldAlias + "' is already used");
                     }
                     renamedProperties.put(projectionField.getName(), fieldAlias);

@@ -1,6 +1,5 @@
 package solutions.sulfura.hyperkit.dsl.projections;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dsl.projections.test_aux.SourceClassGetterSetterDto;
 import solutions.sulfura.hyperkit.dsl.projections.test_aux.circular_dependencies.SourceClassADto;
@@ -9,8 +8,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProjectionDslTest {
 
@@ -119,10 +117,10 @@ class ProjectionDslTest {
         assertEquals("propArray", result.propertyArray.getFieldAlias());
         assertEquals("genProp", result.genericProperty.getFieldAlias());
 
-        assertEquals("ProjectedProperty", result.property.projectionTypeAlias);
-        assertEquals("NestedProjectedProperty", result.property.dtoProjection.property.projectionTypeAlias);
-        assertEquals("ProjectedArrayProperty", result.propertyArray.projectionTypeAlias);
-        assertEquals(null, result.genericProperty.projectionTypeAlias);
+        assertEquals("ProjectedProperty", result.property.dtoProjection.projectionTypeAlias());
+        assertEquals("NestedProjectedProperty", result.property.dtoProjection.property.dtoProjection.projectionTypeAlias());
+        assertEquals("ProjectedArrayProperty", result.propertyArray.dtoProjection.projectionTypeAlias());
+        assertNull(result.genericProperty.dtoProjection.projectionTypeAlias());
     }
 
     @Test
@@ -134,5 +132,70 @@ class ProjectionDslTest {
         assertThrows(Exception.class, () -> ProjectionDsl.parse("property : p`r`op {}", SourceClassADto.Projection.class));
     }
 
+    @Test
+    void parseDtoWithProjectionTypeAliasAfterTheProjection() {
+        SourceClassADto.Projection result = ProjectionDsl.parse("property prop{} : ProjectedProperty", SourceClassADto.Projection.class);
+        assertEquals("prop", result.property.getFieldAlias());
+        result = ProjectionDsl.parse("property prop {} : ProjectedProperty", SourceClassADto.Projection.class);
+        assertEquals("prop", result.property.getFieldAlias());
+
+
+        result = ProjectionDsl.parse("""
+                property prop {
+                    property nestedProperty {} : NestedProjectedProperty
+                } : ProjectedProperty
+                propertyArray propArray {} : ProjectedArrayProperty
+                genericProperty genProp {}
+                """, SourceClassADto.Projection.class);
+
+        assertEquals("prop", result.property.getFieldAlias());
+        assertEquals("nestedProperty", result.property.dtoProjection.property.getFieldAlias());
+        assertEquals("propArray", result.propertyArray.getFieldAlias());
+        assertEquals("genProp", result.genericProperty.getFieldAlias());
+
+        assertEquals("ProjectedProperty", result.property.dtoProjection.projectionTypeAlias());
+        assertEquals("NestedProjectedProperty", result.property.dtoProjection.property.dtoProjection.projectionTypeAlias());
+        assertEquals("ProjectedArrayProperty", result.propertyArray.dtoProjection.projectionTypeAlias());
+        assertEquals(null, result.genericProperty.dtoProjection.projectionTypeAlias());
+    }
+
+    @Test
+    void parseDtoWithProjectionTypeAliasBeforeTheRootProjection() {
+        SourceClassADto.Projection result = ProjectionDsl.parse(": ProjectedProperty { property prop{} } ", SourceClassADto.Projection.class);
+        assertEquals("prop", result.property.getFieldAlias());
+        assertEquals("ProjectedProperty", result.projectionTypeAlias());
+    }
+
+    @Test
+    void parseDtoWithProjectionTypeAliasAfterTheRootProjection() {
+        SourceClassADto.Projection result = ProjectionDsl.parse("{ property prop{} } : ProjectedProperty", SourceClassADto.Projection.class);
+        assertEquals("prop", result.property.getFieldAlias());
+        assertEquals("ProjectedProperty", result.projectionTypeAlias());
+    }
+
+    @Test
+    void parseDtoWithExtraWhitespaceAfterTheRootProjection() {
+        SourceClassADto.Projection result = ProjectionDsl.parse("{ property prop{} }  \n\n", SourceClassADto.Projection.class);
+        assertEquals("prop", result.property.getFieldAlias());
+        assertNull(result.projectionTypeAlias());
+        result = ProjectionDsl.parse("{ property prop{} } : ProjectedProperty  \n\n", SourceClassADto.Projection.class);
+        assertEquals("prop", result.property.getFieldAlias());
+        assertEquals("ProjectedProperty", result.projectionTypeAlias());
+    }
+
+    @Test
+    void failParsingWithInvalidTypeAliasAfterProjection() {
+        assertThrows(Exception.class, () -> ProjectionDsl.parse("property {} : `pr`op`", SourceClassADto.Projection.class));
+        assertThrows(Exception.class, () -> ProjectionDsl.parse("property {} : `pr\\op`", SourceClassADto.Projection.class));
+        assertThrows(Exception.class, () -> ProjectionDsl.parse("property {} : pr\\op", SourceClassADto.Projection.class));
+        assertThrows(Exception.class, () -> ProjectionDsl.parse("property {} : pr`op", SourceClassADto.Projection.class));
+        assertThrows(Exception.class, () -> ProjectionDsl.parse("property {} : p`r`op", SourceClassADto.Projection.class));
+    }
+
+    @Test
+    void failParsingPropertyAliasedTwice() {
+        assertThrows(Exception.class, () -> ProjectionDsl.parse("property: P1 {}:P1", SourceClassADto.Projection.class));
+        assertThrows(Exception.class, () -> ProjectionDsl.parse(": P1{ property {} }:P2", SourceClassADto.Projection.class));
+    }
 
 }

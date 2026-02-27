@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.dtos.projection;
 
+import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.dtos.Dto;
 
 /*TODO allow configuring with annotations instead.
@@ -21,6 +22,24 @@ import solutions.sulfura.hyperkit.dtos.Dto;
  * }</pre>
  * */
 public abstract class DtoProjection<T extends Dto<?>> {
+
+    /**
+     * Alias for this projection instance, in systems where a particular projection represents a type (such as the ProjectionOpenApiCustomizer in hyperkit-spring-utils)
+     **/
+    private String projectionTypeAlias;
+
+    @Nullable
+    public String projectionTypeAlias() {
+        return projectionTypeAlias;
+    }
+
+    /**
+     * Using "assign" instead of "set" to avoid collisions with the actual properties of the projection
+     * @param projectionTypeAlias the alias to assign to this projection. See {@link #projectionTypeAlias}
+     */
+    public void assignProjectionTypeAlias(String projectionTypeAlias) {
+        this.projectionTypeAlias = projectionTypeAlias;
+    }
 
     public abstract void applyProjectionTo(T dto) throws DtoProjectionException;
 

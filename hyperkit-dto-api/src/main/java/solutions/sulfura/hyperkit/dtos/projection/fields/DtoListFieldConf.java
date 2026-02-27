@@ -12,10 +12,6 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
 
     public boolean allowInsert = false;
     public boolean allowDelete = false;
-    /**
-     * Alias for this projection instance, in systems where a particular projection represents a type (such as the ProjectionOpenApiCustomizer in hyperkit-spring-utils)
-     **/
-    public String projectionTypeAlias;
 
     public static <T extends DtoProjection<?>> DtoListFieldConf<T> of(Presence presence, T dtoProjection) {
         DtoListFieldConf<T> fieldConf = new DtoListFieldConf<>();
@@ -26,13 +22,11 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
 
     public static <T extends DtoProjection<?>> DtoListFieldConf<T> of(Presence presence,
                                                                       T dtoProjection,
-                                                                      String fieldAlias,
-                                                                      String projectionTypeAlias) {
+                                                                      String fieldAlias) {
         DtoListFieldConf<T> fieldConf = new DtoListFieldConf<>();
         fieldConf.presence = presence;
         fieldConf.dtoProjection = dtoProjection;
         fieldConf.fieldAlias = fieldAlias;
-        fieldConf.projectionTypeAlias = projectionTypeAlias;
         return fieldConf;
     }
 
@@ -44,7 +38,7 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
                                                                            T dtoProjection,
                                                                            String fieldAlias,
                                                                            String projectionTypeAlias) {
-        return of(presence, dtoProjection, fieldAlias, projectionTypeAlias);
+        return of(presence, dtoProjection, fieldAlias);
     }
 
     @Override
@@ -67,7 +61,6 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
         private boolean allowDelete;
         private Presence presence = Presence.IGNORED;
         private String fieldAlias;
-        private String projectionTypeAlias;
 
         private DtoListConfBuilder() {
         }
@@ -115,18 +108,12 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             return this;
         }
 
-        public DtoListConfBuilder<T> projectionTypeAlias(String projectionTypeAlias) {
-            this.projectionTypeAlias = projectionTypeAlias;
-            return this;
-        }
-
         public DtoListConfBuilder<T> but() {
             return DtoListConfBuilder.<T>newInstance().dtoProjection(dtoProjection)
                     .allowInsert(allowInsert)
                     .allowDelete(allowDelete)
                     .presence(presence)
-                    .alias(fieldAlias)
-                    .projectionTypeAlias(projectionTypeAlias);
+                    .alias(fieldAlias);
         }
 
         public DtoListFieldConf<T> build() {
@@ -136,7 +123,6 @@ public class DtoListFieldConf<T extends DtoProjection<?>> extends DtoFieldConf<T
             dtoListFieldConf.allowInsert = this.allowInsert;
             dtoListFieldConf.allowDelete = this.allowDelete;
             dtoListFieldConf.fieldAlias = this.fieldAlias;
-            dtoListFieldConf.projectionTypeAlias = this.projectionTypeAlias;
             return dtoListFieldConf;
         }
     }

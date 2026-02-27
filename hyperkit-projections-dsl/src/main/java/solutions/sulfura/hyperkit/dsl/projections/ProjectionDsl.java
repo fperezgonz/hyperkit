@@ -73,6 +73,22 @@ public class ProjectionDsl {
 
         }
 
+        protected ParseResult<String> skipAllWhiteSpace(CharacterStream characterStream) {
+
+            ParseResult<String> result = new ParseResult<>();
+            result.charactersRead = 0;
+            if (characterStream.currentChar == null) {
+                return result;
+            }
+
+            while (Character.isWhitespace(characterStream.currentChar) && characterStream.next() != null) {
+                result.charactersRead++;
+            }
+
+            return result;
+
+        }
+
         protected FieldConf createFieldConfForProperty(String propertyName,
                                                        FieldConf.Presence presence,
                                                        boolean allowInsert,
@@ -101,11 +117,11 @@ public class ProjectionDsl {
                 if (nestedProjection == null) {
                     throw new RuntimeException("property " + propertyName + " in Type " + rootType + " must specify a projection");
                 }
+                nestedProjection.assignProjectionTypeAlias(projectionTypeAlias);
                 result = DtoFieldConf.DtoFieldConfBuilder.newInstance()
                         .presence(presence)
                         .dtoProjection(nestedProjection)
                         .fieldAlias(fieldAlias)
-                        .projectionTypeAlias(projectionTypeAlias)
                         .build();
             } else if (fConfType == ListFieldConf.class) {
                 if (nestedProjection != null) {
@@ -121,13 +137,13 @@ public class ProjectionDsl {
                 if (nestedProjection == null) {
                     throw new RuntimeException("property " + propertyName + " in Type " + rootType + " must specify a projection");
                 }
+                nestedProjection.assignProjectionTypeAlias(projectionTypeAlias);
                 result = DtoListFieldConf.DtoListConfBuilder.newInstance()
                         .presence(presence)
                         .allowInsert(allowInsert)
                         .allowDelete(allowDelete)
                         .dtoProjection(nestedProjection)
                         .alias(fieldAlias)
-                        .projectionTypeAlias(projectionTypeAlias)
                         .build();
             }
 
@@ -386,6 +402,7 @@ public class ProjectionDsl {
             }
 
             while (characterStream.currentChar != null
+                    && characterStream.currentChar != ':'
                     && characterStream.currentChar != ','
                     && characterStream.currentChar != '\n'
                     && characterStream.currentChar != '}') {
@@ -444,6 +461,15 @@ public class ProjectionDsl {
                 }
             }
 
+            projectionTypeAliasResult = parseProjectionTypeAlias(characterStream);
+            charsRead += projectionTypeAliasResult.charactersRead;
+            if (projectionTypeAliasResult.parsedValue != null) {
+                if (projectionTypeAlias != null) {
+                    throw new RuntimeException("Projection type alias cannot be specified twice for the same property: " + propertyName + " in Type " + rootType + " and " + projectionTypeAlias);
+                }
+                projectionTypeAlias = projectionTypeAliasResult.parsedValue;
+            }
+
             PropertyParseResult result = new PropertyParseResult();
             result.propertyName = propertyName;
             result.parsedValue = createFieldConfForProperty(propertyName,
@@ -469,6 +495,13 @@ public class ProjectionDsl {
 
                 P result = rootType.getDeclaredConstructor().newInstance();
 
+                charsRead += skipNonTerminatingWhiteSpace(characterStream).charactersRead;
+
+                if (characterStream.currentChar == '{') {
+                    charsRead++;
+                    characterStream.next();
+                }
+
                 while (characterStream.currentChar != null) {
 
                     char c = characterStream.currentChar;
@@ -479,8 +512,7 @@ public class ProjectionDsl {
                         FieldConf fieldConf = parseResult.parsedValue;
                         rootType.getField(parseResult.propertyName).set(result, fieldConf);
                     } else if (Character.isWhitespace(c)
-                            || c == ','
-                            || c == '{') {
+                            || c == ',') {
                         charsRead++;
                         characterStream.next();
                         //Skip
@@ -515,7 +547,30 @@ public class ProjectionDsl {
 
             try {
 
-                return parseProjection(characterStream, rootType).parsedValue;
+                skipNonTerminatingWhiteSpace(characterStream);
+
+                ParseResult<String> projectionTypeAliasResult = parseProjectionTypeAlias(characterStream);
+                String projectionTypeAlias = projectionTypeAliasResult.parsedValue;
+
+                P result = parseProjection(characterStream, rootType).parsedValue;
+
+                projectionTypeAliasResult = parseProjectionTypeAlias(characterStream);
+                if (projectionTypeAliasResult.parsedValue != null) {
+                    if (projectionTypeAlias != null) {
+                        throw new RuntimeException("Projection type alias cannot be specified twice for the root projection");
+                    }
+                    projectionTypeAlias = projectionTypeAliasResult.parsedValue;
+                }
+
+                result.assignProjectionTypeAlias(projectionTypeAlias);
+
+
+                skipAllWhiteSpace(characterStream);
+                if (characterStream.currentChar != null) {
+                    throw new RuntimeException("Illegal character '" + characterStream.currentChar + "' at pos " + characterStream.getPos());
+                }
+
+                return result;
 
             } catch (RuntimeException ex) {
 

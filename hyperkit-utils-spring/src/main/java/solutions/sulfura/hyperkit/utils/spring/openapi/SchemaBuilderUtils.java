@@ -4,9 +4,12 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.ListOperation;
 
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class SchemaBuilderUtils {
 
@@ -85,6 +88,24 @@ public class SchemaBuilderUtils {
         }
 
         return Dto.class.isAssignableFrom(rawType);
+
+    }
+
+    public static boolean isListOperationType(Type type) {
+
+        Class<?> rawType = null;
+
+        if (type instanceof ParameterizedType parameterizedType) {
+            rawType = (Class<?>) parameterizedType.getRawType();
+        } else if (type instanceof Class<?> clazz) {
+            rawType = clazz;
+        }
+
+        if (rawType == null) {
+            return false;
+        }
+
+        return ListOperation.class.isAssignableFrom(rawType);
 
     }
 

@@ -143,6 +143,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
         );
         stackProcessors.add(new ArrayStackProcessor());
         stackProcessors.add(new DtoProjectionStackProcessor());
+        stackProcessors.add(new ListOperationStackProcessor());
         stackProcessors.add(new DefaultObjectStackProcessor());
 
         return new ProjectionOpenApiCustomizer(requestMappingHandlerMapping, stackProcessors);

@@ -150,9 +150,7 @@ public class DefaultObjectStackProcessor implements StackProcessor {
         for (Map.Entry<String, SchemaCreationResult> entry : propertySchemaCreationResult.propertySchemas.entrySet()) {
 
             String propertyName = entry.getKey();
-            System.out.println(propertyName + " -> " + entry.getValue().resultingSchema.getName());
             if (renamedProperties.containsKey(propertyName)) {
-                System.out.println("Renaming property " + propertyName + " to " + renamedProperties.get(propertyName));
                 propertyName = renamedProperties.get(propertyName);
             }
             SchemaCreationResult scr = entry.getValue();

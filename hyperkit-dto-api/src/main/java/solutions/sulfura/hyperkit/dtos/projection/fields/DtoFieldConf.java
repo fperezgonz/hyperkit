@@ -15,10 +15,6 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
      * The projection that will be applied to the field targeted by this configuration
      */
     public T dtoProjection;
-    /**
-     * Alias for this projection instance, in systems where a particular projection represents a type (such as the ProjectionOpenApiCustomizer in hyperkit-spring-utils)
-     **/
-    public String projectionTypeAlias;
 
     public static <T extends DtoProjection<?>> DtoFieldConf<T> of(Presence presence, T dtoProjection) {
         DtoFieldConf<T> fieldConf = new DtoFieldConf<>();
@@ -29,13 +25,11 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
     public static <T extends DtoProjection<?>> DtoFieldConf<T> of(Presence presence,
                                                                   T dtoProjection,
-                                                                  String fieldAlias,
-                                                                  String projectionTypeAlias) {
+                                                                  String fieldAlias) {
         DtoFieldConf<T> fieldConf = new DtoFieldConf<>();
         fieldConf.presence = presence;
         fieldConf.dtoProjection = dtoProjection;
         fieldConf.fieldAlias = fieldAlias;
-        fieldConf.projectionTypeAlias = projectionTypeAlias;
         return fieldConf;
     }
 
@@ -45,9 +39,8 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
 
     public static <T extends DtoProjection<?>> DtoFieldConf<T> valueOf(Presence presence,
                                                                        T dtoProjection,
-                                                                       String fieldAlias,
-                                                                       String projectionTypeAlias) {
-        return of(presence, dtoProjection, fieldAlias, projectionTypeAlias);
+                                                                       String fieldAlias) {
+        return of(presence, dtoProjection, fieldAlias);
     }
 
     @Override
@@ -67,7 +60,6 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
         private T dtoProjection;
         private Presence presence = Presence.IGNORED;
         private String fieldAlias;
-        private String projectionTypeAlias;
 
         private DtoFieldConfBuilder() {
         }
@@ -102,17 +94,11 @@ public class DtoFieldConf<T extends DtoProjection<?>> extends FieldConf {
             return this;
         }
 
-        public DtoListFieldConf.DtoFieldConfBuilder<T> projectionTypeAlias(String projectionTypeAlias) {
-            this.projectionTypeAlias = projectionTypeAlias;
-            return this;
-        }
-
         public DtoFieldConf<T> build() {
             DtoFieldConf<T> dtoFieldConf = new DtoFieldConf<>();
             dtoFieldConf.dtoProjection = this.dtoProjection;
             dtoFieldConf.presence = this.presence;
             dtoFieldConf.fieldAlias = this.fieldAlias;
-            dtoFieldConf.projectionTypeAlias = this.projectionTypeAlias;
             return dtoFieldConf;
         }
     }
