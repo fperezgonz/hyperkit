@@ -422,6 +422,7 @@ public class ProjectionOpenApiCustomizer implements OpenApiCustomizer {
             projectedSchemaName = rootProjectionAnnotationInfo.directAnnotation.annotationType().getSimpleName();
         }
 
+        // TODO Fix issue: when declaring multiple projections for the same type with the same namespace, the projections for the last occurrence of the namespace will override the rest
         SchemaCreationResult schemaCreationResult = ProjectedSchemaBuilder.buildProjectedSchemas(openApi,
                 schema,
                 rootProjectionAnnotationInfo.annotatedType.getType(),
