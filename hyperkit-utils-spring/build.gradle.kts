@@ -53,17 +53,23 @@ publishing {
         }
     }
     repositories {
-        maven {
-            name = "Gitlab"
-            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
-            credentials(HttpHeaderCredentials::class) {
-                name = "Job-Token"
-                value = System.getenv("CI_JOB_TOKEN")
-            }
-            authentication {
-                create<HttpHeaderAuthentication>("header")
+
+        if (System.getenv("CI_JOB_TOKEN") != "") {
+            logger.warn("No CI job token found, skipping Gitlab publication")
+        } else {
+            maven {
+                name = "Gitlab"
+                url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
+                credentials(HttpHeaderCredentials::class) {
+                    name = "Job-Token"
+                    value = System.getenv("CI_JOB_TOKEN")
+                }
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
             }
         }
+
         // Staging repository to prepare deployments to Maven Central
         maven {
             name = "MavenCentralStaging"

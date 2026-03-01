@@ -28,7 +28,8 @@ publishing {
 
             pom {
                 name = "HyperKit Projections DSL"
-                description = "Tools for parsing and applying projections to dtos generated with hyperkit, using a simple dsl"
+                description =
+                    "Tools for parsing and applying projections to dtos generated with hyperkit, using a simple dsl"
                 url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-projections-dsl"
                 inceptionYear = "2023"
                 licenses {
@@ -53,16 +54,22 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
-            credentials(HttpHeaderCredentials::class.java) {
-                name = "Job-Token"
-                value = System.getenv("CI_JOB_TOKEN")
-            }
-            authentication {
-                create<HttpHeaderAuthentication>("header")
+
+        if (System.getenv("CI_JOB_TOKEN") != "") {
+            logger.warn("No CI job token found, skipping Gitlab publication")
+        } else {
+            maven {
+                url = uri("https://gitlab.com/api/v4/projects/67836497/packages/maven")
+                credentials(HttpHeaderCredentials::class.java) {
+                    name = "Job-Token"
+                    value = System.getenv("CI_JOB_TOKEN")
+                }
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
             }
         }
+
         // Staging repository to prepare deployments to Maven Central
         maven {
             name = "MavenCentralStaging"
