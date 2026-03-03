@@ -93,7 +93,6 @@ val install by tasks.registering(MavenExec::class) {
     if (decodedSecretKey != null) {
         environment("MAVEN_SIGNING_SECRET_KEY", decodedSecretKey)
     }
-    println(System.getenv("MAVEN_SIGNING_SECRET_KEY"))
     dependsOn(check)
     dependsOn(":hyperkit-dto-api:publishMavenPublicationToMavenLocal")
     dependsOn(":hyperkit-dto-generator-core:publishMavenPublicationToMavenLocal")
