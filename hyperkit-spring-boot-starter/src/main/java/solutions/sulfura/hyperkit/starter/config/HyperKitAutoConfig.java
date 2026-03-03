@@ -30,6 +30,7 @@ import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @AutoConfiguration
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
@@ -46,13 +47,13 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean
     DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(ProjectionCache projectionCache) {
-        return new DtoProjectionRequestBodyAdvice(projectionCache);
+        return new DtoProjectionRequestBodyAdvice(Optional.ofNullable(projectionCache));
     }
 
     @Bean
     @ConditionalOnMissingBean
     DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(ProjectionCache projectionCache) {
-        return new DtoProjectionResponseBodyAdvice(projectionCache);
+        return new DtoProjectionResponseBodyAdvice(Optional.ofNullable(projectionCache));
     }
 
     @Bean
