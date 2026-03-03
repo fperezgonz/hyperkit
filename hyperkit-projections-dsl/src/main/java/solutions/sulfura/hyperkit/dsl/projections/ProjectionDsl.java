@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.dsl.projections;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
@@ -24,14 +25,17 @@ public class ProjectionDsl {
     final static String ALLOW_REMOVE = "@Remove";
     //final static String ALLOW_UPDATE = "@Update";
 
+    @NonNull
     public static <P extends DtoProjection> P parse(String projectionDef, Class<P> rootType) {
         return new ProjectionDslParseProcess().parseProjection(projectionDef, rootType);
     }
 
+    @NonNull
     public static <P extends DtoProjection> P parse(DtoProjectionSpec annotation, Class<P> rootType) {
         return ProjectionDsl.parse(annotation.value(), rootType);
     }
 
+    @NonNull
     public static DtoProjection parse(DtoProjectionSpec annotation) {
         Class<? extends DtoProjection> projectionClass = ProjectionUtils.findDefaultProjectionClass(annotation.projectedClass());
         return ProjectionDsl.parse(annotation, projectionClass);
@@ -40,8 +44,6 @@ public class ProjectionDsl {
     @SuppressWarnings("unchecked")
     public static class ProjectionDslParseProcess {
 
-
-        //TODO parse the spec
         //Context tracking variables
         Class<DtoProjection> rootType;
 
@@ -485,6 +487,7 @@ public class ProjectionDsl {
 
         }
 
+        @NonNull
         protected <P extends DtoProjection> ParseResult<P> parseProjection(CharacterStream characterStream, Class<P> rootType) {
 
             long charsRead = 0;
@@ -541,6 +544,7 @@ public class ProjectionDsl {
 
         }
 
+        @NonNull
         public <P extends DtoProjection> P parseProjection(String projectionDef, Class<P> rootType) {
 
             CharacterStream characterStream = new CharacterStream(projectionDef.toCharArray());

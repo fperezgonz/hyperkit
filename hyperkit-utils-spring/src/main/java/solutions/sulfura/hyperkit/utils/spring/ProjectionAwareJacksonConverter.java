@@ -1,6 +1,9 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -12,20 +15,87 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
-import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 
 import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 public class ProjectionAwareJacksonConverter
         extends MappingJackson2HttpMessageConverter {
 
-    public ProjectionAwareJacksonConverter(ObjectMapper objectMapper) {
+    public final ProjectionCache dtoProjectionCache;
+
+    public ProjectionAwareJacksonConverter(ObjectMapper objectMapper, ProjectionCache projectionCache) {
         super(objectMapper);
+        this.dtoProjectionCache = projectionCache;
+    }
+
+    private DtoProjection<?> getProjectionForAnnotationInfo(ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo) {
+        if (projectionAnnotationInfo == null) {
+            return null;
+        }
+
+        DtoProjectionSpec projectionSpec = projectionAnnotationInfo.targetAnnotation;
+
+        @SuppressWarnings("OptionalAssignedToNull")
+        Optional<DtoProjection<?>> projectionOptional = null;
+
+        if (dtoProjectionCache != null) {
+            projectionOptional = dtoProjectionCache.get(projectionSpec.projectedClass(), projectionSpec.namespace(), projectionSpec.value());
+        }
+
+        //noinspection OptionalAssignedToNull
+        if (projectionOptional != null && projectionOptional.isEmpty()) {
+            return null;
+        }
+
+        //noinspection OptionalAssignedToNull
+        if (projectionOptional != null) {
+            return projectionOptional.get();
+        }
+
+        DtoProjection<?> projection = ProjectionDsl.parse(projectionAnnotationInfo.targetAnnotation);
+
+        if (dtoProjectionCache != null) {
+            dtoProjectionCache.put(projectionSpec.projectedClass(), projectionSpec.namespace(), projectionSpec.value(), projection);
+        }
+
+        return projection;
+    }
+
+    private DtoProjection<?> getResponseProjectionForCurrentHandler() {
+
+        HandlerMethod handler = getHandlerMethodForCurrentRequest();
+
+        if (handler == null) {
+            return null;
+        }
+
+        // TODO Use an annotation cache to improve performance?
+        ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionAnnotationInfoForReturnType(handler);
+
+        return getProjectionForAnnotationInfo(projectionAnnotationInfo);
+
+    }
+
+    private DtoProjection<?> getRequestProjectionForCurrentHandler() {
+
+        HandlerMethod handler = getHandlerMethodForCurrentRequest();
+
+        if (handler == null) {
+            return null;
+        }
+
+        // TODO Use an annotation cache to improve performance?
+        ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionAnnotationInfoForBodyParameters(handler);
+
+        return getProjectionForAnnotationInfo(projectionAnnotationInfo);
+
     }
 
     /**
@@ -36,20 +106,12 @@ public class ProjectionAwareJacksonConverter
 
         reader = super.customizeReader(reader, javaType);
 
-        HandlerMethod handler = getHandlerMethodForCurrentRequest();
+        DtoProjection<?> projection = getRequestProjectionForCurrentHandler();
 
-        if (handler == null) {
+        if (projection == null) {
             return reader;
         }
 
-        ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionAnnotationInfoForBodyParameters(handler);
-
-        if (projectionAnnotationInfo == null) {
-            return reader;
-        }
-
-        Class<? extends DtoProjection> projectionClass = solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass(projectionAnnotationInfo.targetAnnotation.projectedClass());
-        DtoProjection<?> projection = ProjectionDsl.parse(projectionAnnotationInfo.targetAnnotation, projectionClass);
         return reader.withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection);
     }
 
@@ -61,23 +123,13 @@ public class ProjectionAwareJacksonConverter
 
         writer = super.customizeWriter(writer, javaType, contentType);
 
-        HandlerMethod handler = getHandlerMethodForCurrentRequest();
+        DtoProjection<?> projection = getResponseProjectionForCurrentHandler();
 
-        if (handler == null) {
+        if (projection == null) {
             return writer;
         }
 
-        ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionAnnotationInfoForReturnType(handler);
-
-        if (projectionAnnotationInfo == null) {
-            return writer;
-        }
-
-        Class<? extends DtoProjection> projectionClass = solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass(projectionAnnotationInfo.targetAnnotation.projectedClass());
-
-        DtoProjection<?> projection = ProjectionDsl.parse(projectionAnnotationInfo.targetAnnotation, projectionClass);
         return writer.withAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection);
-
 
     }
 

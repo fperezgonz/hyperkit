@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import solutions.sulfura.hyperkit.dsl.projections.FieldAliasUtils;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
-import solutions.sulfura.hyperkit.dsl.projections.FieldAliasUtils;
+import solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter;
 
 import java.io.IOException;
 
@@ -67,7 +68,7 @@ public class AliasBeanDeserializer extends BeanDeserializer {
     @Nullable
     private ResolvedProperty resolveProperty(String propertyName, DtoProjection<?> projection) {
         // When an alias shadows a real property name, the alias takes priority
-        FieldAliasUtils.FieldConfData fieldConfDataForAlias = FieldAliasUtils.findFieldConfForPropertyByFieldAlias(projection, propertyName);
+        FieldAliasUtils.FieldConfData fieldConfDataForAlias = AliasBeanPropertyWriter.FIELD_ALIAS_UTILS_INSTANCE.findFieldConfForPropertyByFieldAlias(projection, propertyName);
 
         if (fieldConfDataForAlias == null || fieldConfDataForAlias.fieldConf() == null) {
             return new ResolvedProperty(_beanProperties.find(propertyName), null);

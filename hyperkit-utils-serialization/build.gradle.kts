@@ -7,6 +7,7 @@ plugins {
     `maven-publish`
     id("org.jreleaser")
     id("solutions.sulfura.hyperkit-dto-generator") version "6.2.2-RELEASE"
+    id("me.champeau.jmh") version "0.7.3"
 }
 
 hyperKitDtoGenerator {
@@ -165,6 +166,11 @@ dependencies {
     testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+}
+
+jmh {
+    jmhVersion.set("1.37")
+    duplicateClassesStrategy.set(DuplicatesStrategy.EXCLUDE)
 }
 
 tasks.test {

@@ -6,12 +6,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
+
+import java.util.Optional;
 
 import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getMethodProjectionAnnotationOrMetaAnnotation;
 
@@ -19,14 +22,13 @@ import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getMeth
  * Applies projections defined in @DtoProjectionSpec annotations to response bodies.<br>
  * If a method is annotated (or meta-annotated) with @DtoProjectionSpec, this advice applies the projection to the response body.
  */
-@Component
 @ControllerAdvice
 public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
-    private final DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice;
+    private final ProjectionCache projectionCache;
 
-    public DtoProjectionResponseBodyAdvice(DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice) {
-        this.dtoProjectionRequestBodyAdvice = dtoProjectionRequestBodyAdvice;
+    public DtoProjectionResponseBodyAdvice(Optional<ProjectionCache> projectionCache) {
+        this.projectionCache = projectionCache.orElse(null);
     }
 
     @Override
@@ -36,6 +38,7 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
             return false;
         }
 
+        // TODO Use an annotation cache to improve performance?
         return getMethodProjectionAnnotationOrMetaAnnotation(returnType.getMethod()) != null;
 
     }
@@ -48,6 +51,7 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
             return body;
         }
 
+        // TODO Use an annotation cache to improve performance?
         DtoProjectionSpec projectionAnnotation = getMethodProjectionAnnotationOrMetaAnnotation(returnType.getMethod());
 
         if (projectionAnnotation == null) {
@@ -57,7 +61,7 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
         try {
 
             if (body instanceof Dto<?> dto) {
-                return dtoProjectionRequestBodyAdvice.applyProjection(dto, projectionAnnotation);
+                return ProjectionUtils.applyProjection(dto, projectionAnnotation, projectionCache);
             }
 
             //noinspection rawtypes
@@ -69,7 +73,7 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
                         throw new RuntimeException("Unsupported projectable type: " + projectable.getClass() + ". Only classes that extend Dto are supported");
                     }
 
-                    dtoProjectionRequestBodyAdvice.applyProjection(dto, projectionAnnotation);
+                    ProjectionUtils.applyProjection(dto, projectionAnnotation, projectionCache);
                 }
 
                 return projectableHolder;

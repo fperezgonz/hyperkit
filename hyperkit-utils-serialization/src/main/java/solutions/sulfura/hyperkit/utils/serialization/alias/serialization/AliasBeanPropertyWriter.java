@@ -6,15 +6,16 @@ import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
+import solutions.sulfura.hyperkit.dsl.projections.FieldAliasUtils;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
-import solutions.sulfura.hyperkit.dsl.projections.FieldAliasUtils;
 
 public class AliasBeanPropertyWriter extends BeanPropertyWriter {
 
     public static String HYPERKIT_PROJECTION_ATTR_KEY = "hyperkit-projection";
+    public static FieldAliasUtils FIELD_ALIAS_UTILS_INSTANCE = new FieldAliasUtils(true);
 
     public AliasBeanPropertyWriter(BeanPropertyWriter base) {
         super(base);
@@ -64,7 +65,7 @@ public class AliasBeanPropertyWriter extends BeanPropertyWriter {
         }
 
         FieldConf fieldConf = null;
-        fieldConf = FieldAliasUtils.findFieldConfForProperty(currentProjection, this.getName());
+        fieldConf = FIELD_ALIAS_UTILS_INSTANCE.findFieldConfForProperty(currentProjection, this.getName());
         if (fieldConf == null) {
             throw new RuntimeException("FieldConf not found for property: " + this.getName());
         }

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
@@ -44,14 +45,14 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice() {
-        return new DtoProjectionRequestBodyAdvice();
+    DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(ProjectionCache projectionCache) {
+        return new DtoProjectionRequestBodyAdvice(projectionCache);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice() {
-        return new DtoProjectionResponseBodyAdvice(dtoProjectionRequestBodyAdvice());
+    DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(ProjectionCache projectionCache) {
+        return new DtoProjectionResponseBodyAdvice(projectionCache);
     }
 
     @Bean
@@ -108,9 +109,19 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper) {
-        projectionAwareJacksonConverter =  new ProjectionAwareJacksonConverter(objectMapper);
+    @ConditionalOnMissingBean
+    ProjectionCache projectionCache() {
+        return new ProjectionCache();
+    }
+
+    @Bean
+    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper,
+                                                                           ProjectionCache projectionCache) {
+
+        projectionAwareJacksonConverter = new ProjectionAwareJacksonConverter(objectMapper, projectionCache);
+
         return projectionAwareJacksonConverter;
+
     }
 
     @Override

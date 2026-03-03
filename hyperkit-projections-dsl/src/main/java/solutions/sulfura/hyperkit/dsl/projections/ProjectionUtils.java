@@ -2,11 +2,14 @@ package solutions.sulfura.hyperkit.dsl.projections;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Optional;
 
 public class ProjectionUtils {
 
@@ -103,6 +106,48 @@ public class ProjectionUtils {
             return targetAnnotation != directAnnotation;
         }
 
+    }
+
+    @NonNull
+    public static Dto<?> applyProjection(@NonNull Dto<?> dto, @NonNull DtoProjectionSpec projectionAnnotation, @Nullable ProjectionCache projectionCache) {
+
+        Class<? extends DtoProjection> projectionClass = solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass(dto.getClass());
+
+        if (projectionClass == null) {
+            throw new RuntimeException("Failed to find projection class for DTO of type: " + dto.getClass());
+        }
+
+        @SuppressWarnings("OptionalAssignedToNull")
+        Optional<DtoProjection<?>> projectionOptional = null;
+
+        if (projectionCache != null) {
+            projectionOptional = projectionCache.get(projectionAnnotation.projectedClass(), projectionAnnotation.namespace(), projectionAnnotation.value());
+        }
+
+        DtoProjection projection = null;
+
+        //noinspection OptionalAssignedToNull
+        if (projectionOptional != null) {
+            projection = projectionOptional.orElseThrow();
+        }
+
+        //noinspection OptionalAssignedToNull
+        if (projectionOptional == null) {
+
+            projection = ProjectionDsl.parse(projectionAnnotation.value(), projectionClass);
+
+            if (projectionCache != null) {
+                projectionCache.put(projectionAnnotation.projectedClass(),
+                        projectionAnnotation.namespace(),
+                        projectionAnnotation.value(),
+                        projection);
+            }
+        }
+
+        //noinspection unchecked
+        projection.applyProjectionTo(dto);
+
+        return dto;
     }
 
 }

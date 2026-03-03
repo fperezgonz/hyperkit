@@ -105,4 +105,32 @@ public class TestController {
 
     }
 
+    /**
+     * NO projection to the result
+     */
+    @GetMapping("/test/test-no-projection/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testNoProjection() {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(List.of(new TestDto(1L, "Test Dto", 25)));
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * NO projection to the request body
+     */
+    @PostMapping("/test/test-no-projection/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testNoProjectionRequest(
+            @RequestBody
+            StdDtoRequestBody<TestDto> testDtoRequestBody) {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(testDtoRequestBody.getData());
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
 }

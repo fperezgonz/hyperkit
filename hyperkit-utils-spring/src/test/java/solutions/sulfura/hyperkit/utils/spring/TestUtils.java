@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TestUtils {
 
     protected static final Logger logger = LoggerFactory.getLogger(TestUtils.class);
+    static FieldAliasUtils FIELD_ALIAS_UTILS_INSTANCE = new FieldAliasUtils(true);
 
     public static OpenAPI getOpenApi(MockMvc mockMvc) throws Exception {
         MvcResult result = mockMvc.perform(get("/v3/api-docs"))
@@ -75,7 +76,7 @@ public class TestUtils {
 
             if (fieldConf == null) {
                 // If there are no other projected fields aliased with the name of this field, verify the field is not declared in the projection
-                FieldAliasUtils.FieldConfData fieldConfDataOfPropertyAliasedWithTheNameOfThisField = FieldAliasUtils.findFieldConfForPropertyByFieldAlias(projection, fieldName);
+                FieldAliasUtils.FieldConfData fieldConfDataOfPropertyAliasedWithTheNameOfThisField = FIELD_ALIAS_UTILS_INSTANCE.findFieldConfForPropertyByFieldAlias(projection, fieldName);
                 fieldConf = fieldConfDataOfPropertyAliasedWithTheNameOfThisField == null ? null : fieldConfDataOfPropertyAliasedWithTheNameOfThisField.fieldConf();
                 if (fieldConf == null) {
                     assertFalse(referencedSchema.getProperties().containsKey(fieldName), "Field '" + fieldName + "' is not declared in the projection, schema " + schemaIdentifier + " should not contain the property");

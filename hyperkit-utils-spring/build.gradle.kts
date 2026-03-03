@@ -6,6 +6,7 @@ plugins {
     `maven-publish`
     id("org.jreleaser")
     id("io.spring.dependency-management")
+    id("me.champeau.jmh") version "0.7.3"
 }
 
 java {
@@ -171,6 +172,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     mockitoAgent("org.mockito:mockito-core")
+}
+
+jmh {
+    jmhVersion.set("1.37")
+    duplicateClassesStrategy.set(DuplicatesStrategy.EXCLUDE)
 }
 
 tasks.test {

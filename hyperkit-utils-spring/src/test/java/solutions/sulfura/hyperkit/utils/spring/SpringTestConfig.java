@@ -1,7 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
@@ -23,8 +23,8 @@ import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-@SpringBootApplication
 public class SpringTestConfig implements WebMvcConfigurer {
 
     ProjectionAwareJacksonConverter projectionAwareJacksonConverter;
@@ -69,13 +69,26 @@ public class SpringTestConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice() {
-        return new DtoProjectionRequestBodyAdvice();
+    public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(Optional<ProjectionCache> optionalProjectionCache) {
+        return new DtoProjectionRequestBodyAdvice(optionalProjectionCache);
     }
 
     @Bean
-    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper) {
-        projectionAwareJacksonConverter =  new ProjectionAwareJacksonConverter(objectMapper);
+    @ConditionalOnMissingBean
+    public DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(Optional<ProjectionCache> optionalProjectionCache) {
+        return new DtoProjectionResponseBodyAdvice(optionalProjectionCache);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ProjectionCache projectionCache() {
+        return new ProjectionCache();
+    }
+
+    @Bean
+    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper,
+                                                                           Optional<ProjectionCache> projectionCacheSupplier) {
+        projectionAwareJacksonConverter = new ProjectionAwareJacksonConverter(objectMapper, projectionCacheSupplier.orElse(null));
         return projectionAwareJacksonConverter;
     }
 

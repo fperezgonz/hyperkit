@@ -7,35 +7,71 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FieldAliasUtils {
+
+    public static ConcurrentHashMap<CacheKey, Optional<FieldConf>> fieldConfByPropertyNameAndProjection = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<CacheKey, Optional<FieldConfData>> fieldConfByPropertyAliasAndProjection = new ConcurrentHashMap<>();
+
+    boolean cacheEnabled;
+
+    public FieldAliasUtils(boolean cacheEnabled) {
+        this.cacheEnabled = cacheEnabled;
+    }
+
+    public FieldConf findFieldConfForProperty(DtoProjection<?> projection, String fieldName) {
+        return findFieldConfForProperty(projection, fieldName, cacheEnabled);
+    }
+
+    public FieldConfData findFieldConfForPropertyByFieldAlias(@NonNull DtoProjection<?> projection, @NonNull String fieldName) {
+        return findFieldConfForPropertyByFieldAlias(projection, fieldName, cacheEnabled);
+    }
 
     /**
      * @return null if the property was not found
      */
-    public static FieldConf findFieldConfForProperty(DtoProjection<?> projection, String fieldName) {
+    public static FieldConf findFieldConfForProperty(DtoProjection<?> projection, String fieldName, boolean useCache) {
 
-        // TODO Search by property instead of field
-        // TODO Use a cache to improve performance
+        if (useCache) {
+            var fieldConfOptional = fieldConfByPropertyNameAndProjection.get(new CacheKey(fieldName, projection));
+            if (fieldConfOptional != null && fieldConfOptional.isPresent()) {
+                return fieldConfOptional.get();
+            }
+        }
+
         try {
 
             var fieldConf = (FieldConf) projection.getClass().getField(fieldName).get(projection);
 
+            if (useCache) {
+                fieldConfByPropertyNameAndProjection.put(new CacheKey(fieldName, projection), Optional.ofNullable(fieldConf));
+            }
+
             return fieldConf;
 
         } catch (Exception ignored) {
+
+            if (useCache) {
+                fieldConfByPropertyNameAndProjection.put(new CacheKey(fieldName, projection), Optional.empty());
+            }
             return null;
         }
 
     }
 
     @Nullable
-    public static FieldConfData findFieldConfForPropertyByFieldAlias(@NonNull DtoProjection<?> projection, @NonNull String fieldName) {
+    public static FieldConfData findFieldConfForPropertyByFieldAlias(@NonNull DtoProjection<?> projection, @NonNull String fieldName, boolean useCache) {
+
+        if (useCache) {
+            var fieldConfDataOptional = fieldConfByPropertyAliasAndProjection.get(new CacheKey(fieldName, projection));
+            if (fieldConfDataOptional != null && fieldConfDataOptional.isPresent()) {
+                return fieldConfDataOptional.get();
+            }
+        }
 
         FieldConfData fieldConfData = null;
-
-        // TODO Search by property instead of field
-        // TODO Use a cache to improve performance
 
         // If the field name matches another property's field alias, use that property
         fieldConfData = Arrays.stream(projection.getClass().getFields())
@@ -54,6 +90,9 @@ public class FieldAliasUtils {
                 .orElse(null);
 
         if (fieldConfData != null) {
+            if (useCache) {
+                fieldConfByPropertyAliasAndProjection.put(new CacheKey(fieldName, projection), Optional.of(fieldConfData));
+            }
             return fieldConfData;
         }
 
@@ -65,18 +104,30 @@ public class FieldAliasUtils {
         }
 
         if (fieldConfData == null || fieldConfData.fieldConf == null) {
+            if (useCache) {
+                fieldConfByPropertyAliasAndProjection.put(new CacheKey(fieldName, projection), Optional.empty());
+            }
             return null;
         }
 
         if (fieldConfData.fieldConf.getFieldAlias() == null || Objects.equals(fieldConfData.fieldConf.getFieldAlias(), fieldName)) {
+            if (useCache) {
+                fieldConfByPropertyAliasAndProjection.put(new CacheKey(fieldName, projection), Optional.of(fieldConfData));
+            }
             return fieldConfData;
         }
 
+        if (useCache) {
+            fieldConfByPropertyAliasAndProjection.put(new CacheKey(fieldName, projection), Optional.empty());
+        }
         return null;
 
     }
 
     public record FieldConfData(@NonNull String fieldName, @Nullable FieldConf fieldConf) {
+    }
+
+    public record CacheKey(@NonNull String name, @NonNull DtoProjection<?> projection) {
     }
 
 }
