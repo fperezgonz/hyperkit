@@ -39,6 +39,8 @@ email, roles {id, group { name } }
 ```
 or
 ```
+id
+name
 email
 roles {
     id
@@ -47,9 +49,13 @@ roles {
 ```
 
 This syntax allows you to:
-- Include simple fields (`email`)
-- Include nested object fields with their own projections (`email, roles {id, group{ name } }`)
-- Include collection fields with projections applied to each item
+- Include simple properties (`email`)
+- Include nested object properties with their own projections (`email, roles {id, group{ name } }`)
+- Include collection properties with projections applied to each item
+- Define aliases for properties, e.g.: `email as emailAddress` (the `as` keyword is optional)
+- Define type aliases for projections, e.g.: `group :NamedGroup { name }` or `group{ name } :NamedGroup `
+- Property aliases and type aliases support special characters using backticks (``roles :`Role Dto` { id}``)
+- The backticks can be escaped using backslashes, e.g.: ``roles :`Role\`Dto` { id}`` would alias the roles projection type with the name ``Role`Dto``
 
 
 ### Programmatic Projection Creation
