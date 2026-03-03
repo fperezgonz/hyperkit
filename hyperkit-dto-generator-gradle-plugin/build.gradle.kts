@@ -7,7 +7,7 @@ plugins {
 publishing {
     repositories {
 
-        if (System.getenv("CI_JOB_TOKEN") != "") {
+        if (System.getenv("CI_JOB_TOKEN") == null) {
             logger.warn("No CI job token found, skipping Gitlab publication")
         } else {
             maven {
