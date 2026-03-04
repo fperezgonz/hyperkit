@@ -439,17 +439,17 @@ public class ProjectionDsl {
                             nestedDtoClass = (Class) listOperationType.getActualTypeArguments()[0];
                         } else if (rootDtoPropertyType instanceof Class) {
                             nestedDtoClass = (Class) rootDtoPropertyType;
+                        } else {
+                            throw new UnsupportedOperationException("Illegal projection type: " + rootDtoPropertyType.getClass() + " for property " + propertyName + " in Type " + rootType);
                         }
 
-                        Class<DtoProjection> propertyProjectionClass = null;
+                        Class<? extends DtoProjection> propertyProjectionClass = ProjectionUtils.findDefaultProjectionClass(nestedDtoClass);
 
-                        for (Class<?> clazz : nestedDtoClass.getDeclaredClasses()) {
-                            if (DtoProjection.class.isAssignableFrom(clazz)) {
-                                propertyProjectionClass = (Class<DtoProjection>) clazz;
-                            }
+                        if (propertyProjectionClass == null) {
+                            throw new RuntimeException("No default projection class found for nested projection of type " + nestedDtoClass + " in Type " + rootType);
                         }
 
-                        ParseResult<DtoProjection> parseResult = new ProjectionDslParseProcess().parseProjection(characterStream, propertyProjectionClass);
+                        ParseResult<? extends DtoProjection> parseResult = new ProjectionDslParseProcess().parseProjection(characterStream, propertyProjectionClass);
                         nestedDtoProjection = parseResult.parsedValue;
                         charsRead += parseResult.charactersRead;
 

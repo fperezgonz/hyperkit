@@ -63,7 +63,7 @@ fun isDefaultDtoProjection(referencedType: CtTypeReference<*>): Boolean {
         return false
     }
 
-    return referencedType.qualifiedName.endsWith("\$Projection")
+    return referencedType.qualifiedName.endsWith($$"$Projection")
 
 }
 

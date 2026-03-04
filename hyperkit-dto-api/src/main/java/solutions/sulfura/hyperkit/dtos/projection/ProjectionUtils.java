@@ -1,8 +1,10 @@
 package solutions.sulfura.hyperkit.dtos.projection;
 
-import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 
@@ -12,11 +14,13 @@ import java.util.Collection;
 public class ProjectionUtils {
     /**
      * Expects the {@link Dto} class to contain an inner {@link DtoProjection} class similar to the one defined in the default template for generating Dtos
+     *
      * @param dtoClass the class of the Dto for which to find the projection class
      * @return a class nested in {@code dtoClass} that extends {@link DtoProjection}
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static Class<? extends DtoProjection> findDefaultProjectionClass(Class<?> dtoClass) {
+    @Nullable
+    public static Class<? extends DtoProjection> findDefaultProjectionClass(@NonNull Class<?> dtoClass) {
 
         // Look for a nested class that extends DtoProjection
         for (Class<?> nestedClass : dtoClass.getDeclaredClasses()) {

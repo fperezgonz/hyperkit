@@ -154,7 +154,7 @@ fun buildProjectionClass(dtoClass: CtClass<*>, factory: Factory): CtClass<*>? {
         }
 
         if (isDto) {
-            val elementProjectionTypeReference = factory.Class().createReference<Any>(elementType.qualifiedName + "\$Projection")
+            val elementProjectionTypeReference = factory.Class().createReference<Any>(elementType.qualifiedName + $$"$Projection")
             fieldType.setActualTypeArguments<CtActualTypeContainer>(mutableListOf(elementProjectionTypeReference))
         }
 
