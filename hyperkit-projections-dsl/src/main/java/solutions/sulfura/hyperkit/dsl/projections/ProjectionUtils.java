@@ -58,6 +58,7 @@ public class ProjectionUtils {
     /**
      * Returns the annotation info of a direct annotation of the specified type, or the first annotation meta-annotated with the specified type
      */
+    @Nullable
     public static <T extends Annotation> AnnotationInfo<Annotation, T> getAnnotationInfo(@NonNull Parameter parameter, @NonNull Class<T> metaAnnotationClass) {
 
         T directAnnotation = parameter.getAnnotation(metaAnnotationClass);

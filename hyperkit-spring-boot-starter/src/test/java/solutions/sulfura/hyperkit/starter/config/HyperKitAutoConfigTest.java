@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
@@ -41,6 +42,7 @@ public class HyperKitAutoConfigTest {
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule"));
             assertNotNull(context.getBean(ObjectMapper.class));
             assertNotNull(context.getBean(ProjectionCache.class));
+            assertNotNull(context.getBean(ProjectionAnnotationCache.class));
             assertNotNull(context.getBean(DtoProjectionRequestBodyAdvice.class));
             assertNotNull(context.getBean(DtoProjectionResponseBodyAdvice.class));
             assertNotNull(context.getBean(SortArgumentResolver.class));

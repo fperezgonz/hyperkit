@@ -9,14 +9,13 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
 
 import java.util.Optional;
-
-import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getMethodProjectionAnnotationOrMetaAnnotation;
 
 /**
  * Applies projections defined in @DtoProjectionSpec annotations to response bodies.<br>
@@ -26,20 +25,32 @@ import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getMeth
 public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private final ProjectionCache projectionCache;
+    private final ProjectionAnnotationCache projectionAnnotationCache;
 
-    public DtoProjectionResponseBodyAdvice(Optional<ProjectionCache> projectionCache) {
+    public DtoProjectionResponseBodyAdvice(Optional<ProjectionCache> projectionCache,
+                                           Optional<ProjectionAnnotationCache> projectionAnnotationCache) {
         this.projectionCache = projectionCache.orElse(null);
+        this.projectionAnnotationCache = projectionAnnotationCache.orElse(null);
     }
 
     @Override
     public boolean supports(MethodParameter returnType, @NonNull Class<? extends HttpMessageConverter<?>> converterType) {
 
+        return getProjectionAnnotation(returnType) != null;
+
+    }
+
+    private DtoProjectionSpec getProjectionAnnotation(MethodParameter returnType) {
+
         if (returnType.getMethod() == null) {
-            return false;
+            return null;
         }
 
-        // TODO Use an annotation cache to improve performance?
-        return getMethodProjectionAnnotationOrMetaAnnotation(returnType.getMethod()) != null;
+        if (projectionAnnotationCache != null) {
+            return projectionAnnotationCache.getReturnTypeAnnotation(returnType.getMethod());
+        }
+
+        return ProjectionUtils.getMethodProjectionAnnotationOrMetaAnnotation(returnType.getMethod());
 
     }
 
@@ -47,12 +58,8 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
     public Object beforeBodyWrite(Object body, MethodParameter returnType, @NonNull MediaType selectedContentType,
                                   @NonNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   @NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response) {
-        if (returnType.getMethod() == null) {
-            return body;
-        }
 
-        // TODO Use an annotation cache to improve performance?
-        DtoProjectionSpec projectionAnnotation = getMethodProjectionAnnotationOrMetaAnnotation(returnType.getMethod());
+        DtoProjectionSpec projectionAnnotation = getProjectionAnnotation(returnType);
 
         if (projectionAnnotation == null) {
             throw new RuntimeException("Failed to find projection annotation for method: " + returnType.getMethod().getName());

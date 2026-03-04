@@ -14,10 +14,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
-import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
+import solutions.sulfura.hyperkit.dsl.projections.*;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
 import java.lang.annotation.Annotation;
@@ -29,10 +26,14 @@ public class ProjectionAwareJacksonConverter
         extends MappingJackson2HttpMessageConverter {
 
     public final ProjectionCache dtoProjectionCache;
+    public final ProjectionAnnotationCache projectionAnnotationCache;
 
-    public ProjectionAwareJacksonConverter(ObjectMapper objectMapper, ProjectionCache projectionCache) {
+    public ProjectionAwareJacksonConverter(ObjectMapper objectMapper,
+                                           ProjectionCache projectionCache,
+                                           ProjectionAnnotationCache projectionAnnotationCache) {
         super(objectMapper);
         this.dtoProjectionCache = projectionCache;
+        this.projectionAnnotationCache = projectionAnnotationCache;
     }
 
     private DtoProjection<?> getProjectionForAnnotationInfo(ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo) {
@@ -76,7 +77,6 @@ public class ProjectionAwareJacksonConverter
             return null;
         }
 
-        // TODO Use an annotation cache to improve performance?
         ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionAnnotationInfoForReturnType(handler);
 
         return getProjectionForAnnotationInfo(projectionAnnotationInfo);
@@ -91,7 +91,6 @@ public class ProjectionAwareJacksonConverter
             return null;
         }
 
-        // TODO Use an annotation cache to improve performance?
         ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> projectionAnnotationInfo = getProjectionAnnotationInfoForBodyParameters(handler);
 
         return getProjectionForAnnotationInfo(projectionAnnotationInfo);
@@ -142,29 +141,31 @@ public class ProjectionAwareJacksonConverter
             return null;
         }
 
-        HandlerMethod handler = (HandlerMethod) attr.getRequest()
+        return (HandlerMethod) attr.getRequest()
                 .getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE);
-
-        if (handler == null) {
-            return null;
-        }
-
-        return handler;
 
     }
 
     @Nullable
     protected ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> getProjectionAnnotationInfoForReturnType(@NonNull HandlerMethod handler) {
-        return ProjectionUtils.getReturnTypeAnnotationInfo(handler.getMethod(), DtoProjectionSpec.class);
+        return projectionAnnotationCache != null
+                ? projectionAnnotationCache.getReturnTypeAnnotationInfo(handler.getMethod())
+                : ProjectionUtils.getReturnTypeAnnotationInfo(handler.getMethod(), DtoProjectionSpec.class);
     }
 
     @Nullable
     protected ProjectionUtils.AnnotationInfo<Annotation, DtoProjectionSpec> getProjectionAnnotationInfoForBodyParameters(@NonNull HandlerMethod handler) {
 
         for (MethodParameter methodParameter : handler.getMethodParameters()) {
+
             if (!methodParameter.hasParameterAnnotation(RequestBody.class)) {
                 continue;
             }
+
+            if (projectionAnnotationCache != null) {
+                return projectionAnnotationCache.getParameterAnnotationInfo(methodParameter.getParameter());
+            }
+
             return ProjectionUtils.getAnnotationInfo(methodParameter.getParameter(), DtoProjectionSpec.class);
 
         }
