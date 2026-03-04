@@ -3,10 +3,7 @@ package solutions.sulfura.hyperkit.utils;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class GenericCustomResponseExample<D extends Dto<?>> extends DtoListResponseBody<D> {
 
@@ -109,9 +106,7 @@ public class GenericCustomResponseExample<D extends Dto<?>> extends DtoListRespo
 
             errors.clear();
 
-            for (ErrorData errorData : val) {
-                errors.add(errorData);
-            }
+            errors.addAll(Arrays.asList(val));
 
             return this;
 

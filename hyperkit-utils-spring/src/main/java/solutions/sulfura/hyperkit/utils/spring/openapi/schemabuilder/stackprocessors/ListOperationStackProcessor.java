@@ -15,7 +15,7 @@ public class ListOperationStackProcessor extends DefaultObjectStackProcessor {
 
         DtoProjection<?> projection = stackData.projection;
 
-        if (projection == null || projection.projectionTypeAlias() == null) {
+        if (projection.projectionTypeAlias() == null) {
             return super.getNameForCurrentType(stackData, schemaProcessingCounts);
         }
 

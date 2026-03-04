@@ -32,7 +32,7 @@ public class DtoProjectionStackProcessor extends DefaultObjectStackProcessor {
     @Override
     protected String getNameForCurrentType(StackData stackData, Map<String, Integer> schemaProcessingCounts) {
         DtoProjection<?> projection = stackData.projection;
-        if (projection == null || projection.projectionTypeAlias() == null) {
+        if (projection.projectionTypeAlias() == null) {
             return super.getNameForCurrentType(stackData, schemaProcessingCounts);
         }
 
