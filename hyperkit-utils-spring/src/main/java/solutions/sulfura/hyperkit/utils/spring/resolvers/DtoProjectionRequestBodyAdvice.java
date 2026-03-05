@@ -12,7 +12,9 @@ import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.Optional;
 
 import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.applyProjection;
@@ -58,6 +60,7 @@ public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
 
         DtoProjectionSpec projectionAnnotation = getProjectionAnnotation(parameter);
+        Objects.requireNonNull(projectionAnnotation);
 
         try {
 
@@ -87,7 +90,13 @@ public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
 
         } catch (RuntimeException e) {
 
-            throw new RuntimeException("Failed applying projections to argument. Class: " + parameter.getMethod().getDeclaringClass() +
+            Method method = parameter.getMethod();
+
+            if (method == null) {
+                throw new RuntimeException("Failed applying projections to argument. Parameter: " + parameter.getParameterName());
+            }
+
+            throw new RuntimeException("Failed applying projections to argument. Class: " + method.getDeclaringClass() +
                     ", method: " + parameter.getMethod().getName() +
                     ", parameter:" + parameter.getParameterName()
                     , e);

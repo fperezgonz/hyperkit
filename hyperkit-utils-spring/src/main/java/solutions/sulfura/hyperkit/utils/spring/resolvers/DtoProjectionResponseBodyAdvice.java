@@ -8,13 +8,14 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
-import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
 
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
@@ -62,7 +63,15 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
         DtoProjectionSpec projectionAnnotation = getProjectionAnnotation(returnType);
 
         if (projectionAnnotation == null) {
+
+            Method method = returnType.getMethod();
+
+            if (method != null) {
+                throw new RuntimeException("Failed to find projection annotation for method: " + method.getName());
+            }
+
             throw new RuntimeException("Failed to find projection annotation for method: " + returnType.getMethod().getName());
+
         }
 
         try {
@@ -88,8 +97,16 @@ public class DtoProjectionResponseBodyAdvice implements ResponseBodyAdvice<Objec
 
             return body;
         } catch (RuntimeException e) {
-            throw new RuntimeException("Failed applying projections to response. Class: " + returnType.getMethod().getDeclaringClass() +
+
+            Method method = returnType.getMethod();
+
+            if (method == null) {
+                throw new RuntimeException("Failed applying projections to response. Parameter: " + returnType.getParameterName());
+            }
+
+            throw new RuntimeException("Failed applying projections to response. Class: " + method.getDeclaringClass() +
                     ", method: " + returnType.getMethod().getName(), e);
+
         }
     }
 }
