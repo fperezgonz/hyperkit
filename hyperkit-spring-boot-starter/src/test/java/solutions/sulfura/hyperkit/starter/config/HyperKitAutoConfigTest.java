@@ -11,7 +11,7 @@ import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonM
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.ProjectionAwareJacksonConverter;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
+import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectionOpenApiCustomizer;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ValueWrapperModelConverter;
@@ -41,7 +41,7 @@ public class HyperKitAutoConfigTest {
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule"));
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule"));
             assertNotNull(context.getBean(ObjectMapper.class));
-            assertNotNull(context.getBean(ProjectionCache.class));
+            assertNotNull(context.getBean(CachedProjectionParser.class));
             assertNotNull(context.getBean(ProjectionAnnotationCache.class));
             assertNotNull(context.getBean(DtoProjectionRequestBodyAdvice.class));
             assertNotNull(context.getBean(DtoProjectionResponseBodyAdvice.class));

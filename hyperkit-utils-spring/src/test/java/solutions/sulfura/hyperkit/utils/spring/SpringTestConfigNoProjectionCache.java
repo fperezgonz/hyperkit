@@ -3,13 +3,13 @@ package solutions.sulfura.hyperkit.utils.spring;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
+import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 
 public class SpringTestConfigNoProjectionCache extends SpringTestConfig {
 
     @Bean
     @Primary
-    public ProjectionCache projectionCache() {
+    public CachedProjectionParser projectionCache() {
         return null;
     }
 

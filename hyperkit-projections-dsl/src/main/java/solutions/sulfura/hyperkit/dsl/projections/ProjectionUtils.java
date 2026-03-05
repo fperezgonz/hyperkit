@@ -9,7 +9,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Optional;
 
 public class ProjectionUtils {
 
@@ -110,42 +109,22 @@ public class ProjectionUtils {
     }
 
     @NonNull
-    public static Dto<?> applyProjection(@NonNull Dto<?> dto, @NonNull DtoProjectionSpec projectionAnnotation, @Nullable ProjectionCache projectionCache) {
+    public static Dto<?> applyProjection(@NonNull Dto<?> dto, @NonNull DtoProjectionSpec projectionAnnotation, @Nullable CachedProjectionParser cachedProjectionParser) {
 
-        Class<? extends DtoProjection> projectionClass = solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass(dto.getClass());
+        Class<? extends DtoProjection<Dto<?>>> projectionClass = solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils.findDefaultProjectionClass(dto.getClass());
 
         if (projectionClass == null) {
             throw new RuntimeException("Failed to find projection class for DTO of type: " + dto.getClass());
         }
 
-        @SuppressWarnings("OptionalAssignedToNull")
-        Optional<DtoProjection<?>> projectionOptional = null;
+        DtoProjection<Dto<?>> projection = null;
 
-        if (projectionCache != null) {
-            projectionOptional = projectionCache.get(projectionAnnotation.projectedClass(), projectionAnnotation.namespace(), projectionAnnotation.value());
-        }
-
-        DtoProjection projection = null;
-
-        //noinspection OptionalAssignedToNull
-        if (projectionOptional != null) {
-            projection = projectionOptional.orElseThrow();
-        }
-
-        //noinspection OptionalAssignedToNull
-        if (projectionOptional == null) {
-
+        if (cachedProjectionParser != null) {
+            projection = cachedProjectionParser.get(projectionAnnotation.projectedClass(), projectionAnnotation.namespace(), projectionAnnotation.value());
+        } else {
             projection = ProjectionDsl.parse(projectionAnnotation.value(), projectionClass);
-
-            if (projectionCache != null) {
-                projectionCache.put(projectionAnnotation.projectedClass(),
-                        projectionAnnotation.namespace(),
-                        projectionAnnotation.value(),
-                        projection);
-            }
         }
 
-        //noinspection unchecked
         projection.applyProjectionTo(dto);
 
         return dto;

@@ -14,7 +14,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
+import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
@@ -45,8 +45,8 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    ProjectionCache projectionCache() {
-        return new ProjectionCache();
+    CachedProjectionParser projectionCache() {
+        return new CachedProjectionParser();
     }
 
     @Bean
@@ -57,14 +57,14 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(ProjectionCache projectionCache, ProjectionAnnotationCache projectionAnnotationCache) {
-        return new DtoProjectionRequestBodyAdvice(Optional.ofNullable(projectionCache), Optional.ofNullable(projectionAnnotationCache));
+    DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(CachedProjectionParser cachedProjectionParser, ProjectionAnnotationCache projectionAnnotationCache) {
+        return new DtoProjectionRequestBodyAdvice(Optional.ofNullable(cachedProjectionParser), Optional.ofNullable(projectionAnnotationCache));
     }
 
     @Bean
     @ConditionalOnMissingBean
-    DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(ProjectionCache projectionCache, ProjectionAnnotationCache projectionAnnotationCache) {
-        return new DtoProjectionResponseBodyAdvice(Optional.ofNullable(projectionCache), Optional.ofNullable(projectionAnnotationCache));
+    DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(CachedProjectionParser cachedProjectionParser, ProjectionAnnotationCache projectionAnnotationCache) {
+        return new DtoProjectionResponseBodyAdvice(Optional.ofNullable(cachedProjectionParser), Optional.ofNullable(projectionAnnotationCache));
     }
 
     @Bean
@@ -122,9 +122,9 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Bean
     public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper,
-                                                                           ProjectionCache projectionCache,
+                                                                           CachedProjectionParser cachedProjectionParser,
                                                                            ProjectionAnnotationCache projectionAnnotationCache) {
-        return new ProjectionAwareJacksonConverter(objectMapper, projectionCache, projectionAnnotationCache);
+        return new ProjectionAwareJacksonConverter(objectMapper, cachedProjectionParser, projectionAnnotationCache);
     }
 
     @Override

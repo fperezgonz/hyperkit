@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
+import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.utils.spring.ProjectableHolder;
@@ -25,12 +25,12 @@ import static solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.applyPr
 @ControllerAdvice
 public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
 
-    private final ProjectionCache projectionCache;
+    private final CachedProjectionParser cachedProjectionParser;
     private final ProjectionAnnotationCache projectionAnnotationCache;
 
-    public DtoProjectionRequestBodyAdvice(Optional<ProjectionCache> projectionCache,
+    public DtoProjectionRequestBodyAdvice(Optional<CachedProjectionParser> projectionCache,
                                           Optional<ProjectionAnnotationCache> projectionAnnotationCache) {
-        this.projectionCache = projectionCache.orElse(null);
+        this.cachedProjectionParser = projectionCache.orElse(null);
         this.projectionAnnotationCache = projectionAnnotationCache.orElse(null);
     }
 
@@ -62,7 +62,7 @@ public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
         try {
 
             if (body instanceof Dto<?> dto) {
-                return applyProjection(dto, projectionAnnotation, projectionCache);
+                return applyProjection(dto, projectionAnnotation, cachedProjectionParser);
             }
 
             if (body instanceof ProjectableHolder projectableHolder) {
@@ -75,7 +75,7 @@ public class DtoProjectionRequestBodyAdvice implements RequestBodyAdvice {
                         throw new RuntimeException("Unsupported projectable type: " + projectable.getClass() + ". Only classes that extend Dto are supported");
                     }
 
-                    applyProjection(dto, projectionAnnotation, projectionCache);
+                    applyProjection(dto, projectionAnnotation, cachedProjectionParser);
 
                 }
 

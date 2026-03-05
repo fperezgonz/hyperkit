@@ -11,7 +11,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionCache;
+import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
@@ -76,31 +76,31 @@ public class SpringTestConfig implements WebMvcConfigurer {
 
     @Bean
     @ConditionalOnMissingBean
-    ProjectionCache projectionCache() {
-        return new ProjectionCache();
+    CachedProjectionParser projectionCache() {
+        return new CachedProjectionParser();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(ProjectionCache optionalProjectionCache,
+    public DtoProjectionRequestBodyAdvice dtoProjectionRequestBodyAdvice(CachedProjectionParser optionalCachedProjectionParser,
                                                                          ProjectionAnnotationCache optionalProjectionAnnotationCache) {
-        return new DtoProjectionRequestBodyAdvice(Optional.ofNullable(optionalProjectionCache), Optional.ofNullable(optionalProjectionAnnotationCache));
+        return new DtoProjectionRequestBodyAdvice(Optional.ofNullable(optionalCachedProjectionParser), Optional.ofNullable(optionalProjectionAnnotationCache));
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(ProjectionCache optionalProjectionCache,
+    public DtoProjectionResponseBodyAdvice dtoProjectionResponseBodyAdvice(CachedProjectionParser optionalCachedProjectionParser,
                                                                            ProjectionAnnotationCache optionalProjectionAnnotationCache) {
-        return new DtoProjectionResponseBodyAdvice(Optional.ofNullable(optionalProjectionCache), Optional.ofNullable(optionalProjectionAnnotationCache));
+        return new DtoProjectionResponseBodyAdvice(Optional.ofNullable(optionalCachedProjectionParser), Optional.ofNullable(optionalProjectionAnnotationCache));
     }
 
     @Bean
     public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper,
-                                                                           ProjectionCache projectionCacheSupplier,
-                                                                           ProjectionAnnotationCache projectionAnnotationCacheSupplier) {
+                                                                           CachedProjectionParser cachedProjectionParser,
+                                                                           ProjectionAnnotationCache projectionAnnotationCache) {
         return new ProjectionAwareJacksonConverter(objectMapper,
-                projectionCacheSupplier,
-                projectionAnnotationCacheSupplier);
+                cachedProjectionParser,
+                projectionAnnotationCache);
     }
 
     @Override

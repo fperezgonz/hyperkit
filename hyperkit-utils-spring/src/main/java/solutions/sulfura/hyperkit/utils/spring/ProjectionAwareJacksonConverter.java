@@ -18,21 +18,20 @@ import solutions.sulfura.hyperkit.dsl.projections.*;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
 import java.lang.annotation.Annotation;
-import java.util.Optional;
 
 import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 public class ProjectionAwareJacksonConverter
         extends MappingJackson2HttpMessageConverter {
 
-    public final ProjectionCache dtoProjectionCache;
+    public final CachedProjectionParser dtoCachedProjectionParser;
     public final ProjectionAnnotationCache projectionAnnotationCache;
 
     public ProjectionAwareJacksonConverter(ObjectMapper objectMapper,
-                                           ProjectionCache projectionCache,
+                                           CachedProjectionParser cachedProjectionParser,
                                            ProjectionAnnotationCache projectionAnnotationCache) {
         super(objectMapper);
-        this.dtoProjectionCache = projectionCache;
+        this.dtoCachedProjectionParser = cachedProjectionParser;
         this.projectionAnnotationCache = projectionAnnotationCache;
     }
 
@@ -43,30 +42,12 @@ public class ProjectionAwareJacksonConverter
 
         DtoProjectionSpec projectionSpec = projectionAnnotationInfo.targetAnnotation;
 
-        @SuppressWarnings("OptionalAssignedToNull")
-        Optional<DtoProjection<?>> projectionOptional = null;
-
-        if (dtoProjectionCache != null) {
-            projectionOptional = dtoProjectionCache.get(projectionSpec.projectedClass(), projectionSpec.namespace(), projectionSpec.value());
+        if (dtoCachedProjectionParser != null) {
+            return dtoCachedProjectionParser.get(projectionSpec.projectedClass(), projectionSpec.namespace(), projectionSpec.value());
         }
 
-        //noinspection OptionalAssignedToNull
-        if (projectionOptional != null && projectionOptional.isEmpty()) {
-            return null;
-        }
+        return ProjectionDsl.parse(projectionAnnotationInfo.targetAnnotation);
 
-        //noinspection OptionalAssignedToNull
-        if (projectionOptional != null) {
-            return projectionOptional.get();
-        }
-
-        DtoProjection<?> projection = ProjectionDsl.parse(projectionAnnotationInfo.targetAnnotation);
-
-        if (dtoProjectionCache != null) {
-            dtoProjectionCache.put(projectionSpec.projectedClass(), projectionSpec.namespace(), projectionSpec.value(), projection);
-        }
-
-        return projection;
     }
 
     private DtoProjection<?> getResponseProjectionForCurrentHandler() {

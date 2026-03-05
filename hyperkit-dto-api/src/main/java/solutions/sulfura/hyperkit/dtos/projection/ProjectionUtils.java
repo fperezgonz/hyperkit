@@ -18,14 +18,13 @@ public class ProjectionUtils {
      * @param dtoClass the class of the Dto for which to find the projection class
      * @return a class nested in {@code dtoClass} that extends {@link DtoProjection}
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Nullable
-    public static Class<? extends DtoProjection> findDefaultProjectionClass(@NonNull Class<?> dtoClass) {
+    public static Class<? extends DtoProjection<Dto<?>>> findDefaultProjectionClass(@NonNull Class<?> dtoClass) {
 
         // Look for a nested class that extends DtoProjection
         for (Class<?> nestedClass : dtoClass.getDeclaredClasses()) {
             if (DtoProjection.class.isAssignableFrom(nestedClass)) {
-                return (Class<? extends DtoProjection>) nestedClass;
+                return (Class<? extends DtoProjection<Dto<?>>>) nestedClass;
             }
         }
 
