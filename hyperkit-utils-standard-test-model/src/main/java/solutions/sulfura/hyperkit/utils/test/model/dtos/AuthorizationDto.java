@@ -1,16 +1,16 @@
-package solutions.sulfura.hyperkit.utils.serialization.projection.dtos;
+package solutions.sulfura.hyperkit.utils.test.model.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
 import java.util.Set;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
-import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.ResourceReferenceDto;
-import solutions.sulfura.hyperkit.utils.serialization.projection.model.Authorization;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.ResourceReferenceDto;
+import solutions.sulfura.hyperkit.utils.test.model.model.iam.Authorization;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
-import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.RoleDto;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.RoleDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;

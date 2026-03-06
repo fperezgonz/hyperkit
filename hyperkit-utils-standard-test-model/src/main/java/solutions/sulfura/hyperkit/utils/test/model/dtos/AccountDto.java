@@ -1,36 +1,38 @@
-package solutions.sulfura.hyperkit.utils.serialization.projection.dtos;
+package solutions.sulfura.hyperkit.utils.test.model.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.utils.test.model.model.Account;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.UserDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.utils.serialization.projection.model.ResourceReference;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 import java.util.Objects;
 
-@DtoFor(ResourceReference.class)
-public class ResourceReferenceDto implements Dto<ResourceReference> {
+@DtoFor(Account.class)
+public class AccountDto implements Dto<Account> {
 
     public ValueWrapper<String> id = ValueWrapper.empty();
     public ValueWrapper<String> name = ValueWrapper.empty();
-    public ValueWrapper<String> type = ValueWrapper.empty();
+    public ValueWrapper<UserDto> user = ValueWrapper.empty();
 
-    public ResourceReferenceDto() {
+    public AccountDto() {
     }
 
-    public Class<ResourceReference> getSourceClass() {
-        return ResourceReference.class;
+    public Class<Account> getSourceClass() {
+        return Account.class;
     }
 
     public static class Builder {
 
         ValueWrapper<String> id = ValueWrapper.empty();
         ValueWrapper<String> name = ValueWrapper.empty();
-        ValueWrapper<String> type = ValueWrapper.empty();
+        ValueWrapper<UserDto> user = ValueWrapper.empty();
 
         public static Builder newInstance() {
             return new Builder();
@@ -46,18 +48,18 @@ public class ResourceReferenceDto implements Dto<ResourceReference> {
             return this;
         }
 
-        public Builder type(final ValueWrapper<String> type){
-            this.type = type == null ? ValueWrapper.empty() : type;
+        public Builder user(final ValueWrapper<UserDto> user){
+            this.user = user == null ? ValueWrapper.empty() : user;
             return this;
         }
 
 
-        public ResourceReferenceDto build() {
+        public AccountDto build() {
 
-            ResourceReferenceDto instance = new ResourceReferenceDto();
+            AccountDto instance = new AccountDto();
             instance.id = id;
             instance.name = name;
-            instance.type = type;
+            instance.user = user;
 
             return instance;
 
@@ -65,20 +67,20 @@ public class ResourceReferenceDto implements Dto<ResourceReference> {
 
     }
 
-    @ProjectionFor(ResourceReferenceDto.class)
-    public static class Projection extends DtoProjection<ResourceReferenceDto> {
+    @ProjectionFor(AccountDto.class)
+    public static class Projection extends DtoProjection<AccountDto> {
 
         public FieldConf id;
         public FieldConf name;
-        public FieldConf type;
+        public DtoFieldConf<UserDto.Projection> user;
 
         public Projection() {
         }
 
-        public void applyProjectionTo(ResourceReferenceDto dto) throws DtoProjectionException {
+        public void applyProjectionTo(AccountDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
             dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
-            dto.type = ProjectionUtils.getProjectedValue(dto.type, this.type);
+            dto.user = ProjectionUtils.getProjectedValue(dto.user, this.user);
         }
 
         @Override
@@ -92,7 +94,7 @@ public class ResourceReferenceDto implements Dto<ResourceReference> {
 
             return  Objects.equals(id, that.id)
                        && Objects.equals(name, that.name)
-                       && Objects.equals(type, that.type);
+                       && Objects.equals(user, that.user);
 
         }
 
@@ -100,14 +102,14 @@ public class ResourceReferenceDto implements Dto<ResourceReference> {
         public int hashCode() {
             return Objects.hash(id,
                     name,
-                    type);
+                    user);
         }
 
         public static class Builder {
 
             FieldConf id;
             FieldConf name;
-            FieldConf type;
+            DtoFieldConf<UserDto.Projection> user;
 
             public static Builder newInstance() {
                 return new Builder();
@@ -133,22 +135,22 @@ public class ResourceReferenceDto implements Dto<ResourceReference> {
                 return this;
             }
 
-            public Builder type(final FieldConf type){
-                this.type = type;
+            public Builder user(final DtoFieldConf<UserDto.Projection> user){
+                this.user = user;
                 return this;
             }
 
-            public Builder type(final Presence presence){
-                type = FieldConf.of(presence);
+            public Builder user(final Presence presence, final UserDto.Projection projection){
+                user = DtoFieldConf.of(presence, projection);
                 return this;
             }
 
-            public ResourceReferenceDto.Projection build() {
+            public AccountDto.Projection build() {
 
-                ResourceReferenceDto.Projection instance = new ResourceReferenceDto.Projection();
+                AccountDto.Projection instance = new AccountDto.Projection();
                 instance.id = id;
                 instance.name = name;
-                instance.type = type;
+                instance.user = user;
 
                 return instance;
 
@@ -162,7 +164,7 @@ public class ResourceReferenceDto implements Dto<ResourceReference> {
 
         public static final String _id = "id";
         public static final String _name = "name";
-        public static final String _type = "type";
+        public static final String _user = "user";
 
     }
 

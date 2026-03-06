@@ -9,8 +9,8 @@ import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.*;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.*;
 
 import java.util.Set;
 

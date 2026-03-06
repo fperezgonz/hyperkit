@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.AuthorizationDto;
-import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.UserDto;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.AuthorizationDto;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.UserDto;
 
 import java.io.IOException;
 

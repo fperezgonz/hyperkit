@@ -6,14 +6,7 @@ plugins {
     `java-library`
     `maven-publish`
     id("org.jreleaser")
-    id("solutions.sulfura.hyperkit-dto-generator") version "6.2.2-RELEASE"
     id("me.champeau.jmh") version "0.7.3"
-}
-
-hyperKitDtoGenerator {
-    inputPaths = setOf("src/test/java")
-    rootOutputPath = "src/test/java"
-    defaultOutputPackage = "solutions.sulfura.hyperkit.utils.serialization.projection.dtos"
 }
 
 java {
@@ -166,6 +159,7 @@ dependencies {
     testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+    testImplementation(project(":hyperkit-utils-standard-test-model"))
 }
 
 jmh {

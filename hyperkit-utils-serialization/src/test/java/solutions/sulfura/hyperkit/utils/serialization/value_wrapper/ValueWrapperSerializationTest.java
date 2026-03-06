@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.projection.dtos.UserDto;
-import solutions.sulfura.hyperkit.utils.serialization.projection.model.User;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.UserDto;
+import solutions.sulfura.hyperkit.utils.test.model.model.iam.User;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -128,7 +128,7 @@ public class ValueWrapperSerializationTest {
         // Given an object with empty ValueWrapper fields
         UserDto dto = new UserDto();
         dto.id = ValueWrapper.of("1");
-        dto.name = ValueWrapper.empty();
+        dto.username = ValueWrapper.empty();
         dto.email = ValueWrapper.empty();
         dto.authorizations = ValueWrapper.empty();
 
