@@ -6,6 +6,7 @@ import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -67,6 +68,38 @@ public class ProjectionUtils {
         }
 
         return getFirstMetaAnnotatedAnnotationInfo(parameter.getAnnotatedType(), parameter.getAnnotations(), metaAnnotationClass);
+
+    }
+
+    /**
+     * Returns an {@link AnnotationInfo} with the {@link DtoProjectionSpec} annotation on the specified element, or null if none was found
+     */
+    public static AnnotationInfo<? extends Annotation, DtoProjectionSpec> getAnnotationInfoForAnnotatedElement(AnnotatedElement element) {
+
+        if (element instanceof Method method) {
+            return solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getReturnTypeAnnotationInfo(method, DtoProjectionSpec.class);
+        }
+
+        if (element instanceof Parameter parameter) {
+            return solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.getAnnotationInfo(parameter, DtoProjectionSpec.class);
+        }
+
+        throw new UnsupportedOperationException("Element type " + element.getClass().getSimpleName() + " not supported");
+
+    }
+
+    /**
+     * Returns the {@link DtoProjectionSpec} annotation on the specified element, or null if none was found
+     */
+    public static DtoProjectionSpec findDtoProjectionSpec(AnnotatedElement element) {
+
+        var annotationInfo = getAnnotationInfoForAnnotatedElement(element);
+
+        if (annotationInfo == null) {
+            return null;
+        }
+
+        return annotationInfo.targetAnnotation;
 
     }
 
