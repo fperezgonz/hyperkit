@@ -13,6 +13,7 @@ The project is organized into several modules, each with its own documentation:
 - [hyperkit-dto-generator-gradle-plugin](hyperkit-dto-generator-gradle-plugin/README.md): Gradle plugin for generating DTOs from annotated classes
 - [hyperkit-dto-generator-maven-plugin](hyperkit-dto-generator-gradle-plugin/README.md): Maven plugin for generating DTOs from annotated classes
 - [hyperkit-projections-dsl](hyperkit-projections-dsl/README.md): DSL for defining projections on DTOs
+- [hyperkit-projection-spec-validator](hyperkit-projection-spec-validator/README.md): Tool for validating @DtoProjectionSpec annotations
 - [hyperkit-utils-serialization](hyperkit-utils-serialization/README.md): Utilities for serialization
 - [hyperkit-utils-spring](hyperkit-utils-spring/README.md): Spring-specific utilities including HyperRepository and HyperMapper
 - [hyperkit-spring-boot-starter](hyperkit-spring-boot-starter/README.md): Spring Boot starter for Hyperkit
