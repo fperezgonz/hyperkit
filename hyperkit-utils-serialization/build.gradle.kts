@@ -152,7 +152,7 @@ dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
     compileOnly("org.jspecify:jspecify:1.0.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
+    api("com.fasterxml.jackson.core:jackson-databind:2.21.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
