@@ -120,22 +120,6 @@ jreleaser {
 
                 }
             }
-            nexus2 {
-                create("snapshot-deploy") {
-                    stagingProfileId = "${project.name.get()}_${project.version.get()}"
-                    url = "https://ossrh-staging-api.central.sonatype.com/service/local/"
-                    username = System.getenv("SONATYPE_TOKEN_USERNAME")
-                    password = System.getenv("SONATYPE_TOKEN_PASSWORD")
-                    active = Active.SNAPSHOT
-                    snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots/"
-                    applyMavenCentralRules = true
-                    snapshotSupported = true
-                    closeRepository = true
-                    releaseRepository = true
-
-                    stagingRepository("build/staging-deploy-$version")
-                }
-            }
         }
     }
 
