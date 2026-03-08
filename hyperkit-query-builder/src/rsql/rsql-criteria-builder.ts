@@ -1,11 +1,16 @@
 import {
     And,
+    Between,
     type Criterion,
     Equals, GreaterOrEqual,
     GreaterThan,
-    In, LowerOrEqual, LowerThan,
+    ILike,
+    In, IsNotNull, IsNull, Like, LowerOrEqual, LowerThan,
     Not,
+    NotBetween,
     NotEqual,
+    NotILike,
+    NotLike,
     Or,
     Out
 } from "../criteria-builder/criteria-builder";
@@ -22,6 +27,22 @@ export class RsqlCriteriaBuilder {
             return `${criterion.fieldName}=='${criterion.value}'`
         } else if (criterion instanceof NotEqual) {
             return `${criterion.fieldName}!='${criterion.value}'`
+        } else if (criterion instanceof IsNull) {
+            return `${criterion.fieldName}=null=`
+        } else if (criterion instanceof IsNotNull) {
+            return `${criterion.fieldName}=notnull=`
+        } else if (criterion instanceof Like) {
+            return `${criterion.fieldName}=like='${criterion.value}'`
+        } else if (criterion instanceof NotLike) {
+            return `${criterion.fieldName}=notlike='${criterion.value}'`
+        } else if (criterion instanceof ILike) {
+            return `${criterion.fieldName}=ilike='${criterion.value}'`
+        } else if (criterion instanceof NotILike) {
+            return `${criterion.fieldName}=inotlike='${criterion.value}'`
+        } else if (criterion instanceof Between) {
+            return `${criterion.fieldName}=bt=('${criterion.lower}','${criterion.upper}')`
+        } else if (criterion instanceof NotBetween) {
+            return `${criterion.fieldName}=nb=('${criterion.lower}','${criterion.upper}')`
         } else if (criterion instanceof GreaterThan) {
             return `${criterion.fieldName}=gt='${criterion.value}'`
         } else if (criterion instanceof GreaterOrEqual) {

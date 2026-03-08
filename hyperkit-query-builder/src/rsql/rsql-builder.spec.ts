@@ -6,11 +6,21 @@ import {
     endsWith,
     equals, ge, gt,
     isIn,
-    isNotIn, le, lt,
+    isNotIn, isNotNull, isNull, le, lt,
     not,
     notEqual,
     or,
-    startsWith
+    startsWith,
+    between,
+    notBetween,
+    like,
+    iLike,
+    notLike,
+    notILike,
+    IsNotNull,
+    IsNull,
+    Between,
+    NotBetween
 } from '../criteria-builder/criteria-builder';
 import {RsqlCriteriaBuilder} from "./rsql-criteria-builder";
 
@@ -213,4 +223,51 @@ describe('RSQL predicates', () => {
             ))).toBe("(andf=='andv';(orf!='orv';orf2!='orv2';(and2f!='and2v',and2f2!='and2v2');(or2f=='or2v',or2f2=='or2v2'));(and3f=='and3v';and3f2=='and3v2';and3f3=='and3v3'))");
     });
 
+    it('isNull', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(isNull("field"))).toBe("field=null=");
+    });
+
+    it('isNotNull', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(isNotNull("field"))).toBe("field=notnull=");
+    });
+
+    it('like', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(like("field", "value"))).toBe("field=like='value'");
+    });
+
+    it('notLike', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(notLike("field", "value"))).toBe("field=notlike='value'");
+    });
+
+    it('iLike', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(iLike("field", "value"))).toBe("field=ilike='value'");
+    });
+
+    it('notILike', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(notILike("field", "value"))).toBe("field=inotlike='value'");
+    });
+
+    it('between', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(between("field", 1, 10))).toBe("field=bt=('1','10')");
+    });
+
+    it('not between', () => {
+        expect(new RsqlCriteriaBuilder().buildQuery(notBetween("field", 1, 10))).toBe("field=nb=('1','10')");
+    });
+
+    it('negate IsNull', () => {
+        expect(isNull("field").negate()).toBeInstanceOf(IsNotNull);
+    });
+
+    it('negate IsNotNull', () => {
+        expect(isNotNull("field").negate()).toBeInstanceOf(IsNull);
+    });
+
+    it('negate Between', () => {
+        expect(between("field", 1, 10).negate()).toBeInstanceOf(NotBetween);
+    });
+
+    it('negate NotBetween', () => {
+        expect(notBetween("field", 1, 10).negate()).toBeInstanceOf(Between);
+    });
 });
