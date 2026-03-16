@@ -2,10 +2,11 @@ import org.jreleaser.model.Active
 import kotlin.io.encoding.Base64
 
 plugins {
+    java
     `java-library`
     `maven-publish`
     id("org.jreleaser")
-    id("io.spring.dependency-management")
+    id("me.champeau.jmh") version "0.7.3"
 }
 
 java {
@@ -16,17 +17,20 @@ java {
     withSourcesJar()
 }
 
+repositories {
+    mavenCentral()
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "hyperkit-spring-boot-starter"
+            artifactId = "hyperkit-utils-serialization-specification"
             from(components["java"])
 
             pom {
-                name = "HyperKit Dto API"
-                description =
-                    "A spring boot starter that autoconfigures Hyperkit components on Spring Boot applications"
-                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-boot-starter"
+                name = "HyperKit Serialization Utils"
+                description = "Executable specification for hyperkit dto and projection serialization"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-utils/serialization/specification"
                 inceptionYear = "2023"
                 licenses {
                     license {
@@ -129,34 +133,18 @@ jreleaser {
 
 }
 
-repositories {
-    mavenCentral()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.6")
-
-    }
-}
-
 dependencies {
-    // Essential Spring Boot AutoConfiguration Annotation
-    api("org.springframework.boot:spring-boot-autoconfigure")
-    // Required for implementing the WebMvcConfigurer interface
-    api("org.springframework:spring-webmvc")
-    api("org.springframework.data:spring-data-jpa")
-    api("com.fasterxml.jackson.core:jackson-databind")
+    implementation(project(":hyperkit-dto-api"))
+    implementation(project(":hyperkit-projections-dsl"))
+    compileOnly("org.jspecify:jspecify:1.0.0")
+    implementation(platform("org.junit:junit-bom:5.12.2"))
+    implementation("org.junit.jupiter:junit-jupiter")
+    implementation(project(":hyperkit-utils-standard-test-model"))
+}
 
-    api(project(":hyperkit-dto-api"))
-    api(project(":hyperkit-projections-dsl"))
-    api(project(":hyperkit-utils:serialization:jackson2"))
-    api(project(":hyperkit-utils-spring"))
-
-    // Test dependencies
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("com.h2database:h2:2.2.224")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+jmh {
+    jmhVersion.set("1.37")
+    duplicateClassesStrategy.set(DuplicatesStrategy.EXCLUDE)
 }
 
 tasks.test {

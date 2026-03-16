@@ -52,4 +52,4 @@ hyperkit:
 - [hyperkit-dto-api](../hyperkit-dto-api/README.md): Core API for DTOs
 - [hyperkit-projections-dsl](../hyperkit-projections-dsl/README.md): DSL for defining projections
 - [hyperkit-utils-spring](../hyperkit-utils-spring/README.md): Spring utilities including HyperMapper and argument resolvers
-- [hyperkit-utils-serialization](../hyperkit-utils-serialization/README.md): Serialization utilities
+- [hyperkit-utils-serialization-jackson2](../hyperkit-utils/serialization/jackson2/README.md): Serialization utilities

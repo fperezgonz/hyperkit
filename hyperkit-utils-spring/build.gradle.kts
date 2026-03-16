@@ -147,7 +147,7 @@ dependencyManagement {
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
-    implementation(project(":hyperkit-utils-serialization"))
+    implementation(project(":hyperkit-utils:serialization:jackson2"))
     api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.33")
