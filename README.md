@@ -11,11 +11,14 @@ The project is organized into several modules, each with its own documentation:
 - [hyperkit-dto-api](hyperkit-dto-api/README.md): Core API for DTOs, including annotations for DTO generation and property customization
 - [hyperkit-dto-generator-core](hyperkit-dto-generator-core/README.md): library with the main logic used by the dto generator plugins
 - [hyperkit-dto-generator-gradle-plugin](hyperkit-dto-generator-gradle-plugin/README.md): Gradle plugin for generating DTOs from annotated classes
-- [hyperkit-dto-generator-maven-plugin](hyperkit-dto-generator-gradle-plugin/README.md): Maven plugin for generating DTOs from annotated classes
+- [hyperkit-dto-generator-maven-plugin](hyperkit-dto-generator-maven-plugin/README.md): Maven plugin for generating DTOs from annotated classes
 - [hyperkit-projections-dsl](hyperkit-projections-dsl/README.md): DSL for defining projections on DTOs
 - [hyperkit-projection-spec-validator](hyperkit-projection-spec-validator/README.md): Tool for validating @DtoProjectionSpec annotations
 - [hyperkit-utils-serialization-jackson2](hyperkit-utils/serialization/jackson2/README.md): Utilities for serialization
-- [hyperkit-utils-spring](hyperkit-utils-spring/README.md): Spring-specific utilities including HyperRepository and HyperMapper
+- [hyperkit-utils-spring](hyperkit-utils/spring-persistence/README.md): Spring-specific utilities including HyperRepository and HyperMapper
+- [hyperkit-utils-spring-web](hyperkit-utils/spring-web/README.md): Web-specific utilities for Spring MVC
+- [hyperkit-utils-spring-jackson2](hyperkit-utils/spring-jackson2/README.md): Support for projection field aliases when serializing and deserializing using Jackson2 with Spring
+- [hyperkit-utils-spring-openapi](hyperkit-utils/spring-openapi/README.md): OpenAPI integration for Springdoc
 - [hyperkit-spring-boot-starter](hyperkit-spring-boot-starter/README.md): Spring Boot starter for Hyperkit
 
 ## Getting Started

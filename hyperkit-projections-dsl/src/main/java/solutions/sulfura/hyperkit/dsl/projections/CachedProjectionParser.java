@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.dsl.projections;
 
+import org.jspecify.annotations.NonNull;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
@@ -25,7 +26,7 @@ public class CachedProjectionParser {
         });
     }
 
-    public DtoProjection<?> get(DtoProjectionSpec projectionSpec) {
+    public DtoProjection<?> get(@NonNull DtoProjectionSpec projectionSpec) {
         return this.get(projectionSpec.projectedClass(), projectionSpec.namespace(), projectionSpec.value());
     }
 

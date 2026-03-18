@@ -74,4 +74,4 @@ UserDto userDto = hyperMapper.mapEntityToDto(user, UserDto.class, projection);
 
 ## Related Modules
 - [hyperkit-dto-api](../hyperkit-dto-api/README.md): Core API for DTOs
-- [hyperkit-utils-spring](../hyperkit-utils-spring/README.md): Spring utilities including HyperMapper for applying projections
+- [hyperkit-utils](../hyperkit-utils): Utilities to integrate DTOs and projections with serialization, JPA persistence and Spring controllers 

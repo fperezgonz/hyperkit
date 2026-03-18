@@ -13,7 +13,7 @@ This module defines the contract and metadata for DTOs without implementing the 
 
 ## Related Modules
 - [hyperkit-dto-generator-gradle-plugin](../hyperkit-dto-generator-gradle-plugin/README.md): Gradle plugin for generating DTOs from annotated classes
-- [hyperkit-dto-generator-maven-plugin](../hyperkit-dto-generator-maven-plugin/README.md): Gradle plugin for generating DTOs from annotated classes
+- [hyperkit-dto-generator-maven-plugin](../hyperkit-dto-generator-maven-plugin/README.md): Maven plugin for generating DTOs from annotated classes
 - [hyperkit-projections-dsl](../hyperkit-projections-dsl/README.md): DSL for creating and managing entity projections
 
 ## Contributing

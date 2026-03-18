@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
+import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
@@ -37,22 +37,26 @@ import java.util.Optional;
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 public class HyperKitAutoConfig implements WebMvcConfigurer {
 
+    CachedProjectionParser cachedProjectionParser = new CachedProjectionParser();
+    ProjectionAnnotationCache projectionAnnotationCache = new ProjectionAnnotationCache();
+
     @Bean
     @ConditionalOnMissingBean
-    DtoProjectionReturnArgumentResolver dtoProjectionReturnArgumentResolver() {
-        return new DtoProjectionReturnArgumentResolver();
+    DtoProjectionReturnArgumentResolver dtoProjectionReturnArgumentResolver(ProjectionAnnotationCache projectionAnnotationCache,
+                                                                            CachedProjectionParser cachedProjectionParser) {
+        return new DtoProjectionReturnArgumentResolver(Optional.ofNullable(projectionAnnotationCache), Optional.ofNullable(HyperKitAutoConfig.this.cachedProjectionParser));
     }
 
     @Bean
     @ConditionalOnMissingBean
-    CachedProjectionParser projectionCache() {
-        return new CachedProjectionParser();
+    CachedProjectionParser cachedProjectionParser() {
+        return cachedProjectionParser;
     }
 
     @Bean
     @ConditionalOnMissingBean
     ProjectionAnnotationCache projectionAnnotationCache() {
-        return new ProjectionAnnotationCache();
+        return projectionAnnotationCache;
     }
 
     @Bean
@@ -135,7 +139,7 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(this.dtoProjectionReturnArgumentResolver());
+        resolvers.add(this.dtoProjectionReturnArgumentResolver(projectionAnnotationCache(), cachedProjectionParser()));
         resolvers.add(this.sortArgumentResolver());
         resolvers.add(this.rsqlFilterArgumentResolver());
     }

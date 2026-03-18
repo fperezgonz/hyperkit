@@ -16,17 +16,20 @@ java {
     withSourcesJar()
 }
 
+repositories {
+    mavenCentral()
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "hyperkit-spring-boot-starter"
+            artifactId = "hyperkit-utils-spring-jackson2"
             from(components["java"])
 
             pom {
-                name = "HyperKit Dto API"
-                description =
-                    "A spring boot starter that autoconfigures Hyperkit components on Spring Boot applications"
-                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-boot-starter"
+                name = "HyperKit Spring Jackson2 utils"
+                description = "Support for projection-aware serialization and deserialization of Hyperkit DTOs using jackson 2"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-utils/spring-jackson2"
                 inceptionYear = "2023"
                 licenses {
                     license {
@@ -129,39 +132,33 @@ jreleaser {
 
 }
 
-repositories {
-    mavenCentral()
+// Configuration used to set up mockito instrumentation to support running the tests using Gradle with JDK 21+ (https://javadoc.io/static/org.mockito/mockito-core/5.14.2/org/mockito/Mockito.html#0.3)
+val mockitoAgent: Configuration by configurations.creating {
+    isTransitive = false
 }
 
 dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.6")
-
     }
 }
 
 dependencies {
-    // Essential Spring Boot AutoConfiguration Annotation
-    api("org.springframework.boot:spring-boot-autoconfigure")
-    // Required for implementing the WebMvcConfigurer interface
-    api("org.springframework:spring-webmvc")
-    api("org.springframework.data:spring-data-jpa")
-    api("com.fasterxml.jackson.core:jackson-databind")
-
-    api(project(":hyperkit-dto-api"))
-    api(project(":hyperkit-projections-dsl"))
-    api(project(":hyperkit-utils:serialization:jackson2"))
-    api(project(":hyperkit-utils:spring-persistence"))
-    api(project(":hyperkit-utils:spring-web"))
-    api(project(":hyperkit-utils:spring-openapi"))
-    api(project(":hyperkit-utils:spring-jackson2"))
-
-    // Test dependencies
+    implementation(project(":hyperkit-dto-api"))
+    implementation(project(":hyperkit-projections-dsl"))
+    implementation(project(":hyperkit-utils:serialization:jackson2"))
+    api("org.springframework.boot:spring-boot-starter-web")
+    implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.33")
+    compileOnly("org.jspecify:jspecify:1.0.0")
+    testImplementation(project(":hyperkit-utils:spring-web"))
+    testImplementation(project(":hyperkit-utils-standard-test-model"))
+    testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("com.h2database:h2:2.2.224")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    mockitoAgent("org.mockito:mockito-core")
 }
 
 tasks.test {
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
     useJUnitPlatform()
 }
