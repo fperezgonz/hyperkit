@@ -5,7 +5,5 @@ import solutions.sulfura.hyperkit.utils.spring.projection_aware.FieldAliasSerial
 import solutions.sulfura.hyperkit.utils.spring.projection_aware.ProjectionCacheTestConfig;
 
 @Import({SpringTestConfig.class, ProjectionCacheTestConfig.class})
-public class ProjectionAwareJacksonConverterTest extends FieldAliasSerializationTest {
-
+public class ProjectionAwareJacksonJsonConverterTest extends FieldAliasSerializationTest {
 }
-

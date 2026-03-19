@@ -1,11 +1,11 @@
-package solutions.sulfura.hyperkit.utils.spring;
+package solutions.sulfura.hyperkit.utils.spring.projection_aware;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 
-public class SpringTestConfigNoProjectionCache extends SpringTestConfig {
+public class NoCacheTestConfig {
 
     @Bean
     @Primary
