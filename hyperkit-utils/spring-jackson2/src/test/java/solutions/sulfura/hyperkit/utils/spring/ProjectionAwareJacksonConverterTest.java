@@ -21,14 +21,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public abstract class ProjectionAwareJacksonConverterTest {
+@WebMvcTest(controllers ={ FieldAliasDtoProjectionOnRequestTestController.class, ComplexFieldAliasDtoProjectionOnRequestTestController.class})
+@Import({SpringTestConfig.class})
+public class ProjectionAwareJacksonConverterTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("OpenApi generation should apply projection aliases to request body parameter model")
-    public void testOpenApiShouldApplyProjectionAliasesToRequestBodyParameterModel() throws Exception {
+    @DisplayName("Projection field alias should be applied to deserialization of simple properties in Dtos")
+    public void testProjectionFieldAliasIsAppliedInControllerForSimpleProperty() throws Exception {
         // Given a controller with a projection annotation on a Dto
 
         mockMvc.perform(post("/jackson2/field-alias/simple-property-projection")
@@ -41,19 +43,25 @@ public abstract class ProjectionAwareJacksonConverterTest {
                 );
     }
 
+    @Test
+    @DisplayName("Projection field alias should be applied to deserialization of complex projection structures in Dtos")
+    public void testProjectionFieldAliasIsAppliedInControllerForMultipleProperties() throws Exception {
+        // Given a controller with a projection annotation on a Dto
+
+        mockMvc.perform(post("/jackson2/field-alias/complex-projection")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                    {"id":"1","code":"AdminAuth","resourceReferences":[{"value":{"resId":"1","name":"Resource1"}}],"role":{"id":"1","name":"Admin","actions":[{"value":{"actionId":"1","name":"Read"}}]}}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":\"1\",\"name\":\"AdminAuth\",\"resourceReferences\":[{\"value\":{\"id\":\"1\",\"name\":\"Resource1\"}}],\"role\":{\"id\":\"1\",\"name\":\"Admin\",\"actions\":[{\"value\":{\"id\":\"1\",\"name\":\"Read\"}}]}}")
+                );
+    }
+
 }
 
-@WebMvcTest(controllers = FieldAliasDtoProjectionOnRequestTestController.class)
-@Import({SpringTestConfig.class})
-@SuppressWarnings("NewClassNamingConvention")
-class OpenApi_3_0_ProjectionAwareJacksonConverterTest extends ProjectionAwareJacksonConverterTest {
-}
 
-@WebMvcTest(controllers = FieldAliasDtoProjectionOnRequestTestController.class)
-@Import({SpringTestConfig.class})
-@SuppressWarnings("NewClassNamingConvention")
-class OpenApi_3_1_ProjectionAwareJacksonConverterTest extends ProjectionAwareJacksonConverterTest {
-}
+
 
 @DtoProjectionSpec(projectedClass = AuthorizationDto.class, value = """
         name as code
@@ -62,16 +70,34 @@ class OpenApi_3_1_ProjectionAwareJacksonConverterTest extends ProjectionAwareJac
 @interface SimplePropertyProjection {
 }
 
-
-/**
- * Uses projection {@link SimplePropertyProjection}.
- */
 @RestController
 class FieldAliasDtoProjectionOnRequestTestController {
     @PostMapping("/jackson2/field-alias/simple-property-projection")
     public HttpEntity<AuthorizationDto> postAuthorizationDto(
             @SimplePropertyProjection
             @RequestBody AuthorizationDto testDto) {
+        return new HttpEntity<>(testDto);
+    }
+
+}
+
+@DtoProjectionSpec(projectedClass = AuthorizationDto.class, value = """
+        id
+        name as code
+        resourceReferences { id as resId, name as name }
+        role { id, name, actions { id as actionId, name } }
+        """)
+@Retention(RetentionPolicy.RUNTIME)
+@interface ComplexPropertyProjection {
+}
+
+@RestController
+class ComplexFieldAliasDtoProjectionOnRequestTestController {
+    @PostMapping("/jackson2/field-alias/complex-projection")
+    public HttpEntity<AuthorizationDto> postAuthorizationDto(
+            @ComplexPropertyProjection
+            @RequestBody
+            AuthorizationDto testDto) {
         return new HttpEntity<>(testDto);
     }
 
