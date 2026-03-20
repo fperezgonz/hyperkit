@@ -39,7 +39,7 @@ Add the dependency to your project:
 #### Gradle
 
 ```kotlin
-testIimplementation("solutions.sulfura:hyperkit-projection-spec-validator:latest.version")
+testImplementation("solutions.sulfura:hyperkit-projection-spec-validator:latest.version")
 ```
 
 #### Maven
