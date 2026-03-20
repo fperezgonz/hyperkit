@@ -1,6 +1,5 @@
 package solutions.sulfura.hyperkit.starter.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,18 +15,19 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import solutions.sulfura.hyperkit.dsl.projections.CachedProjectionParser;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.DtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.ProjectedDtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepository;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
-import solutions.sulfura.hyperkit.utils.spring.ProjectionAwareJacksonConverter;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapper;
+import solutions.sulfura.hyperkit.utils.spring.jackson3.ProjectionAwareJacksonJsonConverter;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectedSchemaBuilder;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ProjectionOpenApiCustomizer;
 import solutions.sulfura.hyperkit.utils.spring.openapi.ValueWrapperModelConverter;
 import solutions.sulfura.hyperkit.utils.spring.openapi.schemabuilder.stackprocessors.*;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,10 +125,10 @@ public class HyperKitAutoConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper,
+    public ProjectionAwareJacksonJsonConverter projectionAwareJacksonConverter(JsonMapper objectMapper,
                                                                            CachedProjectionParser cachedProjectionParser,
                                                                            ProjectionAnnotationCache projectionAnnotationCache) {
-        return new ProjectionAwareJacksonConverter(objectMapper, cachedProjectionParser, projectionAnnotationCache);
+        return new ProjectionAwareJacksonJsonConverter(objectMapper, cachedProjectionParser, projectionAnnotationCache);
     }
 
     @Override

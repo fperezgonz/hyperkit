@@ -21,7 +21,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.lang.annotation.Annotation;
 
-import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+import static solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 public class ProjectionAwareJacksonJsonConverter
         extends JacksonJsonHttpMessageConverter {

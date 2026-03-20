@@ -19,11 +19,11 @@ java {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "spring-boot-starter"
+            artifactId = "hyperkit-boot-starter"
             from(components["java"])
 
             pom {
-                name = "HyperKit Dto API"
+                name = "HyperKit Boot Starter"
                 description =
                     "A spring boot starter that autoconfigures Hyperkit components on Spring Boot applications"
                 url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-support/spring-boot-starter"
@@ -146,15 +146,14 @@ dependencies {
     // Required for implementing the WebMvcConfigurer interface
     api("org.springframework:spring-webmvc")
     api("org.springframework.data:spring-data-jpa")
-    api("com.fasterxml.jackson.core:jackson-databind")
 
     api(project(":hyperkit-dto-api"))
     api(project(":hyperkit-projections-dsl"))
-    api(project(":hyperkit-utils:serialization:jackson2"))
     api(project(":hyperkit-spring-support:spring-persistence"))
     api(project(":hyperkit-spring-support:spring-web"))
     api(project(":hyperkit-spring-support:spring-openapi"))
-    api(project(":hyperkit-spring-support:spring-jackson2"))
+    api(project(":hyperkit-spring-support:spring-jackson3"))
+    api(project(":hyperkit-utils:serialization:jackson3"))
 
     // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")

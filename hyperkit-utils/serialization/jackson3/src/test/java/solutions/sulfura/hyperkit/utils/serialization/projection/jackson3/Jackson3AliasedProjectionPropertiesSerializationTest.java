@@ -1,15 +1,15 @@
 package solutions.sulfura.hyperkit.utils.serialization.projection.jackson3;
 
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
-import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.SerializationProvider;
-import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.projection.AliasedProjectionPropertiesSerializationTest;
-import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.value_wrapper.ValueWrapperJacksonModule;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 
-import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+import static solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 /**
  * Tests for serialization of projected dtos with field name aliasing.

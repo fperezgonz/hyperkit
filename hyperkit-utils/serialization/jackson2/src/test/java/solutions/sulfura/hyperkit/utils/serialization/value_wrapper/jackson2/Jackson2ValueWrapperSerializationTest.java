@@ -7,14 +7,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.utils.serialization.DeserializationProvider;
-import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson2.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.SerializationProvider;
-import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson2.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperSerializationTest;
 
 import java.io.IOException;
 
-import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+import static solutions.sulfura.hyperkit.utils.serialization.jackson2.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 /**
  * Tests for serialization and deserialization of value wrappers.

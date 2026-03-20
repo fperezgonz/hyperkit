@@ -19,7 +19,7 @@ import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 
 import java.lang.annotation.Annotation;
 
-import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+import static solutions.sulfura.hyperkit.utils.serialization.jackson2.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 public class ProjectionAwareJacksonConverter
         extends MappingJackson2HttpMessageConverter {

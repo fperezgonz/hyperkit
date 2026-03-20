@@ -3,17 +3,17 @@ package solutions.sulfura.hyperkit.utils.serialization.projection.benchmarks;
 import org.openjdk.jmh.annotations.*;
 import solutions.sulfura.hyperkit.dsl.projections.FieldAliasUtils;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
-import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
-import solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter;
-import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.DtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.ProjectedDtoJacksonModule;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.serialization.AliasBeanPropertyWriter;
+import solutions.sulfura.hyperkit.utils.serialization.jackson3.value_wrapper.ValueWrapperJacksonModule;
 import solutions.sulfura.hyperkit.utils.test.model.dtos.AuthorizationDto;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static solutions.sulfura.hyperkit.utils.serialization.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
+import static solutions.sulfura.hyperkit.utils.serialization.jackson3.alias.serialization.AliasBeanPropertyWriter.HYPERKIT_PROJECTION_ATTR_KEY;
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
