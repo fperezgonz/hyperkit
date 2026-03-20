@@ -21,8 +21,8 @@ publishing {
             pom {
                 name = "HyperKit Dto generator core library"
                 description =
-                    "The library used by hyperkit-dto-generator-gradle-plugin and hyperkit-dto-generator-gradle-plugin to generate dtos from annotated classes"
-                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-dto-generator-core"
+                    "The library used by hyperkit-dto-generator/gradle-plugin and hyperkit-dto-generator/gradle-plugin to generate dtos from annotated classes"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-dto-generator/core"
                 inceptionYear = "2023"
                 licenses {
                     license {

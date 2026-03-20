@@ -35,7 +35,7 @@ public class GenerateDtosMojoTest {
 
         mojo.execute();
 
-        var generatedFile = new File(testProjectFolderPath + outputSourcesPath +testDtoPackagePath + "UserDto.java");
+        var generatedFile = new File(testProjectFolderPath + outputSourcesPath + testDtoPackagePath + "UserDto.java");
         assertTrue(generatedFile.exists(), "Generated DTO file should exist at " + generatedFile.getAbsolutePath());
 
         try(FileInputStream fis = new FileInputStream(generatedFile)) {

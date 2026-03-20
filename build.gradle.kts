@@ -73,11 +73,11 @@ val publishPlugins by tasks.registering {
     }
 
     dependsOn(findTasksInSubprojectsByName("publishPlugins"))
-    dependsOn(":hyperkit-dto-generator-maven-plugin:deploy")
+    dependsOn(":hyperkit-dto-generator/maven-plugin:deploy")
 
 }
 
-tasks.findByPath(":hyperkit-dto-generator-maven-plugin:deploy")?.mustRunAfter(jreleaserFullRelease)
+tasks.findByPath(":hyperkit-dto-generator/maven-plugin:deploy")?.mustRunAfter(jreleaserFullRelease)
 
 val publish by tasks.registering {
     group = "publishing"
@@ -85,7 +85,7 @@ val publish by tasks.registering {
         runSubprojectPublishTasks,
         jreleaserFullRelease,
         publishPlugins,
-        ":hyperkit-dto-generator-maven-plugin:deploy"
+        ":hyperkit-dto-generator:maven-plugin:deploy"
     )
 }
 
@@ -98,7 +98,7 @@ val publishMavenPublicationToMavenLocal by tasks.registering {
 
 val cleanDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
     group = "build"
-    dependsOn(":hyperkit-dto-generator-maven-plugin:generatePomFromTemplate")
+    dependsOn(":hyperkit-dto-generator:maven-plugin:generatePomFromTemplate")
     workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
     mavenGoal = "clean"
     args("-Dhyperkit.version=$version")
@@ -109,7 +109,7 @@ val compileDtoGenerationMavenExample by tasks.registering(MavenExec::class) {
     workingDir = project.file("hyperkit-examples/dto-generation-maven-example")
     mavenGoal = "compile"
     args("-Dhyperkit.version=$version")
-    dependsOn(":hyperkit-dto-generator-maven-plugin:install")
+    dependsOn(":hyperkit-dto-generator:maven-plugin:install")
 }
 
 val testDtoGenerationMavenExample by tasks.registering(MavenExec::class) {

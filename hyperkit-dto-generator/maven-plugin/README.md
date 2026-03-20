@@ -16,7 +16,7 @@ with configurable properties and projections.
         <plugins>
             <plugin>
                 <groupId>solutions.sulfura</groupId>
-                <artifactId>hyperkit-dto-generator-maven-plugin</artifactId>
+                <artifactId>hyperkit-dto-generator/maven-plugin</artifactId>
                 <version>${hyperkit.version}</version>
                 <configuration>
                     <!-- Paths to the input source files (default: project compile source roots) -->
@@ -35,7 +35,7 @@ with configurable properties and projections.
                         <id>generate-dtos</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>hyperkit-dto-generator-maven-plugin</goal>
+                            <goal>hyperkit-dto-generator/maven-plugin</goal>
                         </goals>
                     </execution>
                 </executions>
