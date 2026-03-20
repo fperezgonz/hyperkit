@@ -23,13 +23,13 @@ repositories {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "hyperkit-utils-spring-jackson3"
+            artifactId = "hyperkit-utils-spring-jackson2"
             from(components["java"])
 
             pom {
                 name = "HyperKit Spring Jackson2 utils"
                 description = "Support for projection-aware serialization and deserialization of Hyperkit DTOs using jackson 2"
-                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-utils/spring-jackson3"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-support/spring-jackson2"
                 inceptionYear = "2023"
                 licenses {
                     license {
@@ -146,14 +146,17 @@ dependencyManagement {
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
-    implementation(project(":hyperkit-utils:serialization:jackson3"))
+    implementation(project(":hyperkit-utils:serialization:jackson2"))
+    api("org.springframework.boot:spring-boot-jackson2")
     api("org.springframework.boot:spring-boot-starter-web")
+    implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.33")
     compileOnly("org.jspecify:jspecify:1.0.0")
+    implementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation(project(":hyperkit-utils-standard-test-model"))
-    testImplementation(project(":hyperkit-utils:spring-projection-field-alias-specification"))
+    testImplementation(project(":hyperkit-spring-support:spring-projection-field-alias-specification"))
+    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     mockitoAgent("org.mockito:mockito-core")
 }

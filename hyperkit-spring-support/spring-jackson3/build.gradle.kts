@@ -23,13 +23,13 @@ repositories {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "hyperkit-utils-spring-openapi"
+            artifactId = "hyperkit-utils-spring-jackson3"
             from(components["java"])
 
             pom {
-                name = "HyperKit Spring Open Api utils"
-                description = "Tools to integrate Hyperkit projections with SpringDoc"
-                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-utils/spring-openapi"
+                name = "HyperKit Spring Jackson2 utils"
+                description = "Support for projection-aware serialization and deserialization of Hyperkit DTOs using jackson 2"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-support/spring-jackson3"
                 inceptionYear = "2023"
                 licenses {
                     license {
@@ -146,11 +146,11 @@ dependencyManagement {
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
-    implementation(project(":hyperkit-utils:serialization:jackson2"))
-    implementation(project(":hyperkit-utils:spring-web"))
+    implementation(project(":hyperkit-utils:serialization:jackson3"))
     api("org.springframework.boot:spring-boot-starter-web")
-    api("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.16")
     compileOnly("org.jspecify:jspecify:1.0.0")
+    testImplementation(project(":hyperkit-utils-standard-test-model"))
+    testImplementation(project(":hyperkit-spring-support:spring-projection-field-alias-specification"))
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")

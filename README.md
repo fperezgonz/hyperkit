@@ -15,11 +15,11 @@ The project is organized into several modules, each with its own documentation:
 - [hyperkit-projections-dsl](hyperkit-projections-dsl/README.md): DSL for defining projections on DTOs
 - [hyperkit-projection-spec-validator](hyperkit-projection-spec-validator/README.md): Tool for validating @DtoProjectionSpec annotations
 - [hyperkit-utils-serialization-jackson2](hyperkit-utils/serialization/jackson2/README.md): Utilities for serialization
-- [hyperkit-utils-spring](hyperkit-utils/spring-persistence/README.md): Spring-specific utilities including HyperRepository and HyperMapper
-- [hyperkit-utils-spring-web](hyperkit-utils/spring-web/README.md): Web-specific utilities for Spring MVC
-- [hyperkit-utils-spring-jackson2](hyperkit-utils/spring-jackson2/README.md): Support for projection field aliases when serializing and deserializing using Jackson2 with Spring
-- [hyperkit-utils-spring-openapi](hyperkit-utils/spring-openapi/README.md): OpenAPI integration for Springdoc
-- [hyperkit-spring-boot-starter](hyperkit-spring-boot-starter/README.md): Spring Boot starter for Hyperkit
+- [hyperkit-utils-spring](hyperkit-spring-support/spring-persistence/README.md): Spring-specific utilities including HyperRepository and HyperMapper
+- [hyperkit-utils-spring-web](hyperkit-spring-support/spring-web/README.md): Web-specific utilities for Spring MVC
+- [hyperkit-utils-spring-jackson2](hyperkit-spring-support/spring-jackson2/README.md): Support for projection field aliases when serializing and deserializing using Jackson2 with Spring
+- [hyperkit-utils-spring-openapi](hyperkit-spring-support/spring-openapi/README.md): OpenAPI integration for Springdoc
+- [hyperkit-spring-support/spring-boot-starter](hyperkit-spring-support/spring-boot-starter/README.md): Spring Boot starter for Hyperkit
 
 ## Getting Started
 
@@ -27,7 +27,7 @@ For detailed documentation on each module, please refer to the module-specific R
 
 ### Adding Hyperkit to Your Project
 
-To use Hyperkit in your Spring Boot project, add the hyperkit-spring-boot-starter dependency:
+To use Hyperkit in your Spring Boot project, add the hyperkit-spring-support/spring-boot-starter dependency:
 
 ### Gradle
 ```kotlin
@@ -39,7 +39,7 @@ plugins {
 }
 
 dependencies {
-    implementation('solutions.sulfura:hyperkit-spring-boot-starter:latest.version')
+    implementation('solutions.sulfura:hyperkit-spring-support/spring-boot-starter:latest.version')
     // Other dependencies...
 }
 ```
@@ -49,7 +49,7 @@ dependencies {
 <!--Other pom.xml contents-->
 <dependency>
     <groupId>solutions.sulfura</groupId>
-    <artifactId>hyperkit-spring-boot-starter</artifactId>
+    <artifactId>hyperkit-spring-support/spring-boot-starter</artifactId>
     <version>latest.version</version>
 </dependency>
 

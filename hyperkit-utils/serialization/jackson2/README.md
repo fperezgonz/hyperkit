@@ -28,4 +28,4 @@ When using the Hyperkit Spring Boot Starter, the Jackson modules are automatical
 
 ## Related Modules
 - [hyperkit-dto-api](../../../hyperkit-dto-api/README.md): Core API for DTOs and value wrappers
-- [hyperkit-spring-boot-starter](../../../hyperkit-spring-boot-starter/README.md): Spring Boot starter that automatically configures serialization
+- [hyperkit-spring-support/spring-boot-starter](../../../hyperkit-spring-support/spring-boot-starter/README.md): Spring Boot starter that automatically configures serialization

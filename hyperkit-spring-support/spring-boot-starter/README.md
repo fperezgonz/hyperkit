@@ -10,18 +10,18 @@ The Hyperkit Spring Boot Starter provides auto-configuration for Hyperkit compon
 
 ### Adding the Dependency
 
-To use Hyperkit in your Spring Boot project, add the hyperkit-spring-boot-starter dependency to your build file:
+To use Hyperkit in your Spring Boot project, add the hyperkit-spring-support/spring-boot-starter dependency to your build file:
 
 #### Gradle
 ```gradle
-implementation 'solutions.sulfura:hyperkit-spring-boot-starter:latest.version'
+implementation 'solutions.sulfura:hyperkit-spring-support/spring-boot-starter:latest.version'
 ```
 
 #### Maven
 ```xml
 <dependency>
     <groupId>solutions.sulfura</groupId>
-    <artifactId>hyperkit-spring-boot-starter</artifactId>
+    <artifactId>hyperkit-spring-support/spring-boot-starter</artifactId>
     <version>latest.version</version>
 </dependency>
 ```

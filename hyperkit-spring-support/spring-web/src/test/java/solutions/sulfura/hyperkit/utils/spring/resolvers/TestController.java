@@ -1,0 +1,136 @@
+package solutions.sulfura.hyperkit.utils.spring.resolvers;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpEntity;
+import org.springframework.web.bind.annotation.*;
+import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
+import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
+import solutions.sulfura.hyperkit.utils.spring.DtoListResponseBody;
+
+import java.util.List;
+
+/**
+ * Test controller for integration testing of SortArgumentResolver and DtoProjectionArgumentResolver
+ */
+@RestController
+public class TestController {
+
+    public static class SortOrderData {
+
+        public String name;
+        public Sort.Direction direction;
+
+        public SortOrderData(Sort.Order order) {
+            this.name = order.getProperty();
+            this.direction = order.getDirection();
+        }
+
+        @SuppressWarnings("unused")
+        public SortOrderData() {
+        }
+    }
+
+    @GetMapping("/test/sort")
+    public List<SortOrderData> testSort(@RequestParam(value = "sort", required = false) Sort sort) {
+
+        if (sort == null) {
+            return null;
+        }
+
+        return sort.get()
+                .map(SortOrderData::new)
+                .toList();
+
+    }
+
+    // Endpoints for projection tests
+
+    /**
+     * Applies a projection {name, age} to the request body and returns the result
+     */
+    @PostMapping("/test/test-dtos/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testArgumentProjection(
+            @DtoProjectionSpec(projectedClass = TestDto.class, value = "name, age")
+            @RequestBody
+            StdDtoRequestBody<TestDto> testDtoRequestBody) {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(testDtoRequestBody.getData());
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * Applies a projection {name, age} to the result
+     */
+    @GetMapping("/test/test-dtos/")
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id, name")
+    public HttpEntity<DtoListResponseBody<TestDto>> testArgumentProjection() {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(List.of(new TestDto(1L, "Test Dto", 25)));
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * Applies a projection {id as code, age} to the request body and returns the result
+     */
+    @PostMapping("/test/test-aliased-dtos/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testProjectionRequestWithFieldAlias(
+            @DtoProjectionSpec(projectedClass = TestDto.class, value = "id as code, age")
+            @RequestBody
+            StdDtoRequestBody<TestDto> testDtoRequestBody) {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(testDtoRequestBody.getData());
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * Applies a projection {id as code, name} to the result
+     */
+    @GetMapping("/test/test-aliased-dtos/")
+    @DtoProjectionSpec(projectedClass = TestDto.class, value = "id as code, name")
+    public HttpEntity<DtoListResponseBody<TestDto>> testProjectionResponseWithFieldAlias() {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(List.of(new TestDto(1L, "Test Dto", 25)));
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * NO projection to the result
+     */
+    @GetMapping("/test/test-no-projection/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testNoProjection() {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(List.of(new TestDto(1L, "Test Dto", 25)));
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+    /**
+     * NO projection to the request body
+     */
+    @PostMapping("/test/test-no-projection/")
+    public HttpEntity<DtoListResponseBody<TestDto>> testNoProjectionRequest(
+            @RequestBody
+            StdDtoRequestBody<TestDto> testDtoRequestBody) {
+
+        DtoListResponseBody<TestDto> testDtoResponseBody = new DtoListResponseBody<>();
+        testDtoResponseBody.setData(testDtoRequestBody.getData());
+
+        return new HttpEntity<>(testDtoResponseBody);
+
+    }
+
+}

@@ -6,6 +6,7 @@ plugins {
     `maven-publish`
     id("org.jreleaser")
     id("io.spring.dependency-management")
+    id("me.champeau.jmh") version "0.7.3"
 }
 
 java {
@@ -23,13 +24,13 @@ repositories {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "hyperkit-utils-spring-persistence"
+            artifactId = "hyperkit-utils-spring-web"
             from(components["java"])
 
             pom {
-                name = "HyperKit Spring Persistence utils"
-                description = "Tools to integrate Hyperkit DTOs and projections with Spring persistence"
-                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-utils/spring-persistence"
+                name = "HyperKit Spring Web utils"
+                description = "Tools to integrate Hyperkit DTOs and projections with Spring controllers"
+                url = "https://gitlab.com/sulfura/hyperkit/-/tree/master/hyperkit-spring-support/spring-web"
                 inceptionYear = "2023"
                 licenses {
                     license {
@@ -132,22 +133,38 @@ jreleaser {
 
 }
 
+// Configuration used to set up mockito instrumentation to support running the tests using Gradle with JDK 21+ (https://javadoc.io/static/org.mockito/mockito-core/5.14.2/org/mockito/Mockito.html#0.3)
+val mockitoAgent: Configuration by configurations.creating {
+    isTransitive = false
+}
+
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.6")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.3")
     }
 }
 
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
-    api("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation(project(":hyperkit-utils:serialization:jackson3"))
+    implementation(project(":hyperkit-spring-support:spring-jackson3"))
+    api("org.springframework.boot:spring-boot-starter-web")
+    implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:7.0.0")
     compileOnly("org.jspecify:jspecify:1.0.0")
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    mockitoAgent("org.mockito:mockito-core")
+}
+
+jmh {
+    jmhVersion.set("1.37")
+    duplicateClassesStrategy.set(DuplicatesStrategy.EXCLUDE)
 }
 
 tasks.test {
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
     useJUnitPlatform()
 }
