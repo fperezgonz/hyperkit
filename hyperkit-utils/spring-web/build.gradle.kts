@@ -140,19 +140,21 @@ val mockitoAgent: Configuration by configurations.creating {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.6")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.3")
     }
 }
 
 dependencies {
     implementation(project(":hyperkit-dto-api"))
     implementation(project(":hyperkit-projections-dsl"))
-    implementation(project(":hyperkit-utils:serialization:jackson2"))
+    implementation(project(":hyperkit-utils:serialization:jackson3"))
+    implementation(project(":hyperkit-utils:spring-jackson3"))
     api("org.springframework.boot:spring-boot-starter-web")
-    implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:6.0.33")
+    implementation("io.github.perplexhub:rsql-jpa-spring-boot-starter:7.0.0")
     compileOnly("org.jspecify:jspecify:1.0.0")
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     mockitoAgent("org.mockito:mockito-core")
 }

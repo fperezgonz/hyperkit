@@ -1,7 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -11,7 +11,10 @@ import solutions.sulfura.hyperkit.dsl.projections.ProjectionAnnotationCache;
 import solutions.sulfura.hyperkit.utils.serialization.DtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.alias.ProjectedDtoJacksonModule;
 import solutions.sulfura.hyperkit.utils.serialization.value_wrapper.ValueWrapperJacksonModule;
+import solutions.sulfura.hyperkit.utils.spring.jackson3.ProjectionAwareJacksonJsonConverter;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.*;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +34,13 @@ public class SpringTestConfig implements WebMvcConfigurer {
     @Bean
     SortConverter sortConverter() {
         return new SortConverter();
+    }
+
+    @Bean
+    public JsonMapperBuilderCustomizer jsonCustomizer() {
+        return builder -> builder.disable(
+                MapperFeature.SORT_PROPERTIES_ALPHABETICALLY
+        );
     }
 
     @Bean
@@ -87,10 +97,10 @@ public class SpringTestConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ProjectionAwareJacksonConverter projectionAwareJacksonConverter(ObjectMapper objectMapper,
-                                                                           CachedProjectionParser cachedProjectionParser,
-                                                                           ProjectionAnnotationCache projectionAnnotationCache) {
-        return new ProjectionAwareJacksonConverter(objectMapper,
+    public ProjectionAwareJacksonJsonConverter projectionAwareJacksonConverter(JsonMapper objectMapper,
+                                                                               CachedProjectionParser cachedProjectionParser,
+                                                                               ProjectionAnnotationCache projectionAnnotationCache) {
+        return new ProjectionAwareJacksonJsonConverter(objectMapper,
                 cachedProjectionParser,
                 projectionAnnotationCache);
     }

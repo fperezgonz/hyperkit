@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springdoc.core.configuration.SpringDocConfiguration;
 import org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -73,6 +73,6 @@ class FieldAliasDtoProjectionOnResponseTestController {
     @GetMapping("/field-alias/test-field-alias-on-response")
     @TestDtoProjectionOnResponse
     public HttpEntity<TestDto> getTestDto() {
-        return new HttpEntity<>(null);
+        return new HttpEntity<>(new TestDto());
     }
 }

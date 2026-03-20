@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springdoc.core.configuration.SpringDocConfiguration;
 import org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -76,7 +76,7 @@ class OpenApi_3_1_TypeAliasOnRequestTest extends TypeAliasOnRequestTest {
 }
 
 @DtoProjectionSpec(projectedClass = TestDto.class, namespace = "Aliased", value = """
-        {   
+        {
             name as code
             age
             nestedDto:AliasedModel{id}

@@ -1,15 +1,15 @@
 package solutions.sulfura.hyperkit.utils.spring.resolvers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import solutions.sulfura.hyperkit.utils.spring.resolvers.TestController.SortOrderData;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -31,12 +31,12 @@ public class SortArgumentResolverIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper objectMapper;
 
     @Test
     @DisplayName("Should resolve Sort parameter with field:direction format")
     public void testSortArgumentResolverWithFieldDirectionFormat() throws Exception {
-        // Given a request with sort parameter in field:direction format
+        // Given a request with a sort parameter in field:direction format
 
         // When the request is executed
         MvcResult result = mockMvc.perform(get("/test/sort")

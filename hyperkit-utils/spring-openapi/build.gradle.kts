@@ -139,7 +139,7 @@ val mockitoAgent: Configuration by configurations.creating {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.6")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.3")
     }
 }
 
@@ -153,6 +153,7 @@ dependencies {
     compileOnly("org.jspecify:jspecify:1.0.0")
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     mockitoAgent("org.mockito:mockito-core")
 }

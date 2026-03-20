@@ -10,8 +10,8 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.RequestBody;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.spring.ProjectionAwareJacksonConverter;
 import solutions.sulfura.hyperkit.utils.spring.StdDtoRequestBody;
+import solutions.sulfura.hyperkit.utils.spring.jackson3.ProjectionAwareJacksonJsonConverter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,7 +36,7 @@ class DtoProjectionRequestBodyAdviceTest {
         // Given
         MethodParameter parameter = new MethodParameter(getClass().getDeclaredMethod("methodWithDirectAnnotation", TestDto.class), 0);
         Type targetType = TestDto.class;
-        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonConverter.class;
+        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonJsonConverter.class;
 
         // When
         boolean result = resolver.supports(parameter, targetType, converterType);
@@ -53,7 +53,7 @@ class DtoProjectionRequestBodyAdviceTest {
         Method method = getClass().getDeclaredMethod("methodWithCustomAnnotation", TestDto.class);
         MethodParameter parameter = new MethodParameter(method, 0);
         Type targetType = TestDto.class;
-        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonConverter.class;
+        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonJsonConverter.class;
 
         // When
         boolean result = resolver.supports(parameter, targetType, converterType);
@@ -70,7 +70,7 @@ class DtoProjectionRequestBodyAdviceTest {
         Method method = getClass().getDeclaredMethod("methodWithoutDtoAnnotation", TestDto.class);
         MethodParameter parameter = new MethodParameter(method, 0);
         Type targetType = TestDto.class;
-        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonConverter.class;
+        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonJsonConverter.class;
 
         // When
         boolean result = resolver.supports(parameter, targetType, converterType);
@@ -89,7 +89,7 @@ class DtoProjectionRequestBodyAdviceTest {
         TestDto testDto = new TestDto(1L, "Test", 25);
         HttpInputMessage inputMessage = mock(HttpInputMessage.class);
         Type targetType = TestDto.class;
-        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonConverter.class;
+        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonJsonConverter.class;
 
         // When
         Object result = resolver.afterBodyRead(testDto, inputMessage, parameter, targetType, converterType);
@@ -113,7 +113,7 @@ class DtoProjectionRequestBodyAdviceTest {
         TestDto testDto = new TestDto(1L, "Test", 25);
         HttpInputMessage inputMessage = mock(HttpInputMessage.class);
         Type targetType = TestDto.class;
-        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonConverter.class;
+        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonJsonConverter.class;
 
         // When
         Object result = resolver.afterBodyRead(testDto, inputMessage, parameter, targetType, converterType);
@@ -139,7 +139,7 @@ class DtoProjectionRequestBodyAdviceTest {
         dtoRequest.setData(List.of(testDto));
         HttpInputMessage inputMessage = mock(HttpInputMessage.class);
         Type targetType = StdDtoRequestBody.class;
-        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonConverter.class;
+        Class<? extends HttpMessageConverter<?>> converterType = ProjectionAwareJacksonJsonConverter.class;
 
         // When
         Object result = resolver.afterBodyRead(dtoRequest, inputMessage, parameter, targetType, converterType);
