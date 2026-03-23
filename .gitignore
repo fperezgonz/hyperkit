@@ -7,3 +7,4 @@ hyperkit-dto-api/bin
 hyperkit-dto-api/build
 build
 .kotlin/**
+**/hsqldb
