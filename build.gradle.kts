@@ -13,7 +13,7 @@ repositories {
 
 allprojects {
     group = "solutions.sulfura"
-    version = "6.3.0-SNAPSHOT"
+    version = "7.0.0-SNAPSHOT"
 }
 
 subprojects {
