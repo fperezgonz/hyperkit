@@ -6,7 +6,6 @@ plugins {
     `java-library`
     `maven-publish`
     id("org.jreleaser")
-    id("me.champeau.jmh") version "0.7.3"
 }
 
 java {
@@ -140,11 +139,6 @@ dependencies {
     implementation(platform("org.junit:junit-bom:5.12.2"))
     implementation("org.junit.jupiter:junit-jupiter")
     implementation(project(":hyperkit-utils-standard-test-model"))
-}
-
-jmh {
-    jmhVersion.set("1.37")
-    duplicateClassesStrategy.set(DuplicatesStrategy.EXCLUDE)
 }
 
 tasks.test {

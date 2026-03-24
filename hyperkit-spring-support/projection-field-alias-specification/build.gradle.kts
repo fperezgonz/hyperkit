@@ -1,7 +1,6 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("org.jreleaser")
     id("io.spring.dependency-management")
 }
 
