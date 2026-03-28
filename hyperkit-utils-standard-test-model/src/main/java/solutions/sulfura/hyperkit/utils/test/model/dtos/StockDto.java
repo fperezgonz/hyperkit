@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.CompositeKeyDto;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.StockKeyDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.utils.test.model.scm.inventory.Stock;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
@@ -18,7 +18,7 @@ import java.util.Objects;
 @DtoFor(Stock.class)
 public class StockDto implements Dto<Stock> {
 
-    public ValueWrapper<CompositeKeyDto> id = ValueWrapper.empty();
+    public ValueWrapper<StockKeyDto> id = ValueWrapper.empty();
     public ValueWrapper<BigDecimal> quantity = ValueWrapper.empty();
 
     public StockDto() {
@@ -30,14 +30,14 @@ public class StockDto implements Dto<Stock> {
 
     public static class Builder {
 
-        ValueWrapper<CompositeKeyDto> id = ValueWrapper.empty();
+        ValueWrapper<StockKeyDto> id = ValueWrapper.empty();
         ValueWrapper<BigDecimal> quantity = ValueWrapper.empty();
 
         public static Builder newInstance() {
             return new Builder();
         }
 
-        public Builder id(final ValueWrapper<CompositeKeyDto> id){
+        public Builder id(final ValueWrapper<StockKeyDto> id){
             this.id = id == null ? ValueWrapper.empty() : id;
             return this;
         }
@@ -63,7 +63,7 @@ public class StockDto implements Dto<Stock> {
     @ProjectionFor(StockDto.class)
     public static class Projection extends DtoProjection<StockDto> {
 
-        public DtoFieldConf<CompositeKeyDto.Projection> id;
+        public DtoFieldConf<StockKeyDto.Projection> id;
         public FieldConf quantity;
 
         public Projection() {
@@ -96,19 +96,19 @@ public class StockDto implements Dto<Stock> {
 
         public static class Builder {
 
-            DtoFieldConf<CompositeKeyDto.Projection> id;
+            DtoFieldConf<StockKeyDto.Projection> id;
             FieldConf quantity;
 
             public static Builder newInstance() {
                 return new Builder();
             }
 
-            public Builder id(final DtoFieldConf<CompositeKeyDto.Projection> id){
+            public Builder id(final DtoFieldConf<StockKeyDto.Projection> id){
                 this.id = id;
                 return this;
             }
 
-            public Builder id(final Presence presence, final CompositeKeyDto.Projection projection){
+            public Builder id(final Presence presence, final StockKeyDto.Projection projection){
                 id = DtoFieldConf.of(presence, projection);
                 return this;
             }

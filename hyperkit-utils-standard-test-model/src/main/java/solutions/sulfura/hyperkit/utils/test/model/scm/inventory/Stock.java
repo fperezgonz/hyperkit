@@ -10,12 +10,12 @@ import java.math.BigDecimal;
 public class Stock {
 
     @EmbeddedId
-    public CompositeKey id;
+    public StockKey id;
     public BigDecimal quantity;
 
     @Embeddable
     @Dto
-    public static class CompositeKey {
+    public static class StockKey {
         @ManyToOne
         public WarehouseLocation warehouseLocation;
         @ManyToOne
