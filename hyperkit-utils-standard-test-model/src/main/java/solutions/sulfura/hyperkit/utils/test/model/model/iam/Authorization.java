@@ -1,9 +1,7 @@
 package solutions.sulfura.hyperkit.utils.test.model.model.iam;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
 
 import java.util.Set;
@@ -14,6 +12,7 @@ public class Authorization {
     @Id
     public String id;
     public String name;
+    @ManyToMany
     public Set<ResourceReference> resourceReferences;
     @ManyToOne
     public Role role;

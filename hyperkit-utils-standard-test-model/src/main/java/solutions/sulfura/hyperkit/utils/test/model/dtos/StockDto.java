@@ -5,14 +5,12 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import java.math.BigDecimal;
-import solutions.sulfura.hyperkit.utils.test.model.scm.inventory.Stock.CompositeKey;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.WarehouseLocationDto;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.CompositeKeyDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.utils.test.model.scm.inventory.Stock;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.ProductDto;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 import java.util.Objects;
@@ -20,9 +18,7 @@ import java.util.Objects;
 @DtoFor(Stock.class)
 public class StockDto implements Dto<Stock> {
 
-    public ValueWrapper<CompositeKey> id = ValueWrapper.empty();
-    public ValueWrapper<WarehouseLocationDto> location = ValueWrapper.empty();
-    public ValueWrapper<ProductDto> product = ValueWrapper.empty();
+    public ValueWrapper<CompositeKeyDto> id = ValueWrapper.empty();
     public ValueWrapper<BigDecimal> quantity = ValueWrapper.empty();
 
     public StockDto() {
@@ -34,27 +30,15 @@ public class StockDto implements Dto<Stock> {
 
     public static class Builder {
 
-        ValueWrapper<CompositeKey> id = ValueWrapper.empty();
-        ValueWrapper<WarehouseLocationDto> location = ValueWrapper.empty();
-        ValueWrapper<ProductDto> product = ValueWrapper.empty();
+        ValueWrapper<CompositeKeyDto> id = ValueWrapper.empty();
         ValueWrapper<BigDecimal> quantity = ValueWrapper.empty();
 
         public static Builder newInstance() {
             return new Builder();
         }
 
-        public Builder id(final ValueWrapper<CompositeKey> id){
+        public Builder id(final ValueWrapper<CompositeKeyDto> id){
             this.id = id == null ? ValueWrapper.empty() : id;
-            return this;
-        }
-
-        public Builder location(final ValueWrapper<WarehouseLocationDto> location){
-            this.location = location == null ? ValueWrapper.empty() : location;
-            return this;
-        }
-
-        public Builder product(final ValueWrapper<ProductDto> product){
-            this.product = product == null ? ValueWrapper.empty() : product;
             return this;
         }
 
@@ -68,8 +52,6 @@ public class StockDto implements Dto<Stock> {
 
             StockDto instance = new StockDto();
             instance.id = id;
-            instance.location = location;
-            instance.product = product;
             instance.quantity = quantity;
 
             return instance;
@@ -81,9 +63,7 @@ public class StockDto implements Dto<Stock> {
     @ProjectionFor(StockDto.class)
     public static class Projection extends DtoProjection<StockDto> {
 
-        public FieldConf id;
-        public DtoFieldConf<ProductDto.Projection> location;
-        public DtoFieldConf<ProductDto.Projection> product;
+        public DtoFieldConf<CompositeKeyDto.Projection> id;
         public FieldConf quantity;
 
         public Projection() {
@@ -91,8 +71,6 @@ public class StockDto implements Dto<Stock> {
 
         public void applyProjectionTo(StockDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
-            dto.location = ProjectionUtils.getProjectedValue(dto.location, this.location);
-            dto.product = ProjectionUtils.getProjectedValue(dto.product, this.product);
             dto.quantity = ProjectionUtils.getProjectedValue(dto.quantity, this.quantity);
         }
 
@@ -106,8 +84,6 @@ public class StockDto implements Dto<Stock> {
             Projection that = (Projection) o;
 
             return  Objects.equals(id, that.id)
-                       && Objects.equals(location, that.location)
-                       && Objects.equals(product, that.product)
                        && Objects.equals(quantity, that.quantity);
 
         }
@@ -115,49 +91,25 @@ public class StockDto implements Dto<Stock> {
         @Override
         public int hashCode() {
             return Objects.hash(id,
-                    location,
-                    product,
                     quantity);
         }
 
         public static class Builder {
 
-            FieldConf id;
-            DtoFieldConf<ProductDto.Projection> location;
-            DtoFieldConf<ProductDto.Projection> product;
+            DtoFieldConf<CompositeKeyDto.Projection> id;
             FieldConf quantity;
 
             public static Builder newInstance() {
                 return new Builder();
             }
 
-            public Builder id(final FieldConf id){
+            public Builder id(final DtoFieldConf<CompositeKeyDto.Projection> id){
                 this.id = id;
                 return this;
             }
 
-            public Builder id(final Presence presence){
-                id = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder location(final DtoFieldConf<ProductDto.Projection> location){
-                this.location = location;
-                return this;
-            }
-
-            public Builder location(final Presence presence, final ProductDto.Projection projection){
-                location = DtoFieldConf.of(presence, projection);
-                return this;
-            }
-
-            public Builder product(final DtoFieldConf<ProductDto.Projection> product){
-                this.product = product;
-                return this;
-            }
-
-            public Builder product(final Presence presence, final ProductDto.Projection projection){
-                product = DtoFieldConf.of(presence, projection);
+            public Builder id(final Presence presence, final CompositeKeyDto.Projection projection){
+                id = DtoFieldConf.of(presence, projection);
                 return this;
             }
 
@@ -175,8 +127,6 @@ public class StockDto implements Dto<Stock> {
 
                 StockDto.Projection instance = new StockDto.Projection();
                 instance.id = id;
-                instance.location = location;
-                instance.product = product;
                 instance.quantity = quantity;
 
                 return instance;
@@ -190,8 +140,6 @@ public class StockDto implements Dto<Stock> {
     public static class DtoModel {
 
         public static final String _id = "id";
-        public static final String _location = "location";
-        public static final String _product = "product";
         public static final String _quantity = "quantity";
 
     }

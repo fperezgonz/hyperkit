@@ -2,6 +2,7 @@ package solutions.sulfura.hyperkit.utils.test.model.model.iam;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
 import solutions.sulfura.hyperkit.utils.test.model.model.Account;
@@ -15,6 +16,7 @@ public class User {
     public String id;
     public String username;
     public String email;
+    @ManyToMany
     public Set<Authorization> authorizations;
     @OneToMany(mappedBy = "user")
     public Set<Account> account;

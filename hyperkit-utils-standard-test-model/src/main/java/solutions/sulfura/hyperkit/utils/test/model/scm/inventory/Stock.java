@@ -9,20 +9,17 @@ import java.math.BigDecimal;
 @Dto
 public class Stock {
 
-    @Id
+    @EmbeddedId
     public CompositeKey id;
-    @ManyToOne
-    @MapsId("warehouseLocationId")
-    public WarehouseLocation location;
-    @ManyToOne
-    @MapsId("productId")
-    public Product product;
     public BigDecimal quantity;
 
     @Embeddable
+    @Dto
     public static class CompositeKey {
-        String warehouseLocationId;
-        String productId;
+        @ManyToOne
+        public WarehouseLocation warehouseLocation;
+        @ManyToOne
+        public Product product;
     }
 
 }
