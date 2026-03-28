@@ -12,6 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("unused")
 public class NamespaceCollisionsTest {
 
     private final DtoProjectionSpecValidator validator = new DtoProjectionSpecValidator();
@@ -22,19 +23,19 @@ public class NamespaceCollisionsTest {
 
         // Given two different projections without namespace for the same type
         class Container {
-            class One {
+            static class One {
                 public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Two {
+            static class Two {
                 public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id, email") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(Container.class);
+        List<String> errors = validator.validate(Container.class).errors;
 
         // Then
         assertFalse(errors.isEmpty());
@@ -46,19 +47,19 @@ public class NamespaceCollisionsTest {
 
         // Given two different projections without namespace for the same type
         class Container {
-            class One {
+            static class One {
                 public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "{id}:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Two {
+            static class Two {
                 public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "{id, email}:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(Container.class);
+        List<String> errors = validator.validate(Container.class).errors;
 
         // Then
         assertFalse(errors.isEmpty());
@@ -70,19 +71,19 @@ public class NamespaceCollisionsTest {
 
         // Given two different projections without namespace for the same type
         class Container {
-            class One {
+            static class One {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "id") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Two {
+            static class Two {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "id, email") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(Container.class);
+        List<String> errors = validator.validate(Container.class).errors;
 
         // Then
         assertFalse(errors.isEmpty());
@@ -94,19 +95,19 @@ public class NamespaceCollisionsTest {
 
         // Given two different projections without namespace for the same type
         class Container {
-            class One {
+            static class One {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "{id}:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Two {
+            static class Two {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "{id, email}:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(Container.class);
+        List<String> errors = validator.validate(Container.class).errors;
 
         // Then
         assertFalse(errors.isEmpty());
@@ -118,19 +119,19 @@ public class NamespaceCollisionsTest {
 
         // Given two different projections without namespace for the same type
         class Container {
-            class One {
+            static class One {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "{id, account { id }:Alias1 }") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Two {
+            static class Two {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "{id, account { id, name }:Alias1 }") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(Container.class);
+        List<String> errors = validator.validate(Container.class).errors;
 
         // Then
         assertFalse(errors.isEmpty());
@@ -142,19 +143,19 @@ public class NamespaceCollisionsTest {
 
         // Given two different projections without namespace for the same type
         class Container {
-            class One {
+            static class One {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "{id}:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Two {
+            static class Two {
                 public void someMethod(@DtoProjectionSpec(namespace = "default", projectedClass = UserDto.class, value = "{id}:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(Container.class);
+        List<String> errors = validator.validate(Container.class).errors;
 
         // Then
         assertTrue(errors.isEmpty());
@@ -166,21 +167,21 @@ public class NamespaceCollisionsTest {
 
         // Given two projections for the same type and namespace
         class ParentContainer {
-            class Container1 {
-                public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
+            static class Container1 {
+                public void someMethod(@DtoProjectionSpec(namespace = "ns1", projectedClass = UserDto.class, value = "id") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Container2 {
-                class Two {
-                    public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id, email") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
+            static class Container2 {
+                static class Two {
+                    public void someMethod(@DtoProjectionSpec(namespace = "ns2", projectedClass = UserDto.class, value = "id, email") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                     }
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(ParentContainer.class);
+        List<String> errors = validator.validate(ParentContainer.class).errors;
 
         // Then
         assertTrue(errors.isEmpty());
@@ -192,21 +193,21 @@ public class NamespaceCollisionsTest {
 
         // Given two projections for the same type and namespace
         class ParentContainer {
-            class Container1 {
-                public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
+            static class Container1 {
+                public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "{ id }:Alias1") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                 }
             }
 
-            class Container2 {
-                class Two {
-                    public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "id, email") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
+            static class Container2 {
+                static class Two {
+                    public void someMethod(@DtoProjectionSpec(projectedClass = UserDto.class, value = "{ id, email }:Alias2") List<Optional<ValueWrapper<UserDto>>> optionalUserDtoList) {
                     }
                 }
             }
         }
 
         // When
-        List<String> errors = validator.validate(ParentContainer.class);
+        List<String> errors = validator.validate(ParentContainer.class).errors;
 
         // Then
         assertTrue(errors.isEmpty());

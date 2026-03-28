@@ -12,6 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("unused")
 class DtoProjectionSpecValidatorTest {
 
     private final DtoProjectionSpecValidator validator = new DtoProjectionSpecValidator();
@@ -28,7 +29,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(ValidProjection.class);
+        List<String> errors = validator.validate(ValidProjection.class).errors;
 
         // Then
         assertTrue(errors.isEmpty(), "Expected no errors, but found: " + errors);
@@ -44,7 +45,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(InvalidDsl.class);
+        List<String> errors = validator.validate(InvalidDsl.class).errors;
 
         // Then
         assertFalse(errors.isEmpty(), "Expected errors for invalid DSL string");
@@ -63,14 +64,14 @@ class DtoProjectionSpecValidatorTest {
         }
 
         class ValidProjection2 {
-            @DtoProjectionSpec(projectedClass = UserDto.class, value = "username")
+            @DtoProjectionSpec(namespace = "ns2", projectedClass = UserDto.class, value = "username")
             public UserDto method2() {
                 return null;
             }
         }
 
         // When
-        List<String> errors = validator.validate(ValidProjection1.class, ValidProjection2.class);
+        List<String> errors = validator.validate(ValidProjection1.class, ValidProjection2.class).errors;
 
         // Then
         assertTrue(errors.isEmpty(), "Expected no errors for multiple valid classes");
@@ -86,7 +87,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(InvalidReturnType.class);
+        List<String> errors = validator.validate(InvalidReturnType.class).errors;
 
         // Then
         assertFalse(errors.isEmpty(), "Expected errors for invalid return type");
@@ -102,7 +103,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(InvalidParameterType.class);
+        List<String> errors = validator.validate(InvalidParameterType.class).errors;
 
         // Then
         assertFalse(errors.isEmpty(), "Expected errors for invalid parameter type");
@@ -119,7 +120,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(ValidGenericTypeArgument.class);
+        List<String> errors = validator.validate(ValidGenericTypeArgument.class).errors;
 
         // Then
         assertTrue(errors.isEmpty(), "Expected no errors for valid generic type");
@@ -135,7 +136,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(InvalidGenericTypeArgument.class);
+        List<String> errors = validator.validate(InvalidGenericTypeArgument.class).errors;
 
         // Then
         assertFalse(errors.isEmpty(), "Expected errors for invalid generic type");
@@ -146,7 +147,7 @@ class DtoProjectionSpecValidatorTest {
     void shouldValidateAllClassesInPackageWithoutInvalidAnnotations() {
         // When
         // Validating the package containing our test models, which should be valid
-        List<String> errors = validator.validateAll("solutions.sulfura.hyperkit.utils.test.model.dtos", "solutions.sulfura.hyperkit.examples.model");
+        List<String> errors = validator.validateAll("solutions.sulfura.hyperkit.utils.test.model.dtos", "solutions.sulfura.hyperkit.examples.model").errors;
 
         // Then
         assertTrue(errors.isEmpty(), "Expected no errors for scanned packages, but found: " + errors);
@@ -157,7 +158,7 @@ class DtoProjectionSpecValidatorTest {
     void shouldFailForPackageWithInvalidAnnotations() {
         // When
         // Validating the package containing this same class, which has several invalid annotations
-        List<String> errors = validator.validateAll("solutions.sulfura.hyperkit.dsl.projections.validator");
+        List<String> errors = validator.validateAll("solutions.sulfura.hyperkit.dsl.projections.validator").errors;
 
         // Then
         assertFalse(errors.isEmpty(), "Expected errors for scanned packages, but none were found");
@@ -174,7 +175,7 @@ class DtoProjectionSpecValidatorTest {
         }
 
         // When
-        List<String> errors = validator.validate(ValidNestedTypeArgument.class);
+        List<String> errors = validator.validate(ValidNestedTypeArgument.class).errors;
 
         // Then
         assertTrue(errors.isEmpty());

@@ -6,12 +6,11 @@ import io.github.classgraph.ScanResult;
 import solutions.sulfura.hyperkit.dsl.projections.DtoProjectionSpec;
 import solutions.sulfura.hyperkit.dsl.projections.ProjectionDsl;
 import solutions.sulfura.hyperkit.dtos.Dto;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Validator for {@link DtoProjectionSpec} annotations.
@@ -25,17 +24,21 @@ public class DtoProjectionSpecValidator {
      * @param basePackages the base packages to scan
      * @return a list of validation error messages, or an empty list if all are valid
      */
-    public List<String> validateAll(String... basePackages) {
-        List<String> errors = new ArrayList<>();
+    public ProjectionValidationResult validateAll(String... basePackages) {
+
+        ProjectionValidationResult result = new ProjectionValidationResult();
+
         try (ScanResult scanResult = new ClassGraph()
                 .enableAllInfo()
                 .acceptPackages(basePackages)
                 .scan()) {
             for (ClassInfo classInfo : scanResult.getAllClasses()) {
-                errors.addAll(validate(classInfo.loadClass()));
+                mergeValidationResults(result, validate(classInfo.loadClass()));
             }
         }
-        return errors;
+
+        return result;
+
     }
 
     /**
@@ -44,12 +47,12 @@ public class DtoProjectionSpecValidator {
      * @param classes the classes to validate
      * @return a list of validation error messages, or an empty list if all are valid
      */
-    public List<String> validate(Class<?>... classes) {
-        List<String> errors = new ArrayList<>();
+    public ProjectionValidationResult validate(Class<?>... classes) {
+        ProjectionValidationResult result = new ProjectionValidationResult();
         for (Class<?> clazz : classes) {
-            errors.addAll(validate(clazz));
+            mergeValidationResults(result, validate(clazz));
         }
-        return errors;
+        return result;
     }
 
     /**
@@ -59,49 +62,101 @@ public class DtoProjectionSpecValidator {
      * @param clazz the class to validate
      * @return a list of validation error messages, or an empty list if valid
      */
-    public List<String> validate(Class<?> clazz) {
-        List<String> errors = new ArrayList<>();
+    private ProjectionValidationResult validate(Class<?> clazz) {
+        ProjectionValidationResult result = new ProjectionValidationResult();
 
         // Validate methods
         for (Method method : clazz.getDeclaredMethods()) {
-            errors.addAll(validateElement(method));
+            mergeValidationResults(result, validateElement(method));
 
             // Validate parameters
             for (Parameter parameter : method.getParameters()) {
-                errors.addAll(validateElement(parameter));
+                mergeValidationResults(result, validateElement(parameter));
             }
         }
+        for (Class<?> innerClass : clazz.getDeclaredClasses()) {
+            var innerClassValidationResult = validate(innerClass);
+            mergeValidationResults(result, innerClassValidationResult);
+        }
 
-        return errors;
+        return result;
     }
 
-    private List<String> validateElement(AnnotatedElement element) {
+    private ProjectionValidationResult validateElement(AnnotatedElement element) {
 
         DtoProjectionSpec spec = solutions.sulfura.hyperkit.dsl.projections.ProjectionUtils.findDtoProjectionSpec(element);
 
         if (spec == null) {
-            return Collections.emptyList();
+            return new ProjectionValidationResult();
         }
 
-        return validateProjection(spec, element);
+        return validateProjectionSpec(spec, element);
 
     }
 
-    private List<String> validateProjection(DtoProjectionSpec annotation, AnnotatedElement element) {
+    private ProjectionValidationResult validateProjectionSpec(DtoProjectionSpec annotation, AnnotatedElement element) {
+
+        ProjectionValidationResult result = new ProjectionValidationResult();
 
         try {
 
+            @SuppressWarnings("rawtypes")
             Class<? extends Dto> projectedClass = annotation.projectedClass();
-            ProjectionDsl.parse(annotation);
-            return validateTypeAssignability(element, projectedClass);
+            @SuppressWarnings("unchecked")
+            DtoProjection<Dto<?>> projection = ProjectionDsl.parse(annotation);
+            ProjectionValidationResult validationResult = validateProjection(annotation.namespace(), projection);
+            mergeValidationResults(result, validationResult);
+            result.projections.put(fullyQualifiedProjectionTypeName(annotation.namespace(), projection), projection);
+            result.errors.addAll(validateTypeAssignability(element, projectedClass));
 
         } catch (Exception e) {
-
-            List<String> errors = new ArrayList<>();
-            errors.add("Failed to parse projection on " + element + ": " + e.getMessage());
-            return errors;
+            result.errors.add("Failed to parse projection on " + element + ": " + e.getMessage());
 
         }
+
+        return result;
+
+    }
+
+    private ProjectionValidationResult validateProjection(String namespace, DtoProjection<Dto<?>> projection) {
+
+        ProjectionValidationResult result = new ProjectionValidationResult();
+
+        for (Field field : projection.getClass().getFields()) {
+
+            if (!DtoFieldConf.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+
+            try {
+
+                //noinspection unchecked
+                DtoFieldConf<DtoProjection<Dto<?>>> dtoFieldConf = ((DtoFieldConf<DtoProjection<Dto<?>>>) field.get(projection));
+
+                if (dtoFieldConf == null) {
+                    continue;
+                }
+
+                DtoProjection<Dto<?>> nestedProjection = dtoFieldConf.dtoProjection;
+
+                String fullyQualifiedProjectionTypeName = fullyQualifiedProjectionTypeName(namespace, nestedProjection);
+
+                if (result.hasDifferentProjectionForSameNamespaceAndAlias(fullyQualifiedProjectionTypeName, nestedProjection)) {
+                    result.errors.add("Duplicate projection type alias " + fullyQualifiedProjectionTypeName + " in " + projection.getClass().getName());
+                }
+
+                result.errors.addAll(validateNamespaceCollisionsValidationResults(result, validateProjection(fullyQualifiedProjectionTypeName, nestedProjection)));
+                result.projections.put(fullyQualifiedProjectionTypeName, nestedProjection);
+                continue;
+
+            } catch (IllegalAccessException e) {
+                result.errors.add("Failed to access projection field " + field.getName() + " on " + projection.getClass().getName());
+                continue;
+            }
+
+        }
+
+        return result;
 
     }
 
@@ -189,7 +244,7 @@ public class DtoProjectionSpecValidator {
         return type instanceof java.lang.reflect.ParameterizedType;
     }
 
-    private boolean validateAnyGenericTypeArgumentIsOfTypeDto(ParameterizedType parameterizedType, Class<? extends Dto> projectedClass, HashSet<Type> visitedTypes) {
+    private boolean validateAnyGenericTypeArgumentIsOfTypeDto(ParameterizedType parameterizedType, Class<? extends Dto> projectedClass) {
 
 
         for (java.lang.reflect.Type actualTypeArgument : parameterizedType.getActualTypeArguments()) {
@@ -208,7 +263,7 @@ public class DtoProjectionSpecValidator {
                 continue;
             }
 
-            if (validateAnyGenericTypeArgumentIsOfTypeDto((ParameterizedType) actualTypeArgument, projectedClass, visitedTypes)) {
+            if (validateAnyGenericTypeArgumentIsOfTypeDto((ParameterizedType) actualTypeArgument, projectedClass)) {
                 return true;
             }
 
@@ -223,7 +278,57 @@ public class DtoProjectionSpecValidator {
             return true;
         }
 
-        return validateAnyGenericTypeArgumentIsOfTypeDto((ParameterizedType) type, projectedClass, new HashSet<>());
+        return validateAnyGenericTypeArgumentIsOfTypeDto((ParameterizedType) type, projectedClass);
 
     }
+
+    public String effectiveTypeAlias(DtoProjection<Dto<?>> projection) {
+        return projection.projectionTypeAlias() != null ? projection.projectionTypeAlias() : projection.getClass().getSimpleName();
+    }
+
+    public String fullyQualifiedProjectionTypeName(String namespace, DtoProjection<Dto<?>> projection) {
+        return namespace + "_" + effectiveTypeAlias(projection);
+    }
+
+    public List<String> validateNamespaceCollisionsValidationResults(ProjectionValidationResult target, ProjectionValidationResult source) {
+
+        List<String> errors = new ArrayList<>();
+
+        for (String fullyQualifiedProjectionName : source.projections.keySet()) {
+            if (target.hasDifferentProjectionForSameNamespaceAndAlias(fullyQualifiedProjectionName, source.projections.get(fullyQualifiedProjectionName))) {
+                errors.add("Duplicate projection namespace " + fullyQualifiedProjectionName + " in " + source.projections.get(fullyQualifiedProjectionName).getClass().getName() + " and " + target.projections.get(fullyQualifiedProjectionName).getClass().getName());
+            }
+        }
+
+        return errors;
+    }
+
+    public void mergeValidationResults(ProjectionValidationResult target, ProjectionValidationResult source) {
+        target.errors.addAll(source.errors);
+        target.errors.addAll(validateNamespaceCollisionsValidationResults(target, source));
+        target.projections.putAll(source.projections);
+    }
+
+
+    public static class ProjectionValidationResult {
+
+        public List<String> errors;
+        public Map<String, DtoProjection<Dto<?>>> projections;
+
+        public ProjectionValidationResult() {
+            this(new ArrayList<>(), new HashMap<>());
+        }
+
+        public ProjectionValidationResult(List<String> errors, Map<String, DtoProjection<Dto<?>>> projections) {
+            this.errors = errors;
+            this.projections = projections;
+        }
+
+        public boolean hasDifferentProjectionForSameNamespaceAndAlias(String fullyQualifiedProjectionName, DtoProjection<Dto<?>> projection) {
+            return projections.containsKey(fullyQualifiedProjectionName)
+                    && !projections.get(fullyQualifiedProjectionName).equals(projection);
+        }
+
+    }
+
 }
