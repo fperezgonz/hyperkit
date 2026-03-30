@@ -1,9 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.*;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import solutions.sulfura.hyperkit.dtos.Dto;
@@ -389,6 +386,101 @@ public class HyperMapper<C> {
     }
 
     /**
+     * Maps a single DTO property to its corresponding non-dto value.
+     * If the non-dto value is an entity, it handles the relationship with the property owner
+     *
+     * @param dto                the owner of the property
+     * @param propertyDescriptor the descriptor of the property to handle
+     * @param entity            the target entity instance where the owner will be mapped
+     * @param contextInfo       additional contextual data for repository operations
+     * @param visitedEntities   map tracking already processed entities to prevent cycles
+     * @param <T>               the type of the entity corresponding to the given DTO
+     * @return a serialization queue for the entities processed by this method, or null if no persistence is needed
+     */
+    protected <T> List<Object> handleProperty(Dto<T> dto,
+                                              PropertyDescriptor propertyDescriptor,
+                                              Object entity,
+                                              C contextInfo,
+                                              @NonNull HashMap<Object, Object> visitedEntities) {
+
+        Class<Dto> dtoClass = (Class<Dto>) dto.getClass();
+
+        if (Objects.equals(propertyDescriptor.getPropertyName(), "sourceClass")) {
+            return null;
+        }
+
+        try {
+
+            Object propertyValue = HyperMapperPropertyUtils.getProperty(dto, propertyDescriptor.getPropertyName());
+
+            if (propertyValue == null) {
+                throw new HyperMapperException("Property " + propertyDescriptor.getPropertyName() + " is null. " +
+                        "Dto fields MUST NEVER be null. Use a non-empty wrapper that contains a null value or an empty wrapper for absent values");
+            }
+
+            if (!(propertyValue instanceof ValueWrapper valWrapper)) {
+                throw new HyperMapperException("Property " + propertyDescriptor.getPropertyName() + " in type " + dtoClass.getCanonicalName() + " is of type " + propertyValue.getClass().getSimpleName() + ". " +
+                        "All Dto Fields must be of the wrapper type");
+            }
+
+            //If the DTO property is absent/empty it is ignored
+            if (valWrapper.isEmpty()) {
+                return null;
+            }
+
+            Object unwrappedValue = valWrapper.get();
+
+            List<Object> result = new ArrayList<>();
+
+            //Collections
+            if (unwrappedValue instanceof Collection<?> collectionValue) {
+
+                List<ToEntityResult<?>> listOperationsResult =
+                        mapListOperations(entity, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
+
+                for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
+                    result.addAll(listOperationsResultItem.getPersistenceQueue());
+                }
+
+                //Non-collections
+            } else {
+
+                // If it has already been processed, use the cached value
+                if (visitedEntities.containsKey(unwrappedValue)) {
+
+                    unwrappedValue = visitedEntities.get(unwrappedValue);
+
+                } else if (unwrappedValue instanceof Dto<?> dtoAux) {
+
+                    //If the value is a Dto, map it to an entity and handle the relationships
+                    ToEntityResult<?> toEntityResult = mapDtoToEntity(dtoAux, contextInfo, visitedEntities);
+                    unwrappedValue = toEntityResult.entity;
+                    result.addAll(toEntityResult.persistenceQueue);
+
+                }
+
+                //If the property is an Entity and the value has changed, remove the old relationship
+                Object oldPropValue = HyperMapperPropertyUtils.getProperty(entity, propertyDescriptor.getPropertyName());
+
+                if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
+                    var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName());
+                    removeRelationship(entity, entityPropDescriptor, oldPropValue);
+                }
+
+                //Set the value of the entity property
+                HyperMapperPropertyUtils.setProperty(entity, propertyDescriptor.getPropertyName(), unwrappedValue);
+
+            }
+
+            return result;
+
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            throw new HyperMapperException("Reflection exception while processing property " + propertyDescriptor.getPropertyName() + " of entity type " + dto.getSourceClass().getCanonicalName(), e);
+        }
+
+    }
+
+    /**
      * Converts the given Data Transfer Object (DTO) into its corresponding entity, handling the mapping
      * of all DTO fields, relationships, and collections recursively. This method also ensures that
      * existing entities are fetched from the repository, avoiding duplication.
@@ -463,88 +555,19 @@ public class HyperMapper<C> {
         //Map properties
         for (PropertyDescriptor propertyDescriptor : dtoPropDescriptors) {
 
-            if (Objects.equals(propertyDescriptor.getPropertyName(), "sourceClass")) {
+            var nestedSerializationQueue = handleProperty(dto, propertyDescriptor, entity, contextInfo, visitedEntities);
+
+            if (nestedSerializationQueue == null || nestedSerializationQueue.isEmpty()) {
                 continue;
             }
 
-            try {
+            boolean isParentEntityRelationshipOwner = RelationshipManager.isRelationshipOwner(entity, propertyDescriptor.getPropertyName());
 
-                Object propertyValue = HyperMapperPropertyUtils.getProperty(dto, propertyDescriptor.getPropertyName());
-
-                if (propertyValue == null) {
-                    throw new HyperMapperException("Property " + propertyDescriptor.getPropertyName() + " is null. " +
-                            "Dto fields MUST NEVER be null. Use a non-empty wrapper that contains a null value or an empty wrapper for absent values");
-                }
-
-                if (!(propertyValue instanceof ValueWrapper valWrapper)) {
-                    throw new HyperMapperException("Property " + propertyDescriptor.getPropertyName() + " in type " + dtoClass.getCanonicalName() + " is of type " + propertyValue.getClass().getSimpleName() + ". " +
-                            "All Dto Fields must be of the wrapper type");
-                }
-
-                //If the DTO property is absent/empty it is ignored
-                if (valWrapper.isEmpty()) {
-                    continue;
-                }
-
-                Object unwrappedValue = valWrapper.get();
-
-                boolean isOwner = RelationshipManager.isRelationshipOwner(entity, propertyDescriptor.getPropertyName());
-
-                //Collections
-                if (unwrappedValue instanceof Collection<?> collectionValue) {
-
-                    List<ToEntityResult<?>> listOperationsResult =
-                            mapListOperations(entity, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
-
-                    //Non-owners have to be serialized first, or there will be serialization errors because of null ids on the owner columns
-                    if (isOwner) {
-                        for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
-                            prioritySerializationQueue.addAll(listOperationsResultItem.getPersistenceQueue());
-                        }
-                    } else {
-                        for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
-                            result.persistenceQueue.addAll(0, listOperationsResultItem.getPersistenceQueue());
-                        }
-                    }
-
-                    //Non-collections
-                } else {
-
-                    // If it has already been processed, use the cached value
-                    if (visitedEntities.containsKey(unwrappedValue)) {
-
-                        unwrappedValue = visitedEntities.get(unwrappedValue);
-
-                    } else if (unwrappedValue instanceof Dto<?> dtoAux) {
-
-                        //If the value is a Dto, map it to an entity and handle the relationships
-                        ToEntityResult<?> toEntityResult = mapDtoToEntity(dtoAux, contextInfo, visitedEntities);
-                        unwrappedValue = toEntityResult.entity;
-
-                        //Non-owners have to be serialized first, or there will be serialization errors because of null ids on the owner columns
-                        if (isOwner) {
-                            prioritySerializationQueue.addAll(toEntityResult.persistenceQueue);
-                        } else {
-                            result.persistenceQueue.addAll(0, toEntityResult.persistenceQueue);
-                        }
-
-                    }
-
-                    //If the property is an Entity and the value has changed, remove the old relationship
-                    Object oldPropValue = HyperMapperPropertyUtils.getProperty(entity, propertyDescriptor.getPropertyName());
-
-                    if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
-                        var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName());
-                        removeRelationship(entity, entityPropDescriptor, oldPropValue);
-                    }
-
-                    //Set the value of the entity property
-                    HyperMapperPropertyUtils.setProperty(entity, propertyDescriptor.getPropertyName(), unwrappedValue);
-
-                }
-
-            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                throw new HyperMapperException("Reflection exception while processing property " + propertyDescriptor.getPropertyName() + " of entity type " + entityClass.getCanonicalName(), e);
+            //Non-owners have to be serialized first, or there will be serialization errors because of null ids on the owner columns
+            if (isParentEntityRelationshipOwner) {
+                prioritySerializationQueue.addAll(nestedSerializationQueue);
+            } else {
+                result.persistenceQueue.addAll(0, nestedSerializationQueue);
             }
 
         }
