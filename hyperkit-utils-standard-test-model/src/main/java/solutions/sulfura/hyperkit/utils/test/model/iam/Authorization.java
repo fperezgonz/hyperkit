@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.test.model.model.iam;
+package solutions.sulfura.hyperkit.utils.test.model.iam;
 
 
 import jakarta.persistence.*;

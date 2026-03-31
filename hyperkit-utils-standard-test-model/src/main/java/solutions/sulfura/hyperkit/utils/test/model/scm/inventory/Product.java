@@ -11,4 +11,13 @@ public class Product {
     public String id;
     public String sku;
     public String name;
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id='" + id + '\'' +
+                ", sku='" + sku + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

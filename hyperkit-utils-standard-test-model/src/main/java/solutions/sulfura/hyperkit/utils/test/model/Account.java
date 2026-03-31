@@ -1,10 +1,10 @@
-package solutions.sulfura.hyperkit.utils.test.model.model;
+package solutions.sulfura.hyperkit.utils.test.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
-import solutions.sulfura.hyperkit.utils.test.model.model.iam.User;
+import solutions.sulfura.hyperkit.utils.test.model.iam.User;
 
 @Entity
 @Dto

@@ -6,7 +6,7 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.serialization.DeserializationProvider;
 import solutions.sulfura.hyperkit.utils.serialization.SerializationProvider;
 import solutions.sulfura.hyperkit.utils.test.model.dtos.UserDto;
-import solutions.sulfura.hyperkit.utils.test.model.model.iam.User;
+import solutions.sulfura.hyperkit.utils.test.model.iam.User;
 
 import java.io.IOException;
 import java.util.HashSet;

@@ -12,4 +12,12 @@ public class WarehouseLocation {
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     public Warehouse warehouse;
+
+    @Override
+    public String toString() {
+        return "WarehouseLocation{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

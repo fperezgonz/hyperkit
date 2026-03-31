@@ -1,9 +1,8 @@
 package solutions.sulfura.hyperkit.utils.test.model.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
-import solutions.sulfura.hyperkit.utils.test.model.model.Account;
+import solutions.sulfura.hyperkit.utils.test.model.Account;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.UserDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;

@@ -1,4 +1,4 @@
-package solutions.sulfura.hyperkit.utils.test.model.model.iam;
+package solutions.sulfura.hyperkit.utils.test.model.iam;
 
 import jakarta.persistence.Embeddable;
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
