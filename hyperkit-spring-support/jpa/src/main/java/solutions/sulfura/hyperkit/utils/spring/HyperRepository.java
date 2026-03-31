@@ -27,7 +27,7 @@ public interface HyperRepository<C> {
      * @param contextInfo additional information required for the operation
      * @return optional containing the entity if found
      */
-    <T, ID extends Serializable> Optional<T> findById(@NonNull Class<T> entityClass, @NonNull ID id, C contextInfo);
+    <T, ID> Optional<T> findById(@NonNull Class<T> entityClass, @NonNull ID id, C contextInfo);
 
     /**
      * Save an entity

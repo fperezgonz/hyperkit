@@ -29,7 +29,7 @@ public class HyperRepositoryImpl<C> implements HyperRepository<C> {
     private EntityManager entityManager;
 
     @Override
-    public <T, ID extends Serializable> Optional<T> findById(@NonNull Class<T> entityClass, @NonNull ID id, C contextInfo) {
+    public <T, ID> Optional<T> findById(@NonNull Class<T> entityClass, @NonNull ID id, C contextInfo) {
         T entity = entityManager.find(entityClass, id);
         return Optional.ofNullable(entity);
     }

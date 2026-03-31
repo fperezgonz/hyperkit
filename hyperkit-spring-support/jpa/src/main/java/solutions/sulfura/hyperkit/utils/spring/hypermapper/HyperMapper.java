@@ -2,6 +2,7 @@ package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
 import jakarta.persistence.*;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ListOperation;
@@ -47,7 +48,7 @@ public class HyperMapper<C> {
      * @throws HyperMapperException if the entity is not found in the repository
      */
     @NonNull
-    protected <T, I extends Serializable> T findEntityInRepository(@NonNull Class<T> entityClass, @NonNull I entityId, C contextInfo) {
+    protected <T, I> T findEntityInRepository(@NonNull Class<T> entityClass, @NonNull I entityId, C contextInfo) {
         return hyperRepository.findById(entityClass, entityId, contextInfo)
                 .orElseThrow(() -> new HyperMapperException("Entity of type " + entityClass + " with id " + entityId + " not found in repository"));
     }
@@ -391,15 +392,15 @@ public class HyperMapper<C> {
      *
      * @param dto                the owner of the property
      * @param propertyDescriptor the descriptor of the property to handle
-     * @param entity            the target entity instance where the owner will be mapped
-     * @param contextInfo       additional contextual data for repository operations
-     * @param visitedEntities   map tracking already processed entities to prevent cycles
-     * @param <T>               the type of the entity corresponding to the given DTO
+     * @param mappingTarget      the object instance that the dto will be mapped to
+     * @param contextInfo        additional contextual data for repository operations
+     * @param visitedEntities    map tracking already processed entities to prevent cycles
+     * @param <T>                the type of the entity corresponding to the given DTO
      * @return a serialization queue for the entities processed by this method, or null if no persistence is needed
      */
     protected <T> List<Object> handleProperty(Dto<T> dto,
                                               PropertyDescriptor propertyDescriptor,
-                                              Object entity,
+                                              Object mappingTarget,
                                               C contextInfo,
                                               @NonNull HashMap<Object, Object> visitedEntities) {
 
@@ -436,7 +437,7 @@ public class HyperMapper<C> {
             if (unwrappedValue instanceof Collection<?> collectionValue) {
 
                 List<ToEntityResult<?>> listOperationsResult =
-                        mapListOperations(entity, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
+                        mapListOperations(mappingTarget, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
 
                 for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
                     result.addAll(listOperationsResultItem.getPersistenceQueue());
@@ -460,15 +461,15 @@ public class HyperMapper<C> {
                 }
 
                 //If the property is an Entity and the value has changed, remove the old relationship
-                Object oldPropValue = HyperMapperPropertyUtils.getProperty(entity, propertyDescriptor.getPropertyName());
+                Object oldPropValue = HyperMapperPropertyUtils.getProperty(mappingTarget, propertyDescriptor.getPropertyName());
 
                 if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
-                    var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity, propertyDescriptor.getPropertyName());
-                    removeRelationship(entity, entityPropDescriptor, oldPropValue);
+                    var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(mappingTarget, propertyDescriptor.getPropertyName());
+                    removeRelationship(mappingTarget, entityPropDescriptor, oldPropValue);
                 }
 
                 //Set the value of the entity property
-                HyperMapperPropertyUtils.setProperty(entity, propertyDescriptor.getPropertyName(), unwrappedValue);
+                HyperMapperPropertyUtils.setProperty(mappingTarget, propertyDescriptor.getPropertyName(), unwrappedValue);
 
             }
 
@@ -509,7 +510,7 @@ public class HyperMapper<C> {
         //A Dto's generic parameter MUST always match its DtoFor annotation value, an invalid cast will always be a programming error
         Class<T> entityClass = (Class<T>) dto.getSourceClass();
 
-        //If it is not an entity, map it as a normal dto
+        //If it is not an entity, map it as a normal object
         if (entityClass.getAnnotation(Entity.class) == null) {
             ToEntityResult<T> entityResult = new ToEntityResult<>();
             entityResult.entity = mapDtoToObject(dto, contextInfo, visitedEntities);
