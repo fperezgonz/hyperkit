@@ -219,7 +219,7 @@ public class RelationshipManager {
             String mappedBy = findMappedBy(nonOwnerAnnotation);
 
             owningEntity = entity2;
-            owningPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(entity2, mappedBy);
+            owningPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(entity2, mappedBy);
 
         }
 
@@ -237,6 +237,7 @@ public class RelationshipManager {
                 final String owningPropertyName = owningPropertyDescriptor.getPropertyName();
 
                 //Look for a mapping annotation on entity2 whose mappedBy field matches this property descriptor
+                final PropertyDescriptor finalOwningPropertyDescriptor = owningPropertyDescriptor;
                 nonOwningPropertyDescriptor = HyperMapperPropertyUtils.getProperties(entity2.getClass()).stream()
                         .filter(propDesc -> {
 
@@ -256,7 +257,15 @@ public class RelationshipManager {
 
                             String mappedBy = findMappedBy(auxMappingAnnotation);
 
-                            return Objects.equals(mappedBy, owningPropertyName);
+                            if (Objects.equals(mappedBy, owningPropertyName)) {
+                                return true;
+                            }
+
+                            if (!mappedBy.contains(".") || !mappedBy.endsWith(owningPropertyName)) {
+                                return false;
+                            }
+
+                            return Objects.equals(finalOwningPropertyDescriptor, HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(entity1, mappedBy));
 
                         }).findFirst()
                         .orElse(null);
@@ -274,28 +283,28 @@ public class RelationshipManager {
     }
 
     /**
-     * Breaks the relationship between two objects by identifying and nullifying references on both sides of the relationship (also removing it from the collection if it is a ManyToOne relationship).
-     * This method considers whether the objects are on the owning or non-owning side of the relationship.
+     * Breaks the relationship between two entities by identifying and nullifying references on both sides of the relationship (also removing it from the collection if it is a ManyToOne relationship).
+     * This method considers whether the entities are on the owning or non-owning side of the relationship.
      *
-     * @param obj1                   The first object involved in the relationship.
-     * @param obj1PropertyDescriptor The property descriptor for the relationship field on the first object.
-     * @param obj2                   The second object involved in the relationship.
+     * @param entity1            The first entity involved in the relationship.
+     * @param propertyDescriptor The property descriptor for the field that holds entity2. This is a field on entity1 or an embedded value object on entity1.
+     * @param entity2            The second entity involved in the relationship.
      * @throws InvocationTargetException If methods invoked via reflection throw exceptions.
      * @throws IllegalAccessException    If the property cannot be accessed.
      * @throws NoSuchMethodException     If required methods are not found.
      */
-    public static void removeRelationship(Object obj1, PropertyDescriptor obj1PropertyDescriptor, Object obj2) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    public static void removeRelationship(Object entity1, PropertyDescriptor propertyDescriptor, Object entity2) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-        RelationshipData relationshipData = getRelationshipData(obj1, obj1PropertyDescriptor, obj2);
+        RelationshipData relationshipData = getRelationshipData(entity1, propertyDescriptor, entity2);
 
-        // Nullify or remove references between the owning and non-owning objects from both sides of the relationship
+        // Nullify or remove references between the owning and non-owning entities from both sides of the relationship
         if (relationshipData.owningPropertyDescriptor != null) {
 
             // If owning side property is a collection (e.g., ManyToMany owner), remove the specific element
             if (Collection.class.isAssignableFrom(relationshipData.owningPropertyDescriptor.getPropertyType())) {
-                removeFromCollectionProperty(relationshipData.owningPropertyHolder, relationshipData.owningPropertyDescriptor.getPropertyName(), obj2);
+                removeFromCollectionProperty(relationshipData.owningEntity, relationshipData.owningPropertyDescriptor.getPropertyName(), entity2);
             } else {
-                HyperMapperPropertyUtils.setProperty(relationshipData.owningPropertyHolder, relationshipData.owningPropertyDescriptor.getPropertyName(), null);
+                HyperMapperPropertyUtils.setProperty(relationshipData.owningEntity, relationshipData.owningPropertyDescriptor.getPropertyName(), null);
             }
 
         }
@@ -304,9 +313,9 @@ public class RelationshipManager {
 
             //The non-owner property might be a collection, in that case remove the owner from the collection
             if (Collection.class.isAssignableFrom(relationshipData.nonOwningPropertyDescriptor.getPropertyType())) {
-                removeFromCollectionProperty(relationshipData.nonOwningPropertyHolder, relationshipData.nonOwningPropertyDescriptor.getPropertyName(), relationshipData.owningPropertyHolder);
+                removeFromCollectionProperty(relationshipData.nonOwningEntity, relationshipData.nonOwningPropertyDescriptor.getPropertyName(), relationshipData.owningEntity);
             } else {
-                HyperMapperPropertyUtils.setProperty(relationshipData.nonOwningPropertyHolder, relationshipData.nonOwningPropertyDescriptor.getPropertyName(), null);
+                HyperMapperPropertyUtils.setProperty(relationshipData.nonOwningEntity, relationshipData.nonOwningPropertyDescriptor.getPropertyName(), null);
             }
 
         }
@@ -316,17 +325,17 @@ public class RelationshipManager {
 
 
     public static class RelationshipData {
-        public Object owningPropertyHolder;
-        public Object nonOwningPropertyHolder;
+        public Object owningEntity;
+        public Object nonOwningEntity;
         public PropertyDescriptor owningPropertyDescriptor;
         public PropertyDescriptor nonOwningPropertyDescriptor;
 
         public RelationshipData() {
         }
 
-        public RelationshipData(Object owningPropertyHolder, PropertyDescriptor owningPropertyDescriptor, Object nonOwningPropertyHolder, PropertyDescriptor nonOwningPropertyDescriptor) {
-            this.owningPropertyHolder = owningPropertyHolder;
-            this.nonOwningPropertyHolder = nonOwningPropertyHolder;
+        public RelationshipData(Object owningEntity, PropertyDescriptor owningPropertyDescriptor, Object nonOwningEntity, PropertyDescriptor nonOwningPropertyDescriptor) {
+            this.owningEntity = owningEntity;
+            this.nonOwningEntity = nonOwningEntity;
             this.owningPropertyDescriptor = owningPropertyDescriptor;
             this.nonOwningPropertyDescriptor = nonOwningPropertyDescriptor;
         }

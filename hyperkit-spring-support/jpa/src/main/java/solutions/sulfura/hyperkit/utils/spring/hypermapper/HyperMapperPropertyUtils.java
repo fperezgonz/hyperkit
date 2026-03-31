@@ -119,6 +119,23 @@ public class HyperMapperPropertyUtils {
         return getPropertyDescriptor(instance.getClass(), propertyName);
     }
 
+    public static PropertyDescriptor getPropertyDescriptorAtPropertyPath(Class<?> type, String propertyPath) {
+
+        String[] propertyNames = propertyPath.split("\\.");
+        PropertyDescriptor propertyDescriptor = null;
+
+        for (String propertyName : propertyNames) {
+            propertyDescriptor = getPropertiesMap(type).get(propertyName);
+            type = propertyDescriptor.getPropertyType();
+        }
+
+        return propertyDescriptor;
+    }
+
+    public static PropertyDescriptor getPropertyDescriptorAtPropertyPath(Object instance, String propertyPath) {
+        return getPropertyDescriptorAtPropertyPath(instance.getClass(), propertyPath);
+    }
+
     public static PropertyDescriptor getIdPropertyDescriptor(Class<?> entityClass) {
 
         boolean cacheHit = idsCache.containsKey(entityClass);
