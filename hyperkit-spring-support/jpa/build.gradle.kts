@@ -143,6 +143,7 @@ dependencies {
     implementation(project(":hyperkit-projections-dsl"))
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     compileOnly("org.jspecify:jspecify:1.0.0")
+    testImplementation(project(":hyperkit-utils-standard-test-model"))
     testImplementation("org.hsqldb:hsqldb:2.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
