@@ -195,9 +195,9 @@ public class RelationshipManager {
         return mappedBy;
     }
 
-    public static RelationshipData getRelationshipData(Object entity1,
-                                                       PropertyDescriptor entity1PropertyDescriptor,
-                                                       Object entity2) {
+    public static RelationshipData getRelationshipData(Object relHolder1,
+                                                       PropertyDescriptor helHolder1PropertyDescriptor,
+                                                       Object relHolder2) {
 
         Object owningEntity = null;
         PropertyDescriptor owningPropertyDescriptor = null;
@@ -206,39 +206,39 @@ public class RelationshipManager {
         PropertyDescriptor nonOwningPropertyDescriptor = null;
 
 
-        // Determine whether entity1 is the owning side of the relationship by looking at the annotations on the property.
-        // If one of them is a mapping annotation (e.g., have a mappedBy attribute set), entity1 is the non-owning side.
-        Annotation nonOwnerAnnotation = getNonOwnerAnnotation(entity1PropertyDescriptor);
+        // Determine whether relHolder1 is the owning side of the relationship by looking at the annotations on the property.
+        // If one of them is a mapping annotation (e.g., have a mappedBy attribute set), relHolder1 is the non-owning side.
+        Annotation nonOwnerAnnotation = getNonOwnerAnnotation(helHolder1PropertyDescriptor);
 
-        // Case: entity1 is NOT the owning side of the relationship.
+        // Case: relHolder1 is NOT the owning side of the relationship.
         if (nonOwnerAnnotation != null) {
 
-            nonOwningEntity = entity1;
-            nonOwningPropertyDescriptor = entity1PropertyDescriptor;
+            nonOwningEntity = relHolder1;
+            nonOwningPropertyDescriptor = helHolder1PropertyDescriptor;
 
             String mappedBy = findMappedBy(nonOwnerAnnotation);
 
-            owningEntity = entity2;
-            owningPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(entity2, mappedBy);
+            owningEntity = relHolder2;
+            owningPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(relHolder2, mappedBy);
 
         }
 
-        // Case: entity1 IS the owning side of the relationship.
+        // Case: relHolder1 IS the owning side of the relationship.
         if (nonOwnerAnnotation == null) {
 
-            //Search for a relationship owner annotation on entity1
-            Annotation ownerAnnotation = getOwnerAnnotation(entity1PropertyDescriptor);
+            // Search for a relationship owner annotation on relHolder1
+            Annotation ownerAnnotation = getOwnerAnnotation(helHolder1PropertyDescriptor);
 
-            //Entity1 IS the owning side of the relationship, look for a OneToMany or a OneToOne annotation on the properties of entity2 whose mappedBy field matches this property descriptor
+            // RelHolder1 IS the owning side of the relationship, look for a OneToMany or a OneToOne annotation on the properties of relHolder2 whose mappedBy field matches this property descriptor
             if (ownerAnnotation != null) {
 
-                owningPropertyDescriptor = entity1PropertyDescriptor;
-                owningEntity = entity1;
+                owningPropertyDescriptor = helHolder1PropertyDescriptor;
+                owningEntity = relHolder1;
                 final String owningPropertyName = owningPropertyDescriptor.getPropertyName();
 
-                //Look for a mapping annotation on entity2 whose mappedBy field matches this property descriptor
+                // Look for a mapping annotation on relHolder2 whose mappedBy field matches this property descriptor
                 final PropertyDescriptor finalOwningPropertyDescriptor = owningPropertyDescriptor;
-                nonOwningPropertyDescriptor = HyperMapperPropertyUtils.getProperties(entity2.getClass()).stream()
+                nonOwningPropertyDescriptor = HyperMapperPropertyUtils.getProperties(relHolder2.getClass()).stream()
                         .filter(propDesc -> {
 
                             Annotation auxMappingAnnotation = propDesc.getAnnotation(OneToMany.class);
@@ -265,14 +265,14 @@ public class RelationshipManager {
                                 return false;
                             }
 
-                            return Objects.equals(finalOwningPropertyDescriptor, HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(entity1, mappedBy));
+                            return Objects.equals(finalOwningPropertyDescriptor, HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(relHolder1, mappedBy));
 
                         }).findFirst()
                         .orElse(null);
 
-                //Entity2 is part of a relationship but doesn't know it yet
+                // RelHolder2 is part of a relationship but doesn't know it yet
                 if (nonOwningPropertyDescriptor != null) {
-                    nonOwningEntity = entity2;
+                    nonOwningEntity = relHolder2;
                 }
 
             }
