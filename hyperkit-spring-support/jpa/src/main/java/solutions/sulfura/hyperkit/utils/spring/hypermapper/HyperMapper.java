@@ -115,6 +115,7 @@ public class HyperMapper<C> {
      * while maintaining relationships
      *
      * @param entity                The parent entity whose collection property is being modified
+     * @param propertyPath          the path to the property starting from the entity. This is necessary to handle relationships in {@link Embedded} values
      * @param dtoPropertyDescriptor The property descriptor for the property that is being mapped
      * @param collection            The collection with the {@link ListOperation} elements
      * @param contextInfo           Extra contextual information for repository access
@@ -123,6 +124,7 @@ public class HyperMapper<C> {
      */
     @NonNull
     private List<ToEntityResult<?>> mapListOperations(@NonNull Object entity,
+                                                      @NonNull String propertyPath,
                                                       @NonNull PropertyDescriptor dtoPropertyDescriptor,
                                                       @NonNull Collection<?> collection,
                                                       C contextInfo,
@@ -242,7 +244,7 @@ public class HyperMapper<C> {
                     childEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
                 }
 
-                removeRelationship(entity, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), childEntity);
+                removeRelationship(entity, propertyPath, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), childEntity);
 
                 var itemEntityResult = new ToEntityResult<>();
                 itemEntityResult.entity = childEntity;
@@ -370,7 +372,7 @@ public class HyperMapper<C> {
             } else if (value instanceof Collection<?> coll) {
 
                 try {
-                    value = mapListOperations(result, dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
+                    value = mapListOperations(result, dtoPropertyDescriptor.getPropertyName(), dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
                 } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     throw new HyperMapperException("Reflection exception while processing property " + dtoPropertyDescriptor.getPropertyName() + " of entity type " + sourceClass.getCanonicalName(), e);
                 }
@@ -393,15 +395,17 @@ public class HyperMapper<C> {
      * @param dto                the owner of the property
      * @param propertyDescriptor the descriptor of the property to handle
      * @param mappingTarget      the object instance that the dto will be mapped to
+     * @param propertyPath       the path to the property starting from the entity. This is necessary to handle relationships in {@link Embedded} values
      * @param contextInfo        additional contextual data for repository operations
      * @param visitedEntities    map tracking already processed entities to prevent cycles
      * @param <T>                the type of the entity corresponding to the given DTO
      * @return a serialization queue for the entities processed by this method, or null if no persistence is needed
      */
-    protected <T> List<Object> handleProperty(Dto<T> dto,
-                                              PropertyDescriptor propertyDescriptor,
-                                              Object mappingTarget,
-                                              C contextInfo,
+    protected <T> List<Object> handleProperty(@NonNull Dto<T> dto,
+                                              @NonNull String propertyPath,
+                                              @NonNull PropertyDescriptor propertyDescriptor,
+                                              @NonNull Object mappingTarget,
+                                              @Nullable C contextInfo,
                                               @NonNull HashMap<Object, Object> visitedEntities) {
 
         Class<Dto> dtoClass = (Class<Dto>) dto.getClass();
@@ -437,7 +441,7 @@ public class HyperMapper<C> {
             if (unwrappedValue instanceof Collection<?> collectionValue) {
 
                 List<ToEntityResult<?>> listOperationsResult =
-                        mapListOperations(mappingTarget, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
+                        mapListOperations(mappingTarget, propertyPath, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
 
                 for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
                     result.addAll(listOperationsResultItem.getPersistenceQueue());
@@ -465,7 +469,7 @@ public class HyperMapper<C> {
 
                 if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
                     var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(mappingTarget, propertyDescriptor.getPropertyName());
-                    removeRelationship(mappingTarget, entityPropDescriptor, oldPropValue);
+                    removeRelationship(mappingTarget, propertyPath, entityPropDescriptor, oldPropValue);
                 }
 
                 //Set the value of the entity property
@@ -556,7 +560,7 @@ public class HyperMapper<C> {
         //Map properties
         for (PropertyDescriptor propertyDescriptor : dtoPropDescriptors) {
 
-            var nestedSerializationQueue = handleProperty(dto, propertyDescriptor, entity, contextInfo, visitedEntities);
+            var nestedSerializationQueue = handleProperty(dto, propertyDescriptor.getPropertyName(), propertyDescriptor, entity, contextInfo, visitedEntities);
 
             if (nestedSerializationQueue == null || nestedSerializationQueue.isEmpty()) {
                 continue;

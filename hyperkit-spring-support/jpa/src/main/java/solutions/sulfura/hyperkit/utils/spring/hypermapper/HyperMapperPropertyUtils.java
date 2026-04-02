@@ -452,5 +452,12 @@ public class HyperMapperPropertyUtils {
 
         }
 
+        @Override
+        public String toString() {
+            return "PropertyDescriptor{" +
+                    "declaringType=" + declaringType +
+                    ", propertyName='" + propertyName +
+                    '}';
+        }
     }
 }
