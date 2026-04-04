@@ -59,8 +59,12 @@ public class HyperMapper<C> {
             return false;
         }
 
-        return object.getClass().getAnnotation(Entity.class) != null;
+        return isEntityType(object.getClass());
 
+    }
+
+    private static boolean isEntityType(@NonNull Class clazz) {
+        return clazz.getAnnotation(Entity.class) != null;
     }
 
     @NonNull
@@ -149,7 +153,7 @@ public class HyperMapper<C> {
             collection.stream()
                     .filter(item -> item instanceof ListOperation lop && lop.getOperationType() != ListOperation.ListOperationType.REMOVE)
                     .map(item -> ((ListOperation) item).getValue())
-                    .map(item -> item instanceof Dto<?> dto ? mapDtoToObject(dto, contextInfo, visitedEntities) : item)
+                    .map(item -> item instanceof Dto<?> dto ? mapDtoToObject(dto, contextInfo, visitedEntities).entity : item)
                     .collect(Collectors.toCollection(() -> collectionToSet));
 
             entityPropertyDescriptor.setValue(entity, collectionToSet);
@@ -280,7 +284,8 @@ public class HyperMapper<C> {
 
             } else {
 
-                toEntityResult = mapDtoToEntity(value, contextInfo, visitedEntities);
+                DtoMapper dtoMapper = selectDtoMapper(value, contextInfo, visitedEntities);
+                toEntityResult = dtoMapper.mapDto(value, contextInfo, visitedEntities);
 
             }
 
@@ -313,13 +318,29 @@ public class HyperMapper<C> {
     }
 
     /**
+     * Converts a given Data Transfer Object (DTO) into an instance of the class represented by this DTO
+     * This method chooses a mapping method depending on the nature of the class represented by this DTO. If the DTO is an entity, it works the same as {@link #mapDtoToEntity(Dto, Object)}
+     *
+     * @param dto         the DTO to map
+     * @param contextInfo additional context information used for repository operations
+     * @param <T>         the type represented by this DTO
+     * @return a ToEntityResult containing the mapped object and a list of created/retrieved entities, in the order that they should be serialized
+     */
+    @NonNull
+    public <T> ToEntityResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo) {
+        HashMap visitedEntities = new HashMap();
+        DtoMapper dtoMapper = selectDtoMapper(dto, contextInfo, visitedEntities);
+        return dtoMapper.mapDto(dto, contextInfo, visitedEntities);
+    }
+
+    /**
      * Converts a given Data Transfer Object (DTO) into an entity
      * This method is used to map the fields of the provided DTO to a new or existing entity
      * If the entity already exists in the repository, it is retrieved; otherwise, a new entity instance is created
      *
-     * @param dto         the DTO to be converted into an entity
+     * @param dto         the DTO to be mapped to an entity
      * @param contextInfo additional context information used for repository operations
-     * @param <T>         the entity type corresponding to the DTO
+     * @param <T>         the entity type represented by this DTO
      * @return a ToEntityResult containing the mapped entity and a list of created/retrieved entities, in the order that they should be serialized
      */
     @NonNull
@@ -336,12 +357,30 @@ public class HyperMapper<C> {
         return result;
     }
 
-    protected <T> T mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+
+    @NonNull
+    <T> DtoMapper<T, C> selectDtoMapper(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+        if (isEntityType(dto.getSourceClass())) {
+            return this::mapDtoToEntity;
+        } else {
+            return this::mapDtoToObject;
+        }
+    }
+
+    protected <T> ToEntityResult<T> mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+
+        ToEntityResult<T> result = new ToEntityResult<>();
+
+        // If it has already been processed, return the cached value
+        if (visitedEntities.containsKey(dto)) {
+            result.entity = (T) visitedEntities.get(dto);
+            return result;
+        }
+
         Class<T> sourceClass = (Class<T>) dto.getSourceClass();
-        T result = null;
 
         try {
-            result = sourceClass.getDeclaredConstructor().newInstance();
+            result.entity = sourceClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException
                  | InvocationTargetException | NoSuchMethodException e) {
             throw new HyperMapperException("Reflection exception while processing entity of type " + sourceClass.getName(), e);
@@ -367,12 +406,12 @@ public class HyperMapper<C> {
 
             if (value instanceof Dto<?> nestedDto) {
 
-                value = mapDtoToObject((Dto<Object>) nestedDto, contextInfo, visitedEntities);
+                value = mapDtoToObject((Dto<Object>) nestedDto, contextInfo, visitedEntities).entity;
 
             } else if (value instanceof Collection<?> coll) {
 
                 try {
-                    value = mapListOperations(result, dtoPropertyDescriptor.getPropertyName(), dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
+                    value = mapListOperations(result.entity, dtoPropertyDescriptor.getPropertyName(), dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
                 } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     throw new HyperMapperException("Reflection exception while processing property " + dtoPropertyDescriptor.getPropertyName() + " of entity type " + sourceClass.getCanonicalName(), e);
                 }
@@ -380,7 +419,7 @@ public class HyperMapper<C> {
             }
 
             var sourcePropertyDescriptor = propDescriptorMap.get(dtoPropertyDescriptor.getPropertyName());
-            sourcePropertyDescriptor.setValue(result, value);
+            sourcePropertyDescriptor.setValue(result.entity, value);
 
         }
 
@@ -458,7 +497,8 @@ public class HyperMapper<C> {
                 } else if (unwrappedValue instanceof Dto<?> dtoAux) {
 
                     //If the value is a Dto, map it to an entity and handle the relationships
-                    ToEntityResult<?> toEntityResult = mapDtoToEntity(dtoAux, contextInfo, visitedEntities);
+                    DtoMapper dtoMapper = selectDtoMapper(dtoAux, contextInfo, visitedEntities);
+                    ToEntityResult toEntityResult = dtoMapper.mapDto(dtoAux, contextInfo, visitedEntities);
                     unwrappedValue = toEntityResult.entity;
                     result.addAll(toEntityResult.persistenceQueue);
 
@@ -499,6 +539,7 @@ public class HyperMapper<C> {
      * @param visitedEntities a set to track already processed DTOs and prevent cycles in the mapping process
      * @param <T>             the type of the entity corresponding to the given DTO
      * @return a ToEntityResult containing the mapped entity and the serialization queue in the order they should be serialized
+     * @throws IllegalArgumentException if the source class of the {@code dto} is not an entity
      */
     @NonNull
     public <T> ToEntityResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
@@ -516,9 +557,7 @@ public class HyperMapper<C> {
 
         //If it is not an entity, map it as a normal object
         if (entityClass.getAnnotation(Entity.class) == null) {
-            ToEntityResult<T> entityResult = new ToEntityResult<>();
-            entityResult.entity = mapDtoToObject(dto, contextInfo, visitedEntities);
-            return entityResult;
+            throw new IllegalArgumentException("Only Dtos of Entities are supported by this method");
         }
 
         //Entities MUST always have an @Id, so this MUST never be null
@@ -731,6 +770,11 @@ public class HyperMapper<C> {
             return persistenceQueue;
         }
 
+    }
+
+    @FunctionalInterface
+    interface DtoMapper<T, C> {
+        ToEntityResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities);
     }
 
     public static class HyperMapperException extends RuntimeException {
