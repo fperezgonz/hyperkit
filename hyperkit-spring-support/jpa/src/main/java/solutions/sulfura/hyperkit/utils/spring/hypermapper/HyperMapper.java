@@ -238,7 +238,7 @@ public class HyperMapper<C> {
                 }
 
                 // Throws an exception if the entity is not in the repository
-                Object childEntity = findEntityInRepository(value.getSourceClass(), itemId, contextInfo);
+                Object childEntity;
 
                 // If it is on the stack but hasn't been processed yet, it means this is a recursive call, so it should be ignored
                 if (visitedEntities.containsKey(item)) {
