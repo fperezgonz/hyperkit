@@ -467,7 +467,7 @@ public class HyperMapper<C> {
                         "All Dto Fields must be of the wrapper type");
             }
 
-            //If the DTO property is absent/empty it is ignored
+            // If the DTO property is absent/empty it is ignored
             if (valWrapper.isEmpty()) {
                 return null;
             }
@@ -476,7 +476,7 @@ public class HyperMapper<C> {
 
             List<Object> result = new ArrayList<>();
 
-            //Collections
+            // Map collections
             if (unwrappedValue instanceof Collection<?> collectionValue) {
 
                 List<ToEntityResult<?>> listOperationsResult =
@@ -486,36 +486,36 @@ public class HyperMapper<C> {
                     result.addAll(listOperationsResultItem.getPersistenceQueue());
                 }
 
-                //Non-collections
-            } else {
-
-                // If it has already been processed, use the cached value
-                if (visitedEntities.containsKey(unwrappedValue)) {
-
-                    unwrappedValue = visitedEntities.get(unwrappedValue);
-
-                } else if (unwrappedValue instanceof Dto<?> dtoAux) {
-
-                    //If the value is a Dto, map it to an entity and handle the relationships
-                    DtoMapper dtoMapper = selectDtoMapper(dtoAux, contextInfo, visitedEntities);
-                    ToEntityResult toEntityResult = dtoMapper.mapDto(dtoAux, contextInfo, visitedEntities);
-                    unwrappedValue = toEntityResult.entity;
-                    result.addAll(toEntityResult.persistenceQueue);
-
-                }
-
-                //If the property is an Entity and the value has changed, remove the old relationship
-                Object oldPropValue = HyperMapperPropertyUtils.getProperty(mappingTarget, propertyDescriptor.getPropertyName());
-
-                if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
-                    var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(mappingTarget, propertyDescriptor.getPropertyName());
-                    removeRelationship(mappingTarget, propertyPath, entityPropDescriptor, oldPropValue);
-                }
-
-                //Set the value of the entity property
-                HyperMapperPropertyUtils.setProperty(mappingTarget, propertyDescriptor.getPropertyName(), unwrappedValue);
+                return result;
 
             }
+
+            // Map non-collections
+            // If it has already been processed, use the cached value
+            if (visitedEntities.containsKey(unwrappedValue)) {
+
+                unwrappedValue = visitedEntities.get(unwrappedValue);
+
+            } else if (unwrappedValue instanceof Dto<?> dtoAux) {
+
+                // If the value is a Dto, map it to an entity and handle the relationships
+                DtoMapper dtoMapper = selectDtoMapper(dtoAux, contextInfo, visitedEntities);
+                ToEntityResult toEntityResult = dtoMapper.mapDto(dtoAux, contextInfo, visitedEntities);
+                unwrappedValue = toEntityResult.entity;
+                result.addAll(toEntityResult.persistenceQueue);
+
+            }
+
+            // If the property is an Entity and the value has changed, remove the old relationship
+            Object oldPropValue = HyperMapperPropertyUtils.getProperty(mappingTarget, propertyDescriptor.getPropertyName());
+
+            if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
+                var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(mappingTarget, propertyDescriptor.getPropertyName());
+                removeRelationship(mappingTarget, propertyPath, entityPropDescriptor, oldPropValue);
+            }
+
+            // Set the value of the entity property
+            HyperMapperPropertyUtils.setProperty(mappingTarget, propertyDescriptor.getPropertyName(), unwrappedValue);
 
             return result;
 
