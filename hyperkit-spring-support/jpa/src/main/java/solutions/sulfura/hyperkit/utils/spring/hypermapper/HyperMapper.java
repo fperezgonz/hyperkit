@@ -427,6 +427,33 @@ public class HyperMapper<C> {
 
     }
 
+    protected static void handleRelationship(Object parentEntity, Object propertyHolder, String propertyPath, Object newPropertyValue) {
+
+        if (newPropertyValue instanceof Collection<?> collectionValue) {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+
+        PropertyDescriptor propertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(parentEntity, propertyPath);
+
+        //If the property holder is an Entity and the value has changed, remove the old relationship
+        Object oldPropValue = propertyDescriptor.getValue(propertyHolder);
+
+        try {
+
+            // Handle ToOne relationships
+            if (isEntity(oldPropValue) && oldPropValue != newPropertyValue) {
+                removeRelationship(parentEntity, propertyPath, propertyDescriptor, newPropertyValue);
+            }
+
+            //Set the value of the entity property
+            HyperMapperPropertyUtils.setProperty(propertyHolder, propertyDescriptor.getPropertyName(), newPropertyValue);
+
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     /**
      * Maps a single DTO property to its corresponding non-dto value.
      * If the non-dto value is an entity, it handles the relationship with the property owner
@@ -506,16 +533,7 @@ public class HyperMapper<C> {
 
             }
 
-            // If the property is an Entity and the value has changed, remove the old relationship
-            Object oldPropValue = HyperMapperPropertyUtils.getProperty(mappingTarget, propertyDescriptor.getPropertyName());
-
-            if (isEntity(oldPropValue) && oldPropValue != unwrappedValue) {
-                var entityPropDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(mappingTarget, propertyDescriptor.getPropertyName());
-                removeRelationship(mappingTarget, propertyPath, entityPropDescriptor, oldPropValue);
-            }
-
-            // Set the value of the entity property
-            HyperMapperPropertyUtils.setProperty(mappingTarget, propertyDescriptor.getPropertyName(), unwrappedValue);
+            handleRelationship(mappingTarget, mappingTarget, propertyPath, unwrappedValue);
 
             return result;
 
