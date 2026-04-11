@@ -37,7 +37,6 @@ public class HyperKitJackson2AutoConfigTest {
             assertNotNull(context);
             assertNotNull(context.getBean(HyperKitJackson2AutoConfig.class));
             ObjectMapper objectMapper = context.getBean(ObjectMapper.class);
-            objectMapper.getRegisteredModuleIds().stream().forEach(moduleId-> System.out.println(moduleId));
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.jackson2.value_wrapper.ValueWrapperJacksonModule"));
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.jackson2.DtoJacksonModule"));
             assertTrue(objectMapper.getRegisteredModuleIds().contains("solutions.sulfura.hyperkit.utils.serialization.jackson2.alias.ProjectedDtoJacksonModule"));
