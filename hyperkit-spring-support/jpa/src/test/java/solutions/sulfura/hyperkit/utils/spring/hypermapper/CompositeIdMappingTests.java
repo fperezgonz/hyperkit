@@ -66,8 +66,8 @@ public class CompositeIdMappingTests {
         stockDto.quantity = ValueWrapper.of(new BigDecimal("100.00"));
 
         // When persisting the stock dto
-        Object resultObj = dtoMapper.mapDtoToEntity(stockDto, null);
-        Stock stock = (Stock) ((HyperMapper.ToEntityResult<?>) resultObj).entity;
+        HyperMapper.MappingResult<?> resultObj = dtoMapper.mapDtoToEntity(stockDto, null);
+        Stock stock = (Stock) resultObj.mappedValue();
 
         // Then the resulting stock should have the correct composite id and load the persisted entities referenced by the composite id
         assertNotNull(stock);
@@ -120,7 +120,7 @@ public class CompositeIdMappingTests {
 
         // When persisting the stock dto
         var result = dtoMapper.mapDtoToEntity(stockDto, null);
-        Stock updatedStock = result.entity;
+        Stock updatedStock = result.mappedValue();
 
         // Then the resulting stock should have the correct composite id and load the persisted entities referenced by the composite id
         assertNotNull(updatedStock);

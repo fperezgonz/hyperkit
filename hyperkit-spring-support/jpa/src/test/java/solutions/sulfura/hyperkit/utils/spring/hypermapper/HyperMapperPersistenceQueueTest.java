@@ -57,10 +57,10 @@ class HyperMapperPersistenceQueueTest {
         );
 
         // When the dto is mapped to an entity
-        HyperMapper.ToEntityResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
+        HyperMapper.MappingResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
 
         // Then the items added with ADD should be on the persistence queue
-        List<Object> persistenceQueue = result.getPersistenceQueue();
+        List<Object> persistenceQueue = result.persistenceQueue();
         assertFalse(persistenceQueue.isEmpty(), "Persistence queue should not be empty");
 
         boolean foundNewEntity = false;
@@ -109,10 +109,10 @@ class HyperMapperPersistenceQueueTest {
         );
 
         // When mapping the dto to an entity
-        HyperMapper.ToEntityResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
+        HyperMapper.MappingResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
 
         // Then the UPDATE item should be on the persistence queue
-        List<Object> persistenceQueue = result.getPersistenceQueue();
+        List<Object> persistenceQueue = result.persistenceQueue();
         assertFalse(persistenceQueue.isEmpty(), "Persistence queue should not be empty");
 
         // The updated ManyToOneEntity should be in the persistence queue
@@ -162,10 +162,10 @@ class HyperMapperPersistenceQueueTest {
         );
 
         // When mapping the dto to an entity
-        HyperMapper.ToEntityResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
+        HyperMapper.MappingResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
 
         // Then
-        List<Object> persistenceQueue = result.getPersistenceQueue();
+        List<Object> persistenceQueue = result.persistenceQueue();
         assertFalse(persistenceQueue.isEmpty(), "Persistence queue should not be empty");
 
         // The removed ManyToOneEntity should be in the persistence queue
@@ -207,9 +207,9 @@ class HyperMapperPersistenceQueueTest {
         oneToManyDto.company = ValueWrapper.of(companyDto);
 
         // When mapping the dto to an entity
-        HyperMapper.ToEntityResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
-        assertNotNull(result.getEntity().company);
-        assertEquals(result.getEntity().company.getId(), company.getId());
+        HyperMapper.MappingResult<OneToManyEntity> result = dtoMapper.mapDtoToEntity(oneToManyDto, null);
+        assertNotNull(result.mappedValue().company);
+        assertEquals(result.mappedValue().company.getId(), company.getId());
     }
 
 }

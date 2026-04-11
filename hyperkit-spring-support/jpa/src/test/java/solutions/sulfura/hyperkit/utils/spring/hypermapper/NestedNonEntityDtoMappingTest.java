@@ -40,7 +40,7 @@ class NestedNonEntityDtoMappingTest {
 
         // When: mapping the DTO to a non-entity object
         var toEntity = dtoMapper.mapDto(root, null);
-        PlainRoot mapped = toEntity.getEntity();
+        PlainRoot mapped = toEntity.mappedValue();
 
         // Then: the mapping should preserve the nested structure
         assertNotNull(mapped);

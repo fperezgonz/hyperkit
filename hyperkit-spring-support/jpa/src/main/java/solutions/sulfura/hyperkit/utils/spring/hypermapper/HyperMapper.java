@@ -70,7 +70,7 @@ public class HyperMapper<C> {
     @NonNull
     public <T> T persistDtoToEntity(@NonNull Dto<T> dto, C contextInfo) {
 
-        ToEntityResult<T> toEntityResult = mapDtoToEntity(dto, contextInfo);
+        MappingResult<T> toEntityResult = mapDtoToEntity(dto, contextInfo);
 
         for (int i = 0; i < toEntityResult.persistenceQueue.size(); i++) {
             hyperRepository.save(toEntityResult.persistenceQueue.get(i), contextInfo);
@@ -82,7 +82,7 @@ public class HyperMapper<C> {
             entityManager.refresh(toEntityResult.persistenceQueue.get(i));
         }
 
-        return toEntityResult.entity;
+        return toEntityResult.mappedValue;
 
     }
 
@@ -90,17 +90,17 @@ public class HyperMapper<C> {
     public <T> List<T> persistDtosToEntities(@NonNull List<? extends Dto<T>> dtos, C contextInfo) {
 
         List<T> result = new ArrayList<>();
-        List<ToEntityResult<T>> toEntityResults = mapDtosToEntities(dtos, contextInfo);
+        List<MappingResult<T>> toEntityResults = mapDtosToEntities(dtos, contextInfo);
 
         for (int i = 0; i < toEntityResults.size(); i++) {
 
-            ToEntityResult<T> toEntityResult = toEntityResults.get(i);
+            MappingResult<T> toEntityResult = toEntityResults.get(i);
 
             for (int j = 0; j < toEntityResult.persistenceQueue.size(); j++) {
                 hyperRepository.save(toEntityResult.persistenceQueue.get(j), contextInfo);
             }
 
-            result.add(toEntityResult.entity);
+            result.add(toEntityResult.mappedValue);
 
         }
 
@@ -124,17 +124,17 @@ public class HyperMapper<C> {
      * @param collection            The collection with the {@link ListOperation} elements
      * @param contextInfo           Extra contextual information for repository access
      * @param visitedEntities       A hash map for tracking entities already processed and the results of processing them, to avoid recursion problems and act as a result cache
-     * @return A list of ToEntityResult<?> objects representing updated or created entities
+     * @return A list of MappingResult<?> objects representing updated or created entities
      */
     @NonNull
-    private List<ToEntityResult<?>> mapListOperations(@NonNull Object entity,
-                                                      @NonNull String propertyPath,
-                                                      @NonNull PropertyDescriptor dtoPropertyDescriptor,
-                                                      @NonNull Collection<?> collection,
-                                                      C contextInfo,
-                                                      @NonNull HashMap<Object, Object> visitedEntities) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    private List<MappingResult<?>> mapListOperations(@NonNull Object entity,
+                                                     @NonNull String propertyPath,
+                                                     @NonNull PropertyDescriptor dtoPropertyDescriptor,
+                                                     @NonNull Collection<?> collection,
+                                                     C contextInfo,
+                                                     @NonNull HashMap<Object, Object> visitedEntities) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-        List<ToEntityResult<?>> result = new ArrayList<>();
+        List<MappingResult<?>> result = new ArrayList<>();
 
         // If the collection is empty, return an empty result list as no processing is needed.
         if (collection.isEmpty()) {
@@ -153,7 +153,7 @@ public class HyperMapper<C> {
             collection.stream()
                     .filter(item -> item instanceof ListOperation lop && lop.getOperationType() != ListOperation.ListOperationType.REMOVE)
                     .map(item -> ((ListOperation) item).getValue())
-                    .map(item -> item instanceof Dto<?> dto ? mapDtoToObject(dto, contextInfo, visitedEntities).entity : item)
+                    .map(item -> item instanceof Dto<?> dto ? mapDtoToObject(dto, contextInfo, visitedEntities).mappedValue : item)
                     .collect(Collectors.toCollection(() -> collectionToSet));
 
             entityPropertyDescriptor.setValue(entity, collectionToSet);
@@ -250,15 +250,15 @@ public class HyperMapper<C> {
 
                 removeRelationship(entity, propertyPath, HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()), childEntity);
 
-                var itemEntityResult = new ToEntityResult<>();
-                itemEntityResult.entity = childEntity;
-                itemEntityResult.persistenceQueue.add(childEntity);
+                List<Object> persistenceQueue = new ArrayList<>();
+                persistenceQueue.add(childEntity);
+                var itemEntityResult = new MappingResult<>(childEntity, new ArrayList<>(), persistenceQueue);
                 result.add(itemEntityResult);
 
                 continue;
             }
 
-            ToEntityResult toEntityResult;
+            MappingResult toEntityResult;
 
             if (effectiveItemOperationType == NONE) {
 
@@ -271,15 +271,16 @@ public class HyperMapper<C> {
                     throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + entityClass.getName());
                 }
 
-                toEntityResult = new ToEntityResult<>();
 
                 // If it is on the stack but hasn't been processed yet, it means this is a recursive call, so it should be ignored
                 if (visitedEntities.containsKey(item)) {
-                    toEntityResult.entity = visitedEntities.get(item);
+                    toEntityResult = new MappingResult<>(visitedEntities.get(item), new ArrayList<>(), new ArrayList<>());
                 } else {
                     // Throws an exception if the entity is not in the repository
-                    toEntityResult.entity = hyperRepository.findById(entityClass, itemId, contextInfo).orElseThrow();
-                    toEntityResult.persistenceQueue.add(toEntityResult.entity);
+                    Object mappedValue = hyperRepository.findById(entityClass, itemId, contextInfo).orElseThrow();
+                    List<Object> persistenceQueue = new ArrayList<>();
+                    persistenceQueue.add(mappedValue);
+                    toEntityResult = new MappingResult(mappedValue, new ArrayList<>(), persistenceQueue);
                 }
 
             } else {
@@ -289,11 +290,10 @@ public class HyperMapper<C> {
 
             }
 
-            Object childEntity = toEntityResult.getEntity();
-
-            var itemEntityResult = new ToEntityResult<>();
-            itemEntityResult.entity = childEntity;
-            itemEntityResult.persistenceQueue.addAll(0, toEntityResult.getPersistenceQueue());
+            Object childEntity = toEntityResult.mappedValue;
+            List<Object> persistenceQueue = new ArrayList<>();
+            persistenceQueue.addAll(0, toEntityResult.persistenceQueue);
+            var itemEntityResult = new MappingResult<>(childEntity, new ArrayList<>(), persistenceQueue);
             result.add(itemEntityResult);
 
             // Case ADD: Add the new or updated entity to the collection property of the parent entity.
@@ -317,6 +317,12 @@ public class HyperMapper<C> {
 
     }
 
+    @NonNull
+    public <T> MappingResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+        DtoMapper dtoMapper = selectDtoMapper(dto, contextInfo, visitedEntities);
+        return dtoMapper.mapDto(dto, contextInfo, visitedEntities);
+    }
+
     /**
      * Converts a given Data Transfer Object (DTO) into an instance of the class represented by this DTO
      * This method chooses a mapping method depending on the nature of the class represented by this DTO. If the DTO is an entity, it works the same as {@link #mapDtoToEntity(Dto, Object)}
@@ -324,13 +330,11 @@ public class HyperMapper<C> {
      * @param dto         the DTO to map
      * @param contextInfo additional context information used for repository operations
      * @param <T>         the type represented by this DTO
-     * @return a ToEntityResult containing the mapped object and a list of created/retrieved entities, in the order that they should be serialized
+     * @return a MappingResult containing the mapped object and a list of created/retrieved entities, in the order that they should be serialized
      */
     @NonNull
-    public <T> ToEntityResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo) {
-        HashMap visitedEntities = new HashMap();
-        DtoMapper dtoMapper = selectDtoMapper(dto, contextInfo, visitedEntities);
-        return dtoMapper.mapDto(dto, contextInfo, visitedEntities);
+    public <T> MappingResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo) {
+        return mapDto(dto, contextInfo, new HashMap<>());
     }
 
     /**
@@ -341,16 +345,16 @@ public class HyperMapper<C> {
      * @param dto         the DTO to be mapped to an entity
      * @param contextInfo additional context information used for repository operations
      * @param <T>         the entity type represented by this DTO
-     * @return a ToEntityResult containing the mapped entity and a list of created/retrieved entities, in the order that they should be serialized
+     * @return a MappingResult containing the mapped entity and a list of created/retrieved entities, in the order that they should be serialized
      */
     @NonNull
-    public <T> ToEntityResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo) {
+    public <T> MappingResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo) {
         return mapDtoToEntity(dto, contextInfo, new HashMap<>());
     }
 
     @NonNull
-    public <T> List<ToEntityResult<T>> mapDtosToEntities(@NonNull List<? extends Dto<T>> dtos, C contextInfo) {
-        List<ToEntityResult<T>> result = new ArrayList<>();
+    public <T> List<MappingResult<T>> mapDtosToEntities(@NonNull List<? extends Dto<T>> dtos, C contextInfo) {
+        List<MappingResult<T>> result = new ArrayList<>();
         for (Dto<T> dto : dtos) {
             result.add(mapDtoToEntity(dto, contextInfo));
         }
@@ -367,20 +371,18 @@ public class HyperMapper<C> {
         }
     }
 
-    protected <T> ToEntityResult<T> mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
-
-        ToEntityResult<T> result = new ToEntityResult<>();
+    protected <T> MappingResult<T> mapDtoToObject(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
 
         // If it has already been processed, return the cached value
         if (visitedEntities.containsKey(dto)) {
-            result.entity = (T) visitedEntities.get(dto);
-            return result;
+            return new MappingResult<>((T) visitedEntities.get(dto), new ArrayList<>(), new ArrayList<>());
         }
 
         Class<T> sourceClass = (Class<T>) dto.getSourceClass();
 
+        T mappedValue;
         try {
-            result.entity = sourceClass.getDeclaredConstructor().newInstance();
+            mappedValue = sourceClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException
                  | InvocationTargetException | NoSuchMethodException e) {
             throw new HyperMapperException("Reflection exception while processing entity of type " + sourceClass.getName(), e);
@@ -388,6 +390,8 @@ public class HyperMapper<C> {
 
         Collection<PropertyDescriptor> dtoPropDescriptors = HyperMapperPropertyUtils.getProperties(dto.getClass());
         Map<String, PropertyDescriptor> propDescriptorMap = HyperMapperPropertyUtils.getPropertiesMap(sourceClass);
+        List<Object> prioritySerializationQueue = new ArrayList<>();
+        List<Object> persistenceQueue = new ArrayList<>();
 
         for (PropertyDescriptor dtoPropertyDescriptor : dtoPropDescriptors) {
 
@@ -406,12 +410,32 @@ public class HyperMapper<C> {
 
             if (value instanceof Dto<?> nestedDto) {
 
-                value = mapDtoToObject((Dto<Object>) nestedDto, contextInfo, visitedEntities).entity;
+                var dtoMappingResult = mapDto((Dto<Object>) nestedDto, contextInfo, visitedEntities);
+                value = dtoMappingResult.mappedValue;
+
+                boolean isParentEntityRelationshipOwner = RelationshipManager.isRelationshipOwner(mappedValue, dtoPropertyDescriptor.getPropertyName());
+
+                //Non-owners have to be serialized first, or there will be serialization errors because of null ids on the owner columns
+                if (isParentEntityRelationshipOwner) {
+                    prioritySerializationQueue.addAll(dtoMappingResult.persistenceQueue);
+                } else {
+                    persistenceQueue.addAll(0, dtoMappingResult.persistenceQueue);
+                }
 
             } else if (value instanceof Collection<?> coll) {
 
                 try {
-                    value = mapListOperations(result.entity, dtoPropertyDescriptor.getPropertyName(), dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
+                    var collectionMappingResult = mapListOperations(mappedValue, dtoPropertyDescriptor.getPropertyName(), dtoPropertyDescriptor, coll, contextInfo, visitedEntities);
+                    value = collectionMappingResult.stream().map(MappingResult::mappedValue).collect(Collectors.toList());
+                    persistenceQueue.addAll(0, collectionMappingResult.stream()
+                            .map((mappingResult) -> {
+                                var mergedPersistenceQueue = new ArrayList<>();
+                                mergedPersistenceQueue.addAll(mappingResult.persistenceQueue);
+                                mergedPersistenceQueue.addAll(prioritySerializationQueue);
+                                return mergedPersistenceQueue;
+                            })
+                            .flatMap(Collection::stream)
+                            .toList());
                 } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                     throw new HyperMapperException("Reflection exception while processing property " + dtoPropertyDescriptor.getPropertyName() + " of entity type " + sourceClass.getCanonicalName(), e);
                 }
@@ -419,11 +443,11 @@ public class HyperMapper<C> {
             }
 
             var sourcePropertyDescriptor = propDescriptorMap.get(dtoPropertyDescriptor.getPropertyName());
-            sourcePropertyDescriptor.setValue(result.entity, value);
+            sourcePropertyDescriptor.setValue(mappedValue, value);
 
         }
 
-        return result;
+        return new MappingResult<>(mappedValue, prioritySerializationQueue, persistenceQueue);
 
     }
 
@@ -506,11 +530,11 @@ public class HyperMapper<C> {
             // Map collections
             if (unwrappedValue instanceof Collection<?> collectionValue) {
 
-                List<ToEntityResult<?>> listOperationsResult =
+                List<MappingResult<?>> listOperationsResult =
                         mapListOperations(mappingTarget, propertyPath, propertyDescriptor, collectionValue, contextInfo, visitedEntities);
 
-                for (ToEntityResult<?> listOperationsResultItem : listOperationsResult) {
-                    result.addAll(listOperationsResultItem.getPersistenceQueue());
+                for (MappingResult<?> listOperationsResultItem : listOperationsResult) {
+                    result.addAll(listOperationsResultItem.persistenceQueue);
                 }
 
                 return result;
@@ -527,8 +551,8 @@ public class HyperMapper<C> {
 
                 // If the value is a Dto, map it to an entity and handle the relationships
                 DtoMapper dtoMapper = selectDtoMapper(dtoAux, contextInfo, visitedEntities);
-                ToEntityResult toEntityResult = dtoMapper.mapDto(dtoAux, contextInfo, visitedEntities);
-                unwrappedValue = toEntityResult.entity;
+                MappingResult toEntityResult = dtoMapper.mapDto(dtoAux, contextInfo, visitedEntities);
+                unwrappedValue = toEntityResult.mappedValue;
                 result.addAll(toEntityResult.persistenceQueue);
 
             }
@@ -556,16 +580,15 @@ public class HyperMapper<C> {
      * @param contextInfo     additional contextual data for repository operations
      * @param visitedEntities a set to track already processed DTOs and prevent cycles in the mapping process
      * @param <T>             the type of the entity corresponding to the given DTO
-     * @return a ToEntityResult containing the mapped entity and the serialization queue in the order they should be serialized
+     * @return a MappingResult containing the mapped entity and the serialization queue in the order they should be serialized
      * @throws IllegalArgumentException if the source class of the {@code dto} is not an entity
      */
     @NonNull
-    public <T> ToEntityResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+    public <T> MappingResult<T> mapDtoToEntity(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
 
         // If it has already been processed, return the cached value
         if (visitedEntities.containsKey(dto)) {
-            ToEntityResult<T> entityResult = new ToEntityResult<>();
-            entityResult.entity = (T) visitedEntities.get(dto);
+            MappingResult<T> entityResult = new MappingResult<>((T) visitedEntities.get(dto), new ArrayList<>(), new ArrayList<>());
             return entityResult;
         }
 
@@ -580,8 +603,9 @@ public class HyperMapper<C> {
 
         //Entities MUST always have an @Id, so this MUST never be null
         PropertyDescriptor entityIdPropDesc = getIdPropertyDescriptor(entityClass);
-        ToEntityResult<T> result = new ToEntityResult<>();
+        MappingResult<T> result;
         List<Object> prioritySerializationQueue = new ArrayList<>();
+        List<Object> persistenceQueue = new ArrayList<>();
 
         if (entityIdPropDesc == null) {
             throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + entityClass.getName());
@@ -617,6 +641,10 @@ public class HyperMapper<C> {
         //Map properties
         for (PropertyDescriptor propertyDescriptor : dtoPropDescriptors) {
 
+            if (propertyDescriptor.getPropertyName().equals(entityIdPropDesc.getPropertyName())) {
+                continue;
+            }
+
             var nestedSerializationQueue = handleProperty(dto, propertyDescriptor.getPropertyName(), propertyDescriptor, entity, contextInfo, visitedEntities);
 
             if (nestedSerializationQueue == null || nestedSerializationQueue.isEmpty()) {
@@ -629,14 +657,14 @@ public class HyperMapper<C> {
             if (isParentEntityRelationshipOwner) {
                 prioritySerializationQueue.addAll(nestedSerializationQueue);
             } else {
-                result.persistenceQueue.addAll(0, nestedSerializationQueue);
+                persistenceQueue.addAll(0, nestedSerializationQueue);
             }
 
         }
 
-        result.entity = entity;
-        result.persistenceQueue.addFirst(entity);
-        result.persistenceQueue.addAll(0, prioritySerializationQueue);
+        persistenceQueue.addFirst(entity);
+        persistenceQueue.addAll(0, prioritySerializationQueue);
+        result = new MappingResult<>(entity, new ArrayList<>(), persistenceQueue);
 
         return result;
 
@@ -770,29 +798,30 @@ public class HyperMapper<C> {
 
     }
 
-    public static class ToEntityResult<T> {
-
-        T entity;
-        final List<Object> persistenceQueue = new ArrayList<>();
-
-        public T getEntity() {
-            return entity;
-        }
-
-        /**
-         * A list that holds entities created or retrieved during the mapping operation, in the order they should be persisted.
-         * This queue ensures proper serialization of objects, avoiding NOT NULL constraint problems caused by the
-         * persistence of owners of relationships before the owned entity has been serialized
-         */
-        public List<Object> getPersistenceQueue() {
-            return persistenceQueue;
-        }
-
+    /**
+     * This record holds the result of a mapping operation and separates the entities that need serialization in two queues to avoid persistence conflicts.
+     * This separation is only relevant when mapping a non-entity object, such as an {@link Embedded} value. For all other cases, only the {@code persistenceQueue} will be used:
+     * <ul>
+     * <li> The {@code prioritySerializationQueue} holds queued values that do not own the relationship. They must be serialized before the owner</li>
+     * <li> The {@code persistenceQueue} holds queued values that own the relationship. They must be serialized after the other side of the relationship</li>
+     * </ul>
+     *
+     * @param prioritySerializationQueue A list that holds entities created or retrieved during the mapping operation, in the order they should be persisted.
+     *                                   The entities in this queue are not the owners of the relationship and must be serialized before the owner
+     *                                   to avoid NOT NULL constraint problems caused by the persistence of owners before non-owners
+     * @param persistenceQueue           A list that holds entities created or retrieved during the mapping operation, in the order they should be persisted.
+     *                                   The entities in this queue are the owners of the relationship and must be serialized after the non-owner
+     *                                   to avoid NOT NULL constraint problems caused by the persistence of owners before non-owners
+     */
+    // TODO Improve performance by making the queues nullable
+    public record MappingResult<T>(T mappedValue,
+                                   @NonNull List<Object> prioritySerializationQueue,
+                                   @NonNull List<Object> persistenceQueue) {
     }
 
     @FunctionalInterface
     interface DtoMapper<T, C> {
-        ToEntityResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities);
+        MappingResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities);
     }
 
     public static class HyperMapperException extends RuntimeException {

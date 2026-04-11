@@ -130,7 +130,7 @@ class HyperMapperTest {
                 .build();
 
         // When mapping the Dto to entity
-        EntityWithPrimitiveList entity = dtoMapper.mapDtoToEntity(dto, null).getEntity();
+        EntityWithPrimitiveList entity = dtoMapper.mapDtoToEntity(dto, null).mappedValue();
 
         // Assert entity values
         assertNotNull(entity);
@@ -850,7 +850,7 @@ class HyperMapperTest {
         );
 
         // When mapping the dto to an entity
-        OneToManyEntity result = dtoMapper.mapDtoToEntity(parentDto, null).getEntity();
+        OneToManyEntity result = dtoMapper.mapDtoToEntity(parentDto, null).mappedValue();
 
         // Then the nested entity is the same as the root entity
         assertEquals(1, result.manyToOneEntities.size(), "Parent should have one child entity");
@@ -886,7 +886,7 @@ class HyperMapperTest {
         );
 
         // When mapping the dto to an entity
-        OneToManyEntity result = dtoMapper.mapDtoToEntity(parentDto, null).getEntity();
+        OneToManyEntity result = dtoMapper.mapDtoToEntity(parentDto, null).mappedValue();
 
         // Then the nested entity is the same as the root entity
         assertEquals(1, result.manyToOneEntities.size(), "Parent should have one child entity");
