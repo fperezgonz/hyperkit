@@ -27,7 +27,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithAliasedSimpleProperty() throws IOException {
+    void deserializeDtoWithAliasedSimpleProperty() {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("name as code", AuthorizationDto.Projection.class);
         String sourceJson = """
@@ -42,7 +42,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithAliasedSimplePropertyAndPropertyWithoutConfigInProjection() throws IOException {
+    void deserializeDtoWithAliasedSimplePropertyAndPropertyWithoutConfigInProjection() {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("name", AuthorizationDto.Projection.class);
         String sourceJson = """
@@ -56,7 +56,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithAliasedDtoProperty() throws IOException {
+    void deserializeDtoWithAliasedDtoProperty() {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("role as rl { name }", AuthorizationDto.Projection.class);
         String sourceJson = """
@@ -70,7 +70,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithAliasedListProperty() throws IOException {
+    void deserializeDtoWithAliasedListProperty() {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("resourceReferences resources { name }", AuthorizationDto.Projection.class);
         String sourceJson = """
@@ -84,7 +84,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithNestedAliasedSimpleProperty() throws IOException {
+    void deserializeDtoWithNestedAliasedSimpleProperty() {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("role { name as code }", AuthorizationDto.Projection.class);
 
@@ -99,7 +99,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithNestedAliasedDtoProperty() throws IOException {
+    void deserializeDtoWithNestedAliasedDtoProperty() {
         // Given
         UserDto.Projection projection = ProjectionDsl.parse("authorizations { role rl { name } }", UserDto.Projection.class);
         String sourceJson = """
@@ -114,7 +114,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
     }
 
     @Test
-    void deserializeDtoWithNestedAliasedListProperty() throws IOException {
+    void deserializeDtoWithNestedAliasedListProperty() {
         // Given
         AuthorizationDto.Projection projection = ProjectionDsl.parse("role { actions as perms { id } }", AuthorizationDto.Projection.class);
         String sourceJson = """
