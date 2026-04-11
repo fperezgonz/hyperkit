@@ -451,11 +451,7 @@ public class HyperMapper<C> {
 
     }
 
-    protected static void handleRelationship(Object parentEntity, Object propertyHolder, String propertyPath, Object newPropertyValue) {
-
-        if (newPropertyValue instanceof Collection<?> collectionValue) {
-            throw new UnsupportedOperationException("Not implemented yet");
-        }
+    protected static void handleToOneRelationship(Object parentEntity, Object propertyHolder, String propertyPath, Object newPropertyValue) {
 
         PropertyDescriptor propertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(parentEntity, propertyPath);
 
@@ -557,7 +553,7 @@ public class HyperMapper<C> {
 
             }
 
-            handleRelationship(mappingTarget, mappingTarget, propertyPath, unwrappedValue);
+            handleToOneRelationship(mappingTarget, mappingTarget, propertyPath, unwrappedValue);
 
             return result;
 
@@ -565,6 +561,24 @@ public class HyperMapper<C> {
             throw new HyperMapperException("Reflection exception while processing property " + propertyDescriptor.getPropertyName() + " of entity type " + dto.getSourceClass().getCanonicalName(), e);
         }
 
+    }
+
+    protected void handleEmbeddedToOneRelationships(@NonNull Object entity, String propertyPath, @NonNull Object embeddedObject) {
+        Map<String, PropertyDescriptor> propDescriptorMap = HyperMapperPropertyUtils.getPropertiesMap(embeddedObject.getClass());
+
+        for (PropertyDescriptor dtoPropertyDescriptor : propDescriptorMap.values()) {
+
+            Object value = dtoPropertyDescriptor.getValue(embeddedObject);
+
+            if (dtoPropertyDescriptor.getAnnotation(Embedded.class) != null) {
+                handleEmbeddedToOneRelationships(entity, propertyPath + "." + dtoPropertyDescriptor.getPropertyName(), value);
+                continue;
+            } else if (dtoPropertyDescriptor.getAnnotation(ManyToOne.class) != null || dtoPropertyDescriptor.getAnnotation(OneToOne.class) != null) {
+                handleToOneRelationship(entity, embeddedObject, propertyPath + "." + dtoPropertyDescriptor.getPropertyName(), value);
+                continue;
+            }
+
+        }
     }
 
     /**
@@ -601,14 +615,14 @@ public class HyperMapper<C> {
             throw new IllegalArgumentException("Only Dtos of Entities are supported by this method");
         }
 
-        //Entities MUST always have an @Id, so this MUST never be null
+        //Entities MUST always have an @Id or an @EmbeddedId, so this MUST never be null
         PropertyDescriptor entityIdPropDesc = getIdPropertyDescriptor(entityClass);
         MappingResult<T> result;
         List<Object> prioritySerializationQueue = new ArrayList<>();
         List<Object> persistenceQueue = new ArrayList<>();
 
         if (entityIdPropDesc == null) {
-            throw new HyperMapperException("Entity types without an @Id property are not supported. Type: " + entityClass.getName());
+            throw new HyperMapperException("Entity types without an @Id or @EmbeddedId property are not supported. Type: " + entityClass.getName());
         }
 
         T entity = null;
@@ -616,20 +630,47 @@ public class HyperMapper<C> {
         try {
 
             Object dtoIdWrapper = HyperMapperPropertyUtils.getProperty(dto, entityIdPropDesc.getPropertyName());
-            Serializable dtoId = (Serializable) (dtoIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.getOrNull() : dtoIdWrapper);
+            Object dtoId = dtoIdWrapper instanceof ValueWrapper valWrapper ? valWrapper.getOrNull() : dtoIdWrapper;
+            boolean isEmbeddedId = entityIdPropDesc.getAnnotation(EmbeddedId.class) != null;
+            Object entityId = dtoId;
 
-            //Retrieves an instance from the repository or creates a new instance, depending on whether it has an id or not
-            if (dtoId != null) {
-                //Retrieve entity from Repository
-                entity = findEntityInRepository(entityClass, dtoId, contextInfo);
+            if (isEmbeddedId) {
+                // Relationships with embedded ids are always owned by the entity declaring the embedded id, so if there is an embedded entity it is always serialized first
+                if (dtoId == null) {
+                    // If the embedded id is null or contains a null value, fail (SQL does not allow for primary keys with null values on any of the key's components)
+                    throw new IllegalArgumentException("Property " + entityIdPropDesc.getPropertyName() + " in " + dtoClass + " is an embedded Id and cannot be null");
+                }
+
+                if (!(dtoId instanceof Dto<?> dtoIdDto)) {
+                    throw new IllegalArgumentException("Embedded ids without a Dto mapping are not supported yet. Type: " + entityClass.getName());
+                }
+
+                var embeddedValueMappingResult = mapDtoToObject(dtoIdDto, contextInfo, visitedEntities);
+                prioritySerializationQueue.addAll(embeddedValueMappingResult.prioritySerializationQueue);
+                persistenceQueue.addAll(embeddedValueMappingResult.persistenceQueue);
+                entityId = embeddedValueMappingResult.mappedValue;
             }
 
-            if (dtoId == null) {
-                //Create a new entity instance
+            if (entityId != null) {
+                entity = hyperRepository.findById(entityClass, entityId, contextInfo).orElse(null);
+            }
+
+            // If no entity was found, create a new instance
+            if (entity == null) {
+
                 entity = entityClass.getDeclaredConstructor().newInstance();
+
+                if (entityId != null) {
+                    entityIdPropDesc.setValue(entity, entityId);
+                }
+
             }
 
             visitedEntities.put(dto, entity);
+
+            if (isEmbeddedId && entityId != null) {
+                handleEmbeddedToOneRelationships(entity, entityIdPropDesc.getPropertyName(), entityId);
+            }
 
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                  InstantiationException e) {

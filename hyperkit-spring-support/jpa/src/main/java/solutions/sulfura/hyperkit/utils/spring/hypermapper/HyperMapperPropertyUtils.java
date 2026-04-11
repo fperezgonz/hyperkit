@@ -1,5 +1,6 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Id;
 
 import java.lang.annotation.Annotation;
@@ -149,7 +150,7 @@ public class HyperMapperPropertyUtils {
 
         for (PropertyDescriptor propDescriptor : entityProperties) {
 
-            if (propDescriptor.getAnnotation(Id.class) != null) {
+            if (propDescriptor.getAnnotation(Id.class) != null || propDescriptor.getAnnotation(EmbeddedId.class) != null) {
                 idsCache.put(entityClass, propDescriptor);
                 return propDescriptor;
             }
