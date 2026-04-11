@@ -39,6 +39,7 @@ public class HyperKitJackson2AutoConfig {
         return new ProjectedDtoJacksonModule();
     }
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
     public ProjectionAwareJacksonConverter projectionAwareJackson2Converter(ObjectMapper objectMapper,
                                                                             CachedProjectionParser cachedProjectionParser,

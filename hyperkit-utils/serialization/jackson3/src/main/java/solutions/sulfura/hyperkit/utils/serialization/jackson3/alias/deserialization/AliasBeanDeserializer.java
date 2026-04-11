@@ -48,7 +48,7 @@ public class AliasBeanDeserializer extends BeanDeserializer {
                     }
                     resolved.property.deserializeAndSet(parser, deserializationContext, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, deserializationContext);
+                    throw wrapAndThrow(e, bean, propName, deserializationContext);
                 } finally {
                     // Restore the initial projection to the deserialization context
                     deserializationContext.setAttribute(HYPERKIT_PROJECTION_ATTR_KEY, projection);

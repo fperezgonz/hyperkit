@@ -10,6 +10,7 @@ import solutions.sulfura.hyperkit.utils.test.model.dtos.UserDto;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for deserialization of projected dtos with field name aliasing.
@@ -108,6 +109,7 @@ public abstract class AliasedProjectionPropertiesDeserializationTest {
         UserDto result = deserializationProvider.read(sourceJson, UserDto.class, projection);
 
         // Then
+        assertTrue(result.authorizations.get().stream().findFirst().isPresent());
         assertEquals("AdminRole", result.authorizations.get().stream().findFirst().get().getValue().role.get().name.get());
     }
 
