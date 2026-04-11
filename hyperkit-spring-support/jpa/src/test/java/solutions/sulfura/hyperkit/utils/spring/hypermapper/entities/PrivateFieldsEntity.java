@@ -9,7 +9,7 @@ import java.io.Serializable;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_private_fields")
-@Dto(destPackageName = "cloud.sulfura.time.r.generated.temp.dto")
+@Dto(destPackageName = "solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto")
 public class PrivateFieldsEntity implements Serializable {
 
     @DtoProperty

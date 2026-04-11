@@ -9,7 +9,7 @@ import java.util.Set;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_many_to_many_right")
-@Dto(destPackageName = "cloud.sulfura.time.r.generated.temp.dto")
+@Dto(destPackageName = "solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto")
 public class ManyToManyRightEntity {
 
     @DtoProperty

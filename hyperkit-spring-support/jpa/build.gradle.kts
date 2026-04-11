@@ -6,6 +6,7 @@ plugins {
     `maven-publish`
     id("org.jreleaser")
     id("io.spring.dependency-management")
+    id("solutions.sulfura.hyperkit-dto-generator") version "6.2.2-RELEASE"
 }
 
 java {
@@ -151,4 +152,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+hyperKitDtoGenerator {
+    rootOutputPath = "src/test/java"
 }

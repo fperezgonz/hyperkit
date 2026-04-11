@@ -9,7 +9,7 @@ import java.util.List;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_entity_with_primitive_list")
-@Dto(destPackageName = "cloud.sulfura.time.r.generated.temp.dto")
+@Dto(destPackageName = "solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto")
 public class EntityWithPrimitiveList {
 
     @DtoProperty

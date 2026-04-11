@@ -11,6 +11,9 @@ import solutions.sulfura.hyperkit.dtos.ListOperation;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.*;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.CompanyDto;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.ManyToOneEntityDto;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.OneToManyEntityDto;
 
 import java.util.HashSet;
 import java.util.List;

@@ -16,6 +16,7 @@ import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
 import solutions.sulfura.hyperkit.utils.spring.TransactionUtils;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.*;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

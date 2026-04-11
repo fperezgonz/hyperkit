@@ -6,7 +6,7 @@ import solutions.sulfura.hyperkit.dtos.annotations.Dto;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_entity_company")
-@Dto(destPackageName = "cloud.sulfura.time.r.generated.temp.dto")
+@Dto(destPackageName = "solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto")
 public class Company {
 
     @Id

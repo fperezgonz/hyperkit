@@ -9,7 +9,7 @@ import java.util.Set;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_one_to_many")
-@Dto
+@Dto(destPackageName = "solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto")
 public class OneToManyEntity {
 
     @DtoProperty

@@ -9,7 +9,7 @@ import java.io.Serializable;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(name = "test_many_to_one")
-@Dto
+@Dto(destPackageName = "solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto")
 public class ManyToOneEntity implements Serializable {
 
     @DtoProperty

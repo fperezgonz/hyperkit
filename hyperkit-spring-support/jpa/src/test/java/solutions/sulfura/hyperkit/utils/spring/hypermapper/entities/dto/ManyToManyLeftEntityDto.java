@@ -1,20 +1,21 @@
-package solutions.sulfura.hyperkit.utils.spring.hypermapper.entities;
+package solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
-import solutions.sulfura.hyperkit.dtos.ListOperation;
-import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
-import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
-import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
-import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
-import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
-import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
-
 import java.util.Set;
+import solutions.sulfura.hyperkit.dtos.ValueWrapper;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.ManyToManyRightEntityDto;
+import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
+import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
+import solutions.sulfura.hyperkit.dtos.ListOperation;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.ManyToManyLeftEntity;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
+import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
-@SuppressWarnings("unused")
 @DtoFor(ManyToManyLeftEntity.class)
 public class ManyToManyLeftEntityDto implements Dto<ManyToManyLeftEntity> {
 
@@ -30,6 +31,7 @@ public class ManyToManyLeftEntityDto implements Dto<ManyToManyLeftEntity> {
     }
 
     public static class Builder {
+
         ValueWrapper<Long> id = ValueWrapper.empty();
         ValueWrapper<String> name = ValueWrapper.empty();
         ValueWrapper<Set<ListOperation<ManyToManyRightEntityDto>>> rights = ValueWrapper.empty();
@@ -38,35 +40,44 @@ public class ManyToManyLeftEntityDto implements Dto<ManyToManyLeftEntity> {
             return new Builder();
         }
 
-        public Builder id(final ValueWrapper<Long> id) {
+        public Builder id(final ValueWrapper<Long> id){
             this.id = id == null ? ValueWrapper.empty() : id;
             return this;
         }
 
-        public Builder name(final ValueWrapper<String> name) {
+        public Builder name(final ValueWrapper<String> name){
             this.name = name == null ? ValueWrapper.empty() : name;
             return this;
         }
 
-        public Builder rights(final ValueWrapper<Set<ListOperation<ManyToManyRightEntityDto>>> rights) {
+        public Builder rights(final ValueWrapper<Set<ListOperation<ManyToManyRightEntityDto>>> rights){
             this.rights = rights == null ? ValueWrapper.empty() : rights;
             return this;
         }
 
+
         public ManyToManyLeftEntityDto build() {
-            ManyToManyLeftEntityDto dto = new ManyToManyLeftEntityDto();
-            dto.id = id;
-            dto.name = name;
-            dto.rights = rights;
-            return dto;
+
+            ManyToManyLeftEntityDto instance = new ManyToManyLeftEntityDto();
+            instance.id = id;
+            instance.name = name;
+            instance.rights = rights;
+
+            return instance;
+
         }
+
     }
 
     @ProjectionFor(ManyToManyLeftEntityDto.class)
     public static class Projection extends DtoProjection<ManyToManyLeftEntityDto> {
+
         public FieldConf id;
         public FieldConf name;
         public DtoListFieldConf<ManyToManyRightEntityDto.Projection> rights;
+
+        public Projection() {
+        }
 
         public void applyProjectionTo(ManyToManyLeftEntityDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
@@ -74,7 +85,30 @@ public class ManyToManyLeftEntityDto implements Dto<ManyToManyLeftEntity> {
             dto.rights = ProjectionUtils.getProjectedValue(dto.rights, this.rights);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return  Objects.equals(id, that.id)
+                       && Objects.equals(name, that.name)
+                       && Objects.equals(rights, that.rights);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id,
+                    name,
+                    rights);
+        }
+
         public static class Builder {
+
             FieldConf id;
             FieldConf name;
             DtoListFieldConf<ManyToManyRightEntityDto.Projection> rights;
@@ -83,50 +117,57 @@ public class ManyToManyLeftEntityDto implements Dto<ManyToManyLeftEntity> {
                 return new Builder();
             }
 
-            public Builder id(final FieldConf id) {
+            public Builder id(final FieldConf id){
                 this.id = id;
                 return this;
             }
 
-            public Builder id(final Presence p) {
-                this.id = FieldConf.of(p);
+            public Builder id(final Presence presence){
+                id = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder name(final FieldConf name) {
+            public Builder name(final FieldConf name){
                 this.name = name;
                 return this;
             }
 
-            public Builder name(final Presence p) {
-                this.name = FieldConf.of(p);
+            public Builder name(final Presence presence){
+                name = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder rights(final DtoListFieldConf<ManyToManyRightEntityDto.Projection> rights) {
+            public Builder rights(final DtoListFieldConf<ManyToManyRightEntityDto.Projection> rights){
                 this.rights = rights;
                 return this;
             }
 
-            public Builder rights(final Presence presence, final ManyToManyRightEntityDto.Projection projection) {
-                this.rights = DtoListFieldConf.of(presence, projection);
+            public Builder rights(final Presence presence, final ManyToManyRightEntityDto.Projection projection){
+                rights = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
-            public Projection build() {
-                Projection p = new Projection();
-                p.id = id;
-                p.name = name;
-                p.rights = rights;
-                return p;
+            public ManyToManyLeftEntityDto.Projection build() {
+
+                ManyToManyLeftEntityDto.Projection instance = new ManyToManyLeftEntityDto.Projection();
+                instance.id = id;
+                instance.name = name;
+                instance.rights = rights;
+
+                return instance;
+
             }
+
         }
+
     }
 
     public static class DtoModel {
+
         public static final String _id = "id";
         public static final String _name = "name";
         public static final String _rights = "rights";
+
     }
 
 }

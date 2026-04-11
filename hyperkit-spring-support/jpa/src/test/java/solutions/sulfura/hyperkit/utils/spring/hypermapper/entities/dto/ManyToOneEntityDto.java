@@ -1,17 +1,20 @@
-package solutions.sulfura.hyperkit.utils.spring.hypermapper.entities;
+package solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
-import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
-import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
-import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.OneToManyEntityDto;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.dto.CompanyDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
+import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
+import solutions.sulfura.hyperkit.utils.spring.hypermapper.entities.ManyToOneEntity;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
+import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
+import java.util.Objects;
 
-@SuppressWarnings("unused")
 @DtoFor(ManyToOneEntity.class)
 public class ManyToOneEntityDto implements Dto<ManyToOneEntity> {
 
@@ -40,30 +43,31 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity> {
             return new Builder();
         }
 
-        public Builder id(final ValueWrapper<Long> id) {
+        public Builder id(final ValueWrapper<Long> id){
             this.id = id == null ? ValueWrapper.empty() : id;
             return this;
         }
 
-        public Builder name(final ValueWrapper<String> name) {
+        public Builder name(final ValueWrapper<String> name){
             this.name = name == null ? ValueWrapper.empty() : name;
             return this;
         }
 
-        public Builder description(final ValueWrapper<String> description) {
+        public Builder description(final ValueWrapper<String> description){
             this.description = description == null ? ValueWrapper.empty() : description;
             return this;
         }
 
-        public Builder oneToManyEntity(final ValueWrapper<OneToManyEntityDto> oneToManyEntity) {
+        public Builder oneToManyEntity(final ValueWrapper<OneToManyEntityDto> oneToManyEntity){
             this.oneToManyEntity = oneToManyEntity == null ? ValueWrapper.empty() : oneToManyEntity;
             return this;
         }
 
-        public Builder company(final ValueWrapper<CompanyDto> company) {
+        public Builder company(final ValueWrapper<CompanyDto> company){
             this.company = company == null ? ValueWrapper.empty() : company;
             return this;
         }
+
 
         public ManyToOneEntityDto build() {
 
@@ -86,7 +90,7 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity> {
         public FieldConf id;
         public FieldConf name;
         public FieldConf description;
-        public DtoFieldConf<OneToManyEntityDto.Projection> oneToManyEntity;
+        public DtoFieldConf<CompanyDto.Projection> oneToManyEntity;
         public DtoFieldConf<CompanyDto.Projection> company;
 
         public Projection() {
@@ -100,71 +104,97 @@ public class ManyToOneEntityDto implements Dto<ManyToOneEntity> {
             dto.company = ProjectionUtils.getProjectedValue(dto.company, this.company);
         }
 
+        @Override
+        public boolean equals(Object o) {
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Projection that = (Projection) o;
+
+            return  Objects.equals(id, that.id)
+                       && Objects.equals(name, that.name)
+                       && Objects.equals(description, that.description)
+                       && Objects.equals(oneToManyEntity, that.oneToManyEntity)
+                       && Objects.equals(company, that.company);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id,
+                    name,
+                    description,
+                    oneToManyEntity,
+                    company);
+        }
+
         public static class Builder {
 
             FieldConf id;
             FieldConf name;
             FieldConf description;
-            DtoFieldConf<OneToManyEntityDto.Projection> oneToManyEntity;
+            DtoFieldConf<CompanyDto.Projection> oneToManyEntity;
             DtoFieldConf<CompanyDto.Projection> company;
 
             public static Builder newInstance() {
                 return new Builder();
             }
 
-            public Builder id(final FieldConf id) {
+            public Builder id(final FieldConf id){
                 this.id = id;
                 return this;
             }
 
-            public Builder id(final Presence presence) {
+            public Builder id(final Presence presence){
                 id = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder name(final FieldConf name) {
+            public Builder name(final FieldConf name){
                 this.name = name;
                 return this;
             }
 
-            public Builder name(final Presence presence) {
+            public Builder name(final Presence presence){
                 name = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder description(final FieldConf description) {
+            public Builder description(final FieldConf description){
                 this.description = description;
                 return this;
             }
 
-            public Builder description(final Presence presence) {
+            public Builder description(final Presence presence){
                 description = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder oneToManyEntity(final DtoFieldConf<OneToManyEntityDto.Projection> oneToManyEntity) {
+            public Builder oneToManyEntity(final DtoFieldConf<CompanyDto.Projection> oneToManyEntity){
                 this.oneToManyEntity = oneToManyEntity;
                 return this;
             }
 
-            public Builder oneToManyEntity(final Presence presence, final OneToManyEntityDto.Projection projection) {
+            public Builder oneToManyEntity(final Presence presence, final CompanyDto.Projection projection){
                 oneToManyEntity = DtoFieldConf.of(presence, projection);
                 return this;
             }
 
-            public Builder company(final DtoFieldConf<CompanyDto.Projection> company) {
+            public Builder company(final DtoFieldConf<CompanyDto.Projection> company){
                 this.company = company;
                 return this;
             }
 
-            public Builder company(final Presence presence, final CompanyDto.Projection projection) {
+            public Builder company(final Presence presence, final CompanyDto.Projection projection){
                 company = DtoFieldConf.of(presence, projection);
                 return this;
             }
 
-            public Projection build() {
+            public ManyToOneEntityDto.Projection build() {
 
-                Projection instance = new Projection();
+                ManyToOneEntityDto.Projection instance = new ManyToOneEntityDto.Projection();
                 instance.id = id;
                 instance.name = name;
                 instance.description = description;
