@@ -285,8 +285,7 @@ public class HyperMapper<C> {
 
             } else {
 
-                DtoMapper dtoMapper = selectDtoMapper(value, contextInfo, visitedEntities);
-                toEntityResult = dtoMapper.mapDto(value, contextInfo, visitedEntities);
+                toEntityResult = mapDto(value, contextInfo, visitedEntities);
 
             }
 
@@ -319,7 +318,7 @@ public class HyperMapper<C> {
 
     @NonNull
     public <T> MappingResult<T> mapDto(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
-        DtoMapper dtoMapper = selectDtoMapper(dto, contextInfo, visitedEntities);
+        DtoMapper dtoMapper = selectDtoMapper(dto);
         return dtoMapper.mapDto(dto, contextInfo, visitedEntities);
     }
 
@@ -363,7 +362,7 @@ public class HyperMapper<C> {
 
 
     @NonNull
-    <T> DtoMapper<T, C> selectDtoMapper(@NonNull Dto<T> dto, C contextInfo, @NonNull HashMap<Object, Object> visitedEntities) {
+    <T> DtoMapper<T, C> selectDtoMapper(@NonNull Dto<T> dto) {
         if (isEntityType(dto.getSourceClass())) {
             return this::mapDtoToEntity;
         } else {
@@ -546,8 +545,7 @@ public class HyperMapper<C> {
             } else if (unwrappedValue instanceof Dto<?> dtoAux) {
 
                 // If the value is a Dto, map it to an entity and handle the relationships
-                DtoMapper dtoMapper = selectDtoMapper(dtoAux, contextInfo, visitedEntities);
-                MappingResult toEntityResult = dtoMapper.mapDto(dtoAux, contextInfo, visitedEntities);
+                MappingResult toEntityResult = mapDto(dtoAux, contextInfo, visitedEntities);
                 unwrappedValue = toEntityResult.mappedValue;
                 result.addAll(toEntityResult.persistenceQueue);
 
