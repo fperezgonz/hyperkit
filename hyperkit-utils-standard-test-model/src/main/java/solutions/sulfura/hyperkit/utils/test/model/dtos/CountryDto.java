@@ -1,44 +1,38 @@
 package solutions.sulfura.hyperkit.utils.test.model.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
-import java.util.Set;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.test.model.scm.inventory.Warehouse;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
-import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
-import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.dtos.ListOperation;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.WarehouseLocationDto;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.ContactDto;
-import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
-import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
+import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
+import solutions.sulfura.hyperkit.utils.test.model.contact.Country;
+import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 import java.util.Objects;
 
-@DtoFor(Warehouse.class)
-public class WarehouseDto implements Dto<Warehouse> {
+@DtoFor(Country.class)
+public class CountryDto implements Dto<Country> {
 
     public ValueWrapper<String> id = ValueWrapper.empty();
     public ValueWrapper<String> name = ValueWrapper.empty();
-    public ValueWrapper<Set<ListOperation<WarehouseLocationDto>>> locations = ValueWrapper.empty();
-    public ValueWrapper<ContactDto> contact = ValueWrapper.empty();
+    public ValueWrapper<String> isoAlpha2 = ValueWrapper.empty();
+    public ValueWrapper<String> isoAlpha3 = ValueWrapper.empty();
 
-    public WarehouseDto() {
+    public CountryDto() {
     }
 
-    public Class<Warehouse> getSourceClass() {
-        return Warehouse.class;
+    public Class<Country> getSourceClass() {
+        return Country.class;
     }
 
     public static class Builder {
 
         ValueWrapper<String> id = ValueWrapper.empty();
         ValueWrapper<String> name = ValueWrapper.empty();
-        ValueWrapper<Set<ListOperation<WarehouseLocationDto>>> locations = ValueWrapper.empty();
-        ValueWrapper<ContactDto> contact = ValueWrapper.empty();
+        ValueWrapper<String> isoAlpha2 = ValueWrapper.empty();
+        ValueWrapper<String> isoAlpha3 = ValueWrapper.empty();
 
         public static Builder newInstance() {
             return new Builder();
@@ -54,24 +48,24 @@ public class WarehouseDto implements Dto<Warehouse> {
             return this;
         }
 
-        public Builder locations(final ValueWrapper<Set<ListOperation<WarehouseLocationDto>>> locations){
-            this.locations = locations == null ? ValueWrapper.empty() : locations;
+        public Builder isoAlpha2(final ValueWrapper<String> isoAlpha2){
+            this.isoAlpha2 = isoAlpha2 == null ? ValueWrapper.empty() : isoAlpha2;
             return this;
         }
 
-        public Builder contact(final ValueWrapper<ContactDto> contact){
-            this.contact = contact == null ? ValueWrapper.empty() : contact;
+        public Builder isoAlpha3(final ValueWrapper<String> isoAlpha3){
+            this.isoAlpha3 = isoAlpha3 == null ? ValueWrapper.empty() : isoAlpha3;
             return this;
         }
 
 
-        public WarehouseDto build() {
+        public CountryDto build() {
 
-            WarehouseDto instance = new WarehouseDto();
+            CountryDto instance = new CountryDto();
             instance.id = id;
             instance.name = name;
-            instance.locations = locations;
-            instance.contact = contact;
+            instance.isoAlpha2 = isoAlpha2;
+            instance.isoAlpha3 = isoAlpha3;
 
             return instance;
 
@@ -79,22 +73,22 @@ public class WarehouseDto implements Dto<Warehouse> {
 
     }
 
-    @ProjectionFor(WarehouseDto.class)
-    public static class Projection extends DtoProjection<WarehouseDto> {
+    @ProjectionFor(CountryDto.class)
+    public static class Projection extends DtoProjection<CountryDto> {
 
         public FieldConf id;
         public FieldConf name;
-        public DtoListFieldConf<WarehouseLocationDto.Projection> locations;
-        public DtoFieldConf<ContactDto.Projection> contact;
+        public FieldConf isoAlpha2;
+        public FieldConf isoAlpha3;
 
         public Projection() {
         }
 
-        public void applyProjectionTo(WarehouseDto dto) throws DtoProjectionException {
+        public void applyProjectionTo(CountryDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
             dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
-            dto.locations = ProjectionUtils.getProjectedValue(dto.locations, this.locations);
-            dto.contact = ProjectionUtils.getProjectedValue(dto.contact, this.contact);
+            dto.isoAlpha2 = ProjectionUtils.getProjectedValue(dto.isoAlpha2, this.isoAlpha2);
+            dto.isoAlpha3 = ProjectionUtils.getProjectedValue(dto.isoAlpha3, this.isoAlpha3);
         }
 
         @Override
@@ -108,8 +102,8 @@ public class WarehouseDto implements Dto<Warehouse> {
 
             return  Objects.equals(id, that.id)
                        && Objects.equals(name, that.name)
-                       && Objects.equals(locations, that.locations)
-                       && Objects.equals(contact, that.contact);
+                       && Objects.equals(isoAlpha2, that.isoAlpha2)
+                       && Objects.equals(isoAlpha3, that.isoAlpha3);
 
         }
 
@@ -117,16 +111,16 @@ public class WarehouseDto implements Dto<Warehouse> {
         public int hashCode() {
             return Objects.hash(id,
                     name,
-                    locations,
-                    contact);
+                    isoAlpha2,
+                    isoAlpha3);
         }
 
         public static class Builder {
 
             FieldConf id;
             FieldConf name;
-            DtoListFieldConf<WarehouseLocationDto.Projection> locations;
-            DtoFieldConf<ContactDto.Projection> contact;
+            FieldConf isoAlpha2;
+            FieldConf isoAlpha3;
 
             public static Builder newInstance() {
                 return new Builder();
@@ -152,33 +146,33 @@ public class WarehouseDto implements Dto<Warehouse> {
                 return this;
             }
 
-            public Builder locations(final DtoListFieldConf<WarehouseLocationDto.Projection> locations){
-                this.locations = locations;
+            public Builder isoAlpha2(final FieldConf isoAlpha2){
+                this.isoAlpha2 = isoAlpha2;
                 return this;
             }
 
-            public Builder locations(final Presence presence, final WarehouseLocationDto.Projection projection){
-                locations = DtoListFieldConf.of(presence, projection);
+            public Builder isoAlpha2(final Presence presence){
+                isoAlpha2 = FieldConf.of(presence);
                 return this;
             }
 
-            public Builder contact(final DtoFieldConf<ContactDto.Projection> contact){
-                this.contact = contact;
+            public Builder isoAlpha3(final FieldConf isoAlpha3){
+                this.isoAlpha3 = isoAlpha3;
                 return this;
             }
 
-            public Builder contact(final Presence presence, final ContactDto.Projection projection){
-                contact = DtoFieldConf.of(presence, projection);
+            public Builder isoAlpha3(final Presence presence){
+                isoAlpha3 = FieldConf.of(presence);
                 return this;
             }
 
-            public WarehouseDto.Projection build() {
+            public CountryDto.Projection build() {
 
-                WarehouseDto.Projection instance = new WarehouseDto.Projection();
+                CountryDto.Projection instance = new CountryDto.Projection();
                 instance.id = id;
                 instance.name = name;
-                instance.locations = locations;
-                instance.contact = contact;
+                instance.isoAlpha2 = isoAlpha2;
+                instance.isoAlpha3 = isoAlpha3;
 
                 return instance;
 
@@ -192,8 +186,8 @@ public class WarehouseDto implements Dto<Warehouse> {
 
         public static final String _id = "id";
         public static final String _name = "name";
-        public static final String _locations = "locations";
-        public static final String _contact = "contact";
+        public static final String _isoAlpha2 = "isoAlpha2";
+        public static final String _isoAlpha3 = "isoAlpha3";
 
     }
 

@@ -1,9 +1,9 @@
 package solutions.sulfura.hyperkit.utils.test.model.scm.inventory;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import solutions.sulfura.hyperkit.dtos.annotations.Dto;
+import solutions.sulfura.hyperkit.utils.test.model.contact.Address;
+import solutions.sulfura.hyperkit.utils.test.model.contact.Contact;
 
 import java.util.Set;
 
@@ -15,5 +15,7 @@ public class Warehouse {
     public String name;
     @OneToMany(mappedBy = "warehouse")
     public Set<WarehouseLocation> locations;
+    @OneToOne
+    public Contact contact;
 
 }

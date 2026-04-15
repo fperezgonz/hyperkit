@@ -1,43 +1,37 @@
 package solutions.sulfura.hyperkit.utils.test.model.dtos;
 
 import solutions.sulfura.hyperkit.dtos.Dto;
-import java.util.Set;
 import solutions.sulfura.hyperkit.dtos.ValueWrapper;
-import solutions.sulfura.hyperkit.utils.test.model.scm.inventory.Warehouse;
+import solutions.sulfura.hyperkit.utils.test.model.dtos.ContactDto;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.DtoProjectionException;
+import solutions.sulfura.hyperkit.utils.test.model.contact.ContactPhone;
+import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.annotations.DtoFor;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionFor;
-import solutions.sulfura.hyperkit.dtos.ListOperation;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.WarehouseLocationDto;
-import solutions.sulfura.hyperkit.utils.test.model.dtos.ContactDto;
-import solutions.sulfura.hyperkit.dtos.projection.fields.DtoListFieldConf;
-import solutions.sulfura.hyperkit.dtos.projection.DtoProjection;
 import solutions.sulfura.hyperkit.dtos.projection.fields.DtoFieldConf;
 import solutions.sulfura.hyperkit.dtos.projection.ProjectionUtils;
 import solutions.sulfura.hyperkit.dtos.projection.fields.FieldConf.Presence;
 import java.util.Objects;
 
-@DtoFor(Warehouse.class)
-public class WarehouseDto implements Dto<Warehouse> {
+@DtoFor(ContactPhone.class)
+public class ContactPhoneDto implements Dto<ContactPhone> {
 
     public ValueWrapper<String> id = ValueWrapper.empty();
-    public ValueWrapper<String> name = ValueWrapper.empty();
-    public ValueWrapper<Set<ListOperation<WarehouseLocationDto>>> locations = ValueWrapper.empty();
+    public ValueWrapper<String> number = ValueWrapper.empty();
     public ValueWrapper<ContactDto> contact = ValueWrapper.empty();
 
-    public WarehouseDto() {
+    public ContactPhoneDto() {
     }
 
-    public Class<Warehouse> getSourceClass() {
-        return Warehouse.class;
+    public Class<ContactPhone> getSourceClass() {
+        return ContactPhone.class;
     }
 
     public static class Builder {
 
         ValueWrapper<String> id = ValueWrapper.empty();
-        ValueWrapper<String> name = ValueWrapper.empty();
-        ValueWrapper<Set<ListOperation<WarehouseLocationDto>>> locations = ValueWrapper.empty();
+        ValueWrapper<String> number = ValueWrapper.empty();
         ValueWrapper<ContactDto> contact = ValueWrapper.empty();
 
         public static Builder newInstance() {
@@ -49,13 +43,8 @@ public class WarehouseDto implements Dto<Warehouse> {
             return this;
         }
 
-        public Builder name(final ValueWrapper<String> name){
-            this.name = name == null ? ValueWrapper.empty() : name;
-            return this;
-        }
-
-        public Builder locations(final ValueWrapper<Set<ListOperation<WarehouseLocationDto>>> locations){
-            this.locations = locations == null ? ValueWrapper.empty() : locations;
+        public Builder number(final ValueWrapper<String> number){
+            this.number = number == null ? ValueWrapper.empty() : number;
             return this;
         }
 
@@ -65,12 +54,11 @@ public class WarehouseDto implements Dto<Warehouse> {
         }
 
 
-        public WarehouseDto build() {
+        public ContactPhoneDto build() {
 
-            WarehouseDto instance = new WarehouseDto();
+            ContactPhoneDto instance = new ContactPhoneDto();
             instance.id = id;
-            instance.name = name;
-            instance.locations = locations;
+            instance.number = number;
             instance.contact = contact;
 
             return instance;
@@ -79,21 +67,19 @@ public class WarehouseDto implements Dto<Warehouse> {
 
     }
 
-    @ProjectionFor(WarehouseDto.class)
-    public static class Projection extends DtoProjection<WarehouseDto> {
+    @ProjectionFor(ContactPhoneDto.class)
+    public static class Projection extends DtoProjection<ContactPhoneDto> {
 
         public FieldConf id;
-        public FieldConf name;
-        public DtoListFieldConf<WarehouseLocationDto.Projection> locations;
+        public FieldConf number;
         public DtoFieldConf<ContactDto.Projection> contact;
 
         public Projection() {
         }
 
-        public void applyProjectionTo(WarehouseDto dto) throws DtoProjectionException {
+        public void applyProjectionTo(ContactPhoneDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
-            dto.name = ProjectionUtils.getProjectedValue(dto.name, this.name);
-            dto.locations = ProjectionUtils.getProjectedValue(dto.locations, this.locations);
+            dto.number = ProjectionUtils.getProjectedValue(dto.number, this.number);
             dto.contact = ProjectionUtils.getProjectedValue(dto.contact, this.contact);
         }
 
@@ -107,8 +93,7 @@ public class WarehouseDto implements Dto<Warehouse> {
             Projection that = (Projection) o;
 
             return  Objects.equals(id, that.id)
-                       && Objects.equals(name, that.name)
-                       && Objects.equals(locations, that.locations)
+                       && Objects.equals(number, that.number)
                        && Objects.equals(contact, that.contact);
 
         }
@@ -116,16 +101,14 @@ public class WarehouseDto implements Dto<Warehouse> {
         @Override
         public int hashCode() {
             return Objects.hash(id,
-                    name,
-                    locations,
+                    number,
                     contact);
         }
 
         public static class Builder {
 
             FieldConf id;
-            FieldConf name;
-            DtoListFieldConf<WarehouseLocationDto.Projection> locations;
+            FieldConf number;
             DtoFieldConf<ContactDto.Projection> contact;
 
             public static Builder newInstance() {
@@ -142,23 +125,13 @@ public class WarehouseDto implements Dto<Warehouse> {
                 return this;
             }
 
-            public Builder name(final FieldConf name){
-                this.name = name;
+            public Builder number(final FieldConf number){
+                this.number = number;
                 return this;
             }
 
-            public Builder name(final Presence presence){
-                name = FieldConf.of(presence);
-                return this;
-            }
-
-            public Builder locations(final DtoListFieldConf<WarehouseLocationDto.Projection> locations){
-                this.locations = locations;
-                return this;
-            }
-
-            public Builder locations(final Presence presence, final WarehouseLocationDto.Projection projection){
-                locations = DtoListFieldConf.of(presence, projection);
+            public Builder number(final Presence presence){
+                number = FieldConf.of(presence);
                 return this;
             }
 
@@ -172,12 +145,11 @@ public class WarehouseDto implements Dto<Warehouse> {
                 return this;
             }
 
-            public WarehouseDto.Projection build() {
+            public ContactPhoneDto.Projection build() {
 
-                WarehouseDto.Projection instance = new WarehouseDto.Projection();
+                ContactPhoneDto.Projection instance = new ContactPhoneDto.Projection();
                 instance.id = id;
-                instance.name = name;
-                instance.locations = locations;
+                instance.number = number;
                 instance.contact = contact;
 
                 return instance;
@@ -191,8 +163,7 @@ public class WarehouseDto implements Dto<Warehouse> {
     public static class DtoModel {
 
         public static final String _id = "id";
-        public static final String _name = "name";
-        public static final String _locations = "locations";
+        public static final String _number = "number";
         public static final String _contact = "contact";
 
     }
