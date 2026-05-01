@@ -19,6 +19,6 @@ public class User {
     @ManyToMany
     public Set<Authorization> authorizations;
     @OneToMany(mappedBy = "user")
-    public Set<Account> account;
+    public Set<Account> accounts;
 
 }

@@ -24,7 +24,7 @@ public class UserDto implements Dto<User> {
     public ValueWrapper<String> username = ValueWrapper.empty();
     public ValueWrapper<String> email = ValueWrapper.empty();
     public ValueWrapper<Set<ListOperation<AuthorizationDto>>> authorizations = ValueWrapper.empty();
-    public ValueWrapper<Set<ListOperation<AccountDto>>> account = ValueWrapper.empty();
+    public ValueWrapper<Set<ListOperation<AccountDto>>> accounts = ValueWrapper.empty();
 
     public UserDto() {
     }
@@ -39,7 +39,7 @@ public class UserDto implements Dto<User> {
         ValueWrapper<String> username = ValueWrapper.empty();
         ValueWrapper<String> email = ValueWrapper.empty();
         ValueWrapper<Set<ListOperation<AuthorizationDto>>> authorizations = ValueWrapper.empty();
-        ValueWrapper<Set<ListOperation<AccountDto>>> account = ValueWrapper.empty();
+        ValueWrapper<Set<ListOperation<AccountDto>>> accounts = ValueWrapper.empty();
 
         public static Builder newInstance() {
             return new Builder();
@@ -65,8 +65,8 @@ public class UserDto implements Dto<User> {
             return this;
         }
 
-        public Builder account(final ValueWrapper<Set<ListOperation<AccountDto>>> account){
-            this.account = account == null ? ValueWrapper.empty() : account;
+        public Builder accounts(final ValueWrapper<Set<ListOperation<AccountDto>>> accounts){
+            this.accounts = accounts == null ? ValueWrapper.empty() : accounts;
             return this;
         }
 
@@ -78,7 +78,7 @@ public class UserDto implements Dto<User> {
             instance.username = username;
             instance.email = email;
             instance.authorizations = authorizations;
-            instance.account = account;
+            instance.accounts = accounts;
 
             return instance;
 
@@ -93,7 +93,7 @@ public class UserDto implements Dto<User> {
         public FieldConf username;
         public FieldConf email;
         public DtoListFieldConf<AccountDto.Projection> authorizations;
-        public DtoListFieldConf<AccountDto.Projection> account;
+        public DtoListFieldConf<AccountDto.Projection> accounts;
 
         public Projection() {
         }
@@ -103,7 +103,7 @@ public class UserDto implements Dto<User> {
             dto.username = ProjectionUtils.getProjectedValue(dto.username, this.username);
             dto.email = ProjectionUtils.getProjectedValue(dto.email, this.email);
             dto.authorizations = ProjectionUtils.getProjectedValue(dto.authorizations, this.authorizations);
-            dto.account = ProjectionUtils.getProjectedValue(dto.account, this.account);
+            dto.accounts = ProjectionUtils.getProjectedValue(dto.accounts, this.accounts);
         }
 
         @Override
@@ -119,7 +119,7 @@ public class UserDto implements Dto<User> {
                        && Objects.equals(username, that.username)
                        && Objects.equals(email, that.email)
                        && Objects.equals(authorizations, that.authorizations)
-                       && Objects.equals(account, that.account);
+                       && Objects.equals(accounts, that.accounts);
 
         }
 
@@ -129,7 +129,7 @@ public class UserDto implements Dto<User> {
                     username,
                     email,
                     authorizations,
-                    account);
+                    accounts);
         }
 
         public static class Builder {
@@ -138,7 +138,7 @@ public class UserDto implements Dto<User> {
             FieldConf username;
             FieldConf email;
             DtoListFieldConf<AccountDto.Projection> authorizations;
-            DtoListFieldConf<AccountDto.Projection> account;
+            DtoListFieldConf<AccountDto.Projection> accounts;
 
             public static Builder newInstance() {
                 return new Builder();
@@ -184,13 +184,13 @@ public class UserDto implements Dto<User> {
                 return this;
             }
 
-            public Builder account(final DtoListFieldConf<AccountDto.Projection> account){
-                this.account = account;
+            public Builder accounts(final DtoListFieldConf<AccountDto.Projection> accounts){
+                this.accounts = accounts;
                 return this;
             }
 
-            public Builder account(final Presence presence, final AccountDto.Projection projection){
-                account = DtoListFieldConf.of(presence, projection);
+            public Builder accounts(final Presence presence, final AccountDto.Projection projection){
+                accounts = DtoListFieldConf.of(presence, projection);
                 return this;
             }
 
@@ -201,7 +201,7 @@ public class UserDto implements Dto<User> {
                 instance.username = username;
                 instance.email = email;
                 instance.authorizations = authorizations;
-                instance.account = account;
+                instance.accounts = accounts;
 
                 return instance;
 
@@ -217,7 +217,7 @@ public class UserDto implements Dto<User> {
         public static final String _username = "username";
         public static final String _email = "email";
         public static final String _authorizations = "authorizations";
-        public static final String _account = "account";
+        public static final String _accounts = "accounts";
 
     }
 
