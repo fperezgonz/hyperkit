@@ -1,5 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,8 @@ import solutions.sulfura.hyperkit.dtos.ValueWrapper;
 import solutions.sulfura.hyperkit.utils.spring.HyperRepositoryImpl;
 import solutions.sulfura.hyperkit.utils.test.model.contact.*;
 import solutions.sulfura.hyperkit.utils.test.model.dtos.*;
+import solutions.sulfura.hyperkit.utils.test.model.scm.Supplier;
+import solutions.sulfura.hyperkit.utils.test.model.scm.shipments.Shipment;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,6 +31,8 @@ public class EmbeddedObjectTest {
     private HyperMapper<Object> hyperMapper;
     @Autowired
     private HyperRepositoryImpl<Object> hyperRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     Country createAndPersistTestCountry(String id, String name) {
         Country country = new Country();
@@ -103,6 +109,9 @@ public class EmbeddedObjectTest {
         Country countryFrance = createAndPersistTestCountry("FRA", "FRANCE");
         hyperRepository.save(countryFrance, null);
 
+        entityManager.flush();
+        entityManager.clear();
+
         // When mapping the new data through a Dto
         ContactDto contactDto = ContactDto.Builder.newInstance()
                 .id(ValueWrapper.of(contact.id))
@@ -152,6 +161,47 @@ public class EmbeddedObjectTest {
                 .contact);
 
 
+    }
+
+    @Test
+    @DisplayName("Nested embedded objects with relationships are mapped and persisted correctly")
+    @Transactional
+    public void testNestedEmbeddedRelationship() {
+        // Given a Supplier entity
+        Supplier supplier = new Supplier();
+        supplier.id = "SUP1";
+        supplier.name = "Test Supplier";
+        hyperRepository.save(supplier, null);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // And a ShipmentDto with a nested SupplierRef referencing the Supplier
+        SupplierRefDto supplierRefDto = SupplierRefDto.Builder.newInstance()
+                .name(ValueWrapper.of("Supplier Reference"))
+                .supplier(ValueWrapper.of(SupplierDto.Builder.newInstance()
+                        .id(ValueWrapper.of(supplier.id))
+                        .build()))
+                .build();
+
+        ShipmentDto shipmentDto = ShipmentDto.Builder.newInstance()
+                .id(ValueWrapper.of("SHIP1"))
+                .trackingNumber(ValueWrapper.of("TRK123"))
+                .status(ValueWrapper.of("PENDING"))
+                .supplierRef(ValueWrapper.of(supplierRefDto))
+                .build();
+
+        // When persisting the ShipmentDto
+        Shipment persistedShipment = hyperMapper.persistDtoToEntity(shipmentDto, null);
+
+        // Then the Shipment and its nested SupplierRef relationship are persisted correctly
+        assertNotNull(persistedShipment);
+        assertEquals("SHIP1", persistedShipment.id);
+        assertNotNull(persistedShipment.supplierRef);
+        assertNotNull(persistedShipment.supplierRef.supplier);
+        assertEquals(supplier.id, persistedShipment.supplierRef.supplier.id);
+        assertNotNull(persistedShipment.supplierRef.supplier);
+        assertEquals(supplier.id, persistedShipment.supplierRef.supplier.id);
     }
 
 

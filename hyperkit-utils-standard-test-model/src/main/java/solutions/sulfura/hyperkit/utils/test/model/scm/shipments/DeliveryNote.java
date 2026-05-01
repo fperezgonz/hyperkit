@@ -15,6 +15,7 @@ public class DeliveryNote {
     @GeneratedValue
     public String id;
     public String year;
+    public String code;
     @OneToMany(mappedBy = "deliveryNote")
     public Set<DeliveryNoteLine> deliveryNoteLines;
 }

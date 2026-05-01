@@ -21,6 +21,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
 
     public ValueWrapper<String> id = ValueWrapper.empty();
     public ValueWrapper<String> year = ValueWrapper.empty();
+    public ValueWrapper<String> code = ValueWrapper.empty();
     public ValueWrapper<Set<ListOperation<DeliveryNoteLineDto>>> deliveryNoteLines = ValueWrapper.empty();
 
     public DeliveryNoteDto() {
@@ -34,6 +35,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
 
         ValueWrapper<String> id = ValueWrapper.empty();
         ValueWrapper<String> year = ValueWrapper.empty();
+        ValueWrapper<String> code = ValueWrapper.empty();
         ValueWrapper<Set<ListOperation<DeliveryNoteLineDto>>> deliveryNoteLines = ValueWrapper.empty();
 
         public static Builder newInstance() {
@@ -50,6 +52,11 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
             return this;
         }
 
+        public Builder code(final ValueWrapper<String> code){
+            this.code = code == null ? ValueWrapper.empty() : code;
+            return this;
+        }
+
         public Builder deliveryNoteLines(final ValueWrapper<Set<ListOperation<DeliveryNoteLineDto>>> deliveryNoteLines){
             this.deliveryNoteLines = deliveryNoteLines == null ? ValueWrapper.empty() : deliveryNoteLines;
             return this;
@@ -61,6 +68,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
             DeliveryNoteDto instance = new DeliveryNoteDto();
             instance.id = id;
             instance.year = year;
+            instance.code = code;
             instance.deliveryNoteLines = deliveryNoteLines;
 
             return instance;
@@ -74,6 +82,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
 
         public FieldConf id;
         public FieldConf year;
+        public FieldConf code;
         public DtoListFieldConf<DeliveryNoteLineDto.Projection> deliveryNoteLines;
 
         public Projection() {
@@ -82,6 +91,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
         public void applyProjectionTo(DeliveryNoteDto dto) throws DtoProjectionException {
             dto.id = ProjectionUtils.getProjectedValue(dto.id, this.id);
             dto.year = ProjectionUtils.getProjectedValue(dto.year, this.year);
+            dto.code = ProjectionUtils.getProjectedValue(dto.code, this.code);
             dto.deliveryNoteLines = ProjectionUtils.getProjectedValue(dto.deliveryNoteLines, this.deliveryNoteLines);
         }
 
@@ -96,6 +106,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
 
             return  Objects.equals(id, that.id)
                        && Objects.equals(year, that.year)
+                       && Objects.equals(code, that.code)
                        && Objects.equals(deliveryNoteLines, that.deliveryNoteLines);
 
         }
@@ -104,6 +115,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
         public int hashCode() {
             return Objects.hash(id,
                     year,
+                    code,
                     deliveryNoteLines);
         }
 
@@ -111,6 +123,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
 
             FieldConf id;
             FieldConf year;
+            FieldConf code;
             DtoListFieldConf<DeliveryNoteLineDto.Projection> deliveryNoteLines;
 
             public static Builder newInstance() {
@@ -137,6 +150,16 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
                 return this;
             }
 
+            public Builder code(final FieldConf code){
+                this.code = code;
+                return this;
+            }
+
+            public Builder code(final Presence presence){
+                code = FieldConf.of(presence);
+                return this;
+            }
+
             public Builder deliveryNoteLines(final DtoListFieldConf<DeliveryNoteLineDto.Projection> deliveryNoteLines){
                 this.deliveryNoteLines = deliveryNoteLines;
                 return this;
@@ -152,6 +175,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
                 DeliveryNoteDto.Projection instance = new DeliveryNoteDto.Projection();
                 instance.id = id;
                 instance.year = year;
+                instance.code = code;
                 instance.deliveryNoteLines = deliveryNoteLines;
 
                 return instance;
@@ -166,6 +190,7 @@ public class DeliveryNoteDto implements Dto<DeliveryNote> {
 
         public static final String _id = "id";
         public static final String _year = "year";
+        public static final String _code = "code";
         public static final String _deliveryNoteLines = "deliveryNoteLines";
 
     }
