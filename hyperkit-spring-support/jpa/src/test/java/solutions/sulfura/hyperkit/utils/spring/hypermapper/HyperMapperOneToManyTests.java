@@ -359,14 +359,16 @@ public class HyperMapperOneToManyTests {
         );
 
         // When mapping the dto to an entity
-        DeliveryNote result = dtoMapper.mapDtoToEntity(deliveryNoteDto, null).mappedValue();
+        DeliveryNote result = dtoMapper.persistDtoToEntity(deliveryNoteDto, null);
+
+        entityManager.flush();
 
         // Then the delivery note and the lines match the dtos
         assertEquals(deliveryNote.id, result.id, "The retrieved delivery note should be the same as the one that was persisted");
         assertEquals(2, result.deliveryNoteLines.size(), "Delivery note should have one line");
         DeliveryNoteLine deliveryNoteLine1 = result.deliveryNoteLines.stream().filter(l -> "L1".equals(l.code)).findFirst().orElseThrow();
         assertEquals(result, deliveryNoteLine1.deliveryNote, "Child should reference the same parent instance");
-        DeliveryNoteLine deliveryNoteLine2 = result.deliveryNoteLines.stream().filter(l -> "L1".equals(l.code)).findFirst().orElseThrow();
+        DeliveryNoteLine deliveryNoteLine2 = result.deliveryNoteLines.stream().filter(l -> "L2".equals(l.code)).findFirst().orElseThrow();
         assertEquals(result, deliveryNoteLine2.deliveryNote, "Child should reference the same parent instance");
 
     }

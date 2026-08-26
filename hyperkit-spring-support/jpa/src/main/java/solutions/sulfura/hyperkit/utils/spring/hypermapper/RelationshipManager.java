@@ -1,6 +1,7 @@
 package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
 import jakarta.persistence.*;
+import org.hibernate.Hibernate;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import solutions.sulfura.hyperkit.utils.spring.hypermapper.HyperMapperPropertyUtils.PropertyDescriptor;
@@ -57,7 +58,9 @@ public class RelationshipManager {
         }
 
         //Add the element to the collection
-        collection.add(childEntity);
+        if (Hibernate.isInitialized(collection)) {
+            collection.add(childEntity);
+        }
 
     }
 
@@ -65,7 +68,9 @@ public class RelationshipManager {
 
         @SuppressWarnings("unchecked")
         Collection<Object> collection = ((Collection<Object>) HyperMapperPropertyUtils.getProperty(parentEntity, propertyName));
-        collection.remove(childEntity);
+        if (Hibernate.isInitialized(collection)) {
+            collection.remove(childEntity);
+        }
 
     }
 
