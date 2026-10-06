@@ -298,7 +298,7 @@ public class HyperMapper<C> {
                 OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
                 String mappedBy = oneToManyAnnotation == null ? null : oneToManyAnnotation.mappedBy();
 
-                if (mappedBy != null) {
+                if (mappedBy != null && !mappedBy.isEmpty()) {
                     HyperMapperPropertyUtils.setProperty(childEntity, mappedBy, entity);
                 }
 
