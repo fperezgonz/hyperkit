@@ -57,8 +57,11 @@ public class RelationshipManager {
 
         }
 
-        //Add the element to the collection
-        if (Hibernate.isInitialized(collection)) {
+
+        Annotation ownerAnnotation = getOwnerAnnotation(propertyDescriptor);
+
+        // If it is an owning relationship side or the collection is already initialized
+        if (ownerAnnotation != null || Hibernate.isInitialized(collection)) {
             collection.add(childEntity);
         }
 
@@ -66,9 +69,18 @@ public class RelationshipManager {
 
     public static void removeFromCollectionProperty(Object parentEntity, String propertyName, Object childEntity) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
+        var propertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptor(parentEntity, propertyName);
         @SuppressWarnings("unchecked")
         Collection<Object> collection = ((Collection<Object>) HyperMapperPropertyUtils.getProperty(parentEntity, propertyName));
-        if (Hibernate.isInitialized(collection)) {
+
+        if (collection == null) {
+            return;
+        }
+
+        Annotation ownerAnnotation = getOwnerAnnotation(propertyDescriptor);
+
+        // If it is an owning relationship side or the collection is already initialized
+        if (ownerAnnotation != null || Hibernate.isInitialized(collection)) {
             collection.remove(childEntity);
         }
 
@@ -114,12 +126,15 @@ public class RelationshipManager {
 
     }
 
-    public static Annotation getNonOwnerAnnotation(PropertyDescriptor entityPropertyDescriptor) {
+    public @Nullable static Annotation getNonOwnerAnnotation(@NonNull PropertyDescriptor entityPropertyDescriptor) {
 
         var oneToManyAnnotation = entityPropertyDescriptor.getAnnotation(OneToMany.class);
 
         if (oneToManyAnnotation != null) {
+            var mappedBy = oneToManyAnnotation.mappedBy();
+            if (mappedBy != null && !mappedBy.isEmpty()) {
             return oneToManyAnnotation;
+        }
         }
 
         var oneToOneAnnotation = entityPropertyDescriptor.getAnnotation(OneToOne.class);
@@ -145,7 +160,7 @@ public class RelationshipManager {
 
     }
 
-    public static Annotation getOwnerAnnotation(PropertyDescriptor entity1PropertyDescriptor) {
+    public static @Nullable Annotation getOwnerAnnotation(@NonNull PropertyDescriptor entity1PropertyDescriptor) {
 
         var manyToOneAnnotation = entity1PropertyDescriptor.getAnnotation(ManyToOne.class);
 
@@ -165,12 +180,21 @@ public class RelationshipManager {
 
         }
 
-        // ManyToMany owning side (JoinTable present on field)
+        // ManyToMany owning side (no mappedBy present)
         var manyToManyAnnotation = entity1PropertyDescriptor.getAnnotation(ManyToMany.class);
         if (manyToManyAnnotation != null) {
             // If mappedBy is empty, this side owns the relationship
             if (manyToManyAnnotation.mappedBy() == null || manyToManyAnnotation.mappedBy().isEmpty()) {
                 return manyToManyAnnotation;
+            }
+        }
+
+        // OneToMany owning side (no mappedBy present)
+        var oneToManyAnnotation = entity1PropertyDescriptor.getAnnotation(OneToMany.class);
+        if (oneToManyAnnotation != null) {
+            // If mappedBy is empty, this side owns the relationship
+            if (oneToManyAnnotation.mappedBy() == null || oneToManyAnnotation.mappedBy().isEmpty()) {
+                return oneToManyAnnotation;
             }
         }
 
@@ -308,16 +332,19 @@ public class RelationshipManager {
         Object owner;
         PropertyDescriptor ownerPropertyDescriptor;
         Object nonOwner;
-        PropertyDescriptor nonOwnerPropertyDescriptor;
+        PropertyDescriptor nonOwnerPropertyDescriptor = null;
 
         if (relationshipData.isRelationshipOwner(entity1, propertyPath1)) {
             owner = entity1;
             ownerPropertyDescriptor = propertyDescriptor;
             nonOwner = entity2;
-            nonOwnerPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(relationshipData.nonOwningEntityClass, relationshipData.nonOwningPropertyPath);
+            if (relationshipData.nonOwningPropertyPath != null) {
+                nonOwnerPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(relationshipData.nonOwningEntityClass, relationshipData.nonOwningPropertyPath);
+            }
         } else {
             owner = entity2;
             ownerPropertyDescriptor = HyperMapperPropertyUtils.getPropertyDescriptorAtPropertyPath(relationshipData.owningEntityClass, relationshipData.owningPropertyPath);
+            assert ownerPropertyDescriptor != null;
             nonOwner = entity1;
             nonOwnerPropertyDescriptor = propertyDescriptor;
         }

@@ -48,7 +48,7 @@ public class HyperMapper<C> {
      * @throws HyperMapperException if the entity is not found in the repository
      */
     @NonNull
-    protected <T, I> T findEntityInRepository(@NonNull Class<T> entityClass, @NonNull I entityId, C contextInfo) {
+    protected <T, I extends Serializable> T findEntityInRepository(@NonNull Class<T> entityClass, @NonNull I entityId, C contextInfo) {
         return hyperRepository.findById(entityClass, entityId, contextInfo)
                 .orElseThrow(() -> new HyperMapperException("Entity of type " + entityClass + " with id " + entityId + " not found in repository"));
     }
@@ -302,7 +302,7 @@ public class HyperMapper<C> {
                 OneToMany oneToManyAnnotation = HyperMapperPropertyUtils.getPropertyDescriptor(entity, dtoPropertyDescriptor.getPropertyName()).getAnnotation(OneToMany.class);
                 String mappedBy = oneToManyAnnotation == null ? null : oneToManyAnnotation.mappedBy();
 
-                if (mappedBy != null) {
+                if (mappedBy != null && !mappedBy.isEmpty()) {
                     HyperMapperPropertyUtils.setProperty(childEntity, mappedBy, entity);
                 }
 

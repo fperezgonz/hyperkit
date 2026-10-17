@@ -2,6 +2,8 @@ package solutions.sulfura.hyperkit.utils.spring.hypermapper;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Id;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -120,7 +122,7 @@ public class HyperMapperPropertyUtils {
         return getPropertyDescriptor(instance.getClass(), propertyName);
     }
 
-    public static PropertyDescriptor getPropertyDescriptorAtPropertyPath(Class<?> type, String propertyPath) {
+    public static @Nullable PropertyDescriptor getPropertyDescriptorAtPropertyPath(@NonNull Class<?> type, @NonNull String propertyPath) {
 
         String[] propertyNames = propertyPath.split("\\.");
         PropertyDescriptor propertyDescriptor = null;
